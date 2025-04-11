@@ -1,8 +1,8 @@
 import "./services/sentry-init.js";
-import * as Sentry from "@sentry/node";
+import Sentry from "@sentry/node";
 
-import * as fs from "fs-extra";
-import * as extract from "extract-zip";
+import fs from "fs-extra";
+import extract from "extract-zip";
 import { spawn } from "child_process";
 
 import {
@@ -136,7 +136,11 @@ async function main() {
         });
 
         process.on("close", (code) => {
-          code > 0 ? reject(stderr) : resolve(stdout);
+          if (code > 0) {
+            reject(stderr);
+          } else {
+            resolve(stdout);
+          }
         });
       });
 
@@ -171,7 +175,7 @@ async function main() {
             filename: lcbImagesById[recipeImage.imageid].filename,
             imageindex: parseInt(recipeImage.imageindex, 10),
           });
-        } catch (e) {
+        } catch (_e) {
           // Do nothing
         }
         return acc;
@@ -195,7 +199,7 @@ async function main() {
           acc[lcbRecipeTechnique.recipeid].push(
             lcbTechniquesById[lcbRecipeTechnique.techniqueid],
           );
-        } catch (e) {
+        } catch (_e) {
           // Do nothing
         }
         return acc;

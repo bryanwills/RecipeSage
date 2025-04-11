@@ -1,5 +1,12 @@
-import { Component, Input, Output, EventEmitter } from "@angular/core";
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  type AfterViewInit,
+} from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 
 const LAST_USED_MEAL_VAR = "lastUsedMeal";
 
@@ -7,8 +14,9 @@ const LAST_USED_MEAL_VAR = "lastUsedMeal";
   selector: "select-meal",
   templateUrl: "select-meal.component.html",
   styleUrls: ["./select-meal.component.scss"],
+  imports: [...SHARED_UI_IMPORTS],
 })
-export class SelectMealComponent {
+export class SelectMealComponent implements AfterViewInit {
   @Input() meal = "";
   @Output() mealChange = new EventEmitter();
 

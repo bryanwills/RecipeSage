@@ -5,6 +5,7 @@ import {
   EventEmitter,
   ElementRef,
   ViewChild,
+  type AfterViewInit,
 } from "@angular/core";
 import { TRPCService } from "../../services/trpc.service";
 import {
@@ -12,6 +13,7 @@ import {
   IS_SELFHOST,
 } from "@recipesage/frontend/src/environments/environment";
 import type { SessionDTO } from "@recipesage/prisma";
+import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 
 const getGoogleRef = () => {
   return (window as any).google;
@@ -21,8 +23,9 @@ const getGoogleRef = () => {
   selector: "sign-in-with-google",
   templateUrl: "sign-in-with-google.component.html",
   styleUrls: ["./sign-in-with-google.component.scss"],
+  imports: [...SHARED_UI_IMPORTS],
 })
-export class SignInWithGoogleComponent {
+export class SignInWithGoogleComponent implements AfterViewInit {
   // Can be use to hide the button and only use for prompting
   @Input() showButton = true;
   @Input() autoPrompt = false;
