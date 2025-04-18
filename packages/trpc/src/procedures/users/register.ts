@@ -1,6 +1,6 @@
 import { prisma, SessionDTO } from "@recipesage/prisma";
 import { publicProcedure } from "../../trpc";
-import * as Sentry from "@sentry/node";
+import Sentry from "@sentry/node";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import {
@@ -34,7 +34,7 @@ export const register = publicProcedure
     let sanitizedEmail = "";
     try {
       sanitizedEmail = sanitizeUserEmail(input.email);
-    } catch (e) {
+    } catch (_e) {
       throw new TRPCError({
         code: "BAD_REQUEST",
         message: "Email is not in a valid format",

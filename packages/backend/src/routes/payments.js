@@ -1,13 +1,13 @@
-import * as express from "express";
+import express from "express";
 const router = express.Router();
-import * as Sentry from "@sentry/node";
+import Sentry from "@sentry/node";
 
 // DB
 import { sequelize, StripePayment } from "../models/index.js";
 
 // Service
 import * as MiddlewareService from "../services/middleware.js";
-import * as StripeService from "../services/stripe.js";
+import * as StripeService from "../services/stripe.ts";
 import * as SubscriptionService from "../services/subscriptions.js";
 
 // Util
