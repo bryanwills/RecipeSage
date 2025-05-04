@@ -9,7 +9,7 @@ import {
   StandardizedRecipeImportEntry,
 } from "@recipesage/util/server/db";
 import { JobMeta, prisma } from "@recipesage/prisma";
-import * as Sentry from "@sentry/node";
+import Sentry from "@sentry/node";
 import { z } from "zod";
 import { cleanLabelTitle, JOB_RESULT_CODES } from "@recipesage/util/shared";
 import { clipUrl, throttleDropPromise } from "@recipesage/util/server/general";
@@ -85,7 +85,7 @@ export const urlsHandler = defineHandler(
             ...clipResults,
             labels: userLabels,
           });
-        } catch (e) {
+        } catch (_e) {
           // Skip entry
         }
 

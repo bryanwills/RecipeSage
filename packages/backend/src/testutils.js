@@ -1,5 +1,5 @@
-import { expect } from "chai";
 import { v4 as uuid } from "uuid";
+import { expect } from "@jest/globals";
 
 import {
   User,
@@ -124,26 +124,41 @@ export const createMessage = (
   });
 };
 
-// Validates that fields match but we are not sending any additional private data
 export const secureUserMatch = (userHash, user) => {
-  expect(userHash.id).to.equal(user.id);
-  expect(userHash.name).to.equal(user.name);
-  expect(userHash.email).to.equal(user.email);
+  expect(userHash.id).toBe(user.id);
+  expect(userHash.name).toBe(user.name);
+  expect(userHash.email).toBe(user.email);
 
-  expect(Object.keys(userHash).length).to.equal(3);
+  expect(Object.keys(userHash).length).toBe(3);
 };
 
-// Validates that fields match but we are not sending any additional private data
 export const secureRecipeMatch = (recipeHash, recipe) => {
-  expect(recipeHash.id).to.equal(recipe.id);
-  expect(recipeHash.title).to.equal(recipe.title);
+  expect(recipeHash.id).toBe(recipe.id);
+  expect(recipeHash.title).toBe(recipe.title);
 
   let allowedFieldCount = 2;
   if (recipeHash.images) allowedFieldCount++;
 
-  expect(Object.keys(recipeHash).length).to.equal(allowedFieldCount);
+  expect(Object.keys(recipeHash).length).toBe(allowedFieldCount);
 };
 
 export const randomUuid = () => {
   return uuid();
 };
+
+export function superjsonResult(status) {
+  const s = new Error().stack.split("\n");
+  s.splice(1, 1);
+
+  return (err, res) => {
+    if ((res?.status || err.status) !== status) {
+      const e = new Error(
+        `Expected ${status}, got ${res?.status || err.status} resp: ${
+          res?.body ? JSON.stringify(res.body) : err.text
+        }`,
+      );
+      e.stack = e.stack.split("\n").splice(0, 1).concat(s).join("\n");
+      throw e;
+    }
+  };
+}
