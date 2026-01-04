@@ -9,7 +9,7 @@ import {
 } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 
-import { linkifyStr } from "~/utils/linkify";
+import { linkifyHtml } from "~/utils/linkify";
 import {
   RecipeService,
   ParsedInstruction,
@@ -177,7 +177,7 @@ export class RecipePage {
         .parseNotes(this.recipe.notes)
         .map((note) => ({
           ...note,
-          content: linkifyStr(note.content),
+          htmlContent: linkifyHtml(note.htmlContent),
         }));
     }
 
@@ -347,12 +347,10 @@ export class RecipePage {
     this.ingredients = this.recipeService.parseIngredients(
       this.recipe.ingredients,
       this.scale,
-      true,
     );
     this.instructions = this.recipeService.parseInstructions(
       this.recipe.instructions,
       this.scale,
-      true,
     );
   }
 

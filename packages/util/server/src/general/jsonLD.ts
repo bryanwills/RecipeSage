@@ -75,15 +75,13 @@ export const recipeToJSONLD = (recipe: RecipeSummary) =>
     ),
     name: recipe.title,
     prepTime: convertToISO8601Time(recipe.activeTime) || recipe.activeTime,
-    recipeIngredient: parseIngredients(recipe.ingredients, 1, false).map(
-      (el) => (el.isHeader ? `[${el.content}]` : el.content),
+    recipeIngredient: parseIngredients(recipe.ingredients, 1).map((el) =>
+      el.isHeader ? `[${el.content}]` : el.content,
     ),
-    recipeInstructions: parseInstructions(recipe.instructions, 1, false).map(
-      (el) => ({
-        "@type": el.isHeader ? "HowToSection" : "HowToStep",
-        text: el.isHeader ? `[${el.content}]` : el.content,
-      }),
-    ),
+    recipeInstructions: parseInstructions(recipe.instructions, 1).map((el) => ({
+      "@type": el.isHeader ? "HowToSection" : "HowToStep",
+      text: el.isHeader ? `[${el.content}]` : el.content,
+    })),
     recipeYield: recipe.yield,
     totalTime: convertToISO8601Time(recipe.totalTime) || recipe.totalTime,
     recipeCategory: (recipe.recipeLabels || []).map(

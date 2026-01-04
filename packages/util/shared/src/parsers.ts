@@ -6,6 +6,19 @@ import { unitNames } from "./units";
 const FractionJS =
   _FractionJS || (FractionJSModule as unknown as typeof _FractionJS);
 
+// Feature detection for negative lookahead support (needed for older Safari/browsers)
+let supportsNegativeLookahead = true;
+try {
+  new RegExp("(?<!\\\\)\\n");
+} catch (_e) {
+  supportsNegativeLookahead = false;
+}
+
+// Create line split regex based on browser support
+// With support: Preserve backslash-newline continuations
+// Without support: Fallback splits on all newlines (breaks line continuations but works on older browsers)
+const lineSplitRegex = supportsNegativeLookahead ? /(?<!\\)\r?\n/ : /\r?\n/;
+
 const fractionMatchers = {
   // Regex & replacement value by charcode
   189: [/ ?\u00BD/g, " 1/2"], // ½  \u00BD;
@@ -42,6 +55,20 @@ const replaceFractionsInText = (rawText: string): string => {
   });
 };
 
+// Convert backslash-newline to <br> or \n based on output format
+const convertEscapedLineContinuations = (
+  text: string,
+  htmlOutput: boolean,
+): string => {
+  const replacement = htmlOutput ? "<br>" : "\n";
+  return text.replace(/\\[\r]?\n/g, replacement);
+};
+
+// Strip newlines for shopping list grouping
+const stripNewlines = (text: string): string => {
+  return text.replace(/\n/g, " ");
+};
+
 // Starts with [, anything inbetween, ends with ]
 const headerRegexp = /^\[.*\]$/;
 
@@ -74,6 +101,7 @@ const stripNotes = (ingredient: string): string => {
 };
 
 export const getMeasurementsForIngredient = (ingredient: string): string[] => {
+  ingredient = stripNewlines(ingredient);
   const strippedIngredient = replaceFractionsInText(ingredient);
 
   return strippedIngredient
@@ -93,6 +121,7 @@ export const getMeasurementsForIngredient = (ingredient: string): string[] => {
  * A little older, consider seeing if stripIngredient works for your use-case instead
  */
 export const getTitleForIngredient = (ingredient: string): string => {
+  ingredient = stripNewlines(ingredient);
   const strippedIngredient = replaceFractionsInText(ingredient);
 
   const ingredientPartDelimiters = strippedIngredient.match(
@@ -122,6 +151,7 @@ export const getTitleForIngredient = (ingredient: string): string => {
  * 3 apples, blended => apples
  */
 export const stripIngredient = (ingredient: string): string => {
+  ingredient = stripNewlines(ingredient);
   const trimmed = replaceFractionsInText(ingredient)
     .trim()
     .replace(new RegExp(`^(${measurementRegexp.source})`), "")
@@ -148,10 +178,10 @@ const NUM_SCALED_DECIMAL_PLACES = 3;
 export const parseIngredients = (
   ingredients: string,
   scale: number,
-  boldify: boolean,
 ): {
   content: string;
   originalContent: string;
+  htmlContent: string;
   complete: boolean;
   isHeader: boolean;
   isRtl: boolean;
@@ -160,14 +190,14 @@ export const parseIngredients = (
 
   ingredients = replaceFractionsInText(ingredients);
 
-  const lines =
-    ingredients.match(/[^\r\n]+/g)?.map((match) => ({
-      content: match,
-      originalContent: match,
-      complete: false,
-      isHeader: false,
-      isRtl: isRtlText(match),
-    })) || [];
+  const lines = ingredients.split(lineSplitRegex).map((match) => ({
+    content: match,
+    originalContent: match,
+    htmlContent: match,
+    complete: false,
+    isHeader: false,
+    isRtl: isRtlText(match),
+  }));
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].content.trim(); // Trim only spaces (no newlines)
@@ -184,39 +214,36 @@ export const parseIngredients = (
 
     if (headerMatches && headerMatches.length > 0) {
       const header = headerMatches[0];
-      let headerContent = header.substring(1, header.length - 1); // Chop off brackets
+      const headerContent = header.substring(1, header.length - 1); // Chop off brackets
 
-      if (boldify)
-        headerContent = `<b class="sectionHeader">${headerContent}</b>`;
       lines[i].content = headerContent;
+      lines[i].htmlContent = `<b class="sectionHeader">${headerContent}</b>`;
       lines[i].isHeader = true;
     } else if (measurementMatches.find((el) => el && el.length > 0)) {
-      const updatedIngredientParts = measurementMatches.map((el, idx) => {
+      const processIngredientPart = (
+        el: RegExpMatchArray | null,
+        idx: number,
+        wrapInBold: boolean,
+      ): string => {
         if (!el) return ingredientParts[idx];
 
         try {
           const measurement = el[0];
-
           const measurementPartDelimiters =
             measurement.match(/(-)|( to )|( - )/g);
           const measurementParts = measurement.split(/-|to/);
 
           for (let j = 0; j < measurementParts.length; j++) {
-            // console.log(measurementParts[j].trim())
             const frac = new FractionJS(measurementParts[j].trim()).mul(scale);
             let scaledMeasurement = frac.toString(NUM_SCALED_DECIMAL_PLACES);
 
-            // Preserve original fraction format if entered
             if (measurementParts[j].indexOf("/") > -1) {
               scaledMeasurement = frac.toFraction(true);
             }
 
-            if (boldify)
-              measurementParts[j] =
-                '<b class="ingredientMeasurement">' +
-                scaledMeasurement +
-                "</b>";
-            else measurementParts[j] = scaledMeasurement.toString();
+            measurementParts[j] = wrapInBold
+              ? '<b class="ingredientMeasurement">' + scaledMeasurement + "</b>"
+              : scaledMeasurement.toString();
           }
 
           let updatedMeasurement: string;
@@ -238,22 +265,41 @@ export const parseIngredients = (
           console.error("failed to parse", e);
           return ingredientParts[idx];
         }
-      });
+      };
+
+      const plainIngredientParts = measurementMatches.map((el, idx) =>
+        processIngredientPart(el, idx, false),
+      );
+      const htmlIngredientParts = measurementMatches.map((el, idx) =>
+        processIngredientPart(el, idx, true),
+      );
 
       if (ingredientPartDelimiters) {
-        lines[i].content = updatedIngredientParts.reduce(
+        lines[i].content = plainIngredientParts.reduce(
+          (acc, ingredientPart, idx) =>
+            acc + ingredientPart + (ingredientPartDelimiters[idx] || ""),
+          "",
+        );
+        lines[i].htmlContent = htmlIngredientParts.reduce(
           (acc, ingredientPart, idx) =>
             acc + ingredientPart + (ingredientPartDelimiters[idx] || ""),
           "",
         );
         lines[i].isRtl = isRtlText(lines[i].originalContent);
       } else {
-        lines[i].content = updatedIngredientParts.join(" + ");
+        lines[i].content = plainIngredientParts.join(" + ");
+        lines[i].htmlContent = htmlIngredientParts.join(" + ");
         lines[i].isRtl = isRtlText(lines[i].originalContent);
       }
 
       lines[i].isHeader = false;
     }
+
+    lines[i].content = convertEscapedLineContinuations(lines[i].content, false);
+    lines[i].htmlContent = convertEscapedLineContinuations(
+      lines[i].htmlContent,
+      true,
+    );
   }
 
   return lines;
@@ -262,7 +308,7 @@ export const parseIngredients = (
 const scaleInstructionNumbers = (
   instructions: string,
   scale: number,
-  boldify: boolean,
+  htmlOutput: boolean,
 ): string =>
   instructions.replace(/\{([^{}]+)\}/g, (match, value) => {
     const trimmed = value.trim();
@@ -275,7 +321,7 @@ const scaleInstructionNumbers = (
         result = frac.toFraction(true);
       }
 
-      if (boldify) return `<b class="instructionMeasurement">${result}</b>`;
+      if (htmlOutput) return `<b class="instructionMeasurement">${result}</b>`;
       return result;
     } catch (e) {
       console.warn(value, match, e);
@@ -286,81 +332,97 @@ const scaleInstructionNumbers = (
 export const parseInstructions = (
   instructions: string,
   scale: number,
-  boldify: boolean,
 ): {
   content: string;
+  htmlContent: string;
   isHeader: boolean;
   count: number;
   complete: boolean;
   isRtl: boolean;
 }[] => {
   instructions = replaceFractionsInText(instructions);
-  instructions = scaleInstructionNumbers(instructions, scale, boldify);
+
+  const plainInstructions = scaleInstructionNumbers(instructions, scale, false);
+  const htmlInstructions = scaleInstructionNumbers(instructions, scale, true);
 
   // Starts with [, anything inbetween, ends with ]
   const headerRegexp = /^\[.*\]$/;
 
+  const plainLines = plainInstructions
+    .split(lineSplitRegex)
+    .filter((i) => i.trim().length);
+  const htmlLines = htmlInstructions
+    .split(lineSplitRegex)
+    .filter((i) => i.trim().length);
+
   let stepCount = 1;
-  return instructions
-    .split(/\r?\n/)
-    .filter((instruction) => instruction.trim().length)
-    .map((instruction) => {
-      const line = instruction.trim();
-      const headerMatches = line.match(headerRegexp);
+  return plainLines.map((instruction, idx) => {
+    const plainLine = instruction.trim();
+    const htmlLine = htmlLines[idx].trim();
+    const headerMatches = plainLine.match(headerRegexp);
 
-      if (headerMatches && headerMatches.length > 0) {
-        const header = headerMatches[0];
-        const headerContent = header.substring(1, header.length - 1); // Chop off brackets
+    if (headerMatches && headerMatches.length > 0) {
+      const plainHeader = plainLine.substring(1, plainLine.length - 1); // Chop off brackets
+      const htmlHeader = `<b class="sectionHeader">${htmlLine.substring(1, htmlLine.length - 1)}</b>`; // Chop off brackets
 
-        stepCount = 1;
+      stepCount = 1;
 
-        return {
-          content: headerContent,
-          isHeader: true,
-          count: 0,
-          complete: false,
-          isRtl: isRtlText(headerContent, true),
-        };
-      } else {
-        return {
-          content: line,
-          isHeader: false,
-          count: stepCount++,
-          complete: false,
-          isRtl: isRtlText(line, true),
-        };
-      }
-    });
+      return {
+        content: convertEscapedLineContinuations(plainHeader, false),
+        htmlContent: convertEscapedLineContinuations(htmlHeader, true),
+        isHeader: true,
+        count: 0,
+        complete: false,
+        isRtl: isRtlText(plainHeader, true),
+      };
+    } else {
+      return {
+        content: convertEscapedLineContinuations(plainLine, false),
+        htmlContent: convertEscapedLineContinuations(htmlLine, true),
+        isHeader: false,
+        count: stepCount++,
+        complete: false,
+        isRtl: isRtlText(plainLine, true),
+      };
+    }
+  });
 };
 
 export const parseNotes = (
   notes: string,
 ): {
   content: string;
+  htmlContent: string;
   isHeader: boolean;
   isRtl: boolean;
 }[] => {
   // Starts with [, anything inbetween, ends with ]
   const headerRegexp = /^\[.*\]$/;
 
-  return notes.split(/\r?\n/).map((note) => {
-    const line = note.trim();
-    const headerMatches = line.match(headerRegexp);
+  const plainLines = notes.split(lineSplitRegex);
+  const htmlLines = notes.split(lineSplitRegex);
+
+  return plainLines.map((note, idx) => {
+    const plainLine = note.trim();
+    const htmlLine = htmlLines[idx].trim();
+    const headerMatches = plainLine.match(headerRegexp);
 
     if (headerMatches && headerMatches.length > 0) {
-      const header = headerMatches[0];
-      const headerContent = header.substring(1, header.length - 1); // Chop off brackets
+      const plainHeader = plainLine.substring(1, plainLine.length - 1); // Chop off brackets
+      const htmlHeader = `<b class="sectionHeader">${htmlLine.substring(1, htmlLine.length - 1)}</b>`; // Chop off brackets
 
       return {
-        content: headerContent,
+        content: convertEscapedLineContinuations(plainHeader, false),
+        htmlContent: convertEscapedLineContinuations(htmlHeader, true),
         isHeader: true,
-        isRtl: isRtlText(headerContent),
+        isRtl: isRtlText(plainHeader),
       };
     } else {
       return {
-        content: line,
+        content: convertEscapedLineContinuations(plainLine, false),
+        htmlContent: convertEscapedLineContinuations(htmlLine, true),
         isHeader: false,
-        isRtl: isRtlText(line),
+        isRtl: isRtlText(plainLine),
       };
     }
   });
