@@ -68,6 +68,7 @@ jobs:
           environment:
             APP_VERSION: ci
             ENVIRONMENT: production
+            SOURCEMAP_UPLOAD: ${CIRCLE_TAG:+true}
   push_backend:
     resource_class: large
     docker:
@@ -117,7 +118,6 @@ jobs:
           command: (export APP_VERSION=${CIRCLE_TAG:=stg} && npx nx build frontend --skip-nx-cache)
           environment:
             ENVIRONMENT: production
-            SOURCEMAP_UPLOAD: true
       - run:
           name: move-frontend-build
           command: mv packages/frontend/www ./www
