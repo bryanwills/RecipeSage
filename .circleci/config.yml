@@ -57,7 +57,7 @@ jobs:
           command: npx prisma migrate dev
       - run:
           name: start api
-          command: npx ts-node --swc --project packages/backend/tsconfig.json packages/backend/src/bin/www.ts
+          command: npx ts-node --swc --project packages/backend/tsconfig.json packages/backend/src/main.ts
           background: true
       - run:
           name: wait for api
