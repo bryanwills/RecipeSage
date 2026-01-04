@@ -2,13 +2,13 @@
 
 import type { Job } from "@prisma/client";
 import { type JobMeta } from "@recipesage/prisma";
-import type { StandardizedRecipeImportEntry } from "@recipesage/util/server/db";
+import type { StandardizedRecipeImportEntry } from "../../../../db/index";
 import {
   ImportBadCredentialsError,
   importJobFailCommon,
   importJobFinishCommon,
   metrics,
-} from "@recipesage/util/server/general";
+} from "../../../index";
 import fetch from "node-fetch";
 import xmljs from "xml-js";
 import type { JobQueueItem } from "./JobQueueItem";

@@ -19,6 +19,8 @@ export * from "./jobs/importJobSetupCommon";
 
 export * from "./metrics";
 
+export * from "./queue";
+
 export * from "./clip";
 export * from "./sortRecipeImages";
 export * from "./fileTransformer";

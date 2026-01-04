@@ -4,7 +4,7 @@ import {
 } from "../../../defineHandler";
 import { z } from "zod";
 import { importJobSetupCommon } from "@recipesage/util/server/general";
-import { enqueueJob } from "@recipesage/queue-worker";
+import { enqueueJob } from "@recipesage/util/server/general";
 
 const schema = {
   body: z.object({
