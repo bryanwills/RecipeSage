@@ -83,7 +83,7 @@ export const upsertLabel = publicProcedure
 
       if (input.addToRecipeIds?.length) {
         const recipeIds = new Set(input.addToRecipeIds);
-        await prisma.recipeLabel.createMany({
+        await tx.recipeLabel.createMany({
           data: Array.from(recipeIds).map((recipeId) => ({
             recipeId,
             labelId: id,
