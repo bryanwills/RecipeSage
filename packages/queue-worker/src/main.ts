@@ -1,4 +1,4 @@
-import { jobQueueWorker } from ".";
+import { jobQueueWorker } from "@recipesage/util/server/general";
 
 jobQueueWorker.run();
 

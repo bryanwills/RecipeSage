@@ -2,26 +2,22 @@
   "name": "queue-worker",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/queue-worker/src",
-  "projectType": "library",
+  "projectType": "application",
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "main": "packages/queue-worker/src/index.ts",
-        "outputPath": "dist/packages/queue-worker",
-        "outputFileName": "main.js",
-        "tsConfig": "packages/queue-worker/tsconfig.lib.json",
-        "declaration": true,
-        "assets": [
-          {
-            "glob": "packages/queue-worker/README.md",
-            "input": ".",
-            "output": "."
-          }
-        ],
-        "platform": "node"
+        "main": "packages/queue-worker/src/main.ts",
+        "outputPath": "dist/apps/queue-worker",
+        "tsConfig": "packages/queue-worker/tsconfig.json",
+        "platform": "node",
+        "format": ["esm"],
+        "bundle": true,
+        "external": ["@sentry/profiling-node"],
+        "generatePackageJson": true,
+        "esbuildConfig": "packages/queue-worker/esbuild.config.js"
       },
       "configurations": {
         "development": {

@@ -4,12 +4,11 @@
  * Module dependencies.
  */
 
-import { app } from "../app";
+import { app } from "./app";
 import Debug from "debug";
 const debug = Debug("chefbook-backend:server");
-import { getRunningJobs } from "../services/job-tracker.js";
 import protocol from "http";
-import { jobQueueWorker } from "@recipesage/queue-worker";
+import { jobQueueWorker } from "@recipesage/util/server/general";
 
 /**
  * Get port from environment and store in Express.
@@ -80,17 +79,6 @@ function onListening() {
   debug("Listening on " + bind);
 }
 
-const exit = () => {
-  console.log("EXITING");
-  process.exit(0);
-};
-
-const attemptExit = () => {
-  const jobsWaiting = getRunningJobs().length;
-  console.log("Jobs waiting: ", jobsWaiting);
-  if (jobsWaiting === 0) exit();
-};
-
 const termHandler = async () => {
   if (process.env.NODE_ENV !== "production") {
     process.exit(0);
@@ -98,10 +86,7 @@ const termHandler = async () => {
 
   console.log("RECEIVED SIGNAL - CLOSING SERVER");
   server.close(() => {
-    console.log("SERVER CLOSED - RESTING");
-
-    setInterval(attemptExit, 5 * 1000); // Job check interval
-    setTimeout(exit, 300 * 1000); // Max job wait
+    process.exit(0);
   });
 };
 

@@ -6,7 +6,7 @@ import {
   JsonLD,
   jsonLDToStandardizedRecipeImportEntry,
   metrics,
-} from "@recipesage/util/server/general";
+} from "../../../index";
 import { downloadS3ToTemp } from "./shared/s3Download";
 import { readFile } from "fs/promises";
 import type { JobQueueItem } from "./JobQueueItem";

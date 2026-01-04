@@ -7,7 +7,7 @@ import multer from "multer";
 import { z } from "zod";
 import { importJobSetupCommon } from "@recipesage/util/server/general";
 import { ObjectTypes, writeBuffer } from "@recipesage/util/server/storage";
-import { enqueueJob } from "@recipesage/queue-worker";
+import { enqueueJob } from "@recipesage/util/server/general";
 
 const schema = {
   body: z

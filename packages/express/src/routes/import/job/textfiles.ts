@@ -7,7 +7,7 @@ import { createReadStream } from "fs";
 import { unlink } from "fs/promises";
 import { importJobSetupCommon } from "@recipesage/util/server/general";
 import { ObjectTypes, writeStream } from "@recipesage/util/server/storage";
-import { enqueueJob } from "@recipesage/queue-worker";
+import { enqueueJob } from "@recipesage/util/server/general";
 import { z } from "zod";
 import { BadRequestError } from "../../../errors";
 

@@ -15,11 +15,11 @@
         "bundle": true,
         "minify": false,
         "external": ["@sentry/profiling-node"],
-        "main": "packages/backend/src/app.ts",
-        "tsConfig": "packages/backend/tsconfig.app.json",
+        "main": "packages/backend/src/main.ts",
+        "tsConfig": "packages/backend/tsconfig.json",
         "assets": ["packages/backend/src/assets"],
         "generatePackageJson": true,
-        "esbuildConfig": "packages/backend/esbuild.config.ts"
+        "esbuildConfig": "packages/backend/esbuild.config.js"
       },
       "configurations": {
         "development": {},

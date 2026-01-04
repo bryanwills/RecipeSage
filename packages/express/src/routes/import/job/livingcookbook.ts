@@ -9,7 +9,7 @@ import { unlink } from "fs/promises";
 import { z } from "zod";
 import { importJobSetupCommon } from "@recipesage/util/server/general";
 import { ObjectTypes, writeStream } from "@recipesage/util/server/storage";
-import { enqueueJob } from "@recipesage/queue-worker";
+import { enqueueJob } from "@recipesage/util/server/general";
 
 const schema = {
   query: z.object({

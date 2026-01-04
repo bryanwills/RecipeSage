@@ -1,15 +1,12 @@
 import type { Job } from "@prisma/client";
 import { type JobMeta } from "@recipesage/prisma";
-import type { StandardizedRecipeImportEntry } from "@recipesage/util/server/db";
+import type { StandardizedRecipeImportEntry } from "../../../../db/index";
 import {
   importJobFailCommon,
   importJobFinishCommon,
   metrics,
-} from "@recipesage/util/server/general";
-import {
-  textToRecipe,
-  TextToRecipeInputType,
-} from "@recipesage/util/server/ml";
+} from "../../../index";
+import { textToRecipe, TextToRecipeInputType } from "../../../../ml/index";
 import { downloadS3ToTemp } from "./shared/s3Download";
 import { readdir, readFile, mkdtempDisposable } from "fs/promises";
 import extract from "extract-zip";
