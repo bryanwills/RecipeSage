@@ -3,6 +3,7 @@ import {
   SendEmailCommand,
   SendEmailCommandInput,
 } from "@aws-sdk/client-ses";
+import dedent from "ts-dedent";
 
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || "";
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || "";
@@ -25,8 +26,6 @@ export const sendMail = async (
   html: string,
   plain: string,
 ) => {
-  if (!ENABLE) return;
-
   const params: SendEmailCommandInput = {
     Destination: {
       CcAddresses: ccAddresses,
@@ -51,6 +50,25 @@ export const sendMail = async (
     Source: '"RecipeSage" <noreply@recipesage.com>',
     ReplyToAddresses: ["julian@recipesage.com"],
   };
+
+  if (
+    process.env.NODE_ENV === "development" ||
+    process.env.NODE_ENV === "selfhost"
+  ) {
+    console.log(dedent`
+      ======= sendEmail =======
+      To: ${toAddresses.join(", ")}
+      Cc: ${ccAddresses.join(", ")}
+      Subject: ${subject}
+      HTML:
+      ${html}
+      Text:
+      ${plain}
+      =======  =======
+    `);
+  }
+
+  if (!ENABLE) return;
 
   await ses.send(
     new SendEmailCommand({
