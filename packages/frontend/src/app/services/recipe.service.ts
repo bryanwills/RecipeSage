@@ -47,6 +47,7 @@ export interface Recipe extends BaseRecipe {
 export interface ParsedIngredient {
   content: string;
   originalContent: string;
+  htmlContent: string;
   isHeader: boolean;
   complete: boolean;
   isRtl: boolean;
@@ -54,6 +55,7 @@ export interface ParsedIngredient {
 
 export interface ParsedInstruction {
   content: string;
+  htmlContent: string;
   isHeader: boolean;
   complete: boolean;
   count: number;
@@ -62,6 +64,7 @@ export interface ParsedInstruction {
 
 export interface ParsedNote {
   content: string;
+  htmlContent: string;
   isHeader: boolean;
   isRtl: boolean;
 }
@@ -399,20 +402,12 @@ export class RecipeService {
     });
   }
 
-  parseIngredients(
-    ingredients: string,
-    scale: number,
-    boldify: boolean,
-  ): ParsedIngredient[] {
-    return parseIngredients(ingredients, scale, boldify);
+  parseIngredients(ingredients: string, scale: number): ParsedIngredient[] {
+    return parseIngredients(ingredients, scale);
   }
 
-  parseInstructions(
-    instructions: string,
-    scale: number,
-    boldify: boolean,
-  ): ParsedInstruction[] {
-    return parseInstructions(instructions, scale, boldify);
+  parseInstructions(instructions: string, scale: number): ParsedInstruction[] {
+    return parseInstructions(instructions, scale);
   }
 
   parseNotes(notes: string): ParsedNote[] {

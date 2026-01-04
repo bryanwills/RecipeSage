@@ -44,6 +44,13 @@
       "options": {
         "maxWarnings": 0
       }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../../coverage/packages/util/shared"
+      }
     }
   }
 }

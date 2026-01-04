@@ -106,12 +106,10 @@ router.get(
           recipe.instructions = SharedUtils.parseInstructions(
             sanitizeHtml(recipe.instructions),
             modifiers.scale,
-            true,
           );
           recipe.ingredients = SharedUtils.parseIngredients(
             sanitizeHtml(recipe.ingredients),
             modifiers.scale,
-            true,
           );
           recipe.notes = SharedUtils.parseNotes(sanitizeHtml(recipe.notes));
 

@@ -146,12 +146,10 @@ const recipeToSchema = async (
   const parsedInstructions = parseInstructions(
     sanitizeHtml(recipe.instructions || ""),
     1,
-    false,
   );
   const parsedIngredients = parseIngredients(
     sanitizeHtml(recipe.ingredients || ""),
     1,
-    false,
   );
   const parsedNotes = parseNotes(sanitizeHtml(recipe.notes || ""));
   if (recipe.ingredients && recipe.instructions) {

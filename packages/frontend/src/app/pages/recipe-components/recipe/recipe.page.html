@@ -195,7 +195,7 @@
                 let ingredientIdx = $index
               ) {
                 <p
-                  [innerHTML]="ingredient.content"
+                  [innerHTML]="ingredient.htmlContent"
                   dir="auto"
                   class="ingredient ion-text-wrap"
                   [ngClass]="{
@@ -234,9 +234,11 @@
               ) {
                 <p class="instruction ion-text-wrap" dir="auto">
                   @if (instruction.isHeader) {
-                    <span>
-                      <b class="sectionHeader">{{ instruction.content }}</b>
-                    </span>
+                    <span
+                      class="sectionHeader"
+                      [innerHTML]="instruction.htmlContent"
+                      dir="auto"
+                    ></span>
                   }
                   @if (!instruction.isHeader) {
                     <span
@@ -251,7 +253,7 @@
                       <b>{{ instruction.count }} &nbsp;</b>
                       <span
                         class="instructionContent"
-                        [innerHTML]="instruction.content"
+                        [innerHTML]="instruction.htmlContent"
                         dir="auto"
                       ></span>
                     </span>
@@ -278,7 +280,7 @@
               @for (note of notes; track note; let noteIdx = $index) {
                 <p
                   dir="auto"
-                  [innerHTML]="note.content"
+                  [innerHTML]="note.htmlContent"
                   [ngClass]="{ header: note.isHeader }"
                   class="ion-text-wrap"
                 ></p>
