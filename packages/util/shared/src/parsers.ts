@@ -128,7 +128,7 @@ export const getTitleForIngredient = (ingredient: string): string => {
     new RegExp(multipartQuantifierRegexp, "ig"),
   );
 
-  return strippedIngredient
+  const processedParts = strippedIngredient
     .split(multipartQuantifierRegexp)
     .map((ingredientPart) => {
       return stripNotes(ingredientPart).replace(
@@ -136,14 +136,19 @@ export const getTitleForIngredient = (ingredient: string): string => {
         "",
       );
     })
-    .reduce(
-      (acc, ingredientPart, idx) =>
-        acc +
-        ingredientPart +
-        (ingredientPartDelimiters ? ingredientPartDelimiters[idx] || "" : ""),
-      "",
+    .map((part, idx) => ({
+      part: part.trim(),
+      delimiter: ingredientPartDelimiters
+        ? ingredientPartDelimiters[idx]
+        : null,
+    }))
+    .filter(({ part }) => part.length > 0);
+
+  return processedParts
+    .map(({ part, delimiter }, idx) =>
+      idx < processedParts.length - 1 && delimiter ? part + delimiter : part,
     )
-    .trim();
+    .join("");
 };
 
 /**
