@@ -35,7 +35,7 @@ services:
       - grocery-categorizer
     build:
       context: .
-      dockerfile: ./production.Dockerfile
+      dockerfile: ./Dockerfile
     volumes:
       - ./packages:/app/packages
       - ./.credentials:/app/.credentials
