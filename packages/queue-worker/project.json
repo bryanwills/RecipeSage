@@ -13,7 +13,7 @@
         "outputPath": "dist/apps/queue-worker",
         "tsConfig": "packages/queue-worker/tsconfig.json",
         "platform": "node",
-        "format": ["esm"],
+        "format": ["cjs"],
         "bundle": true,
         "external": ["@sentry/profiling-node"],
         "generatePackageJson": true,
