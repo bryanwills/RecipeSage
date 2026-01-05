@@ -74,6 +74,7 @@ services:
       - GROCERY_CATEGORIZER_URL=http://grocery-categorizer:8000/
       - OTEL_LOG_LEVEL=info
       - FIREBASE_CREDENTIALS_PATH=/app/.credentials/firebase.json
+      - RECIPECLIPPER_MINISERVER_URL=http://recipeclipper-miniserver:3000/
     env_file:
       - ./.env
     stop_grace_period: 1s
@@ -121,6 +122,9 @@ services:
     stop_grace_period: 1s
   grocery-categorizer:
     image: julianpoy/ingredient-categorizer:latest
+    stop_grace_period: 1s
+  recipeclipper-miniserver:
+    image: julianpoy/recipeclipper-miniserver:latest
     stop_grace_period: 1s
 
 volumes:
