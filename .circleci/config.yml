@@ -19,7 +19,7 @@ jobs:
   build_and_test:
     resource_class: large
     docker:
-      - image: cimg/node:24.10
+      - image: cimg/node:24.12
         environment:
           RS_TEST_DB_USERNAME: chefbook
           RS_TEST_DB_PASSWORD: admin
@@ -45,7 +45,7 @@ jobs:
           POSTGRES_USER: chefbook
           POSTGRES_PASSWORD: admin
           POSTGRES_DB: chefbook_test
-      - image: redis
+      - image: valkey/valkey
     steps:
       - checkout
       - install-dependencies
@@ -53,26 +53,38 @@ jobs:
           name: prettier
           command: npx prettier --check .
       - run:
+          name: lint, typecheck, build
+          command: npx nx run-many --targets=build,lint,typecheck --output-style=static
+          environment:
+            APP_VERSION: ci
+            ENVIRONMENT: production
+            SOURCEMAP_UPLOAD: ${CIRCLE_TAG:+true}
+      - run:
           name: migrate
           command: npx prisma migrate dev
       - run:
           name: start api
-          command: npx ts-node --swc --project packages/backend/tsconfig.json packages/backend/src/main.ts
+          command: node dist/apps/backend/main.cjs
+          background: true
+      - run:
+          name: start queue-worker
+          command: PORT=3001 node dist/apps/queue-worker/main.cjs
           background: true
       - run:
           name: wait for api
           command: dockerize -wait tcp://localhost:3000 -timeout 30s
       - run:
-          name: lint, typecheck, test, build
-          command: npx nx run-many --targets=lint,typecheck,test,build --output-style=static
+          name: wait for queue-worker
+          command: dockerize -wait tcp://localhost:3001 -timeout 30s
+      - run:
+          name: test
+          command: npx nx run-many --targets=test --output-style=static
           environment:
             APP_VERSION: ci
-            ENVIRONMENT: production
-            SOURCEMAP_UPLOAD: ${CIRCLE_TAG:+true}
   push_backend:
     resource_class: large
     docker:
-      - image: cimg/node:24.10
+      - image: cimg/node:24.12
     steps:
       - checkout
       - setup_remote_docker:
@@ -87,7 +99,7 @@ jobs:
   push_backend_selfhost_amd64:
     resource_class: large
     docker:
-      - image: cimg/node:24.10
+      - image: cimg/node:24.12
     steps:
       - checkout
       - setup_remote_docker:
@@ -145,7 +157,7 @@ jobs:
   push_frontend:
     resource_class: large
     docker:
-      - image: cimg/node:24.10
+      - image: cimg/node:24.12
     steps:
       - checkout
       - aws-cli/setup
@@ -170,7 +182,7 @@ jobs:
   push_frontend_selfhost:
     resource_class: large
     docker:
-      - image: cimg/node:24.10
+      - image: cimg/node:24.12
     steps:
       - checkout
       - aws-cli/setup
