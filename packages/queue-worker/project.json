@@ -15,7 +15,7 @@
         "platform": "node",
         "format": ["cjs"],
         "bundle": true,
-        "external": ["@sentry/profiling-node"],
+        "external": ["@sentry/profiling-node", "jsdom"],
         "generatePackageJson": true,
         "esbuildConfig": "packages/queue-worker/esbuild.config.js"
       },
@@ -25,6 +25,22 @@
         },
         "production": {
           "minify": true
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "queue-worker:build",
+        "debounce": 500
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "backend:build:development"
+        },
+        "production": {
+          "buildTarget": "backend:build:production"
         }
       }
     },

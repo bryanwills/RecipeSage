@@ -95,9 +95,6 @@ const termHandler = async () => {
 process.on("SIGTERM", termHandler);
 process.on("SIGINT", termHandler);
 
-if (
-  process.env.NODE_ENV === "development" ||
-  process.env.NODE_ENV === "selfhost"
-) {
+if (process.env.NODE_ENV === "selfhost") {
   jobQueueWorker.run();
 }

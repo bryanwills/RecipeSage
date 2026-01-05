@@ -1,6 +1,41 @@
 # NOTE: If you're selfhosting, you'll find it much easier (and more performant) to use the proper selfhosted
 # dockerfile that exists here: https://github.com/julianpoy/recipesage-selfhost
 
+x-common-env: &common-env
+  LOG_LEVEL: "info"
+  AWS_REGION: us-west-2
+  AWS_BUCKET_RECIPE_IMAGE: chefbook-dev
+  AWS_BUCKET_PROFILE_IMAGE: chefbook-dev
+  AWS_BUCKET_IMPORT_DATA: chefbook-dev-import-data
+  AWS_BUCKET_DATA_EXPORT: chefbook-dev-data-export
+  STORAGE_TYPE: s3
+  NODE_ENV: development
+  ENVIRONMENT: development
+  VERBOSE: "false"
+  VERSION: development
+  POSTGRES_DB: recipesage_dev
+  POSTGRES_USER: recipesage_dev
+  POSTGRES_PASSWORD: recipesage_dev
+  POSTGRES_PORT: "5432"
+  POSTGRES_HOST: postgres
+  POSTGRES_SSL: "false"
+  POSTGRES_LOGGING: "true"
+  DATABASE_URL: postgresql://recipesage_dev:recipesage_dev@postgres:5432/recipesage_dev
+  GRIP_URL: http://pushpin:5561/
+  GRIP_KEY: changeme
+  SEARCH_PROVIDER: typesense
+  TYPESENSE_NODES: '[{"host": "typesense", "port": 8108, "protocol": "http"}]'
+  TYPESENSE_API_KEY: recipesage_dev
+  BROWSERLESS_HOST: browserless
+  BROWSERLESS_PORT: "3000"
+  BROWSERLESS_TOKEN: recipesage_dev
+  JOB_QUEUE_IMPORT_REDIS_HOST: valkey
+  INGREDIENT_INSTRUCTION_CLASSIFIER_URL: http://ingredient-instruction-classifier:3000/
+  GROCERY_CATEGORIZER_URL: http://grocery-categorizer:8000/
+  OTEL_LOG_LEVEL: info
+  FIREBASE_CREDENTIALS_PATH: /app/.credentials/firebase.json
+  RECIPECLIPPER_MINISERVER_URL: http://recipeclipper-miniserver:3000/
+
 services:
   proxy:
     image: nginx
@@ -35,46 +70,28 @@ services:
       - grocery-categorizer
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./production.Dockerfile
     volumes:
       - ./packages:/app/packages
       - ./.credentials:/app/.credentials
-    command: ./scripts/watchandrun.sh 'node node_modules/ts-node/dist/bin.js --swc --project packages/backend/tsconfig.json packages/backend/src/main.ts' ./packages/backend ./packages/queue-worker ./packages/trpc ./packages/util ./packages/express ./packages/prisma
+    command: npx nx serve backend
     environment:
-      - AWS_REGION=us-west-2
-      - AWS_BUCKET_RECIPE_IMAGE=chefbook-dev
-      - AWS_BUCKET_PROFILE_IMAGE=chefbook-dev
-      - AWS_BUCKET_IMPORT_DATA=chefbook-dev-import-data
-      - AWS_BUCKET_DATA_EXPORT=chefbook-dev-data-export
-      - FIRESTORE_BUCKET=
-      - STORAGE_TYPE=s3
-      - NODE_ENV=development
-      - ENVIRONMENT=development
-      - VERBOSE=false
-      - VERSION=development
-      - POSTGRES_DB=recipesage_dev
-      - POSTGRES_USER=recipesage_dev
-      - POSTGRES_PASSWORD=recipesage_dev
-      - POSTGRES_PORT=5432
-      - POSTGRES_HOST=postgres
-      - POSTGRES_SSL=false
-      - POSTGRES_LOGGING=true
-      - DATABASE_URL=postgresql://recipesage_dev:recipesage_dev@postgres:5432/recipesage_dev
-      - GCM_KEYPAIR
-      - GRIP_URL=http://pushpin:5561/
-      - GRIP_KEY=changeme
-      - SEARCH_PROVIDER=typesense
-      - 'TYPESENSE_NODES=[{"host": "typesense", "port": 8108, "protocol": "http"}]'
-      - TYPESENSE_API_KEY=recipesage_dev
-      - BROWSERLESS_HOST=browserless
-      - BROWSERLESS_PORT=3000
-      - BROWSERLESS_TOKEN=recipesage_dev
-      - JOB_QUEUE_IMPORT_REDIS_HOST=redis
-      - INGREDIENT_INSTRUCTION_CLASSIFIER_URL=http://ingredient-instruction-classifier:3000/
-      - GROCERY_CATEGORIZER_URL=http://grocery-categorizer:8000/
-      - OTEL_LOG_LEVEL=info
-      - FIREBASE_CREDENTIALS_PATH=/app/.credentials/firebase.json
-      - RECIPECLIPPER_MINISERVER_URL=http://recipeclipper-miniserver:3000/
+      <<: *common-env
+    env_file:
+      - ./.env
+    stop_grace_period: 1s
+  queue-worker:
+    depends_on:
+      - postgres
+    build:
+      context: .
+      dockerfile: ./production.Dockerfile
+    volumes:
+      - ./packages:/app/packages
+      - ./.credentials:/app/.credentials
+    command: npx nx serve queue-worker
+    environment:
+      <<: *common-env
     env_file:
       - ./.env
     stop_grace_period: 1s
@@ -115,8 +132,8 @@ services:
       - MAX_MEMORY_PERCENT=80
       - TOKEN=recipesage_dev
     stop_grace_period: 1s
-  redis:
-    image: redis
+  valkey:
+    image: valkey/valkey
   ingredient-instruction-classifier:
     image: julianpoy/ingredient-instruction-classifier:1.4.9
     stop_grace_period: 1s
