@@ -1,5 +1,5 @@
 import { readFile, writeFile } from "fs/promises";
-import "./services/sentry-init";
+import "./sentry-init.js";
 import { program } from "commander";
 import { decryptWithRSAKey } from "@recipesage/util/server/general";
 

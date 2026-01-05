@@ -1,4 +1,4 @@
-import "./services/sentry-init";
+import "./sentry-init.js";
 import * as Sentry from "@sentry/node";
 import { program } from "commander";
 

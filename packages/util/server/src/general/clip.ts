@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { join } from "path";
 import { createRequire } from "module";
-import workerpool from "workerpool";
 import fetch, { AbortError } from "node-fetch";
 import * as Sentry from "@sentry/node";
 import he from "he";
@@ -18,16 +16,10 @@ import {
   textToRecipe,
   TextToRecipeInputType,
 } from "../ml";
-
-const pool = workerpool.pool(join(__dirname, "./clipJsdomWorker.ts"), {
-  workerType: "thread",
-  workerThreadOpts: {
-    execArgv: [
-      "--experimental-strip-types",
-      "--disable-warning=ExperimentalWarning",
-    ],
-  },
-});
+import {
+  htmlToBodyInnerText,
+  htmlToRecipeViaRecipeClipper,
+} from "./clipHelpers";
 
 const INTERCEPT_PLACEHOLDER_URL = "https://example.com/intercept-me";
 
@@ -207,8 +199,7 @@ const clipRecipeHtmlWithJSDOM = async (document: string) => {
     method: "jsdom",
   });
 
-  // We exec with pool because jsdom is blocking and can be slow for large pages
-  const result = await pool.exec("clipRecipeHtmlWithJSDOM", [document]);
+  const result = await htmlToRecipeViaRecipeClipper(document);
 
   return {
     recipe: {
@@ -232,8 +223,7 @@ const clipRecipeHtmlWithGPT = async (document: string) => {
     method: "gpt",
   });
 
-  // We exec with pool because jsdom is blocking and can be slow for large pages
-  const text = await pool.exec("htmlToBodyInnerText", [document]);
+  const text = await htmlToBodyInnerText(document);
 
   return textToRecipe(text, TextToRecipeInputType.Webpage);
 };

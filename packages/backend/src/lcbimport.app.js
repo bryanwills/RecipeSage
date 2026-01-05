@@ -1,4 +1,4 @@
-import "./services/sentry-init.js";
+import "./sentry-init.js";
 import * as Sentry from "@sentry/node";
 
 import fs from "fs-extra";

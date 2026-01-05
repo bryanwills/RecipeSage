@@ -1,5 +1,5 @@
-import workerpool from "workerpool";
 import jsdom from "jsdom";
+import * as Sentry from "@sentry/node";
 import sanitizeHtml from "sanitize-html";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore No typings available
@@ -9,7 +9,29 @@ const replaceBrWithBreak = (html: string) => {
   return html.replaceAll(new RegExp(/<br( \/)?>/, "g"), "\n");
 };
 
-async function clipRecipeHtmlWithJSDOM(document: string) {
+export async function htmlToRecipeViaRecipeClipper(document: string) {
+  if (process.env.RECIPECLIPPER_MINISERVER_URL) {
+    try {
+      const url = new URL(process.env.RECIPECLIPPER_MINISERVER_URL);
+      url.pathname = "/api/recipe/extract";
+      const response = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify({
+          html: document,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const responseJson = await response.json();
+      return responseJson.data;
+    } catch (e) {
+      Sentry.captureException(e);
+      console.error(e);
+    }
+  }
+
   const dom = new jsdom.JSDOM(document);
 
   const { window } = dom;
@@ -34,7 +56,29 @@ async function clipRecipeHtmlWithJSDOM(document: string) {
   });
 }
 
-async function htmlToBodyInnerText(document: string) {
+export async function htmlToBodyInnerText(document: string) {
+  if (process.env.RECIPECLIPPER_MINISERVER_URL) {
+    try {
+      const url = new URL(process.env.RECIPECLIPPER_MINISERVER_URL);
+      url.pathname = "/api/text/extract";
+      const response = await fetch(process.env.RECIPECLIPPER_MINISERVER_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          html: document,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const responseJson = await response.json();
+      return responseJson.data.text;
+    } catch (e) {
+      Sentry.captureException(e);
+      console.error(e);
+    }
+  }
+
   const dom = new jsdom.JSDOM(document);
 
   const { window } = dom;
@@ -51,8 +95,3 @@ async function htmlToBodyInnerText(document: string) {
 
   return window.document.body.innerText;
 }
-
-workerpool.worker({
-  clipRecipeHtmlWithJSDOM,
-  htmlToBodyInnerText,
-});
