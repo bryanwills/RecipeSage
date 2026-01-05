@@ -1,4 +1,3 @@
-import "./services/sentry-init.js";
 import * as Sentry from "@sentry/node";
 
 import {

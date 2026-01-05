@@ -11,7 +11,7 @@
       "options": {
         "platform": "node",
         "outputPath": "dist/apps/backend",
-        "format": ["esm"],
+        "format": ["cjs"],
         "bundle": true,
         "minify": false,
         "external": ["@sentry/profiling-node"],

@@ -7,8 +7,11 @@ export const ocrImageBuffer = async (
 ): Promise<string[]> => {
   metrics.convertImageToText.inc();
 
+  const credentialsPath =
+    process.env.FIREBASE_CREDENTIALS_PATH ||
+    join(process.cwd(), ".credentials/firebase.json");
   const imageAnnotationClient = new ImageAnnotatorClient({
-    keyFile: join(__dirname, "../../../../../.credentials/firebase.json"),
+    keyFile: credentialsPath,
   });
 
   const ocrResults =

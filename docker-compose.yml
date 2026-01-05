@@ -35,7 +35,7 @@ services:
       - grocery-categorizer
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./production.Dockerfile
     volumes:
       - ./packages:/app/packages
       - ./.credentials:/app/.credentials
@@ -73,6 +73,7 @@ services:
       - INGREDIENT_INSTRUCTION_CLASSIFIER_URL=http://ingredient-instruction-classifier:3000/
       - GROCERY_CATEGORIZER_URL=http://grocery-categorizer:8000/
       - OTEL_LOG_LEVEL=info
+      - FIREBASE_CREDENTIALS_PATH=/app/.credentials/firebase.json
     env_file:
       - ./.env
     stop_grace_period: 1s

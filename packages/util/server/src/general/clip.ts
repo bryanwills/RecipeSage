@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { join } from "path";
+import { createRequire } from "module";
 import workerpool from "workerpool";
 import fetch, { AbortError } from "node-fetch";
 import * as Sentry from "@sentry/node";
@@ -30,14 +31,11 @@ const pool = workerpool.pool(join(__dirname, "./clipJsdomWorker.ts"), {
 
 const INTERCEPT_PLACEHOLDER_URL = "https://example.com/intercept-me";
 
-const recipeClipperUMD = readFileSync(
-  join(
-    __dirname,
-    "../../../../../",
-    "./node_modules/@julianpoy/recipe-clipper/dist/recipe-clipper.umd.js",
-  ),
-  "utf-8",
+const require = createRequire(__filename);
+const recipeClipperPath = require.resolve(
+  "@julianpoy/recipe-clipper/dist/recipe-clipper.umd.js",
 );
+const recipeClipperUMD = readFileSync(recipeClipperPath, "utf-8");
 
 const disconnectPuppeteer = async (browser: Browser) => {
   try {

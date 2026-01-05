@@ -1,5 +1,3 @@
-import fs from "fs/promises";
-import path from "path";
 import { OutputUnit } from "unitz-ts";
 
 import * as UtilService from "./util";
@@ -13,18 +11,8 @@ let ingredientsList = [];
 let itemCategories = {};
 let itemTitles = [];
 const init = async () => {
-  ingredientsList = JSON.parse(
-    await fs.readFile(
-      path.resolve(__dirname, "../constants/ingredients.json"),
-      "utf-8",
-    ),
-  );
-  itemCategories = JSON.parse(
-    await fs.readFile(
-      path.resolve(__dirname, "../constants/itemCategories.json"),
-      "utf-8",
-    ),
-  );
+  ingredientsList = []; // This has been deprecated
+  itemCategories = {}; // This has been deprecated
 
   itemTitles = Object.keys(itemCategories).sort((a, b) => b.length - a.length);
 };

@@ -1,3 +1,5 @@
+import "./sentry-init.js";
+
 import { jobQueueWorker } from "@recipesage/util/server/general";
 
 jobQueueWorker.run();

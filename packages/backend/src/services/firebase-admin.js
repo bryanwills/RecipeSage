@@ -4,11 +4,11 @@ import { join } from "path";
 
 const init = async () => {
   try {
+    const credentialsPath =
+      process.env.FIREBASE_CREDENTIALS_PATH ||
+      join(process.cwd(), ".credentials/firebase.json");
     const serviceAccount = JSON.parse(
-      await fs.readFile(
-        join(__dirname, "../../../../.credentials/firebase.json"),
-        "utf-8",
-      ),
+      await fs.readFile(credentialsPath, "utf-8"),
     );
 
     admin.initializeApp({

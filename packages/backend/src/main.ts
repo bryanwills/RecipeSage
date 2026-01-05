@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import "./sentry-init.js";
+
 /**
  * Module dependencies.
  */

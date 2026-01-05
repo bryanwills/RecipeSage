@@ -17,7 +17,7 @@ import { fdxzImportJobHandler } from "./handlers/fdxzImportJobHandler";
 import { lcbImportJobHandler } from "./handlers/lcbImportJobHandler";
 import type { JobQueueItem } from "./handlers/JobQueueItem";
 
-const JOB_QUEUE_NAME = "rsJobQueue";
+const JOB_QUEUE_NAME = process.env.JOB_QUEUE_IMPORT_PREFIX || "rsJobQueue";
 
 export const jobQueue = new Queue<JobQueueItem, void>(JOB_QUEUE_NAME, {
   connection: {
