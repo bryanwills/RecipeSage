@@ -84,7 +84,7 @@ jobs:
       - run:
           name: api-hosted.sh
           command: ./scripts/build/api-hosted.sh ${CIRCLE_TAG:=stg}
-  push_backend_selfhost:
+  push_backend_selfhost_amd64:
     resource_class: large
     docker:
       - image: cimg/node:24.10
@@ -97,11 +97,51 @@ jobs:
           name: docker-login
           command: echo "$DOCKER_PAT" | docker login --username $DOCKER_USER --password-stdin
       - run:
-          name: setup buildx
-          command: ./scripts/circleci_buildx.sh
+          name: build and push api amd64
+          command: |
+            docker buildx build . \
+              --push \
+              --platform linux/amd64 \
+              -f production.Dockerfile \
+              --build-arg VERSION=${CIRCLE_TAG:=stg} \
+              -t julianpoy/recipesage-selfhost:api-${CIRCLE_TAG:=stg}-amd64 \
+              -t julianpoy/recipesage-selfhost:api-latest-amd64
+  push_backend_selfhost_arm64:
+    resource_class: arm.large
+    machine:
+      image: ubuntu-2404:current
+    steps:
+      - checkout
       - run:
-          name: api-selfhost.sh
-          command: ./scripts/build/api-selfhost.sh ${CIRCLE_TAG:=stg}
+          name: docker-login
+          command: echo "$DOCKER_PAT" | docker login --username $DOCKER_USER --password-stdin
+      - run:
+          name: build and push api arm64
+          command: |
+            docker buildx build . \
+              --push \
+              --platform linux/arm64/v8 \
+              -f production.Dockerfile \
+              --build-arg VERSION=${CIRCLE_TAG:=stg} \
+              -t julianpoy/recipesage-selfhost:api-${CIRCLE_TAG:=stg}-arm64 \
+              -t julianpoy/recipesage-selfhost:api-latest-arm64
+  push_backend_selfhost_manifest:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: docker-login
+          command: echo "$DOCKER_PAT" | docker login --username $DOCKER_USER --password-stdin
+      - run:
+          name: create and push api manifest
+          command: |
+            docker buildx imagetools create -t julianpoy/recipesage-selfhost:api-${CIRCLE_TAG:=stg} \
+              julianpoy/recipesage-selfhost:api-${CIRCLE_TAG:=stg}-amd64 \
+              julianpoy/recipesage-selfhost:api-${CIRCLE_TAG:=stg}-arm64
+
+            docker buildx imagetools create -t julianpoy/recipesage-selfhost:api-latest \
+              julianpoy/recipesage-selfhost:api-latest-amd64 \
+              julianpoy/recipesage-selfhost:api-latest-arm64
   push_frontend:
     resource_class: large
     docker:
@@ -177,9 +217,28 @@ workflows:
               only: /^v[0-9]+(\.[0-9]+)*.*/
             branches:
               ignore: /.*/
-      - push_backend_selfhost:
+      - push_backend_selfhost_amd64:
           requires:
             - build_and_test
+          filters:
+            tags:
+              # We do not publish -beta versions for selfhost
+              only: /^v[0-9]+(\.[0-9]+)*/
+            branches:
+              ignore: /.*/
+      - push_backend_selfhost_arm64:
+          requires:
+            - build_and_test
+          filters:
+            tags:
+              # We do not publish -beta versions for selfhost
+              only: /^v[0-9]+(\.[0-9]+)*/
+            branches:
+              ignore: /.*/
+      - push_backend_selfhost_manifest:
+          requires:
+            - push_backend_selfhost_amd64
+            - push_backend_selfhost_arm64
           filters:
             tags:
               # We do not publish -beta versions for selfhost
