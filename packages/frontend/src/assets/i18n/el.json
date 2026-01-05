@@ -1097,5 +1097,6 @@
     "pages.shoppingListCategoryOrderModal.placeholder": "Κατηγορίες, ένα στοιχείο ανά γραμμή",
     "pages.import.copymethat": "Εισαγωγή αρχείου από το CopyMeThat",
     "pages.importCopymethat.tabTitle": "Εισαγωγή από CopyMeThat - RecipeSage",
-    "pages.importCopymethat.title": "Εισαγωγή συνταγών από το CopyMeThat"
+    "pages.importCopymethat.title": "Εισαγωγή συνταγών από το CopyMeThat",
+    "pages.importCopymethat.description": "Αυτό θα εισαγάγει ένα αρχείο από το CopyMeThat (τελειώνει σε .zip) στον λογαριασμό σας στο RecipeSage. Λάβετε υπόψη ότι πρέπει να εξαγάγετε σε μορφή HTML από το CopyMeThat για να λειτουργήσει. Η εξαγωγή κειμένου του CopyMeThat μπορεί να χρησιμοποιηθεί με την εισαγωγή «αρχείων κειμένου» RecipeSage, αν το επιθυμείτε. Εάν αντιμετωπίζετε προβλήματα με την εισαγωγή, ανατρέξτε στον οδηγό χρήσης. Εάν το αρχείο σας περιέχει μεγάλο αριθμό συνταγών ή εικόνων, παρακαλούμε να εξετάσετε το ενδεχόμενο να συνεισφέρετε."
 }
