@@ -61,7 +61,7 @@ export async function htmlToBodyInnerText(document: string) {
     try {
       const url = new URL(process.env.RECIPECLIPPER_MINISERVER_URL);
       url.pathname = "/api/text/extract";
-      const response = await fetch(process.env.RECIPECLIPPER_MINISERVER_URL, {
+      const response = await fetch(url, {
         method: "POST",
         body: JSON.stringify({
           html: document,
