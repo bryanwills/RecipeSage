@@ -37,7 +37,7 @@ export const createStripeCheckoutSession = publicProcedure
 
     if (
       process.env.NODE_ENV !== "development" &&
-      !input.cancelUrl.match(/https:\/\/(beta\.)?recipesage\.com(\/.*)?$/)
+      !input.cancelUrl.match(/https:\/\/(.*\.)?recipesage\.com(\/.*)?$/)
     ) {
       throw new TRPCError({
         code: "BAD_REQUEST",
