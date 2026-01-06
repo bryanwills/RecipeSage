@@ -70,11 +70,11 @@ services:
       - grocery-categorizer
     build:
       context: .
-      dockerfile: ./production.Dockerfile
+      dockerfile: ./Dockerfile
     volumes:
       - ./packages:/app/packages
       - ./.credentials:/app/.credentials
-    command: ./scripts/watchandrun.sh 'node node_modules/ts-node/dist/bin.js --swc --project packages/backend/tsconfig.json packages/backend/src/main.ts' ./packages/backend ./packages/queue-worker ./packages/trpc ./packages/util ./packages/express ./packages/prisma
+    command: ./scripts/watchandrun.sh 'node node_modules/ts-node/dist/bin.js --swc --transpile-only --project packages/backend/tsconfig.json packages/backend/src/main.ts' ./packages/backend ./packages/queue-worker ./packages/trpc ./packages/util ./packages/express ./packages/prisma
     environment:
       <<: *common-env
     env_file:
@@ -85,11 +85,11 @@ services:
       - postgres
     build:
       context: .
-      dockerfile: ./production.Dockerfile
+      dockerfile: ./Dockerfile
     volumes:
       - ./packages:/app/packages
       - ./.credentials:/app/.credentials
-    command: ./scripts/watchandrun.sh 'node node_modules/ts-node/dist/bin.js --swc --project packages/queue-worker/tsconfig.json packages/queue-worker/src/main.ts' ./packages/backend ./packages/queue-worker ./packages/trpc ./packages/util ./packages/express ./packages/prisma
+    command: ./scripts/watchandrun.sh 'node node_modules/ts-node/dist/bin.js --swc --transpile-only --project packages/queue-worker/tsconfig.json packages/queue-worker/src/main.ts' ./packages/backend ./packages/queue-worker ./packages/trpc ./packages/util ./packages/express ./packages/prisma
     environment:
       <<: *common-env
     env_file:
