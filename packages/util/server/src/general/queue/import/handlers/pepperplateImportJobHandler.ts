@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { Job } from "@prisma/client";
+import type { JobSummary } from "@recipesage/prisma";
 import { type JobMeta } from "@recipesage/prisma";
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
 import {
@@ -11,7 +11,7 @@ import {
 } from "../../../index";
 import fetch from "node-fetch";
 import xmljs from "xml-js";
-import type { JobQueueItem } from "./JobQueueItem";
+import type { JobQueueItem } from "../../JobQueueItem";
 
 function escapeXml(str: string): string {
   return str
@@ -23,7 +23,7 @@ function escapeXml(str: string): string {
 }
 
 export async function pepperplateImportJobHandler(
-  job: Job,
+  job: JobSummary,
   queueItem: JobQueueItem,
 ): Promise<void> {
   const timer = metrics.jobFinished.startTimer();

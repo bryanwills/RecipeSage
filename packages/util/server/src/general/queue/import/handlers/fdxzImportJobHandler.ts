@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { Job } from "@prisma/client";
+import type { JobSummary } from "@recipesage/prisma";
 import { type JobMeta } from "@recipesage/prisma";
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
 import {
@@ -16,7 +16,7 @@ import { readdir, readFile, mkdtempDisposable, stat } from "fs/promises";
 import extract from "extract-zip";
 import xmljs from "xml-js";
 import path from "path";
-import type { JobQueueItem } from "./JobQueueItem";
+import type { JobQueueItem } from "../../JobQueueItem";
 
 // Convert input to array if necessary
 function arrayifyAssociation(assoc: any): any[] {
@@ -61,7 +61,7 @@ async function findFilesByRegex(
 }
 
 export async function fdxzImportJobHandler(
-  job: Job,
+  job: JobSummary,
   queueItem: JobQueueItem,
 ): Promise<void> {
   const timer = metrics.jobFinished.startTimer();

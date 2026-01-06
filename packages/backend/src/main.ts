@@ -10,7 +10,7 @@ import { app } from "./app";
 import Debug from "debug";
 const debug = Debug("chefbook-backend:server");
 import protocol from "http";
-import { jobQueueWorker } from "@recipesage/util/server/general";
+import { getJobQueueWorker } from "@recipesage/util/server/general";
 
 /**
  * Get port from environment and store in Express.
@@ -96,5 +96,5 @@ process.on("SIGTERM", termHandler);
 process.on("SIGINT", termHandler);
 
 if (process.env.NODE_ENV === "selfhost") {
-  jobQueueWorker.run();
+  getJobQueueWorker().run();
 }

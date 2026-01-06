@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { Job } from "@prisma/client";
+import type { JobSummary } from "@recipesage/prisma";
 import { type JobMeta } from "@recipesage/prisma";
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
 import {
@@ -13,10 +13,10 @@ import { cleanLabelTitle } from "@recipesage/util/shared";
 import { downloadS3ToTemp } from "./shared/s3Download";
 import { readFile } from "fs/promises";
 import xmljs from "xml-js";
-import type { JobQueueItem } from "./JobQueueItem";
+import type { JobQueueItem } from "../../JobQueueItem";
 
 export async function enexImportJobHandler(
-  job: Job,
+  job: JobSummary,
   queueItem: JobQueueItem,
 ): Promise<void> {
   const timer = metrics.jobFinished.startTimer();

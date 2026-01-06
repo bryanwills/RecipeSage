@@ -1,4 +1,5 @@
-import { type Job, JobStatus } from "@prisma/client";
+import type { JobSummary } from "@recipesage/prisma";
+import { JobStatus } from "@prisma/client";
 import { prisma, type JobMeta } from "@recipesage/prisma";
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
 import {
@@ -11,12 +12,12 @@ import { metrics } from "../../../index";
 import { downloadS3ToTemp } from "./shared/s3Download";
 import { readFile } from "fs/promises";
 import * as Sentry from "@sentry/node";
-import type { JobQueueItem } from "./JobQueueItem";
+import type { JobQueueItem } from "../../JobQueueItem";
 
 const JOB_PROGRESS_UPDATE_PERIOD_SECONDS = 3;
 
 export async function urlsImportJobHandler(
-  job: Job,
+  job: JobSummary,
   queueItem: JobQueueItem,
 ): Promise<void> {
   const timer = metrics.jobFinished.startTimer();

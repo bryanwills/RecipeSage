@@ -1,4 +1,4 @@
-import type { Job } from "@prisma/client";
+import type { JobSummary } from "@recipesage/prisma";
 import { type JobMeta } from "@recipesage/prisma";
 import {
   importJobFailCommon,
@@ -9,10 +9,10 @@ import {
 } from "../../../index";
 import { downloadS3ToTemp } from "./shared/s3Download";
 import { readFile } from "fs/promises";
-import type { JobQueueItem } from "./JobQueueItem";
+import type { JobQueueItem } from "../../JobQueueItem";
 
 export async function jsonldImportJobHandler(
-  job: Job,
+  job: JobSummary,
   queueItem: JobQueueItem,
 ): Promise<void> {
   const timer = metrics.jobFinished.startTimer();

@@ -1,4 +1,4 @@
-import type { Job } from "@prisma/client";
+import type { JobSummary } from "@recipesage/prisma";
 import { type JobMeta } from "@recipesage/prisma";
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
 import {
@@ -12,10 +12,10 @@ import { downloadS3ToTemp } from "./shared/s3Download";
 import { readdir, readFile, mkdtempDisposable } from "fs/promises";
 import extract from "extract-zip";
 import path from "path";
-import type { JobQueueItem } from "./JobQueueItem";
+import type { JobQueueItem } from "../../JobQueueItem";
 
 export async function paprikaImportJobHandler(
-  job: Job,
+  job: JobSummary,
   queueItem: JobQueueItem,
 ): Promise<void> {
   const timer = metrics.jobFinished.startTimer();

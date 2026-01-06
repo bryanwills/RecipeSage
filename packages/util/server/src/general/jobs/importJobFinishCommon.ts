@@ -1,5 +1,5 @@
-import { JobStatus, type Job } from "@prisma/client";
-import { prisma, type JobMeta } from "@recipesage/prisma";
+import { JobStatus } from "@prisma/client";
+import { prisma, type JobMeta, type JobSummary } from "@recipesage/prisma";
 import { JOB_RESULT_CODES } from "@recipesage/util/shared";
 import { metrics } from "../metrics";
 import {
@@ -11,7 +11,7 @@ import { ImportNoRecipesError } from "./importJobFailCommon";
 
 export async function importJobFinishCommon(args: {
   timer: ReturnType<typeof metrics.jobFinished.startTimer>;
-  job: Job;
+  job: JobSummary;
   userId: string;
   standardizedRecipeImportInput: StandardizedRecipeImportEntry[];
   importTempDirectory: string | undefined;

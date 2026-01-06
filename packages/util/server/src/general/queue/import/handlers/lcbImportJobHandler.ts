@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { Job } from "@prisma/client";
+import type { JobSummary } from "@recipesage/prisma";
 import { type JobMeta } from "@recipesage/prisma";
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
 import {
@@ -16,7 +16,7 @@ import { readdir, mkdtempDisposable, stat } from "fs/promises";
 import extract from "extract-zip";
 import path from "path";
 import { spawn } from "child_process";
-import type { JobQueueItem } from "./JobQueueItem";
+import type { JobQueueItem } from "../../JobQueueItem";
 
 interface TableMap {
   t_recipe?: any[];
@@ -98,7 +98,7 @@ async function findFilesByRegex(
 }
 
 export async function lcbImportJobHandler(
-  job: Job,
+  job: JobSummary,
   queueItem: JobQueueItem,
 ): Promise<void> {
   const timer = metrics.jobFinished.startTimer();

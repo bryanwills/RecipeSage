@@ -1,5 +1,5 @@
-import { JobStatus, type Job } from "@prisma/client";
-import { prisma, type JobMeta } from "@recipesage/prisma";
+import { JobStatus } from "@prisma/client";
+import { prisma, type JobMeta, type JobSummary } from "@recipesage/prisma";
 import { metrics } from "../metrics";
 import * as Sentry from "@sentry/node";
 import { getImportJobResultCode } from "./getImportJobResultCode";
@@ -27,7 +27,7 @@ export class ImportBadCredentialsError extends Error {
 
 export async function importJobFailCommon(args: {
   timer: ReturnType<typeof metrics.jobFinished.startTimer>;
-  job: Job;
+  job: JobSummary;
   error: unknown;
 }) {
   const isBadZipError =

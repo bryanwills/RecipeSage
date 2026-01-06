@@ -36,7 +36,11 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "packages/util/shared",
-        "command": "tsc --noEmit"
+        "commands": [
+          "tsc --project tsconfig.lib.json --noEmit",
+          "tsc --project tsconfig.spec.json --noEmit"
+        ],
+        "parallel": true
       }
     },
     "lint": {

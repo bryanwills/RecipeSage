@@ -3,8 +3,9 @@ import express from "express";
 import client from "prom-client";
 import { promisify } from "util";
 
-import { jobQueueWorker } from "@recipesage/util/server/general";
+import { getJobQueueWorker } from "@recipesage/util/server/general";
 
+const jobQueueWorker = getJobQueueWorker();
 jobQueueWorker.run();
 
 const app = express();
