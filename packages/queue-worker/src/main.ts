@@ -34,5 +34,7 @@ const close = async () => {
   process.exit(0);
 };
 
+console.log("Started queue-worker");
+
 process.on("SIGTERM", close);
 process.on("SIGINT", close);
