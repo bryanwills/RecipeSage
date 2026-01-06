@@ -492,7 +492,7 @@
     "pages.settings.export": "Receptek exportálása",
     "pages.settings.account": "Fiókbeállítások és statisztika",
     "pages.settings.logout": "Kijelentkezés",
-    "pages.settings.language.contribute": "A nyelvi támogatást a közösség biztosítja. Kattintson ide egy nyelv hozzáadásához vagy a fordítások javításához.",
+    "pages.settings.language.contribute": "A nyelvi támogatást a közösség biztosítja. Kattintson ide egy nyelv hozzáadásához vagy a fordítások javításához",
     "pages.settings.section2.title": "Általános beállítások",
     "pages.settings.splitPane": "Osztott ablaktábla nézet engedélyezése nagy képernyőkön",
     "pages.settings.theme": "Téma",
@@ -1094,5 +1094,9 @@
     "pages.shoppingListCategoryOrderModal.description": "A bevásárlólista kategóriái az itt megadott sorrend szerint lesznek rendezve.",
     "pages.shoppingListCategoryOrderModal.instructions": "Minden bejegyzés külön sorban legyen, és illeszkednie kell az egyik előre definiált kategóriához vagy ahhoz az egyéni kategóriaelnevezéshez, amelyet a tételek rendezésekor megadott. A kis- és nagybetűk megkülönböztetése nem számít.",
     "pages.shoppingListCategoryOrderModal.label": "Kategóriák sorrendje",
-    "pages.shoppingListCategoryOrderModal.placeholder": "Kategória címek — mindegyik külön sorban"
+    "pages.shoppingListCategoryOrderModal.placeholder": "Kategória címek — mindegyik külön sorban",
+    "pages.import.copymethat": "Importálás CopyMeThat fájlból",
+    "pages.importCopymethat.tabTitle": "Importálás a CopyMeThatből — RecipeSage",
+    "pages.importCopymethat.title": "Receptek importálása CopyMeThat exportból",
+    "pages.importCopymethat.description": "Ez a művelet egy CopyMeThat exportot (.zip kiterjesztésű) importál a RecipeSage fiókjába. Kérem, vegye figyelembe, hogy a CopyMeThat-ból HTML formátumban kell exportálnia ahhoz, hogy ez az importáló feldolgozza. A CopyMeThat szöveges exportja használható a RecipeSage „szövegfájlok” importálójával, ha szeretné. Ha problémái adódnak az importálással, kérem, tekintse meg a felhasználói útmutatót. Kérem, fontolja meg a hozzájárulást, ha a fájlja nagyszámú receptet vagy képet tartalmaz."
 }
