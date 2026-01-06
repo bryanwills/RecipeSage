@@ -40,7 +40,7 @@ const fonts = {
 };
 
 export interface ExportOptions {
-  includeImages?: boolean;
+  includePrimaryImage?: boolean;
   includeImageUrls?: boolean;
 }
 
@@ -108,14 +108,17 @@ const recipeToSchema = async (
     });
   }
 
-  const imageUrl = recipe.recipeImages[0]?.image.location;
-  if (imageUrl && options?.includeImages) {
+  const primaryImageUrl = recipe.recipeImages[0]?.image.location;
+  if (primaryImageUrl && options?.includePrimaryImage) {
     try {
       let buffer: Buffer;
-      if (process.env.NODE_ENV === "selfhost" && imageUrl.startsWith("/")) {
-        buffer = await fs.promises.readFile(imageUrl);
+      if (
+        process.env.NODE_ENV === "selfhost" &&
+        primaryImageUrl.startsWith("/")
+      ) {
+        buffer = await fs.promises.readFile(primaryImageUrl);
       } else {
-        const response = await fetchURL(imageUrl, {
+        const response = await fetchURL(primaryImageUrl, {
           timeout: 15 * 1000,
         });
         buffer = await response.buffer();
@@ -199,20 +202,25 @@ const recipeToSchema = async (
       margin: [0, 10, 0, 0],
     });
   }
-  if (options?.includeImageUrls && imageUrl) {
-    schema.push({
-      text: [
-        {
-          text: "Image URL: ",
-          bold: true,
-        },
-        {
-          text: imageUrl,
-          link: imageUrl,
-        },
-      ],
-      margin: [0, 10, 0, 0],
-    });
+  const otherImageUrls = recipe.recipeImages.map((el) => el.image.location);
+  // Primary image is already included
+  if (options?.includePrimaryImage) otherImageUrls.splice(0, 1);
+  if (options?.includeImageUrls) {
+    for (const imageUrl of otherImageUrls) {
+      schema.push({
+        text: [
+          {
+            text: "Image URL: ",
+            bold: true,
+          },
+          {
+            text: imageUrl,
+            link: imageUrl,
+          },
+        ],
+        margin: [0, 10, 0, 0],
+      });
+    }
   }
 
   return schema;

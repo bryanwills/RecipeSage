@@ -237,7 +237,9 @@ const recipeSummariesToPDFZipStream = async (
 
   const endP = once(zipStream, "end");
 
-  for await (const result of recipeAsyncIteratorToPDF(recipeStream)) {
+  for await (const result of recipeAsyncIteratorToPDF(recipeStream, {
+    includeImageUrls: true,
+  })) {
     await new Promise<void>((resolve, reject) => {
       zipStream.entry(
         result.pdf,
