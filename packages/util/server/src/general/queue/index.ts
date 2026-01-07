@@ -44,6 +44,8 @@ export const getJobQueueWorker = () => {
   jobQueueWorker = new Worker<JobQueueItem, void>(
     JOB_QUEUE_NAME,
     async (args) => {
+      console.log(`Starting processing job ${args.id}`);
+
       const _job = await prisma.job.update({
         where: {
           id: args.data.jobId,
