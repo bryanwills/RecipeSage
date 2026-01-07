@@ -92,9 +92,15 @@ export async function enexImportJobHandler(
           spaces: 4,
         }),
       );
-      for (const element of cdata["en-note"].div) {
-        recipeText += `\n${recursiveGrabText(element)}`;
+
+      if (Array.isArray(cdata["en-note"].div)) {
+        for (const element of cdata["en-note"].div) {
+          recipeText += `\n${recursiveGrabText(element)}`;
+        }
+      } else if (typeof cdata["en-note"].div === "object") {
+        recipeText += `\n${recursiveGrabText(cdata["en-note"].div)}`;
       }
+
       recipeText = recipeText
         .split("\n")
         .filter((el) => el?.trim())
