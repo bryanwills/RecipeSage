@@ -40,6 +40,9 @@ jobs:
           JOB_QUEUE_IMPORT_REDIS_HOST: localhost
           GRIP_URL: http://localhost:5561/
           GRIP_KEY: changeme
+          FONTS_PATH: ~/project/fonts
+          EXPRESS_VIEWS_PATH: ~/project/packages/backend/src/views
+          FRONTEND_I18N_PATH: ~/project/packages/frontend/src/assets/i18n
       - image: postgres:16.1
         environment:
           POSTGRES_USER: chefbook
