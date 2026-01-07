@@ -141,7 +141,7 @@ services:
     image: julianpoy/ingredient-categorizer:latest
     stop_grace_period: 1s
   recipeclipper-miniserver:
-    image: julianpoy/recipeclipper-miniserver:latest
+    image: julianpoy/recipeclipper-miniserver:1.1.0
     stop_grace_period: 1s
 
 volumes:
