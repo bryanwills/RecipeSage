@@ -34,15 +34,16 @@ export async function importJobFinishCommon(args: {
     args.standardizedRecipeImportInput,
     args.importTempDirectory,
   );
+  const createdRecipeIdsSet = new Set(createdRecipeIds);
 
-  const recipesToIndex = await prisma.recipe.findMany({
+  const allRecipes = await prisma.recipe.findMany({
     where: {
-      id: {
-        in: createdRecipeIds,
-      },
       userId: args.userId,
     },
   });
+  const recipesToIndex = allRecipes.filter((el) =>
+    createdRecipeIdsSet.has(el.id),
+  );
 
   await prisma.job.update({
     where: {

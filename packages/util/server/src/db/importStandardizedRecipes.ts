@@ -33,7 +33,7 @@ export interface StandardizedRecipeImportEntry {
 const IMPORT_TRANSACTION_TIMEOUT_MS = 120000;
 const CONCURRENT_IMAGE_IMPORTS = 2;
 const MAX_IMAGES = 10;
-const MAX_IMPORT_LIMIT = 10000; // A reasonable cutoff to make sure we don't kill the server for extremely large imports
+const MAX_IMPORT_LIMIT = 35000; // A reasonable cutoff to make sure we don't kill the server for extremely large imports
 
 /**
  * Centralized place for all recipe import tasks as a standardized format.
