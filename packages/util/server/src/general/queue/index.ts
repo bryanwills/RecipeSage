@@ -30,6 +30,10 @@ export const getJobQueue = () => {
     console.error(err);
   });
 
+  jobQueue.on("waiting", (job) => {
+    console.log(`Job ${job.id} is waiting to be processed`);
+  });
+
   return jobQueue;
 };
 
@@ -85,6 +89,18 @@ export const getJobQueueWorker = () => {
   jobQueueWorker.on("error", (err) => {
     Sentry.captureException(err);
     console.error(err);
+  });
+
+  jobQueueWorker.on("drained", () => {
+    console.log(`Job queue has drained`);
+  });
+
+  jobQueueWorker.on("completed", (job) => {
+    console.log(`Job ${job.id} has triggered the completed event`);
+  });
+
+  jobQueueWorker.on("failed", (job) => {
+    console.log(`Job ${job?.id} has triggered the failed event`);
   });
 
   return jobQueueWorker;
