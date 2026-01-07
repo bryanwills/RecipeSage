@@ -35,6 +35,7 @@ x-common-env: &common-env
   OTEL_LOG_LEVEL: info
   FIREBASE_CREDENTIALS_PATH: /app/.credentials/firebase.json
   RECIPECLIPPER_MINISERVER_URL: http://recipeclipper-miniserver:3000/
+  NX_DAEMON: "true"
 
 services:
   proxy:
@@ -74,7 +75,7 @@ services:
     volumes:
       - ./packages:/app/packages
       - ./.credentials:/app/.credentials
-    command: ./scripts/watchandrun.sh 'node node_modules/ts-node/dist/bin.js --swc --transpile-only --project packages/backend/tsconfig.json packages/backend/src/main.ts' ./packages/backend ./packages/queue-worker ./packages/trpc ./packages/util ./packages/express ./packages/prisma
+    command: node_modules/nx/bin/nx.js serve backend
     environment:
       <<: *common-env
     env_file:
@@ -89,7 +90,7 @@ services:
     volumes:
       - ./packages:/app/packages
       - ./.credentials:/app/.credentials
-    command: ./scripts/watchandrun.sh 'node node_modules/ts-node/dist/bin.js --swc --transpile-only --project packages/queue-worker/tsconfig.json packages/queue-worker/src/main.ts' ./packages/backend ./packages/queue-worker ./packages/trpc ./packages/util ./packages/express ./packages/prisma
+    command: node_modules/nx/bin/nx.js serve queue-worker
     environment:
       <<: *common-env
     env_file:

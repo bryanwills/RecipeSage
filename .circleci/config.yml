@@ -56,7 +56,7 @@ jobs:
           name: lint, typecheck, build
           command: npx nx run-many --targets=build,lint,typecheck --output-style=static
           environment:
-            APP_VERSION: ci
+            APP_VERSION: ${CIRCLE_TAG:=stg}
             ENVIRONMENT: production
             SOURCEMAP_UPLOAD: ${CIRCLE_TAG:+true}
       - run:

@@ -18,24 +18,15 @@ import path from "path";
 import { RecipeSummary } from "@recipesage/prisma";
 import { setTimeout } from "timers/promises";
 
+const FONT_PATH = process.env.FONTS_PATH;
+if (!FONT_PATH) throw new Error("FONTS_PATH must be provided");
+
 const fonts = {
   NotoSans: {
-    normal: path.join(
-      __dirname,
-      "../../../../backend/fonts/Noto_Sans/NotoSans-Regular.ttf",
-    ),
-    bold: path.join(
-      __dirname,
-      "../../../../backend/fonts/Noto_Sans/NotoSans-Bold.ttf",
-    ),
-    italics: path.join(
-      __dirname,
-      "../../../../backend/fonts/Noto_Sans/NotoSans-Italic.ttf",
-    ),
-    bolditalics: path.join(
-      __dirname,
-      "../../../../backend/fonts/Noto_Sans/NotoSans-BoldItalic.ttf",
-    ),
+    normal: path.join(FONT_PATH, "Noto_Sans/NotoSans-Regular.ttf"),
+    bold: path.join(FONT_PATH, "Noto_Sans/NotoSans-Bold.ttf"),
+    italics: path.join(FONT_PATH, "Noto_Sans/NotoSans-Italic.ttf"),
+    bolditalics: path.join(FONT_PATH, "Noto_Sans/NotoSans-BoldItalic.ttf"),
   },
 };
 

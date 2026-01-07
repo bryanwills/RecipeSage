@@ -14,15 +14,24 @@
         "format": ["cjs"],
         "bundle": true,
         "minify": false,
-        "external": ["@sentry/profiling-node", "jsdom"],
+        "external": ["@sentry/profiling-node", "jsdom", "pdfmake"],
         "main": "packages/backend/src/main.ts",
         "tsConfig": "packages/backend/tsconfig.json",
-        "assets": ["packages/backend/src/assets"],
+        "assets": [
+          {
+            "glob": "*",
+            "input": "packages/backend/src/views/",
+            "output": "./views/"
+          }
+        ],
         "generatePackageJson": true,
         "esbuildConfig": "packages/backend/esbuild.config.js"
       },
       "configurations": {
-        "development": {},
+        "development": {
+          "skipTypeCheck": true,
+          "watch": true
+        },
         "production": {}
       }
     },
@@ -30,8 +39,7 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "backend:build",
-        "debounce": 500
+        "buildTarget": "backend:build"
       },
       "configurations": {
         "development": {

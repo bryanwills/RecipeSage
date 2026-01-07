@@ -7,7 +7,6 @@ import {
 } from "@recipesage/express";
 
 import express from "express";
-import path from "path";
 import logger from "morgan";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
@@ -88,8 +87,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
-// view engine setup
-app.set("views", path.join(__dirname, "views"));
+const EXPRESS_VIEWS_PATH = process.env.EXPRESS_VIEWS_PATH;
+if (!EXPRESS_VIEWS_PATH) throw new Error("EXPRESS_VIEWS_PATH must be provided");
+app.set("views", EXPRESS_VIEWS_PATH);
 app.set("view engine", "pug");
 
 if (process.env.NODE_ENV !== "test") app.use(logger("dev"));

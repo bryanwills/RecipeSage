@@ -15,32 +15,31 @@
         "platform": "node",
         "format": ["cjs"],
         "bundle": true,
-        "external": ["@sentry/profiling-node", "jsdom"],
+        "minify": false,
+        "external": ["@sentry/profiling-node", "jsdom", "pdfmake"],
         "generatePackageJson": true,
         "esbuildConfig": "packages/queue-worker/esbuild.config.js"
       },
       "configurations": {
         "development": {
-          "minify": false
+          "skipTypeCheck": true,
+          "watch": true
         },
-        "production": {
-          "minify": true
-        }
+        "production": {}
       }
     },
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "queue-worker:build",
-        "debounce": 500
+        "buildTarget": "queue-worker:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "backend:build:development"
+          "buildTarget": "queue-worker:build:development"
         },
         "production": {
-          "buildTarget": "backend:build:production"
+          "buildTarget": "queue-worker:build:production"
         }
       }
     },

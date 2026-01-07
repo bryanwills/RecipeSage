@@ -33,7 +33,11 @@ RUN npx prisma generate
 
 RUN npx nx run-many -t build -p backend,queue-worker --parallel=6
 
-# Include version build arg within the container env
 ARG VERSION
 ENV VERSION=$VERSION
+ENV NX_SKIP_NX_CACHE=true
+ENV NX_NO_CLOUD=true
+ENV FONTS_PATH=/app/fonts
+ENV EXPRESS_VIEWS_PATH=/app/dist/apps/backend/views
+ENV FRONTEND_I18N_PATH=/app/packages/frontend/src/assets/i18n
 
