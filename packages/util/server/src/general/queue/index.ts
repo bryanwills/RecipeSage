@@ -18,8 +18,8 @@ export const getJobQueue = () => {
 
   jobQueue = new Queue<JobQueueItem, void>(JOB_QUEUE_NAME, {
     connection: {
-      host: process.env.JOB_QUEUE_IMPORT_REDIS_HOST,
-      port: parseInt(process.env.JOB_QUEUE_IMPORT_REDIS_PORT || "6379"),
+      host: process.env.JOB_QUEUE_REDIS_HOST,
+      port: parseInt(process.env.JOB_QUEUE_REDIS_PORT || "6379"),
       enableOfflineQueue: false,
     },
     prefix: JOB_QUEUE_PREFIX,
@@ -50,9 +50,25 @@ export const getJobQueueWorker = () => {
     async (args) => {
       console.log(`Starting processing job ${args.id}`);
 
+      const verify = await prisma.job.findUniqueOrThrow({
+        where: {
+          id: args.data.jobId,
+        },
+        ...jobSummary,
+      });
+      if (
+        verify.status !== JobStatus.CREATE &&
+        !process.env.JOB_QUEUE_ALLOW_REPROCESS
+      ) {
+        throw new Error(
+          "Attempted to start processing on job that is not in CREATE state",
+        );
+      }
+
       const _job = await prisma.job.update({
         where: {
           id: args.data.jobId,
+          status: JobStatus.CREATE,
         },
         data: {
           status: JobStatus.RUN,
@@ -76,13 +92,13 @@ export const getJobQueueWorker = () => {
     {
       autorun: false,
       connection: {
-        host: process.env.JOB_QUEUE_IMPORT_REDIS_HOST,
-        port: parseInt(process.env.JOB_QUEUE_IMPORT_REDIS_PORT || "6379"),
+        host: process.env.JOB_QUEUE_REDIS_HOST,
+        port: parseInt(process.env.JOB_QUEUE_REDIS_PORT || "6379"),
       },
       prefix: JOB_QUEUE_PREFIX,
       removeOnComplete: { count: 50 },
       removeOnFail: { count: 50 },
-      concurrency: parseInt(process.env.JOB_QUEUE_IMPORT_CONCURRENCY || "1"),
+      concurrency: parseInt(process.env.JOB_QUEUE_CONCURRENCY || "1"),
     },
   );
 

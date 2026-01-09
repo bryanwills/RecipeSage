@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/node";
 /**
  * Stale after minutes applies to the jobs last updatedAt time
  */
-const STALE_AFTER_MINUTES = 10;
+const STALE_AFTER_MINUTES = 30;
 const INVALIDATION_PERIOD_MINUTES =
   process.env.NODE_ENV === "development" ? 1 : 10;
 /**
