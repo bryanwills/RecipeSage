@@ -1,4 +1,5 @@
 import express from "express";
+import { imageRouter } from "./image";
 import { importRouter } from "./import";
 import { mealPlansRouter } from "./mealPlans";
 import { metricsRouter } from "./metrics";
@@ -8,6 +9,7 @@ import { printRouter } from "./print";
 
 const router = express.Router();
 
+router.use("/image", imageRouter);
 router.use("/import", importRouter);
 router.use("/mealplans", mealPlansRouter);
 router.use("/metrics", metricsRouter);

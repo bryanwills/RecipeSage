@@ -1,3 +1,4 @@
+export * from "./imageSummary";
 export * from "./assistantMessageSummary";
 export * from "./jobSummary";
 export * from "./labelGroupSummary";

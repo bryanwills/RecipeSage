@@ -1,17 +1,28 @@
-import { metrics, transformImageBuffer } from "../general";
+import type { Readable } from "stream";
+import {
+  metrics,
+  transformImageBuffer,
+  transformImageStreamToBuffer,
+} from "../general";
 import { IS_FIREBASE_AVAILABLE } from "../general/isFirebaseAvailable";
 import { ocrImageBuffer } from "./ocr";
 import { TextToRecipeInputType, textToRecipe } from "./textToRecipe";
 import { VisionToRecipeInputType, visionToRecipe } from "./visionToRecipe";
 
-export const ocrImagesToRecipe = async (imageBuffers: Buffer[]) => {
+export const ocrImagesToRecipe = async (images: (Buffer | Readable)[]) => {
   metrics.convertImagesToRecipe.inc();
 
-  const transformedBuffers: Buffer[] = [];
-  for (const imageBuffer of imageBuffers) {
-    transformedBuffers.push(
-      await transformImageBuffer(imageBuffer, 8000, 8000, 90, "inside"),
-    );
+  const transformedImagesAsBuffers: Buffer[] = [];
+  for (const image of images) {
+    if (Buffer.isBuffer(image)) {
+      transformedImagesAsBuffers.push(
+        await transformImageBuffer(image, 4000, 4000, 85, "inside"),
+      );
+    } else {
+      transformedImagesAsBuffers.push(
+        await transformImageStreamToBuffer(image, 4000, 4000, 85, "inside"),
+      );
+    }
   }
 
   if (!IS_FIREBASE_AVAILABLE || process.env.DISABLE_GCV === "true") {
@@ -22,7 +33,9 @@ export const ocrImagesToRecipe = async (imageBuffers: Buffer[]) => {
     }
 
     const recognizedRecipe = await visionToRecipe(
-      transformedBuffers.map((imageBuffer) => imageBuffer.toString("base64")),
+      transformedImagesAsBuffers.map((imageBuffer) =>
+        imageBuffer.toString("base64"),
+      ),
       VisionToRecipeInputType.Photo,
     );
     metrics.convertImagesToRecipe.inc();
@@ -31,7 +44,7 @@ export const ocrImagesToRecipe = async (imageBuffers: Buffer[]) => {
   }
 
   const ocrResults: string[] = [];
-  for (const imageBuffer of transformedBuffers) {
+  for (const imageBuffer of transformedImagesAsBuffers) {
     ocrResults.push(...(await ocrImageBuffer(imageBuffer)));
   }
   const recipeText = ocrResults.join("\n");

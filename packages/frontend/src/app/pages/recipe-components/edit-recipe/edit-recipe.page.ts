@@ -16,21 +16,25 @@ import {
 } from "@capacitor/camera";
 
 import { RouteMap } from "~/services/util.service";
-import { RecipeService, Recipe, BaseRecipe } from "~/services/recipe.service";
+import { RecipeService } from "~/services/recipe.service";
 import { LoadingService } from "~/services/loading.service";
 import { UnsavedChangesService } from "~/services/unsaved-changes.service";
 import { CapabilitiesService } from "~/services/capabilities.service";
-import { Image, ImageService } from "~/services/image.service";
+import { ImageService } from "~/services/image.service";
 import { getQueryParam } from "~/utils/queryParams";
 
 import { EditRecipePopoverPage } from "../edit-recipe-popover/edit-recipe-popover.page";
-import type { LabelGroupSummary, LabelSummary } from "@recipesage/prisma";
+import type {
+  ImageSummary,
+  LabelGroupSummary,
+  LabelSummary,
+  RecipeSummary,
+} from "@recipesage/prisma";
 import { TRPCService } from "../../../services/trpc.service";
 import {
   SelectableItem,
   SelectMultipleItemsComponent,
 } from "../../../components/select-multiple-items/select-multiple-items.component";
-import { FeatureFlagService } from "../../../services/feature-flag.service";
 import { IS_SELFHOST } from "@recipesage/frontend/src/environments/environment";
 import { ErrorHandlers } from "../../../services/http-error-handler.service";
 import { EventName, EventService } from "../../../services/event.service";
@@ -65,7 +69,6 @@ export class EditRecipePage {
   private imageService = inject(ImageService);
   private capabilitiesService = inject(CapabilitiesService);
   private events = inject(EventService);
-  private featureFlagService = inject(FeatureFlagService);
 
   saving = false;
   defaultBackHref: string;
@@ -73,8 +76,8 @@ export class EditRecipePage {
   recipeId?: string;
   originalTitle?: string;
   // TODO: Clean this up
-  fullRecipe?: Recipe;
-  recipe: Partial<BaseRecipe> & { id?: string } = {
+  fullRecipe?: RecipeSummary;
+  recipe: Partial<RecipeSummary> = {
     title: "",
     description: "",
     yield: "",
@@ -87,7 +90,7 @@ export class EditRecipePage {
     instructions: "",
   };
 
-  images: Image[] = [];
+  images: ImageSummary[] = [];
   labels: LabelSummary[] = [];
   labelGroups: LabelGroupSummary[] = [];
   selectedLabels: LabelSummary[] = [];
@@ -130,7 +133,7 @@ export class EditRecipePage {
     );
 
     if (this.fullRecipe) {
-      this.selectedLabels = this.fullRecipe.labels
+      this.selectedLabels = this.fullRecipe.recipeLabels
         .map((label) => labelsById[label.id])
         .filter((label) => label);
     }
@@ -140,13 +143,19 @@ export class EditRecipePage {
 
   async _loadRecipe() {
     if (this.recipeId) {
-      const response = await this.recipeService.fetchById(this.recipeId);
+      const response = await this.trpcService.handle(
+        this.trpcService.trpc.recipes.getRecipe.query({
+          id: this.recipeId,
+        }),
+      );
 
-      if (response.success) {
-        this.fullRecipe = response.data;
-        this.recipe = response.data;
-        this.images = response.data.images;
-        this.originalTitle = response.data.title;
+      if (response) {
+        this.fullRecipe = response;
+        this.recipe = response;
+        this.images = response.recipeImages
+          .sort((a, b) => a.order - b.order)
+          .map((el) => el.image);
+        this.originalTitle = response.title;
       }
     }
   }
@@ -601,7 +610,7 @@ export class EditRecipePage {
         resultType: CameraResultType.Base64,
         source: CameraSource.Prompt,
         direction: CameraDirection.Rear,
-        quality: 100,
+        quality: 85,
         allowEditing: true,
         width: 2160,
         webUseInput: true,
@@ -665,9 +674,7 @@ export class EditRecipePage {
     this.recipe.notes = response.recipe.notes || "";
 
     const imageResponse = await this.imageService.createFromB64(
-      {
-        data: capturedPhoto.base64String,
-      },
+      capturedPhoto.base64String,
       {
         "*": () => {},
       },
@@ -937,9 +944,7 @@ export class EditRecipePage {
         new Promise((resolve) => setTimeout(resolve, IMAGE_LOADING_TIMEOUT)),
         (async () => {
           const imageResponse = await this.imageService.createFromUrl(
-            {
-              url: response.data.imageURL,
-            },
+            response.data.imageURL,
             {
               400: () => {},
               415: () => {},
@@ -1007,9 +1012,7 @@ export class EditRecipePage {
       });
       await loading.present();
 
-      const response = await this.imageService.createFromUrl({
-        url: imageUrl,
-      });
+      const response = await this.imageService.createFromUrl(imageUrl);
       if (response.success) this.images.push(response.data);
 
       loading.dismiss();
