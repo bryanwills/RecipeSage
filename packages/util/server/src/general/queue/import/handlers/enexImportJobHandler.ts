@@ -24,11 +24,11 @@ export async function enexImportJobHandler(
   const importLabels = jobMeta.importLabels || [];
 
   try {
-    if (!queueItem.s3StorageKey) {
+    if (!queueItem.storageKey) {
       throw new Error("No S3 storage key provided for ENEX import");
     }
 
-    await using downloaded = await downloadS3ToTemp(queueItem.s3StorageKey);
+    await using downloaded = await downloadS3ToTemp(queueItem.storageKey);
 
     const xml = await readFile(downloaded.filePath, "utf8");
     const data = JSON.parse(xmljs.xml2json(xml, { compact: true, spaces: 4 }));

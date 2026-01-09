@@ -54,7 +54,7 @@ export const cookmateHandler = defineHandler(
 
     await enqueueJob({
       jobId: job.id,
-      s3StorageKey: storageRecord.key,
+      storageKey: storageRecord.key,
     });
 
     return {
