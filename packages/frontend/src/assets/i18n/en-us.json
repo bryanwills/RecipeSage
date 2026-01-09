@@ -276,6 +276,8 @@
   "pages.contribute.purpose": "However, as RecipeSage grows, hosting costs for servers and images begin to add up.",
   "pages.contribute.monthly": "Monthly",
   "pages.contribute.monthly.description": "You will unlock bonus features for the months that you are subscribed.",
+  "pages.contribute.yearly": "Yearly",
+  "pages.contribute.yearly.description": "You will unlock bonus features for the years that you are subscribed.",
   "pages.contribute.oneTime": "One-Time",
   "pages.contribute.oneTime.description": "You will unlock bonus features for one year.",
   "pages.contribute.custom": "Custom",

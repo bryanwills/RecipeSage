@@ -29,6 +29,12 @@
         <span> {{ "pages.contribute.monthly" | translate }} </span>
       </ion-button>
       <ion-button
+        [fill]="frequency === 'yearly' ? 'solid' : 'outline'"
+        (click)="setFrequency('yearly')"
+      >
+        <span> {{ "pages.contribute.yearly" | translate }} </span>
+      </ion-button>
+      <ion-button
         [fill]="frequency === 'single' ? 'solid' : 'outline'"
         (click)="setFrequency('single')"
       >
@@ -63,25 +69,52 @@
         />
       </div>
     }
-    @if (frequency === "single") {
+    @if (frequency === "yearly") {
       <div class="amount-row">
         <ion-button
-          [fill]="amount === 10 ? 'solid' : 'outline'"
-          (click)="setAmount(10)"
+          [fill]="amount === 12 ? 'solid' : 'outline'"
+          (click)="setAmount(12)"
         >
-          $10.00
-        </ion-button>
-        <ion-button
-          [fill]="amount === 25 ? 'solid' : 'outline'"
-          (click)="setAmount(25)"
-        >
-          $25.00
+          $12.00
         </ion-button>
         <ion-button
           [fill]="amount === 50 ? 'solid' : 'outline'"
           (click)="setAmount(50)"
         >
           $50.00
+        </ion-button>
+        <ion-button
+          [fill]="amount === 100 ? 'solid' : 'outline'"
+          (click)="setAmount(100)"
+        >
+          $100.00
+        </ion-button>
+        <input
+          [placeholder]="'pages.contribute.custom' | translate"
+          (focus)="focusCustom()"
+          [(ngModel)]="customAmount"
+        />
+      </div>
+    }
+    @if (frequency === "single") {
+      <div class="amount-row">
+        <ion-button
+          [fill]="amount === 15 ? 'solid' : 'outline'"
+          (click)="setAmount(15)"
+        >
+          $15.00
+        </ion-button>
+        <ion-button
+          [fill]="amount === 50 ? 'solid' : 'outline'"
+          (click)="setAmount(50)"
+        >
+          $50.00
+        </ion-button>
+        <ion-button
+          [fill]="amount === 100 ? 'solid' : 'outline'"
+          (click)="setAmount(100)"
+        >
+          $100.00
         </ion-button>
         <input
           [placeholder]="'pages.contribute.custom' | translate"
@@ -140,6 +173,8 @@
     <p>
       <i>{{ "pages.contribute.monthly" | translate }}: </i
       >{{ "pages.contribute.monthly.description" | translate }}<br />
+      <i>{{ "pages.contribute.yearly" | translate }}: </i
+      >{{ "pages.contribute.yearly.description" | translate }}<br />
       <i>{{ "pages.contribute.oneTime" | translate }}: </i
       >{{ "pages.contribute.oneTime.description" | translate }}
     </p>

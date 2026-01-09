@@ -7,6 +7,7 @@ import {
   findCheckoutUser,
   SubscriptionModelName,
   validateStripeEvent,
+  stripe,
 } from "@recipesage/util/server/capabilities";
 import assert from "assert";
 import { prisma } from "@recipesage/prisma";
@@ -143,6 +144,30 @@ export const webhookHandler = defineHandler(
         invoice.customer_email,
       );
 
+      let subscriptionModelName = SubscriptionModelName.PyoMonthly;
+
+      const subscription = invoice.parent?.subscription_details?.subscription;
+      const subscriptionId =
+        typeof subscription === "string" ? subscription : subscription?.id;
+
+      if (subscriptionId) {
+        try {
+          const stripeSubscription =
+            await stripe.subscriptions.retrieve(subscriptionId);
+          const interval =
+            stripeSubscription.items.data[0]?.price?.recurring?.interval;
+
+          if (interval === "year") {
+            subscriptionModelName = SubscriptionModelName.PyoYearly;
+          } else if (interval === "month") {
+            subscriptionModelName = SubscriptionModelName.PyoMonthly;
+          }
+        } catch (err) {
+          console.error("Failed to retrieve subscription interval:", err);
+          Sentry.captureException(err);
+        }
+      }
+
       await prisma.$transaction(async (tx) => {
         // We use this to prevent duplicate webhook processing
         await tx.stripeEvent.create({
@@ -152,10 +177,6 @@ export const webhookHandler = defineHandler(
             blob: event,
           },
         });
-
-        const subscription = invoice.parent?.subscription_details?.subscription;
-        const subscriptionId =
-          typeof subscription === "string" ? subscription : subscription?.id;
 
         assert(typeof invoice.customer === "string");
 
@@ -171,11 +192,7 @@ export const webhookHandler = defineHandler(
         });
 
         if (user) {
-          await extendSubscription(
-            user.id,
-            SubscriptionModelName.PyoMonthly,
-            tx,
-          );
+          await extendSubscription(user.id, subscriptionModelName, tx);
         } else {
           console.warn("Payment collected for unknown user");
           Sentry.captureMessage("Payment collected for unknown user", {
