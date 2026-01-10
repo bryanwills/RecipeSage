@@ -37,7 +37,7 @@
     "@openrouter/ai-sdk-provider": "^6.0.0-alpha.1",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
-    "@prisma/instrumentation": "^6.19.0",
+    "@prisma/instrumentation": "^7.2.0",
     "@sentry/angular": "^10.32.1",
     "@sentry/browser": "^10.22.0",
     "@sentry/node": "^10.32.1",
