@@ -2,7 +2,7 @@ import { Worker, Queue } from "bullmq";
 import * as Sentry from "@sentry/node";
 import type { JobQueueItem } from "./JobQueueItem";
 import { prisma } from "@recipesage/prisma";
-import { JobStatus } from "@prisma/client";
+import { JobStatus } from "@recipesage/prisma";
 
 export * from "./JobQueueItem";
 export * from "./processWorkerJob";

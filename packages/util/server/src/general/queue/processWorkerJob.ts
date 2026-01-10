@@ -6,7 +6,7 @@ import {
   prismaJobSummaryToJobSummary,
   type JobMeta,
 } from "@recipesage/prisma";
-import { JobStatus, JobType } from "@prisma/client";
+import { JobStatus, JobType } from "@recipesage/prisma";
 import { processImportJob } from "./import/processImportJob";
 
 export const processWorkerJob = async (

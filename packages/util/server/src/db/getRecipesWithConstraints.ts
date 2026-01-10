@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@recipesage/prisma";
 import {
   prisma,
   RecipeSummaryLite,

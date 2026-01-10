@@ -1,5 +1,5 @@
 import { Client } from "typesense";
-import { Recipe } from "@prisma/client";
+import { Recipe } from "@recipesage/prisma";
 import { SearchProvider } from "./";
 
 let client: Client;

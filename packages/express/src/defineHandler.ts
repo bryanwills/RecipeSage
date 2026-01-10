@@ -11,7 +11,7 @@ import {
   validateSession,
   extendSession,
 } from "@recipesage/util/server/general";
-import { Session } from "@prisma/client";
+import { Session } from "@recipesage/prisma";
 
 const handleServerError = (e: unknown, res: Response) => {
   if (e instanceof ServerError) {

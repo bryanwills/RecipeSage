@@ -1,4 +1,4 @@
-import { JobStatus } from "@prisma/client";
+import { JobStatus } from "@recipesage/prisma";
 import { prisma } from "@recipesage/prisma";
 import { JOB_RESULT_CODES } from "@recipesage/util/shared";
 import * as Sentry from "@sentry/node";
@@ -47,5 +47,9 @@ export const setupInvalidateStaleJobsInterval = () => {
   if (process.env.NODE_ENV === "test") return;
 
   const time = INVALIDATION_PERIOD_MINUTES * 60 * 1000;
-  setInterval(invalidateStaleJobs, time + INVALIDATION_PERIOD_VARIANCE_MS);
+  setInterval(() => {
+    invalidateStaleJobs().catch((e) => {
+      Sentry.captureException(e);
+    });
+  }, time + INVALIDATION_PERIOD_VARIANCE_MS);
 };
