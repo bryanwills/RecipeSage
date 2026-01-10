@@ -1,20 +1,20 @@
 import { stripe } from "./stripe";
 
+export const YEARLY_PYO_PRODUCT_ID = "pyo-yearly";
+
 export async function createYearlyPYOSession(args: {
   amount: number;
   stripeCustomerId?: string;
   successUrl: string;
   cancelUrl: string;
 }) {
-  const productId = "pyo-yearly";
-
   let product;
 
   try {
-    product = await stripe.products.retrieve(productId);
+    product = await stripe.products.retrieve(YEARLY_PYO_PRODUCT_ID);
   } catch (_e) {
     product = await stripe.products.create({
-      id: productId,
+      id: YEARLY_PYO_PRODUCT_ID,
       name: "RecipeSage Yearly Membership - Choose Your Own Price",
       type: "service",
     });

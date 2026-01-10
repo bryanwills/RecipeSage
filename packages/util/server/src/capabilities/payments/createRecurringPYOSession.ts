@@ -1,20 +1,20 @@
 import { stripe } from "./stripe";
 
+export const MONTHLY_PYO_PRODUCT_ID = "pyo-monthly";
+
 export async function createRecurringPYOSession(args: {
   amount: number;
   stripeCustomerId?: string;
   successUrl: string;
   cancelUrl: string;
 }) {
-  const productId = "pyo-monthly";
-
   let product;
 
   try {
-    product = await stripe.products.retrieve(productId);
+    product = await stripe.products.retrieve(MONTHLY_PYO_PRODUCT_ID);
   } catch (_e) {
     product = await stripe.products.create({
-      id: productId,
+      id: MONTHLY_PYO_PRODUCT_ID,
       name: "RecipeSage Monthly Membership - Choose Your Own Price",
       type: "service",
     });

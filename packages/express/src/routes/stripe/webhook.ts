@@ -8,6 +8,8 @@ import {
   SubscriptionModelName,
   validateStripeEvent,
   stripe,
+  YEARLY_PYO_PRODUCT_ID,
+  MONTHLY_PYO_PRODUCT_ID,
 } from "@recipesage/util/server/capabilities";
 import assert from "assert";
 import { prisma } from "@recipesage/prisma";
@@ -150,22 +152,16 @@ export const webhookHandler = defineHandler(
       const subscriptionId =
         typeof subscription === "string" ? subscription : subscription?.id;
 
-      if (subscriptionId) {
-        try {
-          const stripeSubscription =
-            await stripe.subscriptions.retrieve(subscriptionId);
-          const interval =
-            stripeSubscription.items.data[0]?.price?.recurring?.interval;
+      const paidProducts = invoice.lines.data.map((line) => line.pricing?.price_details?.product);
+      if (paidProducts.includes(MONTHLY_PYO_PRODUCT_ID)) {
+        subscriptionModelName = SubscriptionModelName.PyoMonthly;
+      }
+      if (paidProducts.includes(YEARLY_PYO_PRODUCT_ID)) {
+        subscriptionModelName = SubscriptionModelName.PyoYearly;
+      }
 
-          if (interval === "year") {
-            subscriptionModelName = SubscriptionModelName.PyoYearly;
-          } else if (interval === "month") {
-            subscriptionModelName = SubscriptionModelName.PyoMonthly;
-          }
-        } catch (err) {
-          console.error("Failed to retrieve subscription interval:", err);
-          Sentry.captureException(err);
-        }
+      if (!subscriptionModelName) {
+        throw new InternalServerError(`Invoice paid with unknown product ${invoice.id}`);
       }
 
       await prisma.$transaction(async (tx) => {
