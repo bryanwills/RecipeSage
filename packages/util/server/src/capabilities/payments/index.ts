@@ -8,4 +8,3 @@ export * from "./getStripePrices";
 export * from "./getStripePrice";
 export * from "./getStripeProduct";
 export * from "./validateStripeEvent";
-export * from "./stripe";

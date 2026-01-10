@@ -98,8 +98,7 @@ export class ContributePage {
     else if (this.customAmount) amount = parseFloat(this.customAmount);
     else return;
 
-    const minimumAmount =
-      this.frequency === "monthly" ? 1 : this.frequency === "yearly" ? 10 : 5;
+    const minimumAmount = this.frequency === "monthly" ? 1 : 10;
 
     const message = await this.translate
       .get("pages.contribute.minimum", { amount: minimumAmount })

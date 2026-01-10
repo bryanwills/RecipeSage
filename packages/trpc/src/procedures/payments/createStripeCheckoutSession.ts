@@ -9,7 +9,8 @@ import {
 export const createStripeCheckoutSession = publicProcedure
   .input(
     z.object({
-      frequency: z.enum(["monthly", "yearly", "single"]),
+      frequency: z.enum(["monthly", "yearly", "single"]).optional(), // Backwards compat - field marked as optional
+      isRecurring: z.boolean().optional(), // Backwards compat - field still included, can be removed
       amount: z.number().min(0).max(1000000),
       successUrl: z.string(),
       cancelUrl: z.string(),
@@ -17,6 +18,11 @@ export const createStripeCheckoutSession = publicProcedure
   )
   .mutation(async ({ ctx, input }) => {
     const session = ctx.session;
+    let frequency = input.frequency;
+    // Backwards compat
+    if (!frequency) {
+      frequency = input.isRecurring ? "monthly" : "single";
+    }
 
     if (process.env.NODE_ENV === "selfhost") {
       throw new TRPCError({
@@ -57,10 +63,10 @@ export const createStripeCheckoutSession = publicProcedure
         message: "Minimum is $10 due to transaction fees, sorry!",
       });
     }
-    if (input.frequency === "single" && input.amount < 500) {
+    if (input.frequency === "single" && input.amount < 1000) {
       throw new TRPCError({
         code: "PRECONDITION_FAILED",
-        message: "Minimum is $5 due to transaction fees, sorry!",
+        message: "Minimum is $10 due to transaction fees, sorry!",
       });
     }
 
@@ -70,7 +76,7 @@ export const createStripeCheckoutSession = publicProcedure
     }
 
     const stripeSession = await createPYOSession({
-      frequency: input.frequency,
+      frequency,
       stripeCustomerId,
       amount: input.amount,
       successUrl: input.successUrl,
