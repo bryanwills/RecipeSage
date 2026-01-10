@@ -757,7 +757,6 @@
     "pages.home.deleteSelected.message": "Ezzel véglegesen törli a kiválasztott recepteket a fiókjából. Ez a művelet visszafordíthatatlan. A következő receptek törlésre kerülnek: {{recipeNames}}",
     "pages.about.title": "Névjegy és támogatás",
     "pages.homeSearchFilterPopover.includeFriends.browse": "Csak ha nem keres",
-    "pages.contribute.monthly.description": "A bónusz funkciókat azokra a hónapokra használhatja fel, amelyekre előfizet.",
     "pages.contributeThankYou.questions": "Bármilyen kérdésével, aggályával vagy észrevételével forduljon hozzám bizalommal.",
     "pages.downloadAndInstall.android.step.2": "Nyissa meg a böngésző menüt ezzel a gombbal:",
     "pages.downloadAndInstall.ios.step.3": "Kattintson a \"Hozzáadás a kezdőképernyőhöz\" gombra",
