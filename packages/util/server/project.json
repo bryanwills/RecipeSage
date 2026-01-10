@@ -8,19 +8,13 @@
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
+      "dependsOn": ["util-shared:build"],
       "options": {
         "main": "packages/util/server/src/index.ts",
-        "outputPath": "dist/packages/util/server",
-        "outputFileName": "main.js",
+        "outputPath": "dist/libs/util/server",
         "tsConfig": "packages/util/server/tsconfig.lib.json",
         "declaration": true,
-        "assets": [
-          {
-            "glob": "packages/util/server/README.md",
-            "input": ".",
-            "output": "."
-          }
-        ],
+        "assets": [],
         "platform": "node"
       },
       "configurations": {
