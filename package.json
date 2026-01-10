@@ -34,6 +34,7 @@
     "@ngx-loading-bar/core": "^7.0.0",
     "@ngx-translate/core": "^16.0.4",
     "@ngx-translate/http-loader": "^16.0.1",
+    "@openrouter/ai-sdk-provider": "^6.0.0-alpha.1",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "@prisma/instrumentation": "^6.19.0",
