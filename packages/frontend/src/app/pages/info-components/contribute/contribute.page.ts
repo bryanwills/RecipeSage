@@ -74,7 +74,7 @@ export class ContributePage {
     this.customAmount = "0.00";
   }
 
-  setFrequency(frequency: "monthly" | "single") {
+  setFrequency(frequency: "monthly" | "yearly" | "single") {
     this.frequency = frequency;
     this.amount = undefined;
     this.customAmount = undefined;
@@ -98,16 +98,17 @@ export class ContributePage {
     else if (this.customAmount) amount = parseFloat(this.customAmount);
     else return;
 
-    const isRecurring = this.frequency === "monthly";
+    const minimumAmount =
+      this.frequency === "monthly" ? 1 : this.frequency === "yearly" ? 10 : 5;
 
     const message = await this.translate
-      .get("pages.contribute.minimum", { amount: isRecurring ? 1 : 5 })
+      .get("pages.contribute.minimum", { amount: minimumAmount })
       .toPromise();
 
     const response = await this.trpcService.handle(
       this.trpcService.trpc.payments.createStripeCheckoutSession.mutate({
         amount: amount * 100,
-        isRecurring,
+        frequency: this.frequency as "monthly" | "yearly" | "single",
         successUrl: this.utilService.buildPublicRoutePath(
           RouteMap.ContributeThankYouPage.getPath(),
         ),

@@ -7,6 +7,8 @@ import {
   findCheckoutUser,
   SubscriptionModelName,
   validateStripeEvent,
+  YEARLY_PYO_PRODUCT_ID,
+  MONTHLY_PYO_PRODUCT_ID,
 } from "@recipesage/util/server/capabilities";
 import assert from "assert";
 import { prisma } from "@recipesage/prisma";
@@ -144,6 +146,28 @@ export const webhookHandler = defineHandler(
         invoice.customer_email,
       );
 
+      let subscriptionModelName = SubscriptionModelName.PyoMonthly;
+
+      const subscription = invoice.parent?.subscription_details?.subscription;
+      const subscriptionId =
+        typeof subscription === "string" ? subscription : subscription?.id;
+
+      const paidProducts = invoice.lines.data.map(
+        (line) => line.pricing?.price_details?.product,
+      );
+      if (paidProducts.includes(MONTHLY_PYO_PRODUCT_ID)) {
+        subscriptionModelName = SubscriptionModelName.PyoMonthly;
+      }
+      if (paidProducts.includes(YEARLY_PYO_PRODUCT_ID)) {
+        subscriptionModelName = SubscriptionModelName.PyoYearly;
+      }
+
+      if (!subscriptionModelName) {
+        throw new InternalServerError(
+          `Invoice paid with unknown product ${invoice.id}`,
+        );
+      }
+
       await prisma.$transaction(async (tx) => {
         // We use this to prevent duplicate webhook processing
         await tx.stripeEvent.create({
@@ -153,10 +177,6 @@ export const webhookHandler = defineHandler(
             blob: event as unknown as InputJsonValue,
           },
         });
-
-        const subscription = invoice.parent?.subscription_details?.subscription;
-        const subscriptionId =
-          typeof subscription === "string" ? subscription : subscription?.id;
 
         assert(typeof invoice.customer === "string");
 
@@ -172,11 +192,7 @@ export const webhookHandler = defineHandler(
         });
 
         if (user) {
-          await extendSubscription(
-            user.id,
-            SubscriptionModelName.PyoMonthly,
-            tx,
-          );
+          await extendSubscription(user.id, subscriptionModelName, tx);
         } else {
           console.warn("Payment collected for unknown user");
           Sentry.captureMessage("Payment collected for unknown user", {
