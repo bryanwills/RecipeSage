@@ -7,7 +7,6 @@ import {
   findCheckoutUser,
   SubscriptionModelName,
   validateStripeEvent,
-  stripe,
   YEARLY_PYO_PRODUCT_ID,
   MONTHLY_PYO_PRODUCT_ID,
 } from "@recipesage/util/server/capabilities";
@@ -153,7 +152,9 @@ export const webhookHandler = defineHandler(
       const subscriptionId =
         typeof subscription === "string" ? subscription : subscription?.id;
 
-      const paidProducts = invoice.lines.data.map((line) => line.pricing?.price_details?.product);
+      const paidProducts = invoice.lines.data.map(
+        (line) => line.pricing?.price_details?.product,
+      );
       if (paidProducts.includes(MONTHLY_PYO_PRODUCT_ID)) {
         subscriptionModelName = SubscriptionModelName.PyoMonthly;
       }
@@ -162,7 +163,9 @@ export const webhookHandler = defineHandler(
       }
 
       if (!subscriptionModelName) {
-        throw new InternalServerError(`Invoice paid with unknown product ${invoice.id}`);
+        throw new InternalServerError(
+          `Invoice paid with unknown product ${invoice.id}`,
+        );
       }
 
       await prisma.$transaction(async (tx) => {
