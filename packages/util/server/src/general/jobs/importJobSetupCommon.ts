@@ -1,4 +1,4 @@
-import { JobStatus, JobType } from "@prisma/client";
+import { JobStatus, JobType } from "@recipesage/prisma";
 import { prisma, type JobMeta } from "@recipesage/prisma";
 import { cleanLabelTitle } from "@recipesage/util/shared";
 import { metrics } from "../metrics";
@@ -24,7 +24,7 @@ export async function importJobSetupCommon(args: {
     data: {
       userId: args.userId,
       type: JobType.IMPORT,
-      status: JobStatus.RUN,
+      status: JobStatus.CREATE,
       progress: 1,
       meta: {
         importType: args.importType,

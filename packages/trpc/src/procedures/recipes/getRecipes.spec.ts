@@ -1,7 +1,7 @@
 import { trpcSetup, tearDown, createTrpcClient } from "../../testutils";
 import { recipeFactory } from "../../factories/recipeFactory";
 import { prisma } from "@recipesage/prisma";
-import { User } from "@prisma/client";
+import { User } from "@recipesage/prisma";
 import type { TRPCClient } from "@trpc/client";
 import type { AppRouter } from "../../index";
 import { faker } from "@faker-js/faker";

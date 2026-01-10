@@ -7,10 +7,13 @@ import {
   findCheckoutUser,
   SubscriptionModelName,
   validateStripeEvent,
+  YEARLY_PYO_PRODUCT_ID,
+  MONTHLY_PYO_PRODUCT_ID,
 } from "@recipesage/util/server/capabilities";
 import assert from "assert";
 import { prisma } from "@recipesage/prisma";
 import { metrics } from "@recipesage/util/server/general";
+import type { InputJsonValue } from "@prisma/client/runtime/client";
 
 const schema = {
   body: z.any(),
@@ -86,7 +89,7 @@ export const webhookHandler = defineHandler(
           data: {
             stripeId: event.id,
             userId: user?.id,
-            blob: event,
+            blob: event as unknown as InputJsonValue,
           },
         });
 
@@ -101,7 +104,7 @@ export const webhookHandler = defineHandler(
             customerId: session.customer,
             customerEmail: stripeEmail || (user || {}).email || null,
             paymentIntentId: session.payment_intent,
-            invoiceBlob: session,
+            invoiceBlob: session as unknown as InputJsonValue,
           },
         });
 
@@ -143,19 +146,37 @@ export const webhookHandler = defineHandler(
         invoice.customer_email,
       );
 
+      let subscriptionModelName = SubscriptionModelName.PyoMonthly;
+
+      const subscription = invoice.parent?.subscription_details?.subscription;
+      const subscriptionId =
+        typeof subscription === "string" ? subscription : subscription?.id;
+
+      const paidProducts = invoice.lines.data.map(
+        (line) => line.pricing?.price_details?.product,
+      );
+      if (paidProducts.includes(MONTHLY_PYO_PRODUCT_ID)) {
+        subscriptionModelName = SubscriptionModelName.PyoMonthly;
+      }
+      if (paidProducts.includes(YEARLY_PYO_PRODUCT_ID)) {
+        subscriptionModelName = SubscriptionModelName.PyoYearly;
+      }
+
+      if (!subscriptionModelName) {
+        throw new InternalServerError(
+          `Invoice paid with unknown product ${invoice.id}`,
+        );
+      }
+
       await prisma.$transaction(async (tx) => {
         // We use this to prevent duplicate webhook processing
         await tx.stripeEvent.create({
           data: {
             stripeId: event.id,
             userId: user?.id,
-            blob: event,
+            blob: event as unknown as InputJsonValue,
           },
         });
-
-        const subscription = invoice.parent?.subscription_details?.subscription;
-        const subscriptionId =
-          typeof subscription === "string" ? subscription : subscription?.id;
 
         assert(typeof invoice.customer === "string");
 
@@ -166,16 +187,12 @@ export const webhookHandler = defineHandler(
             customerId: invoice.customer,
             customerEmail: invoice.customer_email || (user || {}).email || null,
             subscriptionId: subscriptionId,
-            invoiceBlob: invoice,
+            invoiceBlob: invoice as unknown as InputJsonValue,
           },
         });
 
         if (user) {
-          await extendSubscription(
-            user.id,
-            SubscriptionModelName.PyoMonthly,
-            tx,
-          );
+          await extendSubscription(user.id, subscriptionModelName, tx);
         } else {
           console.warn("Payment collected for unknown user");
           Sentry.captureMessage("Payment collected for unknown user", {

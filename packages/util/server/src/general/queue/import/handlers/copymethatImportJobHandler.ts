@@ -2,6 +2,7 @@ import type { JobSummary } from "@recipesage/prisma";
 import { type JobMeta } from "@recipesage/prisma";
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
 import {
+  ImportBadFormatError,
   importJobFailCommon,
   importJobFinishCommon,
   metrics,
@@ -22,18 +23,24 @@ export async function copymethatImportJobHandler(
   const importLabels = jobMeta.importLabels || [];
 
   try {
-    if (!queueItem.s3StorageKey) {
+    if (!queueItem.storageKey) {
       throw new Error("No S3 storage key provided for CopyMeThat import");
     }
 
-    await using downloaded = await downloadS3ToTemp(queueItem.s3StorageKey);
+    await using downloaded = await downloadS3ToTemp(queueItem.storageKey);
     const zipPath = downloaded.filePath;
 
     await using extractDir = await mkdtempDisposable("/tmp/");
     const extractPath = extractDir.path;
     await extract(zipPath, { dir: extractPath });
 
-    const recipeHtml = await readFile(extractPath + "/recipes.html", "utf-8");
+    const indexHtmlPath = extractPath + "/recipes.html";
+    try {
+      await stat(indexHtmlPath);
+    } catch (_e) {
+      throw new ImportBadFormatError();
+    }
+    const recipeHtml = await readFile(indexHtmlPath, "utf-8");
 
     const $ = cheerio.load(recipeHtml);
     const domList = $(".recipe").toArray();

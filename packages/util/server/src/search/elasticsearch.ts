@@ -1,5 +1,5 @@
 import { Client } from "@elastic/elasticsearch";
-import { Recipe } from "@prisma/client";
+import { Recipe } from "@recipesage/prisma";
 import dedent from "ts-dedent";
 import { SearchProvider } from "./";
 

@@ -1,5 +1,5 @@
 import { prisma } from "@recipesage/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@recipesage/prisma";
 import pLimit from "p-limit";
 import { cleanLabelTitle } from "@recipesage/util/shared";
 import { userHasCapability } from "../capabilities";

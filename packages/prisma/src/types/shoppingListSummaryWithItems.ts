@@ -1,53 +1,51 @@
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "../prisma/generated/client";
 import { userPublic } from "./userPublic";
 import { ShoppingListItemSummary } from "./shoppingListItemSummary";
 
 /**
  * Provides fields necessary for displaying a summary about a shopping list
  **/
-export const shoppingListSummaryWithItems =
-  Prisma.validator<Prisma.ShoppingListFindFirstArgs>()({
-    select: {
-      id: true,
-      userId: true,
-      user: userPublic,
-      collaboratorUsers: {
-        select: {
-          user: userPublic,
-        },
+export const shoppingListSummaryWithItems = {
+  select: {
+    id: true,
+    userId: true,
+    user: userPublic,
+    collaboratorUsers: {
+      select: {
+        user: userPublic,
       },
-      title: true,
-      categoryOrder: true,
-      createdAt: true,
-      updatedAt: true,
-      _count: {
-        select: {
-          items: true,
-        },
+    },
+    title: true,
+    categoryOrder: true,
+    createdAt: true,
+    updatedAt: true,
+    _count: {
+      select: {
+        items: true,
       },
-      items: {
-        select: {
-          id: true,
-          shoppingListId: true,
-          title: true,
-          completed: true,
-          categoryTitle: true,
-          createdAt: true,
-          updatedAt: true,
-          user: userPublic,
-          recipeId: true,
-          recipe: {
-            select: {
-              id: true,
-              title: true,
-              ingredients: true,
-              recipeImages: {
-                select: {
-                  image: {
-                    select: {
-                      id: true,
-                      location: true,
-                    },
+    },
+    items: {
+      select: {
+        id: true,
+        shoppingListId: true,
+        title: true,
+        completed: true,
+        categoryTitle: true,
+        createdAt: true,
+        updatedAt: true,
+        user: userPublic,
+        recipeId: true,
+        recipe: {
+          select: {
+            id: true,
+            title: true,
+            ingredients: true,
+            recipeImages: {
+              select: {
+                image: {
+                  select: {
+                    id: true,
+                    location: true,
                   },
                 },
               },
@@ -56,7 +54,8 @@ export const shoppingListSummaryWithItems =
         },
       },
     },
-  });
+  },
+} satisfies Prisma.ShoppingListFindFirstArgs;
 
 /**
  * Provides fields necessary for displaying a summary about a shopping list, including items

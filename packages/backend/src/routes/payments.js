@@ -31,7 +31,7 @@ router.post(
     if (isRecurring && amount < 100) {
       throw PreconditionFailed("Minimum is $1 due to transaction fees, sorry!");
     }
-    if (!isRecurring && amount < 500) {
+    if (!isRecurring && amount < 1000) {
       throw PreconditionFailed("Minimum is $5 due to transaction fees, sorry!");
     }
 

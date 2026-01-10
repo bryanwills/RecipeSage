@@ -1,4 +1,4 @@
-import { Prisma, ProfileItem } from "@prisma/client";
+import { Prisma, ProfileItem } from "@recipesage/prisma";
 import { prisma } from "@recipesage/prisma";
 import { getFriendshipIds } from "./getFriendshipIds";
 

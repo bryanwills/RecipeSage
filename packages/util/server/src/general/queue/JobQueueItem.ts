@@ -1,6 +1,6 @@
 export interface JobQueueItem {
   jobId: string;
-  s3StorageKey?: string;
+  storageKey?: string;
   credentials?: {
     username: string;
     password: string;

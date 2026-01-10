@@ -1,8 +1,8 @@
 import { stripe } from "./stripe";
 
-export const MONTHLY_PYO_PRODUCT_ID = "pyo-monthly";
+export const YEARLY_PYO_PRODUCT_ID = "pyo-yearly";
 
-export async function createRecurringPYOSession(args: {
+export async function createYearlyPYOSession(args: {
   amount: number;
   stripeCustomerId?: string;
   successUrl: string;
@@ -11,16 +11,16 @@ export async function createRecurringPYOSession(args: {
   let product;
 
   try {
-    product = await stripe.products.retrieve(MONTHLY_PYO_PRODUCT_ID);
+    product = await stripe.products.retrieve(YEARLY_PYO_PRODUCT_ID);
   } catch (_e) {
     product = await stripe.products.create({
-      id: MONTHLY_PYO_PRODUCT_ID,
-      name: "RecipeSage Monthly Membership - Choose Your Own Price",
+      id: YEARLY_PYO_PRODUCT_ID,
+      name: "RecipeSage Yearly Membership - Choose Your Own Price",
       type: "service",
     });
   }
 
-  const lookupKey = `pyo-monthly-${args.amount}`;
+  const lookupKey = `pyo-yearly-${args.amount}`;
 
   let price = (
     await stripe.prices.list({
@@ -32,7 +32,7 @@ export async function createRecurringPYOSession(args: {
     price = await stripe.prices.create({
       unit_amount: args.amount,
       recurring: {
-        interval: "month",
+        interval: "year",
       },
       product: product.id,
       currency: "usd",

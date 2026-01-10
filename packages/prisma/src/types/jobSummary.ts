@@ -1,6 +1,6 @@
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "../prisma/generated/client";
 
-export const jobSummary = Prisma.validator<Prisma.JobFindFirstArgs>()({
+export const jobSummary = {
   select: {
     id: true,
     status: true,
@@ -12,7 +12,7 @@ export const jobSummary = Prisma.validator<Prisma.JobFindFirstArgs>()({
     createdAt: true,
     updatedAt: true,
   },
-});
+} satisfies Prisma.JobFindFirstArgs;
 
 export interface JobMeta {
   importType?:

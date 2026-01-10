@@ -1,6 +1,6 @@
 import { LabelSummary, labelSummary, prisma } from "@recipesage/prisma";
 import { getFriendshipIds } from "./getFriendshipIds";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@recipesage/prisma";
 import { getVisibleProfileItems } from "./getVisibleProfileItems";
 import { groupProfileItemsByUserId } from "../general/groupProfileItemsByUserId";
 

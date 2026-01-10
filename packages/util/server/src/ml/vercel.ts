@@ -1,6 +1,7 @@
 import { openai, createOpenAI } from "@ai-sdk/openai";
 import { anthropic, createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 
 export const aiProvider = (() => {
   const commonConfig = {
@@ -9,6 +10,9 @@ export const aiProvider = (() => {
   };
   const provider = process.env.AI_PROVIDER;
   switch (process.env.AI_PROVIDER || "openai") {
+    case "openrouter": {
+      return createOpenRouter(commonConfig);
+    }
     case "google": {
       return createGoogleGenerativeAI(commonConfig);
     }
@@ -26,6 +30,11 @@ export const aiProvider = (() => {
 
 export const aiProviderNativeTools = (() => {
   switch (process.env.AI_PROVIDER || "openai") {
+    case "openrouter": {
+      return {
+        web_search: undefined,
+      };
+    }
     case "google": {
       return {
         web_search: undefined,

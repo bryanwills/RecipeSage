@@ -9,7 +9,8 @@ import {
 export const createStripeCheckoutSession = publicProcedure
   .input(
     z.object({
-      isRecurring: z.boolean(),
+      frequency: z.enum(["monthly", "yearly", "single"]).optional(), // Backwards compat - field marked as optional
+      isRecurring: z.boolean().optional(), // Backwards compat - field still included, can be removed
       amount: z.number().min(0).max(1000000),
       successUrl: z.string(),
       cancelUrl: z.string(),
@@ -17,6 +18,11 @@ export const createStripeCheckoutSession = publicProcedure
   )
   .mutation(async ({ ctx, input }) => {
     const session = ctx.session;
+    let frequency = input.frequency;
+    // Backwards compat
+    if (!frequency) {
+      frequency = input.isRecurring ? "monthly" : "single";
+    }
 
     if (process.env.NODE_ENV === "selfhost") {
       throw new TRPCError({
@@ -45,16 +51,22 @@ export const createStripeCheckoutSession = publicProcedure
       });
     }
 
-    if (input.isRecurring && input.amount < 100) {
+    if (input.frequency === "monthly" && input.amount < 100) {
       throw new TRPCError({
         code: "PRECONDITION_FAILED",
         message: "Minimum is $1 due to transaction fees, sorry!",
       });
     }
-    if (!input.isRecurring && input.amount < 500) {
+    if (input.frequency === "yearly" && input.amount < 1000) {
       throw new TRPCError({
         code: "PRECONDITION_FAILED",
-        message: "Minimum is $5 due to transaction fees, sorry!",
+        message: "Minimum is $10 due to transaction fees, sorry!",
+      });
+    }
+    if (input.frequency === "single" && input.amount < 1000) {
+      throw new TRPCError({
+        code: "PRECONDITION_FAILED",
+        message: "Minimum is $10 due to transaction fees, sorry!",
       });
     }
 
@@ -64,7 +76,7 @@ export const createStripeCheckoutSession = publicProcedure
     }
 
     const stripeSession = await createPYOSession({
-      isRecurring: input.isRecurring,
+      frequency,
       stripeCustomerId,
       amount: input.amount,
       successUrl: input.successUrl,

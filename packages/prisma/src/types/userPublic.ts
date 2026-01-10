@@ -1,6 +1,6 @@
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "../prisma/generated/client";
 
-export const userPublic = Prisma.validator<Prisma.UserFindFirstArgs>()({
+export const userPublic = {
   select: {
     id: true,
     name: true,
@@ -19,6 +19,6 @@ export const userPublic = Prisma.validator<Prisma.UserFindFirstArgs>()({
       },
     },
   },
-});
+} satisfies Prisma.UserFindFirstArgs;
 
 export type UserPublic = Prisma.UserGetPayload<typeof userPublic>;

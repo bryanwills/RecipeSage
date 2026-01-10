@@ -1,6 +1,6 @@
 import { trpcSetup, tearDown } from "../../testutils";
 import { prisma } from "@recipesage/prisma";
-import { User } from "@prisma/client";
+import { User } from "@recipesage/prisma";
 import type { TRPCClient } from "@trpc/client";
 import type { AppRouter } from "../../index";
 

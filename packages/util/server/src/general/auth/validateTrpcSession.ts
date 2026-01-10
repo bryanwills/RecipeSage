@@ -1,4 +1,4 @@
-import { Session } from "@prisma/client";
+import { Session } from "@recipesage/prisma";
 import { TRPCError } from "@trpc/server";
 
 // TODO: turn this into an authenticated procedure
