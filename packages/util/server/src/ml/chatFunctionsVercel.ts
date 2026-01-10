@@ -8,6 +8,7 @@ export type CreateAssistantRecipeToolResult = {
 };
 export const initCreateAssistantRecipeTool = () =>
   tool({
+    strict: true,
     description:
       "Creates and displays a well-formatted embedded recipe to the user in the UI",
     inputSchema: z.object({
@@ -99,6 +100,7 @@ export const initOCRFormatRecipeTool = (
   result: StandardizedRecipeImportEntry[],
 ) =>
   tool({
+    strict: true,
     inputSchema: z.object({
       title: z.string().describe("The title of the recipe"),
       description: z

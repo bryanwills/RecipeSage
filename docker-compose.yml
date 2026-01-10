@@ -29,7 +29,7 @@ x-common-env: &common-env
   BROWSERLESS_HOST: browserless
   BROWSERLESS_PORT: "3000"
   BROWSERLESS_TOKEN: recipesage_dev
-  JOB_QUEUE_IMPORT_REDIS_HOST: valkey
+  JOB_QUEUE_REDIS_HOST: valkey
   INGREDIENT_INSTRUCTION_CLASSIFIER_URL: http://ingredient-instruction-classifier:3000/
   GROCERY_CATEGORIZER_URL: http://grocery-categorizer:8000/
   OTEL_LOG_LEVEL: info

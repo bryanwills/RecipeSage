@@ -1,4 +1,9 @@
-import { prisma, RecipeSummary, recipeSummary } from "@recipesage/prisma";
+import {
+  prisma,
+  prismaCursorStream,
+  RecipeSummary,
+  recipeSummary,
+} from "@recipesage/prisma";
 import { recipeToJSONLD } from "./jsonLD";
 import { ObjectTypes, writeStream } from "../storage";
 import { once, PassThrough } from "stream";
@@ -7,7 +12,7 @@ import ZipStream from "zip-stream";
 import _ZipStream from "zip-stream";
 import { JsonStreamStringify } from "json-stream-stringify";
 import { recipeAsyncIteratorToPDF } from "./recipeSummariesToPDF";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@recipesage/prisma";
 import { transformRecipeImageUrlForSelfhost } from "./transformRecipeImageUrlForSelfhost";
 
 export type SupportedExportFormat = "txt" | "pdf" | "jsonld";
@@ -24,7 +29,7 @@ export const exportDataAsync = async (opts: {
     where: opts.where,
   });
 
-  const recipes = prisma.recipe.cursorStream(
+  const recipes = prismaCursorStream.recipe.cursorStream(
     {
       where: opts.where,
       ...recipeSummary,

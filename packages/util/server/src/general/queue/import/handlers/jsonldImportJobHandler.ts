@@ -20,12 +20,12 @@ export async function jsonldImportJobHandler(
   const importLabels = jobMeta.importLabels || [];
 
   try {
-    if (!queueItem.s3StorageKey) {
+    if (!queueItem.storageKey) {
       throw new Error("No S3 storage key provided for JSON-LD import");
     }
 
     // Download JSON-LD file from S3
-    await using downloaded = await downloadS3ToTemp(queueItem.s3StorageKey);
+    await using downloaded = await downloadS3ToTemp(queueItem.storageKey);
 
     // Read and parse JSON-LD
     const fileContent = await readFile(downloaded.filePath, "utf-8");

@@ -1,5 +1,5 @@
 import type { JobSummary } from "@recipesage/prisma";
-import { JobStatus } from "@prisma/client";
+import { JobStatus } from "@recipesage/prisma";
 import { prisma, type JobMeta } from "@recipesage/prisma";
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
 import {
@@ -25,11 +25,11 @@ export async function urlsImportJobHandler(
   const importLabels = jobMeta.importLabels || [];
 
   try {
-    if (!queueItem.s3StorageKey) {
+    if (!queueItem.storageKey) {
       throw new Error("No S3 storage key provided for URLs import");
     }
 
-    await using downloaded = await downloadS3ToTemp(queueItem.s3StorageKey);
+    await using downloaded = await downloadS3ToTemp(queueItem.storageKey);
 
     const urlsText = await readFile(downloaded.filePath, "utf-8");
     const urls = urlsText.split("\n").filter((url) => url.trim().length > 0);

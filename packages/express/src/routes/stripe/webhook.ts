@@ -14,6 +14,7 @@ import {
 import assert from "assert";
 import { prisma } from "@recipesage/prisma";
 import { metrics } from "@recipesage/util/server/general";
+import type { InputJsonValue } from "@prisma/client/runtime/client";
 
 const schema = {
   body: z.any(),
@@ -89,7 +90,7 @@ export const webhookHandler = defineHandler(
           data: {
             stripeId: event.id,
             userId: user?.id,
-            blob: event,
+            blob: event as unknown as InputJsonValue,
           },
         });
 
@@ -104,7 +105,7 @@ export const webhookHandler = defineHandler(
             customerId: session.customer,
             customerEmail: stripeEmail || (user || {}).email || null,
             paymentIntentId: session.payment_intent,
-            invoiceBlob: session,
+            invoiceBlob: session as unknown as InputJsonValue,
           },
         });
 
@@ -170,7 +171,7 @@ export const webhookHandler = defineHandler(
           data: {
             stripeId: event.id,
             userId: user?.id,
-            blob: event,
+            blob: event as unknown as InputJsonValue,
           },
         });
 
@@ -183,7 +184,7 @@ export const webhookHandler = defineHandler(
             customerId: invoice.customer,
             customerEmail: invoice.customer_email || (user || {}).email || null,
             subscriptionId: subscriptionId,
-            invoiceBlob: invoice,
+            invoiceBlob: invoice as unknown as InputJsonValue,
           },
         });
 

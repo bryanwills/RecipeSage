@@ -1,4 +1,4 @@
-import { JobStatus } from "@prisma/client";
+import { JobStatus } from "@recipesage/prisma";
 import { prisma, type JobMeta, type JobSummary } from "@recipesage/prisma";
 import { metrics } from "../metrics";
 import * as Sentry from "@sentry/node";

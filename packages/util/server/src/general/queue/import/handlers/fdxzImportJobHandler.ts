@@ -69,11 +69,11 @@ export async function fdxzImportJobHandler(
   const importLabels = jobMeta.importLabels || [];
 
   try {
-    if (!queueItem.s3StorageKey) {
+    if (!queueItem.storageKey) {
       throw new Error("No S3 storage key provided for FDXZ import");
     }
 
-    await using downloaded = await downloadS3ToTemp(queueItem.s3StorageKey);
+    await using downloaded = await downloadS3ToTemp(queueItem.storageKey);
 
     let xmlPath: string;
     let extractPath: string | undefined;

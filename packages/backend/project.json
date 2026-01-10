@@ -8,6 +8,7 @@
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
+      "dependsOn": ["util-shared:build", "util-server:build", "trpc:build"],
       "options": {
         "platform": "node",
         "outputPath": "dist/apps/backend",

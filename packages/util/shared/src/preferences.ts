@@ -19,6 +19,7 @@ export enum SupportedLanguages {
   DA_DK = "da-dk", // Danish, Denmark
   ZH_CN = "zh-cn", // Chinese (Simplified), China
   PT_PT = "pt-pt", // Portugese, Portugal
+  PT_BR = "pt-br", // Portugese, Brazil
   NL = "nl", // Dutch
   PL = "pl", // Polish
   JA = "ja", // Japanese

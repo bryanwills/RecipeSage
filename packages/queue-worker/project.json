@@ -8,15 +8,17 @@
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
+      "dependsOn": ["util-shared:build", "util-server:build"],
       "options": {
         "main": "packages/queue-worker/src/main.ts",
         "outputPath": "dist/apps/queue-worker",
+        "additionalEntryPoints": ["packages/queue-worker/src/worker.ts"],
         "tsConfig": "packages/queue-worker/tsconfig.json",
         "platform": "node",
         "format": ["cjs"],
         "bundle": true,
         "minify": false,
-        "external": ["@sentry/profiling-node", "jsdom", "pdfmake"],
+        "external": ["@sentry/profiling-node", "jsdom", "pdfmake", "bullmq"],
         "generatePackageJson": true,
         "esbuildConfig": "packages/queue-worker/esbuild.config.js"
       },

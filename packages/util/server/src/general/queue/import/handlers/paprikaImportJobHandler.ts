@@ -23,11 +23,11 @@ export async function paprikaImportJobHandler(
   const importLabels = jobMeta.importLabels || [];
 
   try {
-    if (!queueItem.s3StorageKey) {
+    if (!queueItem.storageKey) {
       throw new Error("No S3 storage key provided for Paprika import");
     }
 
-    await using downloaded = await downloadS3ToTemp(queueItem.s3StorageKey);
+    await using downloaded = await downloadS3ToTemp(queueItem.storageKey);
     const zipPath = downloaded.filePath;
 
     await using extractDir = await mkdtempDisposable("/tmp/");

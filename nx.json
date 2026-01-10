@@ -3,7 +3,7 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "targetDefaults": {
     "build": {
-      "inputs": ["default"],
+      "inputs": ["default", "^default"],
       "dependsOn": ["^build"],
       "outputs": ["{projectRoot}/dist", "{projectRoot}/www"],
       "cache": true
