@@ -1,4 +1,4 @@
-import { JobStatus, JobType } from "@prisma/client";
+import { JobStatus, JobType } from "@recipesage/prisma";
 import { prisma, type JobMeta } from "@recipesage/prisma";
 import { cleanLabelTitle } from "@recipesage/util/shared";
 import { metrics } from "../metrics";

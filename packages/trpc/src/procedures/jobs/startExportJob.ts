@@ -8,7 +8,7 @@ import {
   validateTrpcSession,
 } from "@recipesage/util/server/general";
 import { z } from "zod";
-import { JobStatus, JobType } from "@prisma/client";
+import { JobStatus, JobType } from "@recipesage/prisma";
 import { JOB_RESULT_CODES } from "@recipesage/util/shared";
 
 /**

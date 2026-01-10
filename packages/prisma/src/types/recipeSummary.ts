@@ -1,11 +1,11 @@
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "../prisma/generated/client";
 import { userPublic } from "./userPublic";
 import { labelSummary } from "./labelSummary";
 
 /**
  * All recipe fields including labels, user profile, images, etc
  **/
-export const recipeSummary = Prisma.validator<Prisma.RecipeFindFirstArgs>()({
+export const recipeSummary = {
   select: {
     id: true,
     userId: true,
@@ -50,7 +50,7 @@ export const recipeSummary = Prisma.validator<Prisma.RecipeFindFirstArgs>()({
     fromUser: userPublic,
     user: userPublic,
   },
-});
+} satisfies Prisma.RecipeFindFirstArgs;
 
 /**
  * Provides fields necessary for displaying a summary about a recipe,

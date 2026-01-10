@@ -1,5 +1,5 @@
 import type { JobSummary } from "@recipesage/prisma";
-import { JobStatus } from "@prisma/client";
+import { JobStatus } from "@recipesage/prisma";
 import { prisma, type JobMeta } from "@recipesage/prisma";
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
 import {

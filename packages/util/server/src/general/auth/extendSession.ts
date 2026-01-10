@@ -1,4 +1,4 @@
-import { Session } from "@prisma/client";
+import { Session } from "@recipesage/prisma";
 import { prisma } from "@recipesage/prisma";
 import * as Sentry from "@sentry/node";
 

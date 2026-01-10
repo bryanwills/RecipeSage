@@ -13,6 +13,7 @@ import { Capabilities } from "@recipesage/util/shared";
 import { Converter } from "showdown";
 import { generateText, ModelMessage } from "ai";
 import { AI_MODEL_HIGH, AI_MODEL_LOW, aiProvider } from "./vercel";
+import type { InputJsonValue } from "@prisma/client/runtime/client";
 const showdown = new Converter({
   simplifiedAutoLink: true,
   openLinksInNewWindow: true,
@@ -180,7 +181,7 @@ export class Assistant {
             role: message.role,
             recipeId,
             content,
-            json: message,
+            json: message as InputJsonValue,
             version: 2,
             createdAt: new Date(), // Since ordering is important and we're in a transaction, we must create date here
           },

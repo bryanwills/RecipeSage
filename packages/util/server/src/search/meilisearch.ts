@@ -1,4 +1,4 @@
-import { Recipe } from "@prisma/client";
+import { Recipe } from "@recipesage/prisma";
 import { MeiliSearch, MeiliSearchApiError } from "meilisearch";
 import { SearchProvider } from "./";
 

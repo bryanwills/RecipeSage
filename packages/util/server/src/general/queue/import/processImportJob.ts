@@ -1,6 +1,6 @@
 import type { JobSummary } from "@recipesage/prisma";
 import type { JobQueueItem } from "../JobQueueItem";
-import { JobType } from "@prisma/client";
+import { JobType } from "@recipesage/prisma";
 import { urlsImportJobHandler } from "./handlers/urlsImportJobHandler";
 import { pepperplateImportJobHandler } from "./handlers/pepperplateImportJobHandler";
 import { jsonldImportJobHandler } from "./handlers/jsonldImportJobHandler";

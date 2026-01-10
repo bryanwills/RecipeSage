@@ -1,4 +1,4 @@
-import { Session } from "@prisma/client";
+import { Session } from "@recipesage/prisma";
 import { prisma, PrismaTransactionClient } from "@recipesage/prisma";
 import { randomBytes } from "node:crypto";
 

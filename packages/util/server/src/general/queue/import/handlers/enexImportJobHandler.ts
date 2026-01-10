@@ -105,6 +105,9 @@ export async function enexImportJobHandler(
         .split("\n")
         .filter((el) => el?.trim())
         .join("\n");
+
+      if (!recipeText.trim().length) continue;
+
       const recipe = await textToRecipe(
         recipeText,
         TextToRecipeInputType.Document,

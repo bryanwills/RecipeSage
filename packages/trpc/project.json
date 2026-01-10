@@ -8,6 +8,7 @@
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
+      "dependsOn": ["util-shared:build", "util-server:build"],
       "options": {
         "main": "packages/trpc/src/index.ts",
         "outputPath": "dist/packages/trpc",

@@ -43,6 +43,7 @@ jobs:
           FONTS_PATH: fonts
           EXPRESS_VIEWS_PATH: packages/backend/src/views
           FRONTEND_I18N_PATH: packages/frontend/src/assets/i18n
+          JOB_QUEUE_WORKER_PATH: dist/apps/queue-worker/worker.cjs
       - image: postgres:16.1
         environment:
           POSTGRES_USER: chefbook

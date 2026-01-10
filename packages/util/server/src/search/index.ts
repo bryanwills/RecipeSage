@@ -2,7 +2,7 @@ import Meilisearch from "./meilisearch";
 import ElasticSearch from "./elasticsearch";
 import Typesense from "./typesense";
 import Stub from "./stub";
-import { Recipe } from "@prisma/client";
+import { Recipe } from "@recipesage/prisma";
 
 export interface SearchProvider {
   indexRecipes: (recipes: Recipe[]) => Promise<void>;

@@ -1,6 +1,6 @@
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "../prisma/generated/client";
 
-export const labelSummary = Prisma.validator<Prisma.LabelFindFirstArgs>()({
+export const labelSummary = {
   select: {
     id: true,
     userId: true,
@@ -24,6 +24,6 @@ export const labelSummary = Prisma.validator<Prisma.LabelFindFirstArgs>()({
       },
     },
   },
-});
+} satisfies Prisma.LabelFindFirstArgs;
 
 export type LabelSummary = Prisma.LabelGetPayload<typeof labelSummary>;
