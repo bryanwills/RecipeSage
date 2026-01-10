@@ -2,6 +2,7 @@ import type { JobSummary } from "@recipesage/prisma";
 import { type JobMeta } from "@recipesage/prisma";
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
 import {
+  ImportBadFormatError,
   importJobFailCommon,
   importJobFinishCommon,
   metrics,
@@ -33,7 +34,13 @@ export async function recipekeeperImportJobHandler(
     const extractPath = extractDir.path;
     await extract(zipPath, { dir: extractPath });
 
-    const recipeHtml = await readFile(extractPath + "/recipes.html", "utf-8");
+    const indexHtmlPath = extractPath + "/recipes.html";
+    try {
+      await stat(indexHtmlPath);
+    } catch (_e) {
+      throw new ImportBadFormatError();
+    }
+    const recipeHtml = await readFile(indexHtmlPath, "utf-8");
 
     const $ = cheerio.load(recipeHtml);
     const domList = $(".recipe-details").toArray();
