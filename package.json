@@ -71,7 +71,7 @@
     "jsdom": "^26.0.0",
     "json-stream-stringify": "^3.1.6",
     "linkify-html": "^4.3.2",
-    "linkify-string": "^4.3.1",
+    "linkify-string": "^4.3.2",
     "linkifyjs": "^4.3.2",
     "meilisearch": "^0.54.0",
     "minisearch": "^7.1.2",
