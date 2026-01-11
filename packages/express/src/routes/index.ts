@@ -9,7 +9,7 @@ import { printRouter } from "./print";
 
 const router = express.Router();
 
-router.use("/image", imageRouter);
+router.use("/images", imageRouter);
 router.use("/import", importRouter);
 router.use("/mealplans", mealPlansRouter);
 router.use("/metrics", metricsRouter);

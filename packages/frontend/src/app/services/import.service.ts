@@ -1,20 +1,14 @@
-import { AlertController } from "@ionic/angular";
 import { Injectable, inject } from "@angular/core";
 
 import { HttpService, UploadProgressHandler } from "./http.service";
 import { ErrorHandlers } from "./http-error-handler.service";
-import { UtilService } from "./util.service";
-import { EventService } from "./event.service";
 import { TranslateService } from "@ngx-translate/core";
 
 @Injectable({
   providedIn: "root",
 })
 export class ImportService {
-  private alertCtrl = inject(AlertController);
-  private events = inject(EventService);
   private httpService = inject(HttpService);
-  private utilService = inject(UtilService);
   private translate = inject(TranslateService);
 
   getImportLabel() {

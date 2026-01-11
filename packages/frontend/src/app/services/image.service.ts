@@ -29,31 +29,10 @@ export class ImageService {
     });
   }
 
-  createFromUrl(url: string, errorHandlers?: ErrorHandlers) {
-    return this.httpService.requestWithWrapper<ImageSummary>({
-      path: "images/createRecipeImageFromUrl",
-      method: "POST",
-      payload: {
-        url,
-      },
-      query: undefined,
-      errorHandlers,
-    });
-  }
-
   createFromB64(b64: string, errorHandlers?: ErrorHandlers) {
     const u8 = b642u8(b64);
     const file = new File([u8], "image");
 
-    const formData: FormData = new FormData();
-    formData.append("file", file, file.name);
-
-    return this.httpService.multipartRequestWithWrapper<ImageSummary>({
-      path: "images/createRecipeImage",
-      method: "POST",
-      payload: formData,
-      query: {},
-      errorHandlers,
-    });
+    return this.create(file, errorHandlers);
   }
 }

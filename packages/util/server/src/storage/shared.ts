@@ -12,3 +12,7 @@ export enum ObjectTypes {
   DATA_EXPORT = "dataExport",
   IMPORT_DATA = "importData",
 }
+
+export const MAX_IMPORT_FILE_SIZE_MB = parseInt(
+  process.env.MAX_IMPORT_FILE_SIZE_MB || "5000",
+);

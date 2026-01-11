@@ -943,15 +943,15 @@ export class EditRecipePage {
       await Promise.race([
         new Promise((resolve) => setTimeout(resolve, IMAGE_LOADING_TIMEOUT)),
         (async () => {
-          const imageResponse = await this.imageService.createFromUrl(
-            response.data.imageURL,
+          const imageResponse = await this.trpcService.handle(
+            this.trpcService.trpc.images.createRecipeImageFromUrl.mutate({
+              url: response.data.imageURL,
+            }),
             {
-              400: () => {},
-              415: () => {},
-              500: () => {},
+              "*": () => {},
             },
           );
-          if (imageResponse.success) this.images.push(imageResponse.data);
+          if (imageResponse) this.images.push(imageResponse);
         })(),
       ]);
     }
@@ -1012,8 +1012,12 @@ export class EditRecipePage {
       });
       await loading.present();
 
-      const response = await this.imageService.createFromUrl(imageUrl);
-      if (response.success) this.images.push(response.data);
+      const response = await this.trpcService.handle(
+        this.trpcService.trpc.images.createRecipeImageFromUrl.mutate({
+          url: imageUrl,
+        }),
+      );
+      if (response) this.images.push(response);
 
       loading.dismiss();
     } else {
