@@ -1,10 +1,13 @@
-import { Prisma } from "@prisma/client";
+import type {
+  ImageFindFirstArgs,
+  ImageGetPayload,
+} from "../prisma/generated/models";
 
-export const imageSummary = Prisma.validator<Prisma.ImageFindFirstArgs>()({
+export const imageSummary = {
   select: {
     id: true,
     location: true,
   },
-});
+} satisfies ImageFindFirstArgs;
 
-export type ImageSummary = Prisma.ImageGetPayload<typeof imageSummary>;
+export type ImageSummary = ImageGetPayload<typeof imageSummary>;

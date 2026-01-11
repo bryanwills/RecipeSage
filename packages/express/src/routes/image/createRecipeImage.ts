@@ -11,6 +11,7 @@ import { tmpdir } from "os";
 import { userHasCapability } from "@recipesage/util/server/capabilities";
 import { Capabilities } from "@recipesage/util/shared";
 import { imageSummary, prisma, type ImageSummary } from "@recipesage/prisma";
+import type { InputJsonValue } from "@prisma/client/runtime/client";
 
 const FILE_SIZE_LIMIT_MB = 40;
 
@@ -65,7 +66,7 @@ export const createRecipeImageHandler = defineHandler(
         userId: res.locals.session.userId,
         location: storedFile.location,
         key: storedFile.key,
-        json: storedFile,
+        json: storedFile as unknown as InputJsonValue,
       },
       ...imageSummary,
     });

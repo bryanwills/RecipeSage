@@ -7,6 +7,7 @@ import { z } from "zod";
 import { userHasCapability } from "@recipesage/util/server/capabilities";
 import { Capabilities } from "@recipesage/util/shared";
 import { imageSummary, prisma, type ImageSummary } from "@recipesage/prisma";
+import type { InputJsonValue } from "@prisma/client/runtime/client";
 
 const schema = {
   body: z.object({
@@ -44,7 +45,7 @@ export const createRecipeImageFromUrlHandler = defineHandler(
         userId: res.locals.session.userId,
         location: storedFile.location,
         key: storedFile.key,
-        json: storedFile,
+        json: storedFile as unknown as InputJsonValue,
       },
       ...imageSummary,
     });
