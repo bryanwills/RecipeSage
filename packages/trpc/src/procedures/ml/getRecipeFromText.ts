@@ -9,7 +9,7 @@ import { z } from "zod";
 export const getRecipeFromText = publicProcedure
   .input(
     z.object({
-      text: z.string(),
+      text: z.string().min(1).max(10000),
     }),
   )
   .mutation(async ({ ctx, input }) => {

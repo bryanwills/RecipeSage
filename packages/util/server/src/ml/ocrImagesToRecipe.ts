@@ -33,9 +33,7 @@ export const ocrImagesToRecipe = async (images: (Buffer | Readable)[]) => {
     }
 
     const recognizedRecipe = await visionToRecipe(
-      transformedImagesAsBuffers.map((imageBuffer) =>
-        imageBuffer.toString("base64"),
-      ),
+      transformedImagesAsBuffers,
       VisionToRecipeInputType.Photo,
     );
     metrics.convertImagesToRecipe.inc();

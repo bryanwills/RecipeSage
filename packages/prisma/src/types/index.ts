@@ -13,3 +13,4 @@ export * from "./shoppingListItemSummary";
 export * from "./recipeSummary";
 export * from "./recipeSummaryLite";
 export * from "./userPublic";
+export * from "./StandardizedRecipeImportEntryForWeb";

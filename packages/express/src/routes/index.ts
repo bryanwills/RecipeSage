@@ -6,6 +6,7 @@ import { metricsRouter } from "./metrics";
 import { wsRouter } from "./ws";
 import { stripeRouter } from "./stripe";
 import { printRouter } from "./print";
+import { mlRouter } from "./ml";
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.use("/metrics", metricsRouter);
 router.use("/stripe", stripeRouter);
 router.use("/print", printRouter);
 router.use("/ws", wsRouter);
+router.use("/ml", mlRouter);
 
 export { router as typesafeExpressIndexRouter };
