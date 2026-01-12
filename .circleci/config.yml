@@ -63,6 +63,7 @@ jobs:
             APP_VERSION: ${CIRCLE_TAG:=stg}
             ENVIRONMENT: production
             SOURCEMAP_UPLOAD: ${CIRCLE_TAG:+true}
+            NX_SKIP_NX_CACHE: ${CIRCLE_TAG:+true}
       - run:
           name: migrate
           command: npx prisma migrate dev
