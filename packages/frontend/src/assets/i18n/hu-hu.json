@@ -1097,5 +1097,12 @@
     "pages.import.copymethat": "Importálás CopyMeThat fájlból",
     "pages.importCopymethat.tabTitle": "Importálás a CopyMeThatből — RecipeSage",
     "pages.importCopymethat.title": "Receptek importálása CopyMeThat exportból",
-    "pages.importCopymethat.description": "Ez a művelet egy CopyMeThat exportot (.zip kiterjesztésű) importál a RecipeSage fiókjába. Kérem, vegye figyelembe, hogy a CopyMeThat-ból HTML formátumban kell exportálnia ahhoz, hogy ez az importáló feldolgozza. A CopyMeThat szöveges exportja használható a RecipeSage „szövegfájlok” importálójával, ha szeretné. Ha problémái adódnak az importálással, kérem, tekintse meg a felhasználói útmutatót. Kérem, fontolja meg a hozzájárulást, ha a fájlja nagyszámú receptet vagy képet tartalmaz."
+    "pages.importCopymethat.description": "Ez a művelet egy CopyMeThat exportot (.zip kiterjesztésű) importál a RecipeSage fiókjába. Kérem, vegye figyelembe, hogy a CopyMeThat-ból HTML formátumban kell exportálnia ahhoz, hogy ez az importáló feldolgozza. A CopyMeThat szöveges exportja használható a RecipeSage „szövegfájlok” importálójával, ha szeretné. Ha problémái adódnak az importálással, kérem, tekintse meg a felhasználói útmutatót. Kérem, fontolja meg a hozzájárulást, ha a fájlja nagyszámú receptet vagy képet tartalmaz.",
+    "pages.contribute.yearly": "Éves",
+    "pages.contribute.yearlyMonthly": "Havi és éves",
+    "pages.contribute.yearlyMonthly.description": "Előfizetése időtartama alatt bónuszfunkciók válnak elérhetővé",
+    "pages.editRecipe.clipImage.selectMore.header": "Válasszon egy további képet?",
+    "pages.editRecipe.clipImage.selectMore.message": "Ha az egész receptet nem tudta egyetlen fényképbe belefoglalni, legfeljebb {{maxCount}} képet szkennelhet. Kérjük, törekedjen arra, hogy a szöveg átfedését minimálisra csökkentse, mert az átfedő szöveg megismétlődhet a szkennelés eredményében.",
+    "generic.yes": "Igen",
+    "generic.no": "Nem"
 }
