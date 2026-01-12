@@ -15,7 +15,6 @@ export const getLabels = publicProcedure.query(async ({ ctx }) => {
     orderBy: {
       title: "asc",
     },
-    relationLoadStrategy: "join",
   });
 
   return labels;
