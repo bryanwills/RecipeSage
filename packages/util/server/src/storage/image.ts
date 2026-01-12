@@ -1,8 +1,15 @@
-import { StorageObjectRecord, writeBuffer } from "./index";
+import { StorageObjectRecord, writeBuffer, writeStream } from "./index";
 import { ObjectTypes } from "./shared";
-import fs from "fs/promises";
-import { fetchURL, transformImageBuffer } from "../general";
+import {
+  fetchURL,
+  transformImageBuffer,
+  transformImageStream,
+} from "../general";
 import { sanitizeFilePath } from "./sanitizeFilePath";
+import { createReadStream } from "fs";
+import { PassThrough, type Readable } from "stream";
+import { pipeline } from "stream/promises";
+import type { ReadableStream } from "stream/web";
 
 const HIGH_RES_IMG_CONVERSION_WIDTH = 1024;
 const HIGH_RES_IMG_CONVERSION_HEIGHT = 1024;
@@ -21,11 +28,10 @@ export const writeImageURL = async (
   const response = await fetchURL(url, {
     timeout: WRITE_IMAGE_URL_TIMEOUT_SECONDS * 1000,
   });
-  if (response.status !== 200)
+  if (response.status !== 200 || !response.body)
     throw new Error(`Could not fetch image: ${response.status}`);
-  const buffer = await response.buffer();
 
-  return writeImageBuffer(objectType, buffer, highResConversion);
+  return writeImageStream(objectType, response.body, highResConversion);
 };
 
 export const writeImageFile = async (
@@ -39,11 +45,54 @@ export const writeImageFile = async (
     filePath: filePath,
   });
 
-  const buffer = await fs.readFile(normalizedPath);
+  const result = await writeImageStream(
+    objectType,
+    createReadStream(normalizedPath),
+    highResConversion,
+  );
 
-  return writeImageBuffer(objectType, buffer, highResConversion);
+  return result;
 };
 
+export const writeImageStream = async (
+  objectType: ObjectTypes,
+  inputStream: Readable | ReadableStream | NodeJS.ReadableStream,
+  highResConversion: boolean,
+): Promise<StorageObjectRecord> => {
+  const height = highResConversion
+    ? HIGH_RES_IMG_CONVERSION_HEIGHT
+    : LOW_RES_IMG_CONVERSION_HEIGHT;
+  const width = highResConversion
+    ? HIGH_RES_IMG_CONVERSION_WIDTH
+    : LOW_RES_IMG_CONVERSION_WIDTH;
+  const quality = highResConversion
+    ? HIGH_RES_IMG_CONVERSION_QUALITY
+    : LOW_RES_IMG_CONVERSION_QUALITY;
+
+  const write = new PassThrough();
+
+  const pipelinePromise = pipeline(
+    inputStream,
+    transformImageStream(
+      width,
+      height,
+      quality,
+      highResConversion ? "inside" : "cover",
+    ),
+    write,
+  );
+
+  const [result] = await Promise.all([
+    writeStream(objectType, write, "image/jpeg"),
+    pipelinePromise,
+  ]);
+
+  return result;
+};
+
+/**
+ * @deprecated Prefer working with streams over buffers please.
+ */
 export const writeImageBuffer = async (
   objectType: ObjectTypes,
   buffer: Buffer,

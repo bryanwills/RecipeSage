@@ -5,16 +5,20 @@ import {
 } from "../../../defineHandler";
 import multer from "multer";
 import { z } from "zod";
-import { importJobSetupCommon } from "@recipesage/util/server/general";
-import { ObjectTypes, writeBuffer } from "@recipesage/util/server/storage";
+import {
+  importJobSetupCommon,
+  multerAutoCleanup,
+} from "@recipesage/util/server/general";
+import {
+  MAX_IMPORT_FILE_SIZE_MB,
+  ObjectTypes,
+  writeStream,
+} from "@recipesage/util/server/storage";
 import { enqueueJob } from "@recipesage/util/server/general";
+import { tmpdir } from "os";
+import { createReadStream } from "fs";
 
 const schema = {
-  body: z
-    .object({
-      jsonLD: z.any().optional(),
-    })
-    .optional(),
   query: z.object({
     labels: z.string().optional(),
   }),
@@ -25,19 +29,24 @@ export const jsonldHandler = defineHandler(
     schema,
     authentication: AuthenticationEnforcement.Required,
     beforeHandlers: [
+      multerAutoCleanup,
       multer({
-        storage: multer.memoryStorage(),
-        limits: { fileSize: 1e8, files: 1 },
+        storage: multer.diskStorage({
+          destination: tmpdir(),
+        }),
+        limits: {
+          fileSize: MAX_IMPORT_FILE_SIZE_MB * 1024 * 1024,
+        },
       }).single("file"),
     ],
   },
   async (req, res) => {
     const userId = res.locals.session.userId;
 
-    const fileContent = req.file?.buffer.toString() || req.body?.jsonLD;
-    if (!fileContent) {
+    const file = req.file;
+    if (!file) {
       throw new BadRequestError(
-        "Request must include multipart file under the 'file' field or jsonLD in body",
+        "Request must include multipart file under the 'file' field",
       );
     }
 
@@ -47,11 +56,11 @@ export const jsonldHandler = defineHandler(
       labels: req.query.labels?.split(",") || [],
     });
 
-    const buffer = Buffer.from(fileContent, "utf-8");
-    const storageRecord = await writeBuffer(
+    const fileStream = createReadStream(file.path);
+    const storageRecord = await writeStream(
       ObjectTypes.IMPORT_DATA,
-      buffer,
-      "application/json",
+      fileStream,
+      file.mimetype,
     );
 
     await enqueueJob({

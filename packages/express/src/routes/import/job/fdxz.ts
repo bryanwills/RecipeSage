@@ -5,11 +5,18 @@ import {
 } from "../../../defineHandler";
 import multer from "multer";
 import { createReadStream } from "fs";
-import { unlink } from "fs/promises";
 import { z } from "zod";
-import { importJobSetupCommon } from "@recipesage/util/server/general";
-import { ObjectTypes, writeStream } from "@recipesage/util/server/storage";
+import {
+  importJobSetupCommon,
+  multerAutoCleanup,
+} from "@recipesage/util/server/general";
+import {
+  MAX_IMPORT_FILE_SIZE_MB,
+  ObjectTypes,
+  writeStream,
+} from "@recipesage/util/server/storage";
 import { enqueueJob } from "@recipesage/util/server/general";
+import { tmpdir } from "os";
 
 const schema = {
   query: z.object({
@@ -23,8 +30,14 @@ export const fdxzHandler = defineHandler(
     schema,
     authentication: AuthenticationEnforcement.Required,
     beforeHandlers: [
+      multerAutoCleanup,
       multer({
-        dest: "/tmp/import/",
+        storage: multer.diskStorage({
+          destination: tmpdir(),
+        }),
+        limits: {
+          fileSize: MAX_IMPORT_FILE_SIZE_MB * 1024 * 1024,
+        },
       }).single("file"),
     ],
   },
@@ -51,8 +64,6 @@ export const fdxzHandler = defineHandler(
       fileStream,
       file.mimetype,
     );
-
-    await unlink(file.path);
 
     await enqueueJob({
       jobId: job.id,

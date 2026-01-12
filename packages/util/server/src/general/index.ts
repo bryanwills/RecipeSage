@@ -28,6 +28,7 @@ export * from "./config";
 export * from "./grip";
 export * from "./fetch";
 export * from "./jsonLD";
+export * from "./multerAutoCleanup";
 export * from "./decryptWithRSAKey";
 export * from "./deletePathsSilent";
 export * from "./exportDataAsync";

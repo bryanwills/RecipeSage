@@ -1,6 +1,9 @@
 import { Component, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { FilePicker } from "@capawesome/capacitor-file-picker";
+import {
+  FilePicker,
+  type PickFilesResult,
+} from "@capawesome/capacitor-file-picker";
 import {
   NavController,
   AlertController,
@@ -13,30 +16,37 @@ import {
   CameraDirection,
   CameraResultType,
   CameraSource,
+  type Photo,
 } from "@capacitor/camera";
 
 import { RouteMap } from "~/services/util.service";
-import { RecipeService, Recipe, BaseRecipe } from "~/services/recipe.service";
+import { RecipeService } from "~/services/recipe.service";
 import { LoadingService } from "~/services/loading.service";
 import { UnsavedChangesService } from "~/services/unsaved-changes.service";
 import { CapabilitiesService } from "~/services/capabilities.service";
-import { Image, ImageService } from "~/services/image.service";
+import { ImageService } from "~/services/image.service";
 import { getQueryParam } from "~/utils/queryParams";
 
 import { EditRecipePopoverPage } from "../edit-recipe-popover/edit-recipe-popover.page";
-import type { LabelGroupSummary, LabelSummary } from "@recipesage/prisma";
+import type {
+  ImageSummary,
+  LabelGroupSummary,
+  LabelSummary,
+  RecipeSummary,
+} from "@recipesage/prisma";
 import { TRPCService } from "../../../services/trpc.service";
 import {
   SelectableItem,
   SelectMultipleItemsComponent,
 } from "../../../components/select-multiple-items/select-multiple-items.component";
-import { FeatureFlagService } from "../../../services/feature-flag.service";
 import { IS_SELFHOST } from "@recipesage/frontend/src/environments/environment";
 import { ErrorHandlers } from "../../../services/http-error-handler.service";
 import { EventName, EventService } from "../../../services/event.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { RatingComponent } from "../../../components/rating/rating.component";
 import { MultiImageUploadComponent } from "../../../components/multi-image-upload/multi-image-upload.component";
+import { MlService } from "../../../services/ml.service";
+import { Capacitor } from "@capacitor/core";
 
 @Component({
   standalone: true,
@@ -58,6 +68,7 @@ export class EditRecipePage {
   private alertCtrl = inject(AlertController);
   private popoverCtrl = inject(PopoverController);
   private trpcService = inject(TRPCService);
+  private mlService = inject(MlService);
   private unsavedChangesService = inject(UnsavedChangesService);
   private loadingCtrl = inject(LoadingController);
   private loadingService = inject(LoadingService);
@@ -65,7 +76,6 @@ export class EditRecipePage {
   private imageService = inject(ImageService);
   private capabilitiesService = inject(CapabilitiesService);
   private events = inject(EventService);
-  private featureFlagService = inject(FeatureFlagService);
 
   saving = false;
   defaultBackHref: string;
@@ -73,8 +83,8 @@ export class EditRecipePage {
   recipeId?: string;
   originalTitle?: string;
   // TODO: Clean this up
-  fullRecipe?: Recipe;
-  recipe: Partial<BaseRecipe> & { id?: string } = {
+  fullRecipe?: RecipeSummary;
+  recipe: Partial<RecipeSummary> = {
     title: "",
     description: "",
     yield: "",
@@ -87,7 +97,7 @@ export class EditRecipePage {
     instructions: "",
   };
 
-  images: Image[] = [];
+  images: ImageSummary[] = [];
   labels: LabelSummary[] = [];
   labelGroups: LabelGroupSummary[] = [];
   selectedLabels: LabelSummary[] = [];
@@ -130,7 +140,7 @@ export class EditRecipePage {
     );
 
     if (this.fullRecipe) {
-      this.selectedLabels = this.fullRecipe.labels
+      this.selectedLabels = this.fullRecipe.recipeLabels
         .map((label) => labelsById[label.id])
         .filter((label) => label);
     }
@@ -140,13 +150,19 @@ export class EditRecipePage {
 
   async _loadRecipe() {
     if (this.recipeId) {
-      const response = await this.recipeService.fetchById(this.recipeId);
+      const response = await this.trpcService.handle(
+        this.trpcService.trpc.recipes.getRecipe.query({
+          id: this.recipeId,
+        }),
+      );
 
-      if (response.success) {
-        this.fullRecipe = response.data;
-        this.recipe = response.data;
-        this.images = response.data.images;
-        this.originalTitle = response.data.title;
+      if (response) {
+        this.fullRecipe = response;
+        this.recipe = response;
+        this.images = response.recipeImages
+          .sort((a, b) => a.order - b.order)
+          .map((el) => el.image);
+        this.originalTitle = response.title;
       }
     }
   }
@@ -528,19 +544,18 @@ export class EditRecipePage {
   }
 
   async scanPDF() {
-    let filePickerResult;
+    let filePickerResult: PickFilesResult;
     try {
       filePickerResult = await FilePicker.pickFiles({
         types: ["application/pdf"],
         limit: 1,
-        readData: true,
       });
     } catch (e) {
       return;
     }
 
     const file = filePickerResult.files.at(0);
-    if (!file || !file.data) return;
+    if (!file) return;
 
     const pleaseWait = await this.translate
       .get("pages.editRecipe.clip.loading")
@@ -556,63 +571,103 @@ export class EditRecipePage {
     });
     await loading.present();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.ml.getRecipeFromPDF.mutate({
-        pdf: file.data,
-      }),
-      {
-        ...this.getSelfhostErrorHandlers(),
-        400: async () => {
-          (
-            await this.alertCtrl.create({
-              header: failedHeader,
-              message: failedMessage,
-              buttons: [
-                {
-                  text: okay,
-                },
-              ],
-            })
-          ).present();
-        },
+    const blob = await (async () => {
+      if (file.blob) return file.blob;
+
+      const webPath = Capacitor.convertFileSrc(file.path!);
+      const response = await fetch(webPath);
+      return response.blob();
+    })();
+    const webFile = new File([blob], "scan.pdf", {
+      type: "application/pdf",
+    });
+
+    const response = await this.mlService.getRecipeFromPDF(webFile, {
+      ...this.getSelfhostErrorHandlers(),
+      400: async () => {
+        (
+          await this.alertCtrl.create({
+            header: failedHeader,
+            message: failedMessage,
+            buttons: [
+              {
+                text: okay,
+              },
+            ],
+          })
+        ).present();
       },
-    );
+    });
 
     loading.dismiss();
 
-    if (!response) return;
+    if (!response.success) return;
 
-    this.recipe.title = response.recipe.title || "";
-    this.recipe.description = response.recipe.description || "";
-    this.recipe.source = response.recipe.source || "";
-    this.recipe.yield = response.recipe.yield || "";
-    this.recipe.activeTime = response.recipe.activeTime || "";
-    this.recipe.totalTime = response.recipe.totalTime || "";
-    this.recipe.ingredients = response.recipe.ingredients || "";
-    this.recipe.instructions = response.recipe.instructions || "";
-    this.recipe.notes = response.recipe.notes || "";
+    this.recipe.title = response.data.recipe.title || "";
+    this.recipe.description = response.data.recipe.description || "";
+    this.recipe.source = response.data.recipe.source || "";
+    this.recipe.yield = response.data.recipe.yield || "";
+    this.recipe.activeTime = response.data.recipe.activeTime || "";
+    this.recipe.totalTime = response.data.recipe.totalTime || "";
+    this.recipe.ingredients = response.data.recipe.ingredients || "";
+    this.recipe.instructions = response.data.recipe.instructions || "";
+    this.recipe.notes = response.data.recipe.notes || "";
   }
 
   async scanImage() {
-    let capturedPhoto;
+    const MAX_IMAGES_SCAN = 3;
 
-    try {
-      capturedPhoto = await Camera.getPhoto({
-        resultType: CameraResultType.Base64,
-        source: CameraSource.Prompt,
-        direction: CameraDirection.Rear,
-        quality: 100,
-        allowEditing: true,
-        width: 2160,
-        webUseInput: true,
-      });
-    } catch (e) {
-      return;
+    const capturedPhotos: Photo[] = [];
+    while (true) {
+      try {
+        capturedPhotos.push(
+          await Camera.getPhoto({
+            resultType: CameraResultType.Uri,
+            source: CameraSource.Prompt,
+            direction: CameraDirection.Rear,
+            quality: 85,
+            allowEditing: true,
+            width: 2160,
+            webUseInput: true,
+          }),
+        );
+
+        if (capturedPhotos.length >= MAX_IMAGES_SCAN) break;
+
+        const header = await this.translate
+          .get("pages.editRecipe.clipImage.selectMore.header")
+          .toPromise();
+        const message = await this.translate
+          .get("pages.editRecipe.clipImage.selectMore.message", {
+            maxCount: MAX_IMAGES_SCAN,
+          })
+          .toPromise();
+        const yes = await this.translate.get("generic.yes").toPromise();
+        const no = await this.translate.get("generic.no").toPromise();
+        const clipPrompt = await this.alertCtrl.create({
+          header,
+          message,
+          buttons: [
+            {
+              text: yes,
+              role: "yes",
+            },
+            {
+              text: no,
+              role: "no",
+            },
+          ],
+        });
+
+        await clipPrompt.present();
+        const result = await clipPrompt.onDidDismiss();
+        if (result.role === "no") break;
+      } catch (e) {
+        break;
+      }
     }
 
-    if (!capturedPhoto.base64String) {
-      throw new Error("Photo did not return base64String");
-    }
+    if (!capturedPhotos.length) return;
 
     const pleaseWait = await this.translate
       .get("pages.editRecipe.clip.loading")
@@ -628,50 +683,55 @@ export class EditRecipePage {
     });
     await loading.present();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.ml.getRecipeFromOCR.mutate({
-        image: capturedPhoto.base64String,
-      }),
-      {
-        ...this.getSelfhostErrorHandlers(),
-        400: async () => {
-          (
-            await this.alertCtrl.create({
-              header: failedHeader,
-              message: failedMessage,
-              buttons: [
-                {
-                  text: okay,
-                },
-              ],
-            })
-          ).present();
-        },
+    const files: File[] = [];
+    for (const capturedPhoto of capturedPhotos) {
+      const blob = await (async () => {
+        const webPath = capturedPhoto.webPath
+          ? capturedPhoto.webPath
+          : Capacitor.convertFileSrc(capturedPhoto.path!);
+        const response = await fetch(webPath);
+        return response.blob();
+      })();
+      const webFile = new File([blob], `scan.${capturedPhoto.format}`, {
+        type: `image/${capturedPhoto.format}`,
+      });
+      files.push(webFile);
+    }
+
+    const response = await this.mlService.getRecipeFromOCR(files, {
+      ...this.getSelfhostErrorHandlers(),
+      400: async () => {
+        (
+          await this.alertCtrl.create({
+            header: failedHeader,
+            message: failedMessage,
+            buttons: [
+              {
+                text: okay,
+              },
+            ],
+          })
+        ).present();
       },
-    );
+    });
 
     loading.dismiss();
 
-    if (!response) return;
+    if (!response.success) return;
 
-    this.recipe.title = response.recipe.title || "";
-    this.recipe.description = response.recipe.description || "";
-    this.recipe.source = response.recipe.source || "";
-    this.recipe.yield = response.recipe.yield || "";
-    this.recipe.activeTime = response.recipe.activeTime || "";
-    this.recipe.totalTime = response.recipe.totalTime || "";
-    this.recipe.ingredients = response.recipe.ingredients || "";
-    this.recipe.instructions = response.recipe.instructions || "";
-    this.recipe.notes = response.recipe.notes || "";
+    this.recipe.title = response.data.recipe.title || "";
+    this.recipe.description = response.data.recipe.description || "";
+    this.recipe.source = response.data.recipe.source || "";
+    this.recipe.yield = response.data.recipe.yield || "";
+    this.recipe.activeTime = response.data.recipe.activeTime || "";
+    this.recipe.totalTime = response.data.recipe.totalTime || "";
+    this.recipe.ingredients = response.data.recipe.ingredients || "";
+    this.recipe.instructions = response.data.recipe.instructions || "";
+    this.recipe.notes = response.data.recipe.notes || "";
 
-    const imageResponse = await this.imageService.createFromB64(
-      {
-        data: capturedPhoto.base64String,
-      },
-      {
-        "*": () => {},
-      },
-    );
+    const imageResponse = await this.imageService.create(files[0], {
+      "*": () => {},
+    });
 
     if (imageResponse.success) {
       this.images.push(imageResponse.data);
@@ -936,17 +996,15 @@ export class EditRecipePage {
       await Promise.race([
         new Promise((resolve) => setTimeout(resolve, IMAGE_LOADING_TIMEOUT)),
         (async () => {
-          const imageResponse = await this.imageService.createFromUrl(
-            {
+          const imageResponse = await this.trpcService.handle(
+            this.trpcService.trpc.images.createRecipeImageFromUrl.mutate({
               url: response.data.imageURL,
-            },
+            }),
             {
-              400: () => {},
-              415: () => {},
-              500: () => {},
+              "*": () => {},
             },
           );
-          if (imageResponse.success) this.images.push(imageResponse.data);
+          if (imageResponse) this.images.push(imageResponse);
         })(),
       ]);
     }
@@ -1007,10 +1065,12 @@ export class EditRecipePage {
       });
       await loading.present();
 
-      const response = await this.imageService.createFromUrl({
-        url: imageUrl,
-      });
-      if (response.success) this.images.push(response.data);
+      const response = await this.trpcService.handle(
+        this.trpcService.trpc.images.createRecipeImageFromUrl.mutate({
+          url: imageUrl,
+        }),
+      );
+      if (response) this.images.push(response);
 
       loading.dismiss();
     } else {

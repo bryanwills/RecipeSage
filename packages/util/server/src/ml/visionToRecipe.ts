@@ -19,7 +19,7 @@ const prompts = {
  * Converts an image to a recipe using function calling against GPT4O.
  */
 export const visionToRecipe = async (
-  imageB64: string[],
+  imageB64: (Uint8Array | ArrayBuffer | Buffer)[],
   inputType: VisionToRecipeInputType,
 ) => {
   const recognizedRecipes: StandardizedRecipeImportEntry[] = [];

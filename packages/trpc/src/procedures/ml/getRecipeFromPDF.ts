@@ -3,6 +3,9 @@ import { publicProcedure } from "../../trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+/**
+ * @deprecated Please use express routes which support file streaming rather than base64
+ */
 export const getRecipeFromPDF = publicProcedure
   .input(
     z.object({

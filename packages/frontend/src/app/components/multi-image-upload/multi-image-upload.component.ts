@@ -2,10 +2,11 @@ import { Component, Input, Output, EventEmitter, inject } from "@angular/core";
 import { ToastController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 
-import { Image, ImageService } from "~/services/image.service";
+import { ImageService } from "~/services/image.service";
 import { LoadingService } from "~/services/loading.service";
 import { CapabilitiesService } from "~/services/capabilities.service";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import type { ImageSummary } from "@recipesage/prisma";
 
 @Component({
   standalone: true,
@@ -21,14 +22,14 @@ export class MultiImageUploadComponent {
   private translate = inject(TranslateService);
   capabilitiesService = inject(CapabilitiesService);
 
-  @Output() imageUpdate = new EventEmitter();
+  @Output() imageUpdate = new EventEmitter<ImageSummary[]>();
 
-  _images: Image[] = [];
+  _images: ImageSummary[] = [];
   @Input()
   get images() {
     return this._images;
   }
-  set images(val: Image[]) {
+  set images(val: ImageSummary[]) {
     this._images = val;
   }
 
@@ -63,7 +64,7 @@ export class MultiImageUploadComponent {
 
     const loading = this.loadingService.start();
 
-    const MAX_FILE_SIZE_MB = 30;
+    const MAX_FILE_SIZE_MB = 39;
 
     let someUploadFailed = false;
     for (const file of files) {
@@ -103,7 +104,7 @@ export class MultiImageUploadComponent {
     this.imageUpdate.emit(this.images);
   }
 
-  reorderImage(image: Image, direction: number) {
+  reorderImage(image: ImageSummary, direction: number) {
     const imgIdx = this.images.indexOf(image);
     let newImgIdx = imgIdx + direction;
     if (newImgIdx < 0) newImgIdx = 0;
@@ -115,7 +116,7 @@ export class MultiImageUploadComponent {
     this.imageUpdate.emit(this.images);
   }
 
-  removeImage(image: Image) {
+  removeImage(image: ImageSummary) {
     const imgIdx = this.images.indexOf(image);
     this.images.splice(imgIdx, 1);
 

@@ -14,7 +14,7 @@ export class RatingComponent {
   _rating: number = 0;
 
   @Input()
-  set rating(rating: number | undefined) {
+  set rating(rating: number | null | undefined) {
     this._rating = rating || 0;
     this.updateRatingVisual();
   }
@@ -30,8 +30,8 @@ export class RatingComponent {
 
   updateRatingVisual() {
     this.ratingVisual = new Array<string>(5)
-      .fill("star", 0, this.rating)
-      .fill("star-outline", this.rating, 5);
+      .fill("star", 0, this.rating ?? undefined)
+      .fill("star-outline", this.rating ?? undefined, 5);
   }
 
   setRating(rating: number) {

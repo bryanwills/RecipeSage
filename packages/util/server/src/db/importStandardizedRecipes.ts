@@ -1,4 +1,7 @@
-import { prisma } from "@recipesage/prisma";
+import {
+  prisma,
+  type StandardizedRecipeImportEntryForWeb,
+} from "@recipesage/prisma";
 import { Prisma } from "@recipesage/prisma";
 import pLimit from "p-limit";
 import { cleanLabelTitle } from "@recipesage/util/shared";
@@ -11,22 +14,8 @@ import {
   ObjectTypes,
 } from "../storage";
 
-export interface StandardizedRecipeImportEntry {
-  recipe: {
-    title: string;
-    description?: string;
-    yield?: string;
-    activeTime?: string;
-    totalTime?: string;
-    source?: string;
-    url?: string;
-    notes?: string;
-    ingredients?: string;
-    instructions?: string;
-    folder?: string;
-    rating?: number;
-  };
-  labels: string[];
+export interface StandardizedRecipeImportEntry
+  extends Omit<StandardizedRecipeImportEntryForWeb, "images"> {
   images: (string | Buffer)[];
 }
 

@@ -37,6 +37,12 @@ export class NotAcceptableError extends ServerError {
   }
 }
 
+export class UnsupportedMediaTypeError extends ServerError {
+  constructor(...args: ConstructorParameters<typeof Error>) {
+    super(415, ...args);
+  }
+}
+
 export class InternalServerError extends ServerError {
   constructor(...args: ConstructorParameters<typeof Error>) {
     super(500, ...args);

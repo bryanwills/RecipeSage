@@ -1,4 +1,4 @@
-import { Readable, Writable } from "stream";
+import { Readable } from "stream";
 import sharp from "sharp";
 
 export class FileTransformError extends Error {
@@ -8,9 +8,25 @@ export class FileTransformError extends Error {
   }
 }
 
-export const transformImageStream = async (
+export const transformImageStream = (
+  width: number,
+  height: number,
+  quality: number,
+  fit: keyof sharp.FitEnum,
+) => {
+  return sharp()
+    .rotate() // Rotates based on EXIF data
+    .resize(width, height, {
+      fit,
+    })
+    .jpeg({
+      quality,
+      // chromaSubsampling: '4:4:4' // Enable this option to prevent color loss at low quality - increases image size
+    });
+};
+
+export const transformImageStreamToBuffer = async (
   inputStream: Readable,
-  outputStream: Writable,
   width: number,
   height: number,
   quality: number,
@@ -24,10 +40,11 @@ export const transformImageStream = async (
     .jpeg({
       quality,
       // chromaSubsampling: '4:4:4' // Enable this option to prevent color loss at low quality - increases image size
-    })
-    .pipe(outputStream);
+    });
 
   inputStream.pipe(transformer);
+
+  return transformer.toBuffer();
 };
 
 export const transformImageBuffer = async (
