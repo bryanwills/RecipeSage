@@ -34,7 +34,13 @@ const log: Prisma.LogDefinition[] = [
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_SSL === "true",
+  ssl:
+    process.env.DATABASE_SSL === "true"
+      ? true
+      : {
+          rejectUnauthorized:
+            process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === "true",
+        },
 });
 
 const _prisma = new PrismaClient({
