@@ -470,7 +470,7 @@ export class RecipePage {
         rating: this.recipe.rating,
         folder: folderName,
         labelIds: this.recipe.recipeLabels.map(
-          (recipeLabel) => recipeLabel.labelId,
+          (recipeLabel) => recipeLabel.label.id,
         ),
         imageIds: this.recipe.recipeImages.map(
           (recipeImage) => recipeImage.imageId,
@@ -491,7 +491,7 @@ export class RecipePage {
 
     const labelIds =
       this.me?.id === this.recipe.id
-        ? this.recipe.recipeLabels.map((recipeLabel) => recipeLabel.labelId)
+        ? this.recipe.recipeLabels.map((recipeLabel) => recipeLabel.label.id)
         : [];
 
     const response = await this.trpcService.handle(

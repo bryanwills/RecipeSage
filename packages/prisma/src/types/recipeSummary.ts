@@ -27,8 +27,8 @@ export const recipeSummary = {
     recipeLabels: {
       select: {
         id: true,
-        labelId: true,
-        recipeId: true,
+        labelId: true, // TODO: Remove after v3.3.x has settled
+        recipeId: true, // TODO: Remove after v3.3.x has settled
         createdAt: true,
         updatedAt: true,
         label: labelSummary,

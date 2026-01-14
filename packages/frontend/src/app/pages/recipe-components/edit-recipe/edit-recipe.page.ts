@@ -141,7 +141,7 @@ export class EditRecipePage {
 
     if (this.fullRecipe) {
       this.selectedLabels = this.fullRecipe.recipeLabels
-        .map((label) => labelsById[label.id])
+        .map((recipeLabel) => labelsById[recipeLabel.label.id])
         .filter((label) => label);
     }
 
