@@ -60,6 +60,7 @@ jobs:
           name: lint, typecheck, build
           command: |
             APP_VERSION=${CIRCLE_TAG:-stg} \
+            SENTRY_RELEASE=$CIRCLE_TAG \
             SOURCEMAP_UPLOAD=${CIRCLE_TAG:+true} \
             NX_SKIP_NX_CACHE=${CIRCLE_TAG:+true} \
             npx nx run-many --targets=build,lint,typecheck --output-style=static
