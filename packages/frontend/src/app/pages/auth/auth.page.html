@@ -139,12 +139,12 @@
 
       <div class="ion-padding">
         @if (showLogin) {
-          <ion-button expand="block" (click)="auth()">{{
+          <ion-button expand="block" [disabled]="loading" (click)="auth()">{{
             "pages.auth.button.login" | translate
           }}</ion-button>
         }
         @if (!showLogin) {
-          <ion-button expand="block" (click)="auth()">{{
+          <ion-button expand="block" [disabled]="loading" (click)="auth()">{{
             "pages.auth.button.register" | translate
           }}</ion-button>
         }
