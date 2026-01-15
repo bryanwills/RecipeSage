@@ -1093,5 +1093,16 @@
     "components.shoppingListItem.customCategory.placeholder": "Название категории...",
     "errors.resourceNotFound": "Ресурс не найден",
     "errors.resourceNotFound.message": "Похоже, мы пытались получить то, чего не существует. Если это продолжит происходить неожиданно, пожалуйста, свяжитесь со мной.",
-    "generic.warning": "Предупреждение"
+    "generic.warning": "Предупреждение",
+    "pages.contribute.yearly": "Ежегодно",
+    "pages.contribute.yearlyMonthly": "Ежемесячно и ежегодно",
+    "pages.contribute.yearlyMonthly.description": "Вы разблокируете бонусные функции на время действия подписки",
+    "pages.editRecipe.clipImage.selectMore.header": "Выбрать дополнительное изображение?",
+    "pages.editRecipe.clipImage.selectMore.message": "Если вам не удалось уместить весь рецепт на одной фотографии, вы можете отсканировать до {{maxCount}} изображений. Пожалуйста, постарайтесь максимально ограничить перекрывающийся текст, поскольку перекрывающийся текст может появляться более одного раза в результате сканирования рецепта.",
+    "pages.import.copymethat": "Импорт из файла CopyMeThat",
+    "pages.importCopymethat.tabTitle": "Импорт из CopyMeThat - RecipeSage",
+    "pages.importCopymethat.title": "Импорт рецептов из CopyMeThat Export",
+    "pages.importCopymethat.description": "Это приведет к импорту из CopyMeThat (заканчивается на .zip) в вашу учетную запись RecipeSage. Обратите внимание, что вам необходимо экспортировать данные в формате HTML из CopyMeThat, чтобы этот импортер поддерживал их. При желании экспорт текста CopyMeThat можно использовать с импортером «текстовых файлов» RecipeSage. Если у вас возникли проблемы с импортом, обратитесь к руководству пользователя. Пожалуйста, рассмотрите возможность внести свой вклад, если ваш файл содержит большое количество рецептов или изображений.",
+    "generic.yes": "Да",
+    "generic.no": "Нет"
 }
