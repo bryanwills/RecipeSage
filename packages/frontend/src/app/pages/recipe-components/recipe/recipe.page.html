@@ -431,6 +431,11 @@
               {{ prettyDateTime(recipe.createdAt) }}<br />
               {{ "pages.recipeDetails.updated" | translate }}
               {{ prettyDateTime(recipe.updatedAt) }}
+              @if (recipe.lastMadeAt) {
+                <br />
+                {{ "pages.recipeDetails.lastMadeAt" | translate }}
+                {{ formatDate(recipe.lastMadeAt) }}
+              }
             </i>
           </p>
         </ion-label>

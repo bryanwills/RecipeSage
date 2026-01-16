@@ -27,6 +27,11 @@ export const createRecipe = publicProcedure
       folder: z.union([z.literal("main"), z.literal("inbox")]),
       labelIds: z.array(z.uuid()),
       imageIds: z.array(z.uuid()),
+      lastMadeAt: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+        .nullable()
+        .optional(),
     }),
   )
   .mutation(async ({ ctx, input }) => {
@@ -87,6 +92,7 @@ export const createRecipe = publicProcedure
         instructions: input.instructions,
         rating: input.rating,
         folder: input.folder,
+        lastMadeAt: input.lastMadeAt ? new Date(input.lastMadeAt) : null,
         recipeLabels: {
           createMany: {
             data: recipeLabels,
@@ -102,5 +108,7 @@ export const createRecipe = publicProcedure
 
     await indexRecipes([recipe]);
 
-    return recipe;
+    return {
+      id: recipe.id,
+    };
   });

@@ -34,7 +34,7 @@ describe("updateRecipe", () => {
         imageIds: [],
         folder: "main",
       });
-      expect(response.title).toEqual("marmelad");
+      expect(response.id).toEqual(recipe.id);
 
       const updatedRecipe = await prisma.recipe.findUnique({
         where: {

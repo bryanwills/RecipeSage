@@ -39,7 +39,7 @@ export const getRecipes = publicProcedure
       userIds.push(...friendships.friends);
     }
 
-    const recipes = await getRecipesWithConstraints({
+    const result = await getRecipesWithConstraints({
       userId: ctx.session?.userId || undefined,
       userIds,
       folder: input.folder,
@@ -54,5 +54,5 @@ export const getRecipes = publicProcedure
       ratings: input.ratings,
     });
 
-    return recipes;
+    return result;
   });

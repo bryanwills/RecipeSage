@@ -1,6 +1,9 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { StandardizedRecipeImportEntry } from "../db";
+import {
+  StandardizedRecipeImportEntry,
+  convertPrismaRecipeSummaryToRecipeSummary,
+} from "../db";
 import { prisma, recipeSummary, RecipeSummary } from "@recipesage/prisma";
 
 export type CreateAssistantRecipeToolResult = {
@@ -91,7 +94,7 @@ export const initCreateAssistantRecipeTool = () =>
       // Return the same thing the AI sent us so that it replies to user with what it built
       // If we don't do this, the AI will create a new (different) recipe and reply with that
       return {
-        storedRecipeInfo: recipe,
+        storedRecipeInfo: convertPrismaRecipeSummaryToRecipeSummary(recipe),
       } satisfies CreateAssistantRecipeToolResult as CreateAssistantRecipeToolResult;
     },
   });

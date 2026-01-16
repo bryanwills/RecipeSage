@@ -8,6 +8,7 @@ import {
   PopoverController,
 } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import dayjs from "dayjs";
 
 import { linkifyHtml } from "~/utils/linkify";
 import {
@@ -281,6 +282,8 @@ export class RecipePage {
         return this.moveToFolder("main");
       case "delete":
         return this.deleteRecipe();
+      case "setLastMadeToday":
+        return this.setLastMadeToday();
       default:
         const exhaustiveCheck: never = action;
         throw new Error(`Unhandled action case: ${exhaustiveCheck}`);
@@ -402,6 +405,49 @@ export class RecipePage {
     if (!response.success) return;
 
     this.navCtrl.navigateRoot(RouteMap.HomePage.getPath(this.recipe.folder));
+  }
+
+  async setLastMadeToday() {
+    if (!this.recipe) return;
+
+    const loading = this.loadingService.start();
+
+    const lastMadeAt = dayjs().format("YYYY-MM-DD");
+
+    const response = await this.trpcService.handle(
+      this.trpcService.trpc.recipes.updateRecipe.mutate({
+        id: this.recipe.id,
+        title: this.recipe.title,
+        description: this.recipe.description,
+        yield: this.recipe.yield,
+        activeTime: this.recipe.activeTime,
+        totalTime: this.recipe.totalTime,
+        source: this.recipe.source,
+        url: this.recipe.url,
+        notes: this.recipe.notes,
+        ingredients: this.recipe.ingredients,
+        instructions: this.recipe.instructions,
+        rating: this.recipe.rating,
+        folder: this.recipe.folder as "main" | "inbox",
+        imageIds: this.recipe.recipeImages.map((ri) => ri.image.id),
+        labelIds: this.recipe.recipeLabels.map((rl) => rl.label.id),
+        lastMadeAt,
+      }),
+    );
+
+    loading.dismiss();
+
+    if (!response) return;
+
+    this.recipe.lastMadeAt = lastMadeAt;
+    const message = await this.translate
+      .get("pages.recipeDetails.lastMadeAtUpdated")
+      .toPromise();
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+    });
+    toast.present();
   }
 
   async addRecipeToShoppingList() {
@@ -558,6 +604,11 @@ export class RecipePage {
   prettyDateTime(datetime: Date | string | number) {
     if (!datetime) return "";
     return this.utilService.formatDate(datetime, { times: true });
+  }
+
+  formatDate(date: Date | string | number) {
+    if (!date) return "";
+    return dayjs(date).format("YYYY-MM-DD");
   }
 
   sortedRecipeImages() {

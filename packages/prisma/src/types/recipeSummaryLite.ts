@@ -20,6 +20,7 @@ export const recipeSummaryLite = {
     folder: true,
     createdAt: true,
     updatedAt: true,
+    lastMadeAt: true,
     rating: true,
     recipeLabels: {
       select: {
@@ -45,10 +46,17 @@ export const recipeSummaryLite = {
   },
 } satisfies Prisma.RecipeFindFirstArgs;
 
+type InternalRecipeSummaryLite = Prisma.RecipeGetPayload<
+  typeof recipeSummaryLite
+>;
+
 /**
  * Provides fields necessary for displaying a summary about a recipe,
  * not including ingredients, instructions, notes, etc.
  **/
-export type RecipeSummaryLite = Prisma.RecipeGetPayload<
-  typeof recipeSummaryLite
->;
+export type RecipeSummaryLite = Omit<
+  InternalRecipeSummaryLite,
+  "lastMadeAt"
+> & {
+  lastMadeAt: string | null;
+};

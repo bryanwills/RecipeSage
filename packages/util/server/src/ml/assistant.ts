@@ -14,6 +14,7 @@ import { Converter } from "showdown";
 import { generateText, ModelMessage } from "ai";
 import { AI_MODEL_HIGH, AI_MODEL_LOW, aiProvider } from "./vercel";
 import type { InputJsonValue } from "@prisma/client/runtime/client";
+import { convertPrismaAssistantMessageSummariesToAssistantMessageSummaries } from "../db/convertPrismaAssistantMessageSummaries";
 const showdown = new Converter({
   simplifiedAutoLink: true,
   openLinksInNewWindow: true,
@@ -191,7 +192,7 @@ export class Assistant {
   }
 
   async getChatHistory(userId: string): Promise<AssistantMessageSummary[]> {
-    const messages = await prisma.assistantMessage.findMany({
+    const rawMessages = await prisma.assistantMessage.findMany({
       where: {
         userId,
       },
@@ -201,6 +202,11 @@ export class Assistant {
       },
       take: this.chatHistoryLimit,
     });
+
+    const messages =
+      convertPrismaAssistantMessageSummariesToAssistantMessageSummaries(
+        rawMessages,
+      );
 
     for (const message of messages) {
       if (message.content) {

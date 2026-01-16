@@ -5,6 +5,7 @@ import {
   recipeSummaryLite,
 } from "@recipesage/prisma";
 import { getRecipeVisibilityQueryFilter } from "./getRecipeVisibilityQueryFilter";
+import { convertPrismaRecipeSummaryLitesToRecipeSummaryLites } from "./convertPrismaRecipeSummaries";
 
 export const getRecipesWithConstraints = async (args: {
   tx?: Prisma.TransactionClient;
@@ -135,7 +136,7 @@ export const getRecipesWithConstraints = async (args: {
   ]);
 
   return {
-    recipes,
+    recipes: convertPrismaRecipeSummaryLitesToRecipeSummaryLites(recipes),
     totalCount,
   };
 };

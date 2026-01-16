@@ -235,6 +235,7 @@ model Recipe {
   createdAt         DateTime           @default(now()) @db.Timestamptz(6)
   updatedAt         DateTime           @updatedAt @db.Timestamptz(6)
   indexedAt         DateTime?          @db.Timestamptz(6)
+  lastMadeAt        DateTime?          @db.Date
   rating            Int?
   mealPlanItems     MealPlanItem[]
   originalRecipe    Message[]          @relation("Messages_originalRecipeIdToRecipes")

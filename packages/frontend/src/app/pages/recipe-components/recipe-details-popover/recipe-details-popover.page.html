@@ -172,6 +172,15 @@
         <ion-icon name="copy" slot="start"></ion-icon>
         {{ "pages.recipeDetailsPopover.makeACopy" | translate }}
       </ion-button>
+      <ion-button
+        (click)="closeWithAction('setLastMadeToday')"
+        expand="block"
+        size="small"
+        class="ion-margin"
+      >
+        <ion-icon name="calendar" slot="start"></ion-icon>
+        {{ "pages.recipeDetailsPopover.setLastMadeToday" | translate }}
+      </ion-button>
       <ion-list-header>
         {{ "pages.recipeDetailsPopover.dangerZone" | translate }}
       </ion-list-header>

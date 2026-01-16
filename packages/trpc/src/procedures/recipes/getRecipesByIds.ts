@@ -3,9 +3,10 @@ import { z } from "zod";
 import {
   getFriendshipIds,
   getRecipeVisibilityQueryFilter,
+  convertPrismaRecipeSummariesToRecipeSummaries,
 } from "@recipesage/util/server/db";
 import { validateTrpcSession } from "@recipesage/util/server/general";
-import { prisma, RecipeSummary, recipeSummary } from "@recipesage/prisma";
+import { prisma, recipeSummary, type RecipeSummary } from "@recipesage/prisma";
 
 export const getRecipesByIds = publicProcedure
   .input(
@@ -38,5 +39,5 @@ export const getRecipesByIds = publicProcedure
       ...recipeSummary,
     });
 
-    return recipes;
+    return convertPrismaRecipeSummariesToRecipeSummaries(recipes);
   });
