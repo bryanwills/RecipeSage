@@ -66,6 +66,8 @@ export enum MyRecipesSortOptions {
   CreatedAtAsc = "createdAt",
   UpdatedAtDesc = "-updatedAt",
   UpdatedAtAsc = "updatedAt",
+  LastMadeAtDesc = "-lastMadeAt",
+  LastMadeAtAsc = "lastMadeAt",
 }
 
 export enum MyRecipesIncludeFriendsOptions {
