@@ -414,8 +414,6 @@
     "pages.mealPlanPopover.actions.deleteDays": "删除已选日期",
     "pages.mealPlanPopover.dangerZone.title": "危险区域",
     "pages.mealPlanPopover.dangerZone.delete": "删除膳食计划",
-    "pages.mealPlanPopover.delete.header": "确认删除",
-    "pages.mealPlanPopover.delete.message": "这个操作将会删除当前膳食计划.请注意:如果您不是这个膳食计划的拥有者,它只会从您的账户中删除.如果您是这个膳食计划的拥有者,它将被从其他已分享的用户账号中一并删除.",
     "pages.mealPlans.title": "膳食计划",
     "pages.mealPlans.metadata.createdOn": "创建于{{date}}",
     "pages.mealPlans.metadata.collaborators": "分享给:",

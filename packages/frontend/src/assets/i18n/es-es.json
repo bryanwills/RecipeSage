@@ -385,8 +385,6 @@
     "pages.mealPlanPopover.actions.deleteDays": "Eliminar día(s) seleccionado(s)",
     "pages.mealPlanPopover.dangerZone.title": "Zona de peligro",
     "pages.mealPlanPopover.dangerZone.delete": "Eliminar el plan de comidas",
-    "pages.mealPlanPopover.delete.header": "Confirmar Eliminación",
-    "pages.mealPlanPopover.delete.message": "Esto eliminará permanentemente este plan de comidas de tu cuenta. Nota: Si sólo eres colaborador en este plan de comidas, sólo se eliminará de tu cuenta. Si eres el propietario de este plan de comidas, se eliminará de las cuentas de todos los demás colaboradores.",
     "pages.mealPlans.title": "Planes de comidas",
     "pages.mealPlans.metadata.createdOn": "Creado {{date}}",
     "pages.mealPlans.metadata.collaborators": "En colaboración con:",

@@ -391,8 +391,6 @@
     "pages.mealPlanPopover.actions.deleteDays": "Ausgewählte Tage löschen",
     "pages.mealPlanPopover.dangerZone.title": "Gefahrenzone",
     "pages.mealPlanPopover.dangerZone.delete": "Essensplan löschen",
-    "pages.mealPlanPopover.delete.header": "Löschen bestätigen",
-    "pages.mealPlanPopover.delete.message": "Dadurch wird dieser Essensplan endgültig aus deinem Konto entfernt. Hinweis: Wenn du nur ein Mitbearbeiter dieses Essensplans bist, wird er nur aus deinem Konto entfernt. Wenn du Eigentümer dieses Essensplans bist, wird er aus deinem und den Konten aller anderen Mitbearbeiter entfernt.",
     "pages.mealPlans.title": "Essenspläne",
     "pages.mealPlans.metadata.createdOn": "Erstellt am {{date}}",
     "pages.mealPlans.metadata.collaborators": "Mitbearbeiter:",

@@ -360,8 +360,6 @@
     "pages.mealPlanPopover.actions.update": "Muokkaa/Nimeä ateriasuunnitelma",
     "pages.mealPlanPopover.dangerZone.title": "Vaaravyöhyke",
     "pages.mealPlanPopover.dangerZone.delete": "Poista ruokasuunnitelma",
-    "pages.mealPlanPopover.delete.header": "Vahvista poisto",
-    "pages.mealPlanPopover.delete.message": "Tämä poistaa tämän ateriasuunnitelman pysyvästi tililtäsi. Huom: Jos olet pelkkä yhteistyökumppani tässä ateriasuunnitelmassa, se poistetaan vain sinun tililtäsi. Jos omistat tämän ateriasuunnitelman, se poistetaan myös kaikkien muiden yhteistyökumppanien tileiltä.",
     "pages.mealPlans.tabTitle": "Ruokasuunnitelmat – RecipeSage",
     "pages.mealPlans.title": "Ruokasuunnitelmat",
     "pages.mealPlans.metadata.createdOn": "Luotu {{date}}",

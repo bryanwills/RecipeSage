@@ -392,8 +392,6 @@
     "pages.mealPlanPopover.actions.deleteDays": "Видалити вибраний день (дні)",
     "pages.mealPlanPopover.dangerZone.title": "Небезпека",
     "pages.mealPlanPopover.dangerZone.delete": "Видалити план харчування",
-    "pages.mealPlanPopover.delete.header": "Підтвердьте видалення",
-    "pages.mealPlanPopover.delete.message": "Це назавжди видалить цей план харчування з вашого облікового запису. Примітка. Якщо ви лише співавтор цього плану харчування, його буде видалено лише з вашого облікового запису. Якщо ви володієте цим планом харчування, його буде видалено з усіх облікових записів інших співавторів.",
     "pages.mealPlans.title": "Плани харчування",
     "pages.mealPlans.metadata.createdOn": "Створено {{date}}",
     "pages.mealPlans.metadata.collaborators": "Спільно з:",

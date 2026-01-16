@@ -391,8 +391,6 @@
     "pages.mealPlanPopover.actions.deleteDays": "Elimina giorno\\i selezionati",
     "pages.mealPlanPopover.dangerZone.title": "Zona Pericolosa",
     "pages.mealPlanPopover.dangerZone.delete": "Elimina Pianificazione Pasti",
-    "pages.mealPlanPopover.delete.header": "Conferma Eliminazione",
-    "pages.mealPlanPopover.delete.message": "rimuovere definitivamente questa pianificazione pasti dal proprio profilo. Attenzione: se si è un collaboratore, questo programma verrà rimosso solo dal proprio account. Se si è proprietari di questo programma, verrà rimosso dagli account di tutti gli altri collaboratori.",
     "pages.mealPlans.title": "Pianificazione Pasti",
     "pages.mealPlans.metadata.createdOn": "Creazione {{date}}",
     "pages.mealPlans.metadata.collaborators": "Collaboratori:",

@@ -387,8 +387,6 @@
     "pages.mealPlanPopover.actions.deleteDays": "Удалить выбранные дни",
     "pages.mealPlanPopover.dangerZone.title": "Будьте внимательны!",
     "pages.mealPlanPopover.dangerZone.delete": "Удалить план питания",
-    "pages.mealPlanPopover.delete.header": "Подтвердить удаление",
-    "pages.mealPlanPopover.delete.message": "Этот план питания будет навсегда удален из вашей учетной записи. Примечание. Если вы являетесь только соавтором этого плана питания, он будет удален только из вашей учетной записи. Если вы являетесь владельцем этого плана питания, он будет удален из всех аккаунтов других соавторов.",
     "pages.mealPlans.title": "Планы питания",
     "pages.mealPlans.metadata.createdOn": "Создан {{date}}",
     "pages.mealPlans.metadata.collaborators": "В сотрудничестве с:",

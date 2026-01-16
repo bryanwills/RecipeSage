@@ -391,8 +391,6 @@
     "pages.mealPlanPopover.actions.deleteDays": "מחיקה של ימים שנבחרו",
     "pages.mealPlanPopover.dangerZone.title": "סכנה",
     "pages.mealPlanPopover.dangerZone.delete": "מחק תוכנית ארוחה",
-    "pages.mealPlanPopover.delete.header": "אישור מחיקה",
-    "pages.mealPlanPopover.delete.message": "פעולה זו תמחק לצמיתות את תוכנית הארוחה. הערה: אם אתה רק שותף בתוכנית הארוחות הזו, היא תוסר מחשבונך בלבד. אם אתה הבעלים של תוכנית הארוחות הזו, היא תוסר מכל חשבונות שותפי עריכה אחרים.",
     "pages.mealPlans.title": "תוכניות ארוחה",
     "pages.mealPlans.metadata.createdOn": "נוצר {{date}}",
     "pages.mealPlans.metadata.collaborators": "בשיתוף עם:",

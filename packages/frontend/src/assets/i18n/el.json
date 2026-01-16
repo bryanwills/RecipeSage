@@ -461,8 +461,6 @@
     "pages.mealPlanPopover.actions.update": "Επεξεργασία/Μετονομασία Προγράμματος Γευμάτων",
     "pages.mealPlanPopover.dangerZone.title": "Επικίνδυνη Περιοχή",
     "pages.mealPlanPopover.dangerZone.delete": "Διαγραφή Προγράμματος Γευμάτων",
-    "pages.mealPlanPopover.delete.header": "Επιβεβαίωση Διαγραφής",
-    "pages.mealPlanPopover.delete.message": "Αυτό θα αφαιρέσει μόνιμα αυτό το Πρόγραμμα Γευμάτων από το λογαριασμό σας. Σημείωση: Εάν είστε συνεργάτης σε αυτό το Πρόγραμμα Γεύματων, θα αφαιρεθεί μόνο από το λογαριασμό σας. Εάν είστε ιδιοκτήτης αυτού του προγράμματος γεύματος, θα αφαιρεθεί από όλους τους άλλους λογαριασμούς συνεργατών.",
     "pages.mealPlans.title": "Προγράμματα Γευμάτων",
     "pages.mealPlans.metadata.createdOn": "Δημιουργία {{date}}",
     "pages.mealPlans.metadata.collaborators": "Σε συνεργασία με:",
