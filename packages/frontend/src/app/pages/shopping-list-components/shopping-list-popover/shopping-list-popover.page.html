@@ -101,6 +101,7 @@
   </ion-button>
 
   <ion-button
+    [disabled]="!isOwner"
     (click)="updateList()"
     expand="block"
     size="small"
@@ -111,6 +112,7 @@
   </ion-button>
 
   <ion-button
+    [disabled]="!isOwner"
     (click)="showCategoryOrderModal()"
     expand="block"
     size="small"

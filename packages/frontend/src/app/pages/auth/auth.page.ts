@@ -13,7 +13,7 @@ import { EventName, EventService } from "~/services/event.service";
 import { UserService } from "~/services/user.service";
 import { LoadingService } from "~/services/loading.service";
 import { MessagingService } from "~/services/messaging.service";
-import { UtilService, RouteMap, AuthType } from "~/services/util.service";
+import { RouteMap, AuthType } from "~/services/util.service";
 import { CapabilitiesService } from "~/services/capabilities.service";
 import { TRPCService } from "../../services/trpc.service";
 import { appIdbStorageManager } from "../../utils/appIdbStorageManager";
@@ -43,7 +43,6 @@ export class AuthPage {
   private translate = inject(TranslateService);
   private modalCtrl = inject(ModalController);
   private navCtrl = inject(NavController);
-  private utilService = inject(UtilService);
   private loadingService = inject(LoadingService);
   private messagingService = inject(MessagingService);
   private capabilitiesService = inject(CapabilitiesService);
@@ -68,6 +67,7 @@ export class AuthPage {
   isInModal = false;
 
   revealPassword = false;
+  loading = false;
 
   constructor() {
     if (this.route.snapshot.paramMap.get("authType") === AuthType.Register) {
@@ -141,6 +141,7 @@ export class AuthPage {
     }
 
     const loading = this.loadingService.start();
+    this.loading = true;
 
     const response = this.showLogin
       ? await this.trpcService.handle(
@@ -185,6 +186,7 @@ export class AuthPage {
           },
         );
     loading.dismiss();
+    this.loading = false;
     if (!response) return;
 
     localStorage.setItem("token", response.token);

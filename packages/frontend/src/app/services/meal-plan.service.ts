@@ -1,6 +1,7 @@
 import { Injectable, inject } from "@angular/core";
 import { HttpService } from "./http.service";
 import { ErrorHandlers } from "./http-error-handler.service";
+import { getBase } from "../utils/getBase";
 
 export enum MealName {
   Breakfast = "breakfast",
@@ -221,6 +222,6 @@ export class MealPlanService {
   }
 
   getICalUrl(mealPlanId: string) {
-    return `${this.httpService.getBase()}/mealPlans/${mealPlanId}/ical`;
+    return `${getBase()}mealPlans/${mealPlanId}/ical`;
   }
 }

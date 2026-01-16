@@ -426,18 +426,22 @@ export class ShoppingListPage {
   }
 
   async presentPopover(event: Event): Promise<void> {
+    if (!this.shoppingList) return;
+
     const popover = await this.popoverCtrl.create({
       component: ShoppingListPopoverPage,
       componentProps: {
         shoppingListId: this.shoppingListId,
         shoppingList: this.shoppingList,
         shoppingListItems: this.shoppingListItems,
+        isOwner: this.me?.id === this.shoppingList?.user.id,
       },
       event,
     });
 
     await popover.present();
     const { data } = await popover.onDidDismiss();
+    if (!data) return;
     if (data.reference) this.reference = data.reference;
     if (data.doNotLoad) return;
 

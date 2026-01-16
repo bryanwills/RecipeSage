@@ -1,7 +1,6 @@
-import { Component, type AfterViewInit, inject } from "@angular/core";
+import { Component, inject, Input } from "@angular/core";
 import {
   NavController,
-  ToastController,
   ModalController,
   AlertController,
   PopoverController,
@@ -9,15 +8,14 @@ import {
 import { TranslateService } from "@ngx-translate/core";
 
 import { LoadingService } from "~/services/loading.service";
-import { MealPlanService } from "~/services/meal-plan.service";
-import { UtilService, RouteMap } from "~/services/util.service";
+import { RouteMap } from "~/services/util.service";
 import { PreferencesService } from "~/services/preferences.service";
 import { MealPlanPreferenceKey } from "@recipesage/util/shared";
 import { ShareMealPlanModalPage } from "../share-meal-plan-modal/share-meal-plan-modal.page";
 import { TRPCService } from "../../../services/trpc.service";
 import { UpdateMealPlanModalPage } from "../update-meal-plan-modal/update-meal-plan-modal.page";
-import { UserService } from "../../../services/user.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import type { MealPlanSummary } from "@recipesage/prisma";
 
 @Component({
   standalone: true,
@@ -26,40 +24,31 @@ import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
   styleUrls: ["meal-plan-popover.page.scss"],
   imports: [...SHARED_UI_IMPORTS],
 })
-export class MealPlanPopoverPage implements AfterViewInit {
+export class MealPlanPopoverPage {
   private popoverCtrl = inject(PopoverController);
   private modalCtrl = inject(ModalController);
   private translate = inject(TranslateService);
   private navCtrl = inject(NavController);
   private preferencesService = inject(PreferencesService);
-  private userService = inject(UserService);
   private loadingService = inject(LoadingService);
   private trpcService = inject(TRPCService);
   private alertCtrl = inject(AlertController);
 
   preferences = this.preferencesService.preferences;
   preferenceKeys = MealPlanPreferenceKey;
-  isOwner: boolean = false;
-  loading: boolean = true;
 
-  mealPlanId: any; // From nav params
-  mealPlan: any;
-
-  ngAfterViewInit() {
-    this.loading = true;
-    this.loadUser().finally(() => {
-      this.loading = false;
-    });
-  }
-
-  async loadUser() {
-    const response = await this.userService.getMyProfile({
-      401: () => {},
-    });
-    if (!response.success) return;
-
-    this.isOwner = response.data.id === this.mealPlan.userId;
-  }
+  @Input({
+    required: true,
+  })
+  mealPlanId!: string;
+  @Input({
+    required: true,
+  })
+  mealPlan!: MealPlanSummary;
+  @Input({
+    required: true,
+  })
+  isOwner!: boolean;
 
   savePreferences() {
     this.preferencesService.save();
@@ -116,18 +105,27 @@ export class MealPlanPopoverPage implements AfterViewInit {
   }
 
   async deleteMealPlan() {
-    const header = await this.translate
-      .get("pages.mealPlanPopover.delete.header")
+    const headerOwner = await this.translate
+      .get("pages.mealPlanPopover.deletePlan.header")
       .toPromise();
-    const message = await this.translate
-      .get("pages.mealPlanPopover.delete.message")
+    const headerCollaborator = await this.translate
+      .get("pages.mealPlanPopover.removeSelfFromPlan.header")
+      .toPromise();
+    const messageOwner = await this.translate
+      .get("pages.mealPlanPopover.deletePlan.message")
+      .toPromise();
+    const messageCollaborator = await this.translate
+      .get("pages.mealPlanPopover.removeSelfFromPlan.message")
       .toPromise();
     const cancel = await this.translate.get("generic.cancel").toPromise();
-    const del = await this.translate.get("generic.delete").toPromise();
+    const delOwner = await this.translate.get("generic.delete").toPromise();
+    const delCollaborator = await this.translate
+      .get("generic.confirm")
+      .toPromise();
 
     const alert = await this.alertCtrl.create({
-      header,
-      message,
+      header: this.isOwner ? headerOwner : headerCollaborator,
+      message: this.isOwner ? messageOwner : messageCollaborator,
       buttons: [
         {
           text: cancel,
@@ -135,7 +133,7 @@ export class MealPlanPopoverPage implements AfterViewInit {
           handler: () => {},
         },
         {
-          text: del,
+          text: this.isOwner ? delOwner : delCollaborator,
           cssClass: "alertDanger",
           handler: () => {
             this._deleteMealPlan();
