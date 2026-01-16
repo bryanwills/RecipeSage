@@ -101,7 +101,7 @@ export class ShareModalPage {
     }
 
     const jsonLDCode = `<script>
-      fetch('https://api.recipesage.com/recipes/${this.recipe.id}/json-ld')
+      fetch('${this.utilService.getBase()}recipes/${this.recipe.id}/json-ld')
       .then(response => response.text())
       .then(structuredDataText => {
         const script = document.createElement('script');

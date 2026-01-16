@@ -1,12 +1,12 @@
 import { Injectable, inject } from "@angular/core";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
-import { API_BASE_URL } from "../../environments/environment";
 import {
   HttpErrorHandlerService,
   ErrorHandlers,
 } from "./http-error-handler.service";
 import { UtilService } from "./util.service";
+import { getBase } from "../utils/getBase";
 
 export interface HttpResponse<ResponseType> {
   success: boolean;
@@ -56,15 +56,6 @@ export class HttpService {
         "Content-Type": "application/json",
       },
     });
-  }
-
-  getBase(): string {
-    if (window.location.hostname === "beta.recipesage.com")
-      return "https://api.beta.recipesage.com/";
-
-    const subpathBase = `${window.location.protocol}//${window.location.hostname}/api/`;
-
-    return (window as any).API_BASE_OVERRIDE || API_BASE_URL || subpathBase;
   }
 
   requestWithWrapper<ResponseType>(opts: {
@@ -129,7 +120,7 @@ export class HttpService {
     const { axiosOverrides, path, method, payload, query, errorHandlers } =
       opts;
 
-    let url = this.getBase() + path + this.utilService.getTokenQuery();
+    let url = getBase() + path + this.utilService.getTokenQuery();
 
     if (query) {
       const params = Object.entries(query)
