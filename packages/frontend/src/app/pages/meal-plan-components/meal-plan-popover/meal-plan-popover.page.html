@@ -91,17 +91,16 @@
       <ion-icon name="trash" slot="start"></ion-icon>
       {{ "pages.mealPlanPopover.actions.deleteDays" | translate }}
     </ion-button>
-    @if (isOwner) {
-      <ion-button
-        (click)="updateMealPlan()"
-        expand="block"
-        size="small"
-        class="ion-margin"
-      >
-        <ion-icon name="pencil" slot="start"></ion-icon>
-        {{ "pages.mealPlanPopover.actions.update" | translate }}
-      </ion-button>
-    }
+    <ion-button
+      (click)="updateMealPlan()"
+      [disabled]="!isOwner"
+      expand="block"
+      size="small"
+      class="ion-margin"
+    >
+      <ion-icon name="pencil" slot="start"></ion-icon>
+      {{ "pages.mealPlanPopover.actions.update" | translate }}
+    </ion-button>
     <ion-list-header>
       {{ "pages.mealPlanPopover.dangerZone.title" | translate }}
     </ion-list-header>

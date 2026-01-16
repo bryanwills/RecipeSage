@@ -53,6 +53,10 @@ export class ShoppingListPopoverPage {
     required: true,
   })
   shoppingListItems!: ShoppingListItemSummary[];
+  @Input({
+    required: true,
+  })
+  isOwner!: boolean;
 
   preferences = this.preferencesService.preferences;
   preferenceKeys = ShoppingListPreferenceKey;
@@ -134,18 +138,27 @@ export class ShoppingListPopoverPage {
   }
 
   async deleteList() {
-    const header = await this.translate
+    const headerOwner = await this.translate
       .get("pages.shoppingListPopover.deleteList.header")
       .toPromise();
-    const message = await this.translate
+    const messageOwner = await this.translate
       .get("pages.shoppingListPopover.deleteList.message")
       .toPromise();
+    const headerCollaborator = await this.translate
+      .get("pages.shoppingListPopover.removeSelfFromList.header")
+      .toPromise();
+    const messageCollaborator = await this.translate
+      .get("pages.shoppingListPopover.removeSelfFromList.message")
+      .toPromise();
     const cancel = await this.translate.get("generic.cancel").toPromise();
-    const del = await this.translate.get("generic.delete").toPromise();
+    const delOwner = await this.translate.get("generic.delete").toPromise();
+    const delCollaborator = await this.translate
+      .get("generic.confirm")
+      .toPromise();
 
     const alert = await this.alertCtrl.create({
-      header,
-      message,
+      header: this.isOwner ? headerOwner : headerCollaborator,
+      message: this.isOwner ? messageOwner : messageCollaborator,
       buttons: [
         {
           text: cancel,
@@ -153,7 +166,7 @@ export class ShoppingListPopoverPage {
           handler: () => {},
         },
         {
-          text: del,
+          text: this.isOwner ? delOwner : delCollaborator,
           cssClass: "alertDanger",
           handler: () => {
             this._deleteList();
@@ -201,7 +214,7 @@ export class ShoppingListPopoverPage {
       component: ShoppingListCategoryOrderModalPage,
       componentProps: {
         shoppingListId: this.shoppingListId,
-        categoryOrder: this.shoppingList.categoryOrder,
+        categoryOrder: this.shoppingList.categoryOrder || undefined,
       },
     });
     await modal.present();

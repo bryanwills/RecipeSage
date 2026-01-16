@@ -21,10 +21,10 @@ export class UpdateMealPlanModalPage {
   @Input({
     required: true,
   })
-  mealPlanId: string = "";
+  mealPlanId!: string;
 
   mealPlanTitle = "";
-  selectedCollaboratorIds: any = [];
+  selectedCollaboratorIds: string[] = [];
   loaded = false;
 
   ionViewWillEnter() {
@@ -32,8 +32,6 @@ export class UpdateMealPlanModalPage {
   }
 
   async load() {
-    if (!this.mealPlanId) throw new Error("Meal plan ID not provided");
-
     const loading = this.loadingService.start();
 
     const result = await this.trpcService.handle(
@@ -53,8 +51,6 @@ export class UpdateMealPlanModalPage {
   }
 
   async save() {
-    if (!this.mealPlanId) throw new Error("Meal plan ID not provided");
-
     const loading = this.loadingService.start();
 
     const result = await this.trpcService.handle(

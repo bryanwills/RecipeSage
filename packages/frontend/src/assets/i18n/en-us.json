@@ -479,8 +479,10 @@
   "pages.mealPlanPopover.actions.update": "Edit/Rename Meal Plan",
   "pages.mealPlanPopover.dangerZone.title": "Danger Zone",
   "pages.mealPlanPopover.dangerZone.delete": "Delete meal plan",
-  "pages.mealPlanPopover.delete.header": "Confirm Delete",
-  "pages.mealPlanPopover.delete.message": "This will permanently remove this meal plan from your account. Note: If you're only a collaborator on this meal plan, it'll only be removed from your account. If you own this meal plan, it will be removed from all other collaborators accounts.",
+  "pages.mealPlanPopover.deletePlan.header": "Confirm Delete",
+  "pages.mealPlanPopover.deletePlan.message": "This will permanently remove this meal plan from your account. If this meal plan is shared with anyone else, it will be removed from their accounts as well.",
+  "pages.mealPlanPopover.removeSelfFromPlan.header": "Confirm Remove Plan",
+  "pages.mealPlanPopover.removeSelfFromPlan.message": "This will remove this meal plan from your account. Only the owner of the meal plan can permanently delete it completely, but you won't be a member of this meal plan if you proceed. Only the owner of the meal plan can reverse this action.",
 
   "pages.mealPlans.tabTitle": "Meal Plans - RecipeSage",
   "pages.mealPlans.title": "Meal Plans",
@@ -936,7 +938,9 @@
   "pages.shoppingListPopover.removeAll.header": "Confirm Removal",
   "pages.shoppingListPopover.removeAll.message": "This will permanently delete all items from this list. This action is irreversible.",
   "pages.shoppingListPopover.deleteList.header": "Confirm Delete",
-  "pages.shoppingListPopover.deleteList.message": "This will permanently remove this shopping list from your account. Note: If you're only a collaborator on this list, it'll only be removed from your account. If you own this list, it will be removed from all other collaborators accounts.",
+  "pages.shoppingListPopover.deleteList.message": "This will permanently remove this shopping list from your account. If this list is shared with anyone else, it will be removed from their accounts as well.",
+  "pages.shoppingListPopover.removeSelfFromList.header": "Confirm Remove List",
+  "pages.shoppingListPopover.removeSelfFromList.message": "This will remove this shopping list from your account. Only the owner of the list can permanently delete it completely, but you won't be a member of this list if you proceed. Only the owner of the list can reverse this action.",
 
   "pages.shoppingLists.tabTitle": "Shopping Lists - RecipeSage",
   "pages.shoppingLists.title": "Shopping Lists",

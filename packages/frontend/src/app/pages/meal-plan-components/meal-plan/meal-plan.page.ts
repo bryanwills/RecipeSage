@@ -24,7 +24,11 @@ import { MealPlanItemDetailsModalPage } from "~/pages/meal-plan-components/meal-
 import { MealPlanBulkPinModalPage } from "@recipesage/frontend/src/app/pages/meal-plan-components/meal-plan-bulk-pin-modal/meal-plan-bulk-pin-modal.page";
 import { AddRecipeToShoppingListModalPage } from "~/pages/recipe-components/add-recipe-to-shopping-list-modal/add-recipe-to-shopping-list-modal.page";
 import { TRPCService } from "../../../services/trpc.service";
-import type { MealPlanItemSummary, MealPlanSummary } from "@recipesage/prisma";
+import type {
+  MealPlanItemSummary,
+  MealPlanSummary,
+  UserPublic,
+} from "@recipesage/prisma";
 import { Title } from "@angular/platform-browser";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 
@@ -58,6 +62,7 @@ export class MealPlanPage {
   dayMoveInProgress = false;
   selectedDaysInProgress?: string[];
 
+  me?: UserPublic;
   mealPlanId: string; // From nav params
   mealPlan?: MealPlanSummary;
   mealPlanItems?: MealPlanItemSummary[];
@@ -121,9 +126,18 @@ export class MealPlanPage {
 
   async loadWithProgress() {
     const loading = this.loadingService.start();
-    await this.loadMealPlan().finally(() => {
+    await Promise.all([this.loadMealPlan(), this.loadMe()]).finally(() => {
       loading.dismiss();
     });
+  }
+
+  async loadMe() {
+    const me = await this.trpcService.handle(
+      this.trpcService.trpc.users.getMe.query(),
+    );
+    if (!me) return;
+
+    this.me = me;
   }
 
   async loadMealPlan() {
@@ -194,6 +208,7 @@ export class MealPlanPage {
       componentProps: {
         mealPlanId: this.mealPlanId,
         mealPlan: this.mealPlan,
+        isOwner: this.me?.id === this.mealPlan?.user.id,
       },
       event,
     });

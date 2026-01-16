@@ -33,7 +33,11 @@
 }
 
 <ion-footer class="ion-padding">
-  <ion-button expand="block" (click)="save()" [disabled]="!mealPlanTitle">
+  <ion-button
+    expand="block"
+    (click)="save()"
+    [disabled]="!loaded || !mealPlanTitle"
+  >
     <ion-icon name="list" slot="start"></ion-icon>
     @if (selectedCollaboratorIds.length > 0) {
       <ion-label>
