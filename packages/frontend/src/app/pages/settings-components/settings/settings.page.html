@@ -62,6 +62,29 @@
       </ion-item>
     }
     <ion-item lines="inset">
+      <ion-icon name="home-outline" slot="start"></ion-icon>
+      <ion-select
+        [(ngModel)]="preferences[preferenceKeys.StartPage]"
+        (ngModelChange)="startPageChanged()"
+        label="{{ 'pages.settings.startPage' | translate }}"
+        okText="{{ 'generic.ok' | translate }}"
+        cancelText="{{ 'generic.cancel' | translate }}"
+      >
+        <ion-select-option [value]="startPageOptions.MyRecipes">
+          {{ "pages.settings.startPage.myRecipes" | translate }}
+        </ion-select-option>
+        <ion-select-option [value]="startPageOptions.ManageLabels">
+          {{ "pages.settings.startPage.manageLabels" | translate }}
+        </ion-select-option>
+        <ion-select-option [value]="startPageOptions.MealPlans">
+          {{ "pages.settings.startPage.mealPlans" | translate }}
+        </ion-select-option>
+        <ion-select-option [value]="startPageOptions.ShoppingLists">
+          {{ "pages.settings.startPage.shoppingLists" | translate }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item lines="inset">
       <ion-icon name="brush" slot="start"></ion-icon>
       <ion-select
         [(ngModel)]="preferences[preferenceKeys.Theme]"

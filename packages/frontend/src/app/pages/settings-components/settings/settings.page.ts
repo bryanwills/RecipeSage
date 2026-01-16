@@ -13,6 +13,7 @@ import {
   encryptUtf8WithRSAKey,
   GlobalPreferenceKey,
   PreferencesSync,
+  StartPageOptions,
   SupportedLanguages,
 } from "@recipesage/util/shared";
 import {
@@ -74,6 +75,7 @@ export class SettingsPage {
   languageSelectInterfaceOptions = {};
 
   fontSize = this.preferences[GlobalPreferenceKey.FontSize];
+  startPageOptions = StartPageOptions;
   isLoggedIn: boolean = false;
 
   constructor() {
@@ -349,6 +351,10 @@ export class SettingsPage {
     this.preferencesService.save();
 
     this.utilService.setAppTheme(this.preferences[GlobalPreferenceKey.Theme]);
+  }
+
+  startPageChanged() {
+    this.preferencesService.save();
   }
 
   async appThemeChanged() {
