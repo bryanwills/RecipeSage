@@ -106,7 +106,6 @@
     "pages.mealPlanItemDetailsModal.actions.delete": "Ezabatu elementu hau",
     "pages.mealPlanItemDetailsModal.delete.header": "Kenduaren berrespena",
     "pages.mealPlanItemDetailsModal.delete.message": "Honek \"{{title}}\" kenduko du jantordu-plan honetatik.",
-    "pages.mealPlanPopover.actions.share": "Partekatu",
     "pages.mealPlanPopover.actions.pinRecipesOpen": "Errezetak irekita finkatu",
     "pages.mealPlanPopover.actions.addToShoppingList": "Erosketa-zerrendara gehitu",
     "pages.mealPlans.tabTitle": "Otordu planak - RecipeSage",
