@@ -6,12 +6,12 @@ import { CopyWithWebshareComponent } from "../../../components/copy-with-webshar
 
 @Component({
   standalone: true,
-  selector: "page-share-meal-plan-modal",
-  templateUrl: "share-meal-plan-modal.page.html",
-  styleUrls: ["share-meal-plan-modal.page.scss"],
+  selector: "page-ical-meal-plan-modal",
+  templateUrl: "ical-meal-plan-modal.page.html",
+  styleUrls: ["ical-meal-plan-modal.page.scss"],
   imports: [...SHARED_UI_IMPORTS, CopyWithWebshareComponent],
 })
-export class ShareMealPlanModalPage {
+export class ICalMealPlanModalPage {
   private modalCtrl = inject(ModalController);
   private mealPlanService = inject(MealPlanService);
 

@@ -19,7 +19,8 @@ export type RecipeDetailsPopoverActionTypes =
   | "pin"
   | "unpin"
   | "edit"
-  | "updateWakeLock";
+  | "updateWakeLock"
+  | "setLastMadeToday";
 
 @Component({
   standalone: true,

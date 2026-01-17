@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@recipesage/prisma";
 import { validateTrpcSession } from "@recipesage/util/server/general";
 import { recipeSummaryLite } from "@recipesage/prisma";
+import { convertPrismaRecipeSummaryLitesToRecipeSummaryLites } from "@recipesage/util/server/db";
 
 export const getRecipesByTitle = publicProcedure
   .input(
@@ -14,7 +15,7 @@ export const getRecipesByTitle = publicProcedure
     const session = ctx.session;
     validateTrpcSession(session);
 
-    const recipes = prisma.recipe.findMany({
+    const recipes = await prisma.recipe.findMany({
       where: {
         userId: session.userId,
         title: input.title,
@@ -22,5 +23,5 @@ export const getRecipesByTitle = publicProcedure
       ...recipeSummaryLite,
     });
 
-    return recipes;
+    return convertPrismaRecipeSummaryLitesToRecipeSummaryLites(recipes);
   });

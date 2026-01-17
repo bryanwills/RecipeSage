@@ -11,7 +11,7 @@ export const getRecipes = publicProcedure
     z.object({
       userIds: z.array(z.uuid()).optional(),
       folder: z.enum(["main", "inbox"]),
-      orderBy: z.enum(["title", "createdAt", "updatedAt"]),
+      orderBy: z.enum(["title", "createdAt", "updatedAt", "lastMadeAt"]),
       orderDirection: z.enum(["asc", "desc"]),
       offset: z.number().min(0),
       limit: z.number().min(1).max(200),
@@ -39,7 +39,7 @@ export const getRecipes = publicProcedure
       userIds.push(...friendships.friends);
     }
 
-    const recipes = await getRecipesWithConstraints({
+    const result = await getRecipesWithConstraints({
       userId: ctx.session?.userId || undefined,
       userIds,
       folder: input.folder,
@@ -54,5 +54,5 @@ export const getRecipes = publicProcedure
       ratings: input.ratings,
     });
 
-    return recipes;
+    return result;
   });

@@ -11,7 +11,7 @@ import { LoadingService } from "~/services/loading.service";
 import { RouteMap } from "~/services/util.service";
 import { PreferencesService } from "~/services/preferences.service";
 import { MealPlanPreferenceKey } from "@recipesage/util/shared";
-import { ShareMealPlanModalPage } from "../share-meal-plan-modal/share-meal-plan-modal.page";
+import { ICalMealPlanModalPage } from "../ical-meal-plan-modal/ical-meal-plan-modal.page";
 import { TRPCService } from "../../../services/trpc.service";
 import { UpdateMealPlanModalPage } from "../update-meal-plan-modal/update-meal-plan-modal.page";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
@@ -62,9 +62,9 @@ export class MealPlanPopoverPage {
     this.popoverCtrl.dismiss();
   }
 
-  async share() {
+  async ical() {
     const modal = await this.modalCtrl.create({
-      component: ShareMealPlanModalPage,
+      component: ICalMealPlanModalPage,
       componentProps: {
         mealPlanId: this.mealPlanId,
       },

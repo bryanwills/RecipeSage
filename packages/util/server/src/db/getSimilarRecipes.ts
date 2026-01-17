@@ -1,5 +1,6 @@
 import { prisma, recipeSummaryLite } from "@recipesage/prisma";
 import { stripNumberedRecipeTitle } from "@recipesage/util/shared";
+import { convertPrismaRecipeSummaryLitesToRecipeSummaryLites } from "./convertPrismaRecipeSummaries";
 
 export const getSimilarRecipes = async (
   userId: string,
@@ -48,5 +49,5 @@ export const getSimilarRecipes = async (
     },
   });
 
-  return relatedRecipes;
+  return convertPrismaRecipeSummaryLitesToRecipeSummaryLites(relatedRecipes);
 };

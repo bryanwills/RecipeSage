@@ -74,7 +74,7 @@
     <br />
     <br />
     <br />
-    <ion-item>
+    <ion-item class="recipe-input">
       <ion-input
         label="{{ 'pages.editRecipe.input.title' | translate }}"
         labelPlacement="stacked"
@@ -88,7 +88,7 @@
       ></ion-input>
     </ion-item>
 
-    <ion-item>
+    <ion-item class="recipe-input">
       <ion-textarea
         label="{{ 'pages.editRecipe.input.description' | translate }}"
         labelPlacement="stacked"
@@ -104,7 +104,7 @@
     </ion-item>
 
     <div class="miniflex">
-      <ion-item>
+      <ion-item class="recipe-input">
         <ion-input
           label="{{ 'pages.editRecipe.input.yield' | translate }}"
           labelPlacement="stacked"
@@ -118,7 +118,7 @@
         ></ion-input>
       </ion-item>
 
-      <ion-item>
+      <ion-item class="recipe-input">
         <ion-input
           label="{{ 'pages.editRecipe.input.activeTime' | translate }}"
           labelPlacement="stacked"
@@ -132,7 +132,7 @@
         ></ion-input>
       </ion-item>
 
-      <ion-item>
+      <ion-item class="recipe-input">
         <ion-input
           label="{{ 'pages.editRecipe.input.totalTime' | translate }}"
           labelPlacement="stacked"
@@ -146,7 +146,7 @@
         ></ion-input>
       </ion-item>
 
-      <ion-item>
+      <ion-item class="recipe-input">
         <ion-input
           label="{{ 'pages.editRecipe.input.source' | translate }}"
           labelPlacement="stacked"
@@ -160,7 +160,7 @@
         ></ion-input>
       </ion-item>
 
-      <ion-item>
+      <ion-item class="recipe-input">
         <ion-input
           label="{{ 'pages.editRecipe.input.sourceUrl' | translate }}"
           labelPlacement="stacked"
@@ -174,19 +174,51 @@
         ></ion-input>
       </ion-item>
 
-      <div class="rating">
-        <div class="rating-title">
-          {{ "pages.editRecipe.input.rating" | translate }}
+      <div class="rating-lastMadeAt recipe-input">
+        <div class="rating">
+          <div class="rating-title">
+            {{ "pages.editRecipe.input.rating" | translate }}
+          </div>
+          <rating
+            [rating]="recipe.rating"
+            (ratingChanged)="recipe.rating = $event"
+            [enableEdit]="true"
+          ></rating>
         </div>
-        <rating
-          [rating]="recipe.rating"
-          (ratingChanged)="recipe.rating = $event"
-          [enableEdit]="true"
-        ></rating>
+
+        @if (recipe.lastMadeAt) {
+          <ion-item>
+            <ion-input
+              label="{{ 'pages.editRecipe.input.lastMadeAt' | translate }}"
+              labelPlacement="stacked"
+              class="rs-date"
+              type="date"
+              [(ngModel)]="recipe.lastMadeAt"
+              (ngModelChange)="markAsDirty()"
+            />
+          </ion-item>
+        }
+        @if (!recipe.lastMadeAt) {
+          <div class="lastMadeAt">
+            <div class="lastMadeAt-title">
+              {{ "pages.editRecipe.input.lastMadeAt" | translate }}
+            </div>
+            <div>
+              <ion-button
+                (click)="setLastMadeAtToday()"
+                fill="clear"
+                size="small"
+                mode="ios"
+              >
+                {{ "pages.editRecipe.input.lastMadeAt.never" | translate }}
+              </ion-button>
+            </div>
+          </div>
+        }
       </div>
     </div>
 
-    <ion-item>
+    <ion-item class="recipe-input">
       <ion-textarea
         label="{{ 'pages.editRecipe.input.ingredients' | translate }}"
         labelPlacement="stacked"
@@ -201,7 +233,7 @@
       ></ion-textarea>
     </ion-item>
 
-    <ion-item>
+    <ion-item class="recipe-input">
       <ion-textarea
         label="{{ 'pages.editRecipe.input.instructions' | translate }}"
         labelPlacement="stacked"
@@ -216,7 +248,7 @@
       ></ion-textarea>
     </ion-item>
 
-    <ion-item>
+    <ion-item class="recipe-input">
       <ion-textarea
         label="{{ 'pages.editRecipe.input.notes' | translate }}"
         labelPlacement="stacked"

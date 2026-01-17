@@ -3,6 +3,7 @@ import { publicProcedure } from "../../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { recipeSummary } from "@recipesage/prisma";
+import { convertPrismaRecipeSummaryToRecipeSummary } from "@recipesage/util/server/db";
 
 export const getRecipe = publicProcedure
   .input(
@@ -25,5 +26,5 @@ export const getRecipe = publicProcedure
       });
     }
 
-    return recipe;
+    return convertPrismaRecipeSummaryToRecipeSummary(recipe);
   });

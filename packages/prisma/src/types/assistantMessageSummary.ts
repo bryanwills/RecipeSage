@@ -1,5 +1,5 @@
 import type { Prisma } from "../prisma/generated/client";
-import { recipeSummaryLite } from "./recipeSummaryLite";
+import { recipeSummaryLite, type RecipeSummaryLite } from "./recipeSummaryLite";
 
 /**
  * Provides assistant chat history with recipe summary included
@@ -18,9 +18,16 @@ export const assistantMessageSummary = {
   },
 } satisfies Prisma.AssistantMessageFindFirstArgs;
 
+type InternalAssistantMessageSummary = Prisma.AssistantMessageGetPayload<
+  typeof assistantMessageSummary
+>;
+
 /**
  * Provides assistant chat history with recipe summary included
  **/
-export type AssistantMessageSummary = Prisma.AssistantMessageGetPayload<
-  typeof assistantMessageSummary
->;
+export type AssistantMessageSummary = Omit<
+  InternalAssistantMessageSummary,
+  "recipe"
+> & {
+  recipe: RecipeSummaryLite | null;
+};

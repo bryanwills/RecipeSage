@@ -17,6 +17,7 @@ import {
   RecipeDetailsPreferenceKey,
   ShoppingListPreferenceKey,
   ShoppingListSortOptions,
+  StartPageOptions,
   SupportedFontSize,
   SupportedLanguages,
 } from "@recipesage/util/shared";
@@ -33,6 +34,7 @@ export const updatePreferences = publicProcedure
       [GlobalPreferenceKey.FontSize]: z.nativeEnum(SupportedFontSize),
       [GlobalPreferenceKey.Theme]: z.nativeEnum(AppTheme),
       [GlobalPreferenceKey.PreferencesSync]: z.nativeEnum(PreferencesSync),
+      [GlobalPreferenceKey.StartPage]: z.nativeEnum(StartPageOptions),
 
       [MyRecipesPreferenceKey.EnableLabelIntersection]: z.boolean(),
       [MyRecipesPreferenceKey.ShowLabels]: z.boolean(),

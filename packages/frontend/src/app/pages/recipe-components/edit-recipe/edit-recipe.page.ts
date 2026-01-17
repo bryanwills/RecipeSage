@@ -1,5 +1,6 @@
 import { Component, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import dayjs from "dayjs";
 import {
   FilePicker,
   type PickFilesResult,
@@ -239,9 +240,15 @@ export class EditRecipePage {
     // Robust URL finding regex from https://www.regextester.com/93652
     // TODO: Replace this with a lib
     const matchedUrl = s.match(
-      /(?:(?:https?|ftp):\/\/|\b(?:[a-z\d]+\.))(?:(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))?\))+(?:\((?:[^\s()<>]+|(?:\(?:[^\s()<>]+\)))?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))?/gi,
+      /(?:(?:https?|ftp):\/\/|\b(?:[a-z\d]+\.))(?:(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))?\))+(?:\((?:[^\s()<>]+|(?:\(?:[^\s()<>]+\)))?\)|[^\s`!()\[\]{};:'".,<>?«»""'']))?/gi,
     );
     if (matchedUrl) return matchedUrl.pop();
+  }
+
+  lastMadeAtDateChange(event: any) {
+    const value = event.target.value;
+    this.recipe.lastMadeAt = value || "";
+    this.markAsDirty();
   }
 
   async _create(title: string) {
@@ -261,6 +268,7 @@ export class EditRecipePage {
         folder: "main",
         imageIds: this.images.map((image) => image.id),
         labelIds: this.selectedLabels.map((label) => label.id),
+        lastMadeAt: this.recipe.lastMadeAt || null,
       }),
     );
 
@@ -287,6 +295,7 @@ export class EditRecipePage {
         folder: "main",
         imageIds: this.images.map((image) => image.id),
         labelIds: this.selectedLabels.map((label) => label.id),
+        lastMadeAt: this.recipe.lastMadeAt || null,
       }),
     );
 
@@ -1162,5 +1171,9 @@ export class EditRecipePage {
 
     this.labels.push(label);
     this.selectedLabels.push(label);
+  }
+
+  setLastMadeAtToday() {
+    this.recipe.lastMadeAt = dayjs().format("YYYY-MM-DD");
   }
 }

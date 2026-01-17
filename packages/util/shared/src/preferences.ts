@@ -66,6 +66,8 @@ export enum MyRecipesSortOptions {
   CreatedAtAsc = "createdAt",
   UpdatedAtDesc = "-updatedAt",
   UpdatedAtAsc = "updatedAt",
+  LastMadeAtDesc = "-lastMadeAt",
+  LastMadeAtAsc = "lastMadeAt",
 }
 
 export enum MyRecipesIncludeFriendsOptions {
@@ -78,6 +80,13 @@ export enum MyRecipesIncludeFriendsOptions {
 export enum MealPlanStartOfWeekOptions {
   Monday = "monday",
   Sunday = "sunday",
+}
+
+export enum StartPageOptions {
+  MyRecipes = "myRecipes",
+  ManageLabels = "manageLabels",
+  MealPlans = "mealPlans",
+  ShoppingLists = "shoppingLists",
 }
 
 export enum ShoppingListSortOptions {
@@ -93,6 +102,7 @@ export enum GlobalPreferenceKey {
   FontSize = "global.fontSize",
   Theme = "global.theme",
   PreferencesSync = "global.preferencesSync",
+  StartPage = "global.startPage",
 }
 
 export enum MyRecipesPreferenceKey {
@@ -140,6 +150,7 @@ export interface AppPreferenceTypes {
   [GlobalPreferenceKey.FontSize]: SupportedFontSize;
   [GlobalPreferenceKey.Theme]: AppTheme;
   [GlobalPreferenceKey.PreferencesSync]: PreferencesSync;
+  [GlobalPreferenceKey.StartPage]: StartPageOptions;
 
   [MyRecipesPreferenceKey.EnableLabelIntersection]: boolean;
   [MyRecipesPreferenceKey.ShowLabels]: boolean;

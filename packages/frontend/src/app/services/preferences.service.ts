@@ -14,6 +14,7 @@ import {
   RecipeDetailsPreferenceKey,
   ShoppingListPreferenceKey,
   ShoppingListSortOptions,
+  StartPageOptions,
   SupportedFontSize,
 } from "@recipesage/util/shared";
 import { TRPCService } from "./trpc.service";
@@ -41,6 +42,7 @@ export class PreferencesService {
     [GlobalPreferenceKey.FontSize]: SupportedFontSize.X1_0,
     [GlobalPreferenceKey.Theme]: AppTheme.Default,
     [GlobalPreferenceKey.PreferencesSync]: PreferencesSync.Enabled,
+    [GlobalPreferenceKey.StartPage]: StartPageOptions.MyRecipes,
 
     [MyRecipesPreferenceKey.EnableLabelIntersection]: false,
     [MyRecipesPreferenceKey.ShowLabels]: true,
