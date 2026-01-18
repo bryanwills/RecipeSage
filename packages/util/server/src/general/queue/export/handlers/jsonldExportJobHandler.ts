@@ -1,7 +1,11 @@
 import type { JobSummary } from "@recipesage/prisma";
 import { RecipeSummary } from "@recipesage/prisma";
 import { PassThrough, Readable } from "stream";
-import { ObjectTypes, writeStream, type StorageObjectRecord } from "../../../../storage";
+import {
+  ObjectTypes,
+  writeStream,
+  type StorageObjectRecord,
+} from "../../../../storage";
 import { JsonStreamStringify } from "json-stream-stringify";
 import { recipeToJSONLD } from "../../../jsonLD";
 import { transformRecipeImageUrlForSelfhost } from "../../../transformRecipeImageUrlForSelfhost";
@@ -9,7 +13,7 @@ import { pipeline } from "stream/promises";
 
 async function* process(
   recipes: AsyncIterable<RecipeSummary>,
-  onProgress: (processedCount: number) => void
+  onProgress: (processedCount: number) => void,
 ) {
   let processedCount = 0;
   for await (const recipe of recipes) {
@@ -60,15 +64,9 @@ export async function jsonldExportJobHandler(
   });
 
   await Promise.all([
-    pipeline(
-      Readable.from(process(recipes, onProgress)),
-      passthrough,
-    ),
-    pipeline(
-      jsonStream,
-      outputStream,
-    ),
-  ])
+    pipeline(Readable.from(process(recipes, onProgress)), passthrough),
+    pipeline(jsonStream, outputStream),
+  ]);
 
   return await uploadResult;
 }

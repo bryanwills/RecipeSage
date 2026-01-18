@@ -1,7 +1,13 @@
 import type { JobSummary, Prisma, RecipeSummary } from "@recipesage/prisma";
 import type { JobQueueItem } from "../JobQueueItem";
 import * as Sentry from "@sentry/node";
-import { JobStatus, JobType, prisma, prismaCursorStream, recipeSummary } from "@recipesage/prisma";
+import {
+  JobStatus,
+  JobType,
+  prisma,
+  prismaCursorStream,
+  recipeSummary,
+} from "@recipesage/prisma";
 import { txtExportJobHandler } from "./handlers/txtExportJobHandler";
 import { pdfExportJobHandler } from "./handlers/pdfExportJobHandler";
 import { jsonldExportJobHandler } from "./handlers/jsonldExportJobHandler";
@@ -57,25 +63,25 @@ export const processExportJob = async (
       },
     ) as unknown as AsyncIterable<RecipeSummary>;
 
-    const onProgress = throttleDropPromise(
-      async (processedCount: number) => {
-        try {
-          await prisma.job.updateMany({
-            where: {
-              id: job.id,
-              status: JobStatus.RUN,
-            },
-            data: {
-              progress: Math.min(100, Math.max(Math.floor((processedCount / totalCount) * 100), 1)),
-            },
-          });
-        } catch (e) {
-          Sentry.captureException(e);
-          console.error(e);
-        }
-      },
-      JOB_PROGRESS_UPDATE_PERIOD_SECONDS * 1000,
-    );
+    const onProgress = throttleDropPromise(async (processedCount: number) => {
+      try {
+        await prisma.job.updateMany({
+          where: {
+            id: job.id,
+            status: JobStatus.RUN,
+          },
+          data: {
+            progress: Math.min(
+              100,
+              Math.max(Math.floor((processedCount / totalCount) * 100), 1),
+            ),
+          },
+        });
+      } catch (e) {
+        Sentry.captureException(e);
+        console.error(e);
+      }
+    }, JOB_PROGRESS_UPDATE_PERIOD_SECONDS * 1000);
 
     const storageRecord = await (async () => {
       switch (jobMeta.exportType) {
@@ -99,7 +105,7 @@ export const processExportJob = async (
         location: storageRecord.location,
       },
     });
-  } catch(e) {
+  } catch (e) {
     await exportJobFailCommon({
       timer,
       job,

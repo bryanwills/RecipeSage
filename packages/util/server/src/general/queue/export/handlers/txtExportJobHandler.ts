@@ -1,7 +1,11 @@
 import type { JobSummary } from "@recipesage/prisma";
 import { RecipeSummary } from "@recipesage/prisma";
 import { PassThrough, Readable } from "stream";
-import { ObjectTypes, writeStream, type StorageObjectRecord } from "../../../../storage";
+import {
+  ObjectTypes,
+  writeStream,
+  type StorageObjectRecord,
+} from "../../../../storage";
 import dedent from "ts-dedent";
 import { transformRecipeImageUrlForSelfhost } from "../../../transformRecipeImageUrlForSelfhost";
 import { pipeline } from "stream/promises";
@@ -62,10 +66,7 @@ export async function txtExportJobHandler(
     "text/plain",
   );
 
-  await pipeline([
-    Readable.from(process(recipes, onProgress)),
-    outputStream,
-  ]);
+  await pipeline([Readable.from(process(recipes, onProgress)), outputStream]);
 
   return await uploadResult;
 }
