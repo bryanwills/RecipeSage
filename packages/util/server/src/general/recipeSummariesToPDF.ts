@@ -1,5 +1,5 @@
 import _pdfmake from "pdfmake";
-import { Writable, type Readable } from "stream";
+import { Writable } from "stream";
 import {
   parseIngredients,
   parseInstructions,
@@ -270,11 +270,10 @@ export async function* recipeAsyncIteratorToPDF(
 
     const doc = pdfmake.createPdf(docDefinition);
 
-    // TODO: Figure out why getStream doesn't ever end the stream when consumed by zipStream
-    const pdfStream = await doc.getBuffer();
+    const buffer = await doc.getBuffer();
 
     yield {
-      stream: pdfStream as Readable,
+      buffer: buffer as Buffer,
       recipe,
     };
   }
