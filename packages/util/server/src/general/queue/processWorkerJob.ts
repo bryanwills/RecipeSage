@@ -1,4 +1,4 @@
-import type { Job } from "bullmq";
+import type { SandboxedJob } from "bullmq";
 import type { JobQueueItem } from "./JobQueueItem";
 import {
   jobSummary,
@@ -10,7 +10,7 @@ import { JobStatus, JobType } from "@recipesage/prisma";
 import { processImportJob } from "./import/processImportJob";
 
 export const processWorkerJob = async (
-  args: Job<JobQueueItem, void, string>,
+  args: SandboxedJob<JobQueueItem, unknown>,
 ) => {
   const verify = await prisma.job.findUniqueOrThrow({
     where: {
