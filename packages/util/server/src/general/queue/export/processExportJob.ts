@@ -1,4 +1,9 @@
-import type { JobSummary, Prisma, RecipeSummary } from "@recipesage/prisma";
+import type {
+  JobMeta,
+  JobSummary,
+  Prisma,
+  RecipeSummary,
+} from "@recipesage/prisma";
 import type { JobQueueItem } from "../JobQueueItem";
 import * as Sentry from "@sentry/node";
 import {
@@ -12,9 +17,8 @@ import { txtExportJobHandler } from "./handlers/txtExportJobHandler";
 import { pdfExportJobHandler } from "./handlers/pdfExportJobHandler";
 import { jsonldExportJobHandler } from "./handlers/jsonldExportJobHandler";
 import { metrics } from "../../metrics";
-import { exportJobFinishCommon } from "../../jobs/exportJobFinishCommon";
 import { throttleDropPromise } from "../../throttleDropPromise";
-import { exportJobFailCommon } from "../../jobs/exportJobFailCommon";
+import { JOB_RESULT_CODES } from "@recipesage/util/shared";
 
 /**
  * How often to write the job percentage completion to the database
@@ -96,20 +100,53 @@ export const processExportJob = async (
       }
     })();
 
-    await exportJobFinishCommon({
-      timer,
-      job,
-      storageRecord: {
-        bucket: storageRecord.bucket,
-        key: storageRecord.key,
-        location: storageRecord.location,
+    await prisma.job.update({
+      where: {
+        id: job.id,
+      },
+      data: {
+        status: JobStatus.SUCCESS,
+        resultCode: JOB_RESULT_CODES.success,
+        progress: 100,
+        meta: {
+          ...jobMeta,
+          exportStorageBucket: storageRecord.bucket,
+          exportStorageKey: storageRecord.key,
+          exportDownloadUrl: storageRecord.location,
+        } satisfies JobMeta,
       },
     });
+
+    metrics.jobFinished.observe(
+      {
+        job_type: "export",
+      },
+      timer(),
+    );
   } catch (e) {
-    await exportJobFailCommon({
-      timer,
-      job,
-      error: e,
+    Sentry.captureException(e, {
+      extra: {
+        jobId: job.id,
+      },
     });
+    console.error(e);
+
+    await prisma.job.update({
+      where: {
+        id: job.id,
+      },
+      data: {
+        status: JobStatus.FAIL,
+        resultCode: JOB_RESULT_CODES.unknown,
+      },
+    });
+
+    metrics.jobFailed.observe(
+      {
+        job_type: "export",
+        expected: "false",
+      },
+      timer(),
+    );
   }
 };
