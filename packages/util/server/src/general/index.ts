@@ -16,6 +16,8 @@ export * from "./jobs/getImportJobResultCode";
 export * from "./jobs/importJobFailCommon";
 export * from "./jobs/importJobFinishCommon";
 export * from "./jobs/importJobSetupCommon";
+export * from "./jobs/exportJobFailCommon";
+export * from "./jobs/exportJobFinishCommon";
 
 export * from "./metrics";
 

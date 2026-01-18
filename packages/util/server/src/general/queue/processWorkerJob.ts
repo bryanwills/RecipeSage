@@ -8,6 +8,7 @@ import {
 } from "@recipesage/prisma";
 import { JobStatus, JobType } from "@recipesage/prisma";
 import { processImportJob } from "./import/processImportJob";
+import { processExportJob } from "./export/processExportJob";
 
 export const processWorkerJob = async (
   args: SandboxedJob<JobQueueItem, unknown>,
@@ -27,7 +28,10 @@ export const processWorkerJob = async (
     );
   }
   console.log(
-    `Starting processing job ${args.id} with ${verify.type}.${(verify.meta as JobMeta)?.importType}`,
+    `Starting processing job ${args.id} with ${verify.type}.${
+      (verify.meta as JobMeta)?.importType ||
+      (verify.meta as JobMeta)?.exportType
+    }`,
   );
 
   const _job = await prisma.job.update({
@@ -45,6 +49,10 @@ export const processWorkerJob = async (
   switch (job.type) {
     case JobType.IMPORT: {
       await processImportJob(job, args.data);
+      break;
+    }
+    case JobType.EXPORT: {
+      await processExportJob(job, args.data);
       break;
     }
     default: {
