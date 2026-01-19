@@ -38,7 +38,7 @@ export async function pdfExportJobHandler(
       zipStream.entry(
         result.buffer,
         {
-          name: `${result.recipe.title}-${result.recipe.id.substring(0, 5)}.pdf`,
+          name: `${result.recipe.title.replaceAll(/[/\\]/g, "")}-${result.recipe.id.substring(0, 5)}.pdf`,
         },
         (err) => {
           if (err) reject(err);

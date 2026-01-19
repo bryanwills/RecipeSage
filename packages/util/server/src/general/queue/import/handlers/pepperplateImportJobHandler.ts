@@ -3,15 +3,13 @@
 import type { JobSummary } from "@recipesage/prisma";
 import { type JobMeta } from "@recipesage/prisma";
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
-import {
-  ImportBadCredentialsError,
-  importJobFailCommon,
-  importJobFinishCommon,
-  metrics,
-} from "../../../index";
+import { importJobFinishCommon } from "../../../index";
 import fetch from "node-fetch";
 import xmljs from "xml-js";
 import type { JobQueueItem } from "../../JobQueueItem";
+import { ImportBadCredentialsError } from "../../../jobs/jobErrors";
+import { debounceJobUpdateProgress } from "../../../jobs/updateJobProgress";
+import { IMPORT_JOB_STEP_COUNT } from "../processImportJob";
 
 function escapeXml(str: string): string {
   return str
@@ -26,27 +24,25 @@ export async function pepperplateImportJobHandler(
   job: JobSummary,
   queueItem: JobQueueItem,
 ): Promise<void> {
-  const timer = metrics.jobFinished.startTimer();
   const jobMeta = job.meta as JobMeta;
   const importLabels = jobMeta.importLabels || [];
 
-  try {
-    if (!queueItem.credentials) {
-      throw new Error("No credentials provided for Pepperplate import");
-    }
+  if (!queueItem.credentials) {
+    throw new Error("No credentials provided for Pepperplate import");
+  }
 
-    const username = escapeXml(queueItem.credentials.username.trim());
-    const password = escapeXml(queueItem.credentials.password);
+  const username = escapeXml(queueItem.credentials.username.trim());
+  const password = escapeXml(queueItem.credentials.password);
 
-    // Authenticate with Pepperplate API
-    const authResponse = await fetch(
-      "http://www.pepperplate.com/services/syncmanager5.asmx",
-      {
-        method: "POST",
-        headers: {
-          "content-type": "text/xml",
-        },
-        body: `<?xml version="1.0" encoding="utf-8"?>
+  // Authenticate with Pepperplate API
+  const authResponse = await fetch(
+    "http://www.pepperplate.com/services/syncmanager5.asmx",
+    {
+      method: "POST",
+      headers: {
+        "content-type": "text/xml",
+      },
+      body: `<?xml version="1.0" encoding="utf-8"?>
     <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       <soap:Body>
@@ -57,49 +53,40 @@ export async function pepperplateImportJobHandler(
       </soap:Body>
     </soap:Envelope>
     `,
-      },
+    },
+  );
+
+  const authResponseText = await authResponse.text();
+
+  if (authResponseText.indexOf("<Status>UnknownEmail</Status>") > -1) {
+    throw new ImportBadCredentialsError("Incorrect pepperplate username");
+  }
+  if (authResponseText.indexOf("<Status>IncorrectPassword</Status>") > -1) {
+    throw new ImportBadCredentialsError("Incorrect pepperplate password");
+  }
+
+  const userToken = authResponseText.match(/<Token>(.*)<\/Token>/)?.[1];
+  if (!userToken) {
+    throw new ImportBadCredentialsError(
+      "Pepperplate usertoken incorrect format: " + authResponseText,
     );
+  }
 
-    const authResponseText = await authResponse.text();
+  const standardizedRecipeImportInput: StandardizedRecipeImportEntry[] = [];
 
-    if (authResponseText.indexOf("<Status>UnknownEmail</Status>") > -1) {
-      metrics.pepperplateAuthFailure.inc({
-        field: "username",
-      });
-      throw new ImportBadCredentialsError("Incorrect pepperplate username");
-    }
-    if (authResponseText.indexOf("<Status>IncorrectPassword</Status>") > -1) {
-      metrics.pepperplateAuthFailure.inc({
-        field: "password",
-      });
-      throw new ImportBadCredentialsError("Incorrect pepperplate password");
-    }
+  let pepperplateRecipes = [];
+  let syncToken;
 
-    const userToken = authResponseText.match(/<Token>(.*)<\/Token>/)?.[1];
-    if (!userToken) {
-      metrics.pepperplateAuthFailure.inc({
-        field: "unknown",
-      });
-      throw new ImportBadCredentialsError(
-        "Pepperplate usertoken incorrect format: " + authResponseText,
-      );
-    }
-
-    const standardizedRecipeImportInput: StandardizedRecipeImportEntry[] = [];
-
-    let pepperplateRecipes = [];
-    let syncToken;
-
-    // Fetch recipes with pagination
-    while (true) {
-      const syncResponse = await fetch(
-        "http://www.pepperplate.com/services/syncmanager5.asmx",
-        {
-          method: "POST",
-          headers: {
-            "content-type": "text/xml",
-          },
-          body: `<?xml version="1.0" encoding="utf-8"?>
+  // Fetch recipes with pagination
+  while (true) {
+    const syncResponse = await fetch(
+      "http://www.pepperplate.com/services/syncmanager5.asmx",
+      {
+        method: "POST",
+        headers: {
+          "content-type": "text/xml",
+        },
+        body: `<?xml version="1.0" encoding="utf-8"?>
         <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
           <soap:Body>
@@ -111,154 +98,161 @@ export async function pepperplateImportJobHandler(
           </soap:Body>
         </soap:Envelope>
         `,
-        },
-      );
+      },
+    );
 
-      const syncResponseText = await syncResponse.text();
+    const syncResponseText = await syncResponse.text();
 
-      const recipeJson = JSON.parse(
-        xmljs.xml2json(syncResponseText, { compact: true, spaces: 4 }),
-      );
+    const recipeJson = JSON.parse(
+      xmljs.xml2json(syncResponseText, { compact: true, spaces: 4 }),
+    );
 
-      syncToken =
-        recipeJson["soap:Envelope"]["soap:Body"]["RetrieveRecipesResponse"][
-          "RetrieveRecipesResult"
-        ]["SynchronizationToken"]._text;
+    syncToken =
+      recipeJson["soap:Envelope"]["soap:Body"]["RetrieveRecipesResponse"][
+        "RetrieveRecipesResult"
+      ]["SynchronizationToken"]._text;
 
-      const items =
-        recipeJson["soap:Envelope"]["soap:Body"]["RetrieveRecipesResponse"][
-          "RetrieveRecipesResult"
-        ]["Items"]["RecipeSync"];
+    const items =
+      recipeJson["soap:Envelope"]["soap:Body"]["RetrieveRecipesResponse"][
+        "RetrieveRecipesResult"
+      ]["Items"]["RecipeSync"];
 
-      if (items && items.length > 0) {
-        pepperplateRecipes.push(...items);
-      } else {
-        break;
-      }
-
-      if (!syncToken) {
-        break;
-      }
+    if (items && items.length > 0) {
+      pepperplateRecipes.push(...items);
+    } else {
+      break;
     }
 
-    // Filter out deleted recipes
-    pepperplateRecipes = pepperplateRecipes.filter((pepperRecipe: any) => {
-      return (pepperRecipe.Delete || {})._text !== "true";
-    });
-
-    const objToArr = (item: any) => {
-      if (!item) return [];
-      if (item.length || item.length === 0) return item;
-      return [item];
-    };
-
-    // Process each recipe
-    for (const pepperRecipe of pepperplateRecipes) {
-      const ingredientGroups = objToArr(
-        (pepperRecipe.Ingredients || {}).IngredientSyncGroup,
-      );
-
-      const finalIngredients = ingredientGroups
-        .sort(
-          (a: any, b: any) =>
-            parseInt((a.DisplayOrder || {})._text || 0, 10) -
-            parseInt((b.DisplayOrder || {})._text || 0, 10),
-        )
-        .map((ingredientGroup: any) => {
-          const ingredients = [];
-          if (ingredientGroup.Title && ingredientGroup.Title._text) {
-            ingredients.push(`[${ingredientGroup.Title._text}]`);
-          }
-          const innerIngredients = objToArr(
-            (ingredientGroup.Ingredients || {}).IngredientSync,
-          )
-            .sort(
-              (a: any, b: any) =>
-                parseInt((a.DisplayOrder || {})._text || 0, 10) -
-                parseInt((b.DisplayOrder || {})._text || 0, 10),
-            )
-            .map((ingredient: any) =>
-              (
-                ((ingredient.Quantity || {})._text || "") +
-                " " +
-                ingredient.Text._text
-              ).trim(),
-            )
-            .join("\r\n");
-          return [...ingredients, innerIngredients].join("\r\n");
-        })
-        .join("\r\n");
-
-      const directionGroups = objToArr(
-        (pepperRecipe.Directions || {}).DirectionSyncGroup,
-      );
-
-      const finalDirections = directionGroups
-        .sort(
-          (a: any, b: any) =>
-            parseInt((a.DisplayOrder || {})._text || 0, 10) -
-            parseInt((b.DisplayOrder || {})._text || 0, 10),
-        )
-        .map((directionGroup: any) => {
-          const directions = [];
-          if (directionGroup.Title && directionGroup.Title._text) {
-            directions.push(`[${directionGroup.Title._text}]`);
-          }
-          const innerDirections = objToArr(
-            (directionGroup.Directions || {}).DirectionSync,
-          )
-            .sort(
-              (a: any, b: any) =>
-                parseInt((a.DisplayOrder || {})._text || 0, 10) -
-                parseInt((b.DisplayOrder || {})._text || 0, 10),
-            )
-            .map((direction: any) => direction.Text._text)
-            .join("\r\n");
-          return [...directions, innerDirections].join("\r\n");
-        })
-        .join("\r\n");
-
-      const imageUrl = pepperRecipe.ImageUrl && pepperRecipe.ImageUrl._text;
-
-      standardizedRecipeImportInput.push({
-        recipe: {
-          title: pepperRecipe.Title._text,
-          description: (pepperRecipe.Description || {})._text || "",
-          notes: (pepperRecipe.Note || {})._text || "",
-          ingredients: finalIngredients || "",
-          instructions: finalDirections || "",
-          totalTime: (pepperRecipe.TotalTime || {})._text || "",
-          activeTime: (pepperRecipe.ActiveTime || {})._text || "",
-          source:
-            (pepperRecipe.Source || {})._text ||
-            (pepperRecipe.ManualSource || {})._text ||
-            "",
-          url: (pepperRecipe.Url || {})._text || "",
-          yield: (pepperRecipe.Yield || {})._text || "",
-          folder: "main",
-        },
-        labels: [
-          ...objToArr((pepperRecipe.Tags || {}).TagSync).map(
-            (tag: any) => tag.Text._text,
-          ),
-          ...importLabels,
-        ],
-        images: imageUrl ? [imageUrl] : [],
-      });
+    if (!syncToken) {
+      break;
     }
+  }
 
-    await importJobFinishCommon({
-      timer,
-      job,
-      userId: job.userId,
-      standardizedRecipeImportInput,
-      importTempDirectory: undefined,
+  // Filter out deleted recipes
+  pepperplateRecipes = pepperplateRecipes.filter((pepperRecipe: any) => {
+    return (pepperRecipe.Delete || {})._text !== "true";
+  });
+
+  const objToArr = (item: any) => {
+    if (!item) return [];
+    if (item.length || item.length === 0) return item;
+    return [item];
+  };
+
+  const onProgress = debounceJobUpdateProgress({
+    jobId: job.id,
+    userId: job.userId,
+  });
+
+  const totalCount = pepperplateRecipes.length;
+  let processedCount = 0;
+  // Process each recipe
+  for (const pepperRecipe of pepperplateRecipes) {
+    const ingredientGroups = objToArr(
+      (pepperRecipe.Ingredients || {}).IngredientSyncGroup,
+    );
+
+    const finalIngredients = ingredientGroups
+      .sort(
+        (a: any, b: any) =>
+          parseInt((a.DisplayOrder || {})._text || 0, 10) -
+          parseInt((b.DisplayOrder || {})._text || 0, 10),
+      )
+      .map((ingredientGroup: any) => {
+        const ingredients = [];
+        if (ingredientGroup.Title && ingredientGroup.Title._text) {
+          ingredients.push(`[${ingredientGroup.Title._text}]`);
+        }
+        const innerIngredients = objToArr(
+          (ingredientGroup.Ingredients || {}).IngredientSync,
+        )
+          .sort(
+            (a: any, b: any) =>
+              parseInt((a.DisplayOrder || {})._text || 0, 10) -
+              parseInt((b.DisplayOrder || {})._text || 0, 10),
+          )
+          .map((ingredient: any) =>
+            (
+              ((ingredient.Quantity || {})._text || "") +
+              " " +
+              ingredient.Text._text
+            ).trim(),
+          )
+          .join("\r\n");
+        return [...ingredients, innerIngredients].join("\r\n");
+      })
+      .join("\r\n");
+
+    const directionGroups = objToArr(
+      (pepperRecipe.Directions || {}).DirectionSyncGroup,
+    );
+
+    const finalDirections = directionGroups
+      .sort(
+        (a: any, b: any) =>
+          parseInt((a.DisplayOrder || {})._text || 0, 10) -
+          parseInt((b.DisplayOrder || {})._text || 0, 10),
+      )
+      .map((directionGroup: any) => {
+        const directions = [];
+        if (directionGroup.Title && directionGroup.Title._text) {
+          directions.push(`[${directionGroup.Title._text}]`);
+        }
+        const innerDirections = objToArr(
+          (directionGroup.Directions || {}).DirectionSync,
+        )
+          .sort(
+            (a: any, b: any) =>
+              parseInt((a.DisplayOrder || {})._text || 0, 10) -
+              parseInt((b.DisplayOrder || {})._text || 0, 10),
+          )
+          .map((direction: any) => direction.Text._text)
+          .join("\r\n");
+        return [...directions, innerDirections].join("\r\n");
+      })
+      .join("\r\n");
+
+    const imageUrl = pepperRecipe.ImageUrl && pepperRecipe.ImageUrl._text;
+
+    standardizedRecipeImportInput.push({
+      recipe: {
+        title: pepperRecipe.Title._text,
+        description: (pepperRecipe.Description || {})._text || "",
+        notes: (pepperRecipe.Note || {})._text || "",
+        ingredients: finalIngredients || "",
+        instructions: finalDirections || "",
+        totalTime: (pepperRecipe.TotalTime || {})._text || "",
+        activeTime: (pepperRecipe.ActiveTime || {})._text || "",
+        source:
+          (pepperRecipe.Source || {})._text ||
+          (pepperRecipe.ManualSource || {})._text ||
+          "",
+        url: (pepperRecipe.Url || {})._text || "",
+        yield: (pepperRecipe.Yield || {})._text || "",
+        folder: "main",
+      },
+      labels: [
+        ...objToArr((pepperRecipe.Tags || {}).TagSync).map(
+          (tag: any) => tag.Text._text,
+        ),
+        ...importLabels,
+      ],
+      images: imageUrl ? [imageUrl] : [],
     });
-  } catch (error) {
-    await importJobFailCommon({
-      timer,
-      job,
-      error,
+
+    processedCount++;
+    onProgress({
+      processedCount,
+      totalCount,
+      step: 1,
+      totalStepCount: IMPORT_JOB_STEP_COUNT,
     });
   }
+
+  await importJobFinishCommon({
+    job,
+    userId: job.userId,
+    standardizedRecipeImportInput,
+    importTempDirectory: undefined,
+  });
 }

@@ -12,8 +12,7 @@ export * from "./categorize/getShoppingListItemGroupTitles";
 export * from "./email/sendWelcomeEmail";
 export * from "./email/sendPasswordResetEmail";
 
-export * from "./jobs/getImportJobResultCode";
-export * from "./jobs/importJobFailCommon";
+export * from "./jobs/getJobResultCode";
 export * from "./jobs/importJobFinishCommon";
 export * from "./jobs/importJobSetupCommon";
 

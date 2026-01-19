@@ -16,6 +16,8 @@ import { copymethatImportJobHandler } from "./handlers/copymethatImportJobHandle
 import { fdxzImportJobHandler } from "./handlers/fdxzImportJobHandler";
 import { lcbImportJobHandler } from "./handlers/lcbImportJobHandler";
 
+export const IMPORT_JOB_STEP_COUNT = 3;
+
 export const processImportJob = async (
   job: JobSummary,
   jobQueueItem: JobQueueItem,

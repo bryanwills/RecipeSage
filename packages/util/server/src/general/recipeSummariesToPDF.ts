@@ -1,5 +1,4 @@
 import _pdfmake from "pdfmake";
-import { Writable } from "stream";
 import {
   parseIngredients,
   parseInstructions,
@@ -215,43 +214,6 @@ const recipeToSchema = async (
   return schema;
 };
 
-// TODO: Support multi language
-export const recipeSummariesToPDF = async (
-  recipes: RecipeSummary[],
-  writeStream: Writable,
-  options?: ExportOptions,
-): Promise<void> => {
-  const content: Content[] = [];
-  for (let i = 0; i < recipes.length; i++) {
-    const recipe = recipes[i];
-
-    content.push(await recipeToSchema(recipe, options));
-
-    if (i !== recipes.length - 1) {
-      content.push({
-        text: "",
-        pageBreak: "after",
-      });
-    }
-  }
-
-  const docDefinition: TDocumentDefinitions = {
-    content,
-    defaultStyle: {
-      font: "NotoSans",
-      fontSize: 10,
-      lineHeight: 1.2,
-    },
-  };
-
-  const doc = pdfmake.createPdf(docDefinition);
-  doc.pipe(writeStream);
-  doc.end();
-};
-
-/**
- * Forces a break between generating PDFs
- */
 export async function* recipeAsyncIteratorToPDF(
   recipes: AsyncIterable<RecipeSummary>,
   options?: ExportOptions,
