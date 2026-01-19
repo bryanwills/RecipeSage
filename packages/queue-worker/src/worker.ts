@@ -1,5 +1,5 @@
 import "./sentry-init.js";
-import type { Job } from "bullmq";
+import type { SandboxedJob } from "bullmq";
 import * as Sentry from "@sentry/node";
 import {
   processWorkerJob,
@@ -10,8 +10,10 @@ const JOB_TIMEOUT_MINUTES = parseInt(
   process.env.JOB_QUEUE_JOB_TIMEOUT_MINUTES || "20",
 );
 
-module.exports = (args: Job<JobQueueItem, void, string>) => {
-  setTimeout(
+module.exports = async function jobWorker(
+  args: SandboxedJob<JobQueueItem, unknown>,
+) {
+  const killTimeout = setTimeout(
     async () => {
       console.error("Job timed out");
       Sentry.captureMessage("job timed out", {
@@ -25,5 +27,7 @@ module.exports = (args: Job<JobQueueItem, void, string>) => {
     JOB_TIMEOUT_MINUTES * 60 * 1000,
   );
 
-  return processWorkerJob(args);
+  await processWorkerJob(args);
+
+  clearTimeout(killTimeout);
 };

@@ -1,7 +1,6 @@
 import { JobStatus, JobType } from "@recipesage/prisma";
 import { prisma, type JobMeta } from "@recipesage/prisma";
 import { cleanLabelTitle } from "@recipesage/util/shared";
-import { metrics } from "../metrics";
 
 export async function importJobSetupCommon(args: {
   importType: JobMeta["importType"];
@@ -11,15 +10,6 @@ export async function importJobSetupCommon(args: {
   includeStockRecipes?: boolean;
   includeTechniques?: boolean;
 }) {
-  const timer = metrics.jobFinished.startTimer();
-
-  metrics.jobStarted.inc({
-    job_type: "import",
-    import_type: args.importType,
-  });
-
-  const importLabels = args.labels.map((label) => cleanLabelTitle(label));
-
   const job = await prisma.job.create({
     data: {
       userId: args.userId,
@@ -28,7 +18,7 @@ export async function importJobSetupCommon(args: {
       progress: 1,
       meta: {
         importType: args.importType,
-        importLabels,
+        importLabels: args.labels.map((label) => cleanLabelTitle(label)),
         options: {
           excludeImages: args.excludeImages,
           includeStockRecipes: args.includeStockRecipes,
@@ -38,5 +28,5 @@ export async function importJobSetupCommon(args: {
     },
   });
 
-  return { job, timer, importLabels };
+  return { job };
 }

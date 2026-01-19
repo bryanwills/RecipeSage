@@ -43,6 +43,7 @@ export interface JobMeta {
   exportStorageBucket?: string;
   exportDownloadUrl?: string;
   exportStorageKey?: string;
+  recipeIds?: string[];
 }
 
 export type JobSummary = Omit<

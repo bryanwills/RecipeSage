@@ -1,134 +1,136 @@
 import type { JobSummary } from "@recipesage/prisma";
 import { type JobMeta } from "@recipesage/prisma";
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
-import {
-  ImportBadFormatError,
-  importJobFailCommon,
-  importJobFinishCommon,
-  metrics,
-} from "../../../index";
+import { importJobFinishCommon } from "../../../index";
 import { cleanLabelTitle } from "@recipesage/util/shared";
 import { downloadS3ToTemp } from "./shared/s3Download";
 import { readFile, mkdtempDisposable, stat } from "fs/promises";
 import extract from "extract-zip";
 import * as cheerio from "cheerio";
 import type { JobQueueItem } from "../../JobQueueItem";
+import { ImportBadFormatError } from "../../../jobs/jobErrors";
+import { debounceJobUpdateProgress } from "../../../jobs/updateJobProgress";
+import { IMPORT_JOB_STEP_COUNT } from "../processImportJob";
 
 export async function copymethatImportJobHandler(
   job: JobSummary,
   queueItem: JobQueueItem,
 ): Promise<void> {
-  const timer = metrics.jobFinished.startTimer();
   const jobMeta = job.meta as JobMeta;
   const importLabels = jobMeta.importLabels || [];
 
+  if (!queueItem.storageKey) {
+    throw new Error("No S3 storage key provided for CopyMeThat import");
+  }
+
+  await using downloaded = await downloadS3ToTemp(queueItem.storageKey);
+  const zipPath = downloaded.filePath;
+
+  await using extractDir = await mkdtempDisposable("/tmp/");
+  const extractPath = extractDir.path;
+  await extract(zipPath, { dir: extractPath });
+
+  const indexHtmlPath = extractPath + "/recipes.html";
   try {
-    if (!queueItem.storageKey) {
-      throw new Error("No S3 storage key provided for CopyMeThat import");
-    }
+    await stat(indexHtmlPath);
+  } catch (_e) {
+    throw new ImportBadFormatError();
+  }
+  const recipeHtml = await readFile(indexHtmlPath, "utf-8");
 
-    await using downloaded = await downloadS3ToTemp(queueItem.storageKey);
-    const zipPath = downloaded.filePath;
+  const $ = cheerio.load(recipeHtml);
+  const domList = $(".recipe").toArray();
 
-    await using extractDir = await mkdtempDisposable("/tmp/");
-    const extractPath = extractDir.path;
-    await extract(zipPath, { dir: extractPath });
+  const standardizedRecipeImportInput: StandardizedRecipeImportEntry[] = [];
 
-    const indexHtmlPath = extractPath + "/recipes.html";
-    try {
-      await stat(indexHtmlPath);
-    } catch (_e) {
-      throw new ImportBadFormatError();
-    }
-    const recipeHtml = await readFile(indexHtmlPath, "utf-8");
+  const onProgress = debounceJobUpdateProgress({
+    jobId: job.id,
+    userId: job.userId,
+  });
 
-    const $ = cheerio.load(recipeHtml);
-    const domList = $(".recipe").toArray();
+  const totalCount = domList.length;
+  let processedCount = 0;
+  for (const domItem of domList) {
+    const $item = $(domItem);
 
-    const standardizedRecipeImportInput: StandardizedRecipeImportEntry[] = [];
+    const title = $item.find("#name").text().trim() || "Untitled";
+    const description = $item.find("#description").text().trim() || undefined;
+    const sourceUrl = $item.find("#original_link").attr("href");
+    const rating =
+      parseInt($item.find("#ratingValue").text().trim() || "NaN") || undefined;
+    const servings = $item.find("#recipeYield").text().trim() || undefined;
 
-    for (const domItem of domList) {
-      const $item = $(domItem);
+    const ingredients = $item
+      .find(".recipeIngredient")
+      .map((_, el) => $(el).text().trim())
+      .get()
+      .join("\n");
 
-      const title = $item.find("#name").text().trim() || "Untitled";
-      const description = $item.find("#description").text().trim() || undefined;
-      const sourceUrl = $item.find("#original_link").attr("href");
-      const rating =
-        parseInt($item.find("#ratingValue").text().trim() || "NaN") ||
-        undefined;
-      const servings = $item.find("#recipeYield").text().trim() || undefined;
+    const instructions = $item
+      .find(".instruction")
+      .map((_, el) => $(el).text().trim())
+      .get()
+      .join("\n");
 
-      const ingredients = $item
-        .find(".recipeIngredient")
-        .map((_, el) => $(el).text().trim())
-        .get()
-        .join("\n");
+    const notes = $item.find("#recipeNotes").text() || undefined;
 
-      const instructions = $item
-        .find(".instruction")
-        .map((_, el) => $(el).text().trim())
-        .get()
-        .join("\n");
+    const labels = $item
+      .find("extra_info")
+      .children()
+      .map((_, el) => $(el).attr("id"))
+      .get()
+      .filter(Boolean)
+      .filter((el) => el !== "rating");
 
-      const notes = $item.find("#recipeNotes").text() || undefined;
+    const unconfirmedImagePaths = [
+      ...new Set(
+        $item
+          .find("img")
+          .map((_, el) => $(el).attr("src"))
+          .get()
+          .filter(Boolean),
+      ),
+    ].map((src) => extractPath + "/" + src);
 
-      const labels = $item
-        .find("extra_info")
-        .children()
-        .map((_, el) => $(el).attr("id"))
-        .get()
-        .filter(Boolean)
-        .filter((el) => el !== "rating");
-
-      const unconfirmedImagePaths = [
-        ...new Set(
-          $item
-            .find("img")
-            .map((_, el) => $(el).attr("src"))
-            .get()
-            .filter(Boolean),
-        ),
-      ].map((src) => extractPath + "/" + src);
-
-      const imagePaths: string[] = [];
-      for (const imagePath of unconfirmedImagePaths) {
-        try {
-          await stat(imagePath);
-          imagePaths.push(imagePath);
-        } catch (_e) {
-          // Do nothing, image excluded
-        }
+    const imagePaths: string[] = [];
+    for (const imagePath of unconfirmedImagePaths) {
+      try {
+        await stat(imagePath);
+        imagePaths.push(imagePath);
+      } catch (_e) {
+        // Do nothing, image excluded
       }
-
-      standardizedRecipeImportInput.push({
-        recipe: {
-          title,
-          description,
-          ingredients,
-          instructions,
-          yield: servings,
-          notes,
-          url: sourceUrl,
-          folder: "main",
-          rating,
-        },
-        labels: [...labels.map(cleanLabelTitle), ...importLabels],
-        images: imagePaths,
-      });
     }
 
-    await importJobFinishCommon({
-      timer,
-      job,
-      userId: job.userId,
-      standardizedRecipeImportInput,
-      importTempDirectory: extractPath,
+    standardizedRecipeImportInput.push({
+      recipe: {
+        title,
+        description,
+        ingredients,
+        instructions,
+        yield: servings,
+        notes,
+        url: sourceUrl,
+        folder: "main",
+        rating,
+      },
+      labels: [...labels.map(cleanLabelTitle), ...importLabels],
+      images: imagePaths,
     });
-  } catch (error) {
-    await importJobFailCommon({
-      timer,
-      job,
-      error,
+
+    processedCount++;
+    onProgress({
+      processedCount,
+      totalCount,
+      step: 1,
+      totalStepCount: IMPORT_JOB_STEP_COUNT,
     });
   }
+
+  await importJobFinishCommon({
+    job,
+    userId: job.userId,
+    standardizedRecipeImportInput,
+    importTempDirectory: extractPath,
+  });
 }

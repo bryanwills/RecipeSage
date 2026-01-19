@@ -1,12 +1,12 @@
 import { Component, inject } from "@angular/core";
 import * as Sentry from "@sentry/browser";
 
-import { RecipeService, ExportFormat } from "~/services/recipe.service";
+import { ExportFormat } from "~/services/recipe.service";
 import { RouteMap, UtilService } from "~/services/util.service";
-import { UserService } from "../../../services/user.service";
 import type { JobSummary } from "@recipesage/prisma";
 import { TRPCService } from "../../../services/trpc.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import { WebsocketService } from "../../../services/websocket.service";
 
 export const getJobFailureI18n = (exportJob: JobSummary) => {
   switch (exportJob.resultCode) {
@@ -16,7 +16,10 @@ export const getJobFailureI18n = (exportJob: JobSummary) => {
   }
 };
 
-const JOB_POLL_INTERVAL_MS = 7500;
+/**
+ * Polling is a fallback for ws updates
+ */
+const JOB_POLL_INTERVAL_MS = 60_000;
 
 @Component({
   standalone: true,
@@ -28,7 +31,7 @@ const JOB_POLL_INTERVAL_MS = 7500;
 export class ExportPage {
   private utilService = inject(UtilService);
   private trpcService = inject(TRPCService);
-  private recipeService = inject(RecipeService);
+  private websocketService = inject(WebsocketService);
 
   defaultBackHref: string = RouteMap.SettingsPage.getPath();
 
@@ -41,10 +44,12 @@ export class ExportPage {
 
   ionViewWillEnter() {
     this.setupJobStatusPoll();
+    this.websocketService.on("job:updated", this.onWSEvent);
   }
 
   ionViewWillLeave() {
     clearInterval(this.jobPollInterval);
+    this.websocketService.off("job:updated", this.onWSEvent);
   }
 
   setupJobStatusPoll() {
@@ -56,9 +61,18 @@ export class ExportPage {
     }, JOB_POLL_INTERVAL_MS);
   }
 
+  onWSEvent = () => {
+    this.load();
+  };
+
   async load() {
     const response = await this.trpcService.handle(
       this.trpcService.trpc.jobs.getJobs.query(),
+      {
+        "0": () => {
+          // Do nothing
+        },
+      },
     );
     if (response) {
       this.exportJobs = response

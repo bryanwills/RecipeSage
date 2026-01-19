@@ -1,16 +1,16 @@
 import { JobStatus } from "@recipesage/prisma";
-import { prisma, type JobMeta, type JobSummary } from "@recipesage/prisma";
+import { prisma, type JobSummary } from "@recipesage/prisma";
 import { JOB_RESULT_CODES } from "@recipesage/util/shared";
-import { metrics } from "../metrics";
 import {
   importStandardizedRecipes,
   type StandardizedRecipeImportEntry,
 } from "../../db/importStandardizedRecipes";
 import { indexRecipes } from "../../search";
-import { ImportNoRecipesError } from "./importJobFailCommon";
+import { ImportNoRecipesError } from "./jobErrors";
+import { convertJobProgress, updateJobProgress } from "./updateJobProgress";
+import { IMPORT_JOB_STEP_COUNT } from "../queue/import/processImportJob";
 
 export async function importJobFinishCommon(args: {
-  timer: ReturnType<typeof metrics.jobFinished.startTimer>;
   job: JobSummary;
   userId: string;
   standardizedRecipeImportInput: StandardizedRecipeImportEntry[];
@@ -20,13 +20,14 @@ export async function importJobFinishCommon(args: {
     throw new ImportNoRecipesError();
   }
 
-  await prisma.job.update({
-    where: {
-      id: args.job.id,
-    },
-    data: {
-      progress: 50,
-    },
+  await updateJobProgress({
+    jobId: args.job.id,
+    userId: args.job.userId,
+    progress: convertJobProgress({
+      progress: 0,
+      step: 2,
+      totalStepCount: IMPORT_JOB_STEP_COUNT,
+    }),
   });
 
   const createdRecipeIds = await importStandardizedRecipes(
@@ -45,13 +46,14 @@ export async function importJobFinishCommon(args: {
     createdRecipeIdsSet.has(el.id),
   );
 
-  await prisma.job.update({
-    where: {
-      id: args.job.id,
-    },
-    data: {
-      progress: 75,
-    },
+  await updateJobProgress({
+    jobId: args.job.id,
+    userId: args.job.userId,
+    progress: convertJobProgress({
+      progress: 0,
+      step: 3,
+      totalStepCount: IMPORT_JOB_STEP_COUNT,
+    }),
   });
 
   await indexRecipes(recipesToIndex);
@@ -66,12 +68,4 @@ export async function importJobFinishCommon(args: {
       progress: 100,
     },
   });
-
-  metrics.jobFinished.observe(
-    {
-      job_type: "import",
-      import_type: (args.job.meta as JobMeta).importType,
-    },
-    args.timer(),
-  );
 }

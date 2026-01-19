@@ -1,10 +1,4 @@
-// PDFMake must be imported via import xyz = require('xyz') because pdfmake
-// uses the `export =` syntax
-// See TypeScript documentation here: https://www.typescriptlang.org/docs/handbook/modules.html#export--and-import--require
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore See descrip above
-import pdfmake = require("pdfmake");
-import { Writable } from "stream";
+import _pdfmake from "pdfmake";
 import {
   parseIngredients,
   parseInstructions,
@@ -12,23 +6,26 @@ import {
 } from "@recipesage/util/shared";
 import sanitizeHtml from "sanitize-html";
 import { fetchURL } from "../general/fetch";
-import fs from "fs";
 import { Content, Margins, TDocumentDefinitions } from "pdfmake/interfaces";
 import path from "path";
 import { RecipeSummary } from "@recipesage/prisma";
-import { setTimeout } from "timers/promises";
+import { readFile } from "fs/promises";
 
 const FONT_PATH = process.env.FONTS_PATH;
 if (!FONT_PATH) throw new Error("FONTS_PATH must be provided");
 
-const fonts = {
+// DefinitelyTyped hasn't been updated for pdfmake 0.3.x yet.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const pdfmake = _pdfmake as any;
+
+pdfmake.addFonts({
   NotoSans: {
-    normal: path.join(FONT_PATH, "Noto_Sans/NotoSans-Regular.ttf"),
-    bold: path.join(FONT_PATH, "Noto_Sans/NotoSans-Bold.ttf"),
-    italics: path.join(FONT_PATH, "Noto_Sans/NotoSans-Italic.ttf"),
-    bolditalics: path.join(FONT_PATH, "Noto_Sans/NotoSans-BoldItalic.ttf"),
+    normal: path.resolve(FONT_PATH, "Noto_Sans/NotoSans-Regular.ttf"),
+    bold: path.resolve(FONT_PATH, "Noto_Sans/NotoSans-Bold.ttf"),
+    italics: path.resolve(FONT_PATH, "Noto_Sans/NotoSans-Italic.ttf"),
+    bolditalics: path.resolve(FONT_PATH, "Noto_Sans/NotoSans-BoldItalic.ttf"),
   },
-};
+});
 
 export interface ExportOptions {
   includePrimaryImage?: boolean;
@@ -107,7 +104,7 @@ const recipeToSchema = async (
         process.env.NODE_ENV === "selfhost" &&
         primaryImageUrl.startsWith("/")
       ) {
-        buffer = await fs.promises.readFile(primaryImageUrl);
+        buffer = await readFile(primaryImageUrl);
       } else {
         const response = await fetchURL(primaryImageUrl, {
           timeout: 15 * 1000,
@@ -217,51 +214,10 @@ const recipeToSchema = async (
   return schema;
 };
 
-// TODO: Support multi language
-export const recipeSummariesToPDF = async (
-  recipes: RecipeSummary[],
-  writeStream: Writable,
-  options?: ExportOptions,
-): Promise<void> => {
-  const content: Content[] = [];
-  for (let i = 0; i < recipes.length; i++) {
-    const recipe = recipes[i];
-
-    content.push(await recipeToSchema(recipe, options));
-
-    if (i !== recipes.length - 1) {
-      content.push({
-        text: "",
-        pageBreak: "after",
-      });
-    }
-  }
-
-  const docDefinition: TDocumentDefinitions = {
-    content,
-    defaultStyle: {
-      font: "NotoSans",
-      fontSize: 10,
-      lineHeight: 1.2,
-    },
-  };
-
-  const printer = new pdfmake(fonts);
-  const doc = printer.createPdfKitDocument(docDefinition);
-  doc.pipe(writeStream);
-  doc.end();
-};
-
-/**
- * Forces a break between generating PDFs
- */
-const COOLDOWN_MS = 100;
 export async function* recipeAsyncIteratorToPDF(
   recipes: AsyncIterable<RecipeSummary>,
   options?: ExportOptions,
 ) {
-  const printer = new pdfmake(fonts);
-
   for await (const recipe of recipes) {
     const content: Content[] = [await recipeToSchema(recipe, options)];
 
@@ -274,25 +230,13 @@ export async function* recipeAsyncIteratorToPDF(
       },
     };
 
-    const doc = printer.createPdfKitDocument(docDefinition);
+    const doc = pdfmake.createPdf(docDefinition);
 
-    yield await new Promise<{
-      recipe: RecipeSummary;
-      pdf: Buffer;
-    }>((resolve) => {
-      const buffs: unknown[] = [];
-      doc.on("data", function (d) {
-        buffs.push(d as readonly Uint8Array[]);
-      });
-      doc.on("end", function () {
-        resolve({
-          recipe,
-          pdf: Buffer.concat(buffs as readonly Uint8Array[]),
-        });
-      });
-      doc.end();
-    });
+    const buffer = await doc.getBuffer();
 
-    await setTimeout(COOLDOWN_MS);
+    yield {
+      buffer: buffer as Buffer,
+      recipe,
+    };
   }
 }

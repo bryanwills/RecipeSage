@@ -16,6 +16,7 @@ export const serveGrip = new ServeGrip({
 export enum WSBoardcastEventType {
   MealPlanUpdated = "mealplan:updated",
   ShoppingListUpdated = "shoppinglist:updated",
+  JobUpdated = "job:updated",
 }
 
 export type WSBoardcastEventData = {
@@ -26,6 +27,9 @@ export type WSBoardcastEventData = {
   [WSBoardcastEventType.ShoppingListUpdated]: {
     reference: string;
     shoppingListId: string;
+  };
+  [WSBoardcastEventType.JobUpdated]: {
+    jobId: string;
   };
 };
 

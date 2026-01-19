@@ -15,7 +15,7 @@ export async function htmlToRecipeViaRecipeClipper(document: string) {
     const response = await fetch(url, {
       method: "POST",
       body: JSON.stringify({
-        html: document,
+        html: document.substring(0, 500000),
       }),
       headers: {
         "Content-Type": "application/json",
@@ -57,7 +57,7 @@ export async function htmlToBodyInnerText(document: string) {
     const response = await fetch(url, {
       method: "POST",
       body: JSON.stringify({
-        html: document,
+        html: document.substring(0, 500000),
       }),
       headers: {
         "Content-Type": "application/json",
