@@ -350,13 +350,28 @@
             </ion-label>
           </ion-item>
           @for (similarRecipe of similarRecipes; track similarRecipe) {
-            <ion-item lines="none">
-              <ion-button
-                fill="clear"
-                (click)="openRecipe(similarRecipe.id, $event)"
-              >
-                {{ similarRecipe.title }}
-              </ion-button>
+            <ion-item
+              (click)="openRecipe(similarRecipe.id, $event)"
+              lines="none"
+              button
+            >
+              @if (similarRecipe.recipeImages.length) {
+                <ion-avatar slot="start">
+                  <img
+                    src="{{ similarRecipe.recipeImages[0].image.location }}"
+                  />
+                </ion-avatar>
+              }
+              @if (!similarRecipe.recipeImages.length) {
+                <ion-avatar slot="start">
+                  <img src="assets/imgs/logo_green_padded.png" />
+                </ion-avatar>
+              }
+              <ion-label fill="clear">
+                <h2>
+                  {{ similarRecipe.title }}
+                </h2>
+              </ion-label>
             </ion-item>
           }
           <br />

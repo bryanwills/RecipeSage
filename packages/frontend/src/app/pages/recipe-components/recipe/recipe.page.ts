@@ -215,6 +215,11 @@ export class RecipePage {
     );
     if (!response) return;
 
+    for (const el of response) {
+      el.recipeImages = el.recipeImages.sort((a, b) => {
+        return a.order - b.order;
+      });
+    }
     this.similarRecipes = response;
   }
 
