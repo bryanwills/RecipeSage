@@ -1,6 +1,7 @@
 import type { Prisma } from "../prisma/generated/client";
 import { userPublic } from "./userPublic";
 import { labelSummary } from "./labelSummary";
+import { recipeSummaryLite } from "./recipeSummaryLite";
 
 /**
  * All recipe fields including labels, user profile, images, etc
@@ -46,6 +47,12 @@ export const recipeSummary = {
             location: true,
           },
         },
+      },
+    },
+    recipeLinks: {
+      select: {
+        id: true,
+        linkedRecipe: recipeSummaryLite,
       },
     },
     fromUser: userPublic,

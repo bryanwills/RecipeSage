@@ -4,7 +4,7 @@ import { ModalController } from "@ionic/angular";
 import { Recipe } from "../../../services/recipe.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectLabelComponent } from "../../../components/select-label/select-label.component";
-import { SelectRecipeComponent } from "../../../components/select-recipe/select-recipe.component";
+import { SelectRecipeLegacyComponent } from "../../../components/select-recipe-legacy/select-recipe-legacy.component";
 import type { LabelSummary } from "@recipesage/prisma";
 
 @Component({
@@ -12,7 +12,11 @@ import type { LabelSummary } from "@recipesage/prisma";
   selector: "page-add-profile-item-modal",
   templateUrl: "add-profile-item-modal.page.html",
   styleUrls: ["add-profile-item-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, SelectLabelComponent, SelectRecipeComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    SelectLabelComponent,
+    SelectRecipeLegacyComponent,
+  ],
 })
 export class AddProfileItemModalPage {
   private modalCtrl = inject(ModalController);

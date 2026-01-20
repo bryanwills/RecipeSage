@@ -1,9 +1,8 @@
 import { Component, Input, Output, EventEmitter, inject } from "@angular/core";
 import { LoadingService } from "~/services/loading.service";
-import { UtilService } from "~/services/util.service";
-import { Recipe, RecipeService } from "~/services/recipe.service";
-import { ToastController, NavController } from "@ionic/angular";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import { TRPCService } from "../../services/trpc.service";
+import type { RecipeSummary, RecipeSummaryLite } from "@recipesage/prisma";
 
 @Component({
   standalone: true,
@@ -13,49 +12,51 @@ import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
   imports: [...SHARED_UI_IMPORTS],
 })
 export class SelectRecipeComponent {
-  loadingService = inject(LoadingService);
-  utilService = inject(UtilService);
-  recipeService = inject(RecipeService);
-  toastCtrl = inject(ToastController);
-  navCtrl = inject(NavController);
+  private loadingService = inject(LoadingService);
+  private trpcService = inject(TRPCService);
 
   searchTimeout?: NodeJS.Timeout;
   searchText = "";
   searching = false;
   PAUSE_BEFORE_SEARCH = 500;
 
-  _selectedRecipe?: Recipe;
+  @Input() includeAllFriends = false;
+  @Input() enableSelectedState = true;
+
+  _selectedRecipe?: RecipeSummary;
   @Input()
   get selectedRecipe() {
     return this._selectedRecipe;
   }
 
-  set selectedRecipe(val: Recipe | undefined) {
+  set selectedRecipe(val: RecipeSummary | undefined) {
     this._selectedRecipe = val;
     this.selectedRecipeChange.emit(this._selectedRecipe);
   }
 
-  @Output() selectedRecipeChange = new EventEmitter();
+  @Output() selectedRecipeChange = new EventEmitter<RecipeSummary>();
 
-  recipes: Recipe[] = [];
+  recipes: RecipeSummaryLite[] = [];
 
   async search(text: string) {
     const loading = this.loadingService.start();
 
-    const response = await this.recipeService.search({
-      query: text,
-    });
+    const response = await this.trpcService.handle(
+      this.trpcService.trpc.recipes.searchRecipes.query({
+        searchTerm: text,
+        folder: "main",
+        includeAllFriends: this.includeAllFriends,
+      }),
+    );
     loading.dismiss();
     this.searching = false;
 
-    if (!response.success) return;
+    if (!response) return;
 
-    this.recipes = response.data.data;
+    this.recipes = response.recipes;
   }
 
-  onSearchInputChange(event: any) {
-    this.searchText = event.detail.value;
-
+  onSearchInputChange() {
     this.recipes = [];
     if (this.searchTimeout) {
       clearTimeout(this.searchTimeout);
@@ -69,16 +70,24 @@ export class SelectRecipeComponent {
     }, this.PAUSE_BEFORE_SEARCH);
   }
 
-  async selectRecipe(recipe: Recipe) {
+  async selectRecipe(recipe: RecipeSummaryLite) {
     this.searchText = "";
 
-    const response = await this.recipeService.fetchById(recipe.id);
-    if (!response.success) return;
+    const response = await this.trpcService.handle(
+      this.trpcService.trpc.recipes.getRecipe.query({
+        id: recipe.id,
+      }),
+    );
+    if (!response) return;
 
-    this.selectedRecipe = response.data;
+    if (this.enableSelectedState) {
+      this.selectedRecipe = response;
+    } else {
+      this.selectedRecipeChange.emit(response);
+    }
   }
 
-  recipeTrackBy(index: number, recipe: Recipe) {
+  recipeTrackBy(index: number, recipe: RecipeSummary | RecipeSummaryLite) {
     return recipe.id;
   }
 }

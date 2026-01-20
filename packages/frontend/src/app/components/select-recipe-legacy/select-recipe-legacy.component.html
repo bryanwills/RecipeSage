@@ -5,12 +5,12 @@
       (click)="selectedRecipe = undefined"
       button
     >
-      @if (selectedRecipe.recipeImages.length) {
+      @if (selectedRecipe.images.length) {
         <ion-avatar slot="start">
-          <img src="{{ selectedRecipe.recipeImages[0].image.location }}" />
+          <img src="{{ selectedRecipe.images[0].location }}" />
         </ion-avatar>
       }
-      @if (!selectedRecipe.recipeImages.length) {
+      @if (!selectedRecipe.images.length) {
         <ion-avatar slot="start">
           <img src="assets/imgs/logo_green_padded.png" />
         </ion-avatar>
@@ -27,8 +27,7 @@
   @if (!selectedRecipe) {
     <div>
       <ion-searchbar
-        [(ngModel)]="searchText"
-        (ionInput)="onSearchInputChange()"
+        (ionInput)="onSearchInputChange($event)"
         placeholder="{{ 'components.selectRecipe.search' | translate }}"
         autocomplete="off"
       ></ion-searchbar>
@@ -38,12 +37,12 @@
             <div class="results-list">
               @for (recipe of recipes; track recipeTrackBy($index, recipe)) {
                 <ion-item (click)="selectRecipe(recipe)" button>
-                  @if (recipe.recipeImages.length) {
+                  @if (recipe.images.length) {
                     <ion-avatar slot="start">
-                      <img src="{{ recipe.recipeImages[0].image.location }}" />
+                      <img src="{{ recipe.images[0].location }}" />
                     </ion-avatar>
                   }
-                  @if (!recipe.recipeImages.length) {
+                  @if (!recipe.images.length) {
                     <ion-avatar slot="start">
                       <img src="assets/imgs/logo_green_padded.png" />
                     </ion-avatar>

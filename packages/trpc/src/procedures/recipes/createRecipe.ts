@@ -9,6 +9,7 @@ import { Capabilities } from "@recipesage/util/shared";
 import { validateTrpcSession } from "@recipesage/util/server/general";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { getFriendshipIds } from "@recipesage/util/server/db";
 
 export const createRecipe = publicProcedure
   .input(
@@ -32,6 +33,7 @@ export const createRecipe = publicProcedure
         .regex(/^\d{4}-\d{2}-\d{2}$/)
         .nullable()
         .optional(),
+      linkedRecipeIds: z.array(z.uuid()).max(100).optional(),
     }),
   )
   .mutation(async ({ ctx, input }) => {
@@ -57,6 +59,45 @@ export const createRecipe = publicProcedure
       });
     }
 
+    if (input.linkedRecipeIds && input.linkedRecipeIds.length > 0) {
+      const friendshipIds = await getFriendshipIds(session.userId);
+      const allowedUserIds = [session.userId, ...friendshipIds.friends];
+
+      const linkedRecipes = await prisma.recipe.findMany({
+        where: {
+          id: {
+            in: input.linkedRecipeIds,
+          },
+        },
+        select: {
+          id: true,
+          userId: true,
+        },
+      });
+
+      const cannotLinkToRecipe = linkedRecipes.find(
+        (recipe) => !allowedUserIds.includes(recipe.userId),
+      );
+
+      if (cannotLinkToRecipe) {
+        throw new TRPCError({
+          message:
+            "You can only link to recipes you own or recipes from friends",
+          code: "FORBIDDEN",
+        });
+      }
+
+      const missingRecipeIds = input.linkedRecipeIds.filter(
+        (id) => !linkedRecipes.find((r) => r.id === id),
+      );
+      if (missingRecipeIds.length > 0) {
+        throw new TRPCError({
+          message: "One or more linked recipes do not exist",
+          code: "NOT_FOUND",
+        });
+      }
+    }
+
     const recipeLabels = labelIds.map((labelId) => ({
       labelId,
     }));
@@ -77,38 +118,58 @@ export const createRecipe = publicProcedure
       recipeImages.splice(1);
     }
 
-    const recipe = await prisma.recipe.create({
-      data: {
-        title: input.title,
-        userId: session.userId,
-        description: input.description,
-        yield: input.yield,
-        activeTime: input.activeTime,
-        totalTime: input.totalTime,
-        source: input.source,
-        url: input.url,
-        notes: input.notes,
-        ingredients: input.ingredients,
-        instructions: input.instructions,
-        rating: input.rating,
-        folder: input.folder,
-        lastMadeAt: input.lastMadeAt ? new Date(input.lastMadeAt) : null,
-        recipeLabels: {
-          createMany: {
-            data: recipeLabels,
+    return prisma.$transaction(async (tx) => {
+      const recipe = await tx.recipe.create({
+        data: {
+          title: input.title,
+          userId: session.userId,
+          description: input.description,
+          yield: input.yield,
+          activeTime: input.activeTime,
+          totalTime: input.totalTime,
+          source: input.source,
+          url: input.url,
+          notes: input.notes,
+          ingredients: input.ingredients,
+          instructions: input.instructions,
+          rating: input.rating,
+          folder: input.folder,
+          lastMadeAt: input.lastMadeAt ? new Date(input.lastMadeAt) : null,
+          recipeLabels: {
+            createMany: {
+              data: recipeLabels,
+            },
+          },
+          recipeImages: {
+            createMany: {
+              data: recipeImages,
+            },
           },
         },
-        recipeImages: {
-          createMany: {
-            data: recipeImages,
+      });
+
+      if (input.linkedRecipeIds && input.linkedRecipeIds.length > 0) {
+        const bidirectionalLinks = input.linkedRecipeIds.flatMap((linkedId) => [
+          {
+            recipeId: recipe.id,
+            linkedRecipeId: linkedId,
           },
-        },
-      },
+          {
+            recipeId: linkedId,
+            linkedRecipeId: recipe.id,
+          },
+        ]);
+
+        await tx.recipeLink.createMany({
+          data: bidirectionalLinks,
+          skipDuplicates: true,
+        });
+      }
+
+      await indexRecipes([recipe]);
+
+      return {
+        id: recipe.id,
+      };
     });
-
-    await indexRecipes([recipe]);
-
-    return {
-      id: recipe.id,
-    };
   });

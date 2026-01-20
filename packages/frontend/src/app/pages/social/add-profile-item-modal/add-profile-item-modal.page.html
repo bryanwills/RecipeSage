@@ -83,7 +83,9 @@
       [class.ion-padding-start]="!selectedRecipe"
       [class.ion-padding-end]="!selectedRecipe"
     >
-      <select-recipe [(selectedRecipe)]="selectedRecipe"></select-recipe>
+      <select-recipe-legacy
+        [(selectedRecipe)]="selectedRecipe"
+      ></select-recipe-legacy>
     </div>
   }
   @if (itemType === "label") {
