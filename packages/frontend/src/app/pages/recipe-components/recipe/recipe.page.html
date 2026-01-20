@@ -15,9 +15,6 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
   @if (recipe) {
     <div class="ion-no-margin">
       <ion-item lines="none">
@@ -292,9 +289,47 @@
           </ion-item>
         </div>
       }
-      @if (recipe.folder !== "inbox" && this.recipe.recipeLabels.length) {
+      @if (linkedRecipes.length) {
+        <br />
         <div>
-          <ion-item class="labels ion-text-wrap ion-margin-top" lines="none">
+          <ion-item lines="none">
+            <ion-icon name="link" slot="start" size="large"></ion-icon>
+            <ion-label>
+              <p class="ion-text-wrap">
+                {{ "pages.recipeDetails.linkedRecipes" | translate }}
+              </p>
+            </ion-label>
+          </ion-item>
+          @for (linkedRecipe of linkedRecipes; track linkedRecipe.id) {
+            <ion-item
+              (click)="openRecipe(linkedRecipe.id, $event)"
+              lines="none"
+              button
+            >
+              @if (linkedRecipe.recipeImages.length) {
+                <ion-avatar slot="start">
+                  <img
+                    src="{{ linkedRecipe.recipeImages[0].image.location }}"
+                  />
+                </ion-avatar>
+              }
+              @if (!linkedRecipe.recipeImages.length) {
+                <ion-avatar slot="start">
+                  <img src="assets/imgs/logo_green_padded.png" />
+                </ion-avatar>
+              }
+              <ion-label fill="clear">
+                <h2>{{ linkedRecipe.title }}</h2>
+              </ion-label>
+            </ion-item>
+          }
+          <br />
+        </div>
+      }
+      @if (recipe.folder !== "inbox" && this.recipe.recipeLabels.length) {
+        <br />
+        <div>
+          <ion-item class="labels ion-text-wrap" lines="none">
             <ion-icon name="pricetag" slot="start" size="large"></ion-icon>
             <ion-label class="section-title">
               <p>{{ "pages.recipeDetails.labels" | translate }}</p>
@@ -340,6 +375,7 @@
       }
       <br />
       @if (similarRecipes.length) {
+        <br />
         <div>
           <ion-item lines="none">
             <ion-icon name="flashlight" slot="start" size="large"></ion-icon>

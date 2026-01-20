@@ -265,6 +265,68 @@
 
     <br />
 
+    <div>
+      <ion-item lines="none">
+        <ion-label>
+          <h2>{{ "pages.editRecipe.input.linkedRecipes" | translate }}</h2>
+        </ion-label>
+      </ion-item>
+
+      <div class="recipelinks-container">
+        @if (selectedLinkedRecipes.length === 0) {
+          <ion-item lines="none">
+            <ion-label class="ion-text-wrap">
+              <p>
+                {{ "pages.editRecipe.input.linkedRecipes.none" | translate }}
+              </p>
+            </ion-label>
+          </ion-item>
+        }
+
+        @if (selectedLinkedRecipes.length > 0) {
+          <div>
+            @for (
+              linkedRecipe of selectedLinkedRecipes;
+              track linkedRecipe.id
+            ) {
+              <ion-item lines="none">
+                @if (linkedRecipe.recipeImages.length) {
+                  <ion-avatar slot="start">
+                    <img
+                      src="{{ linkedRecipe.recipeImages[0].image.location }}"
+                    />
+                  </ion-avatar>
+                }
+                @if (!linkedRecipe.recipeImages.length) {
+                  <ion-avatar slot="start">
+                    <img src="assets/imgs/logo_green_padded.png" />
+                  </ion-avatar>
+                }
+                <ion-label>
+                  <h2>{{ linkedRecipe.title }}</h2>
+                </ion-label>
+                <ion-button
+                  slot="end"
+                  fill="clear"
+                  (click)="removeLinkedRecipe(linkedRecipe.id)"
+                >
+                  <ion-icon name="close" slot="icon-only"></ion-icon>
+                </ion-button>
+              </ion-item>
+            }
+          </div>
+        }
+
+        <select-recipe
+          (selectedRecipeChange)="linkedRecipeSelected($event)"
+          [includeAllFriends]="true"
+          [enableSelectedState]="false"
+        ></select-recipe>
+      </div>
+    </div>
+
+    <br />
+
     <ion-item lines="none">
       <ion-label>
         <h2>{{ "pages.editRecipe.input.labels" | translate }}</h2>

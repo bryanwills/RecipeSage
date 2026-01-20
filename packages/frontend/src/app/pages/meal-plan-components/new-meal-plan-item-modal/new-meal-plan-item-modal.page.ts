@@ -1,16 +1,10 @@
 import { Input, Component, inject } from "@angular/core";
 import dayjs from "dayjs";
-import {
-  NavController,
-  ModalController,
-  ToastController,
-} from "@ionic/angular";
-import { Recipe, RecipeService } from "~/services/recipe.service";
-import { LoadingService } from "~/services/loading.service";
-import { UtilService } from "~/services/util.service";
+import { ModalController } from "@ionic/angular";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectMealComponent } from "../../../components/select-meal/select-meal.component";
 import { SelectRecipeComponent } from "../../../components/select-recipe/select-recipe.component";
+import type { RecipeSummary } from "@recipesage/prisma";
 
 @Component({
   standalone: true,
@@ -20,16 +14,11 @@ import { SelectRecipeComponent } from "../../../components/select-recipe/select-
   imports: [...SHARED_UI_IMPORTS, SelectMealComponent, SelectRecipeComponent],
 })
 export class NewMealPlanItemModalPage {
-  navCtrl = inject(NavController);
-  modalCtrl = inject(ModalController);
-  recipeService = inject(RecipeService);
-  loadingService = inject(LoadingService);
-  utilService = inject(UtilService);
-  toastCtrl = inject(ToastController);
+  private modalCtrl = inject(ModalController);
 
   @Input() isEditing = false;
   @Input() inputType = "recipe";
-  @Input() recipe?: Recipe;
+  @Input() recipe?: RecipeSummary;
   @Input() title: string = "";
   @Input() meal?: string;
   @Input() scheduledDate = dayjs().format("YYYY-MM-DD");

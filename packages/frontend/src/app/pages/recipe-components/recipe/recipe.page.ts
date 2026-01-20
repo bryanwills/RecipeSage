@@ -84,6 +84,11 @@ export class RecipePage {
   me: UserPublic | null = null;
   recipe: RecipeSummary | null = null;
   similarRecipes: RecipeSummaryLite[] = [];
+  linkedRecipes: Array<{
+    id: string;
+    title: string;
+    recipeImages: Array<{ image: { location: string } }>;
+  }> = [];
   recipeId: string;
   ingredients?: ParsedIngredient[];
   instructions?: ParsedInstruction[];
@@ -120,6 +125,7 @@ export class RecipePage {
     this.recipe = null;
     this.me = null;
     this.similarRecipes = [];
+    this.linkedRecipes = [];
 
     this.loadWithBar();
 
@@ -134,11 +140,6 @@ export class RecipePage {
 
   ionViewWillLeave() {
     this.releaseWakeLock();
-  }
-
-  async refresh(loader: any) {
-    await this.load();
-    loader.target.complete();
   }
 
   updateIsLoggedIn() {
@@ -162,6 +163,20 @@ export class RecipePage {
     if (!response) return;
 
     this.recipe = response;
+    if (this.recipe && "recipeLinks" in this.recipe) {
+      const recipeWithLinks = this.recipe as typeof this.recipe & {
+        recipeLinks: Array<{
+          linkedRecipe: {
+            id: string;
+            title: string;
+            recipeImages: Array<{ image: { location: string } }>;
+          };
+        }>;
+      };
+      this.linkedRecipes = recipeWithLinks.recipeLinks.map(
+        (link) => link.linkedRecipe,
+      );
+    }
     const title = await this.translate
       .get("generic.labeledPageTitle", {
         title: this.recipe.title,

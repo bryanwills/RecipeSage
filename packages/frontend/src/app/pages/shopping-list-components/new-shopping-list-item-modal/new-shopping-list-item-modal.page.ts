@@ -1,15 +1,10 @@
 import { Component, inject } from "@angular/core";
-import { ModalController, ToastController } from "@ionic/angular";
-import {
-  RecipeService,
-  ParsedIngredient,
-  Recipe,
-} from "~/services/recipe.service";
-import { LoadingService } from "~/services/loading.service";
-import { UtilService } from "~/services/util.service";
+import { ModalController } from "@ionic/angular";
+import { ParsedIngredient } from "~/services/recipe.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectIngredientsComponent } from "../../../components/select-ingredients/select-ingredients.component";
 import { SelectRecipeComponent } from "../../../components/select-recipe/select-recipe.component";
+import type { RecipeSummary } from "@recipesage/prisma";
 
 @Component({
   standalone: true,
@@ -23,17 +18,13 @@ import { SelectRecipeComponent } from "../../../components/select-recipe/select-
   ],
 })
 export class NewShoppingListItemModalPage {
-  modalCtrl = inject(ModalController);
-  utilService = inject(UtilService);
-  recipeService = inject(RecipeService);
-  loadingService = inject(LoadingService);
-  toastCtrl = inject(ToastController);
+  private modalCtrl = inject(ModalController);
 
   inputType = "items";
 
   itemFields: { title?: string }[] = [{}];
 
-  selectedRecipe: Recipe | undefined;
+  selectedRecipe: RecipeSummary | undefined;
   selectedIngredients: ParsedIngredient[] = [];
 
   inputTypeChanged(event: any) {

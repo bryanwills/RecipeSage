@@ -217,6 +217,21 @@ model RecipeLabel {
   @@map("Recipe_Labels")
 }
 
+model RecipeLink {
+  id             String   @id @default(uuid()) @db.Uuid
+  recipeId       String   @db.Uuid
+  linkedRecipeId String   @db.Uuid
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(6)
+  recipe         Recipe   @relation("RecipeLinks_recipeId", fields: [recipeId], references: [id], onDelete: Cascade)
+  linkedRecipe   Recipe   @relation("RecipeLinks_linkedRecipeId", fields: [linkedRecipeId], references: [id], onDelete: Cascade)
+
+  @@unique([recipeId, linkedRecipeId])
+  @@index([recipeId])
+  @@index([linkedRecipeId])
+  @@map("RecipeLinks")
+}
+
 model Recipe {
   id                String             @id @default(uuid()) @db.Uuid
   userId            String             @db.Uuid
@@ -244,6 +259,8 @@ model Recipe {
   profileItems      ProfileItem[]
   recipeImages      RecipeImage[]
   recipeLabels      RecipeLabel[]
+  recipeLinks       RecipeLink[]       @relation("RecipeLinks_recipeId")
+  linkedByRecipes   RecipeLink[]       @relation("RecipeLinks_linkedRecipeId")
   fromUser          User?              @relation("Recipes_fromUserIdToUsers", fields: [fromUserId], references: [id])
   user              User               @relation("Recipes_userIdToUsers", fields: [userId], references: [id], onDelete: Cascade)
   shoppingListItems ShoppingListItem[]

@@ -9,6 +9,7 @@ import {
 } from "@recipesage/util/server/capabilities";
 import { Capabilities } from "@recipesage/util/shared";
 import { indexRecipes } from "@recipesage/util/server/search";
+import { getFriendshipIds } from "@recipesage/util/server/db";
 
 export const updateRecipe = publicProcedure
   .input(
@@ -33,6 +34,7 @@ export const updateRecipe = publicProcedure
         .regex(/^\d{4}-\d{2}-\d{2}$/)
         .nullable()
         .optional(),
+      linkedRecipeIds: z.array(z.uuid()).max(100).optional(),
     }),
   )
   .mutation(async ({ ctx, input }) => {
@@ -55,6 +57,18 @@ export const updateRecipe = publicProcedure
       });
     }
 
+    const _existingLinkedRecipeIds = await prisma.recipeLink.findMany({
+      where: {
+        recipeId: input.id,
+      },
+      select: {
+        linkedRecipeId: true,
+      },
+    });
+    const existingLinkedRecipeIds = new Set(
+      _existingLinkedRecipeIds.map((link) => link.linkedRecipeId),
+    );
+
     const labelIds = input.labelIds || [];
     const doesNotOwnAssignedLabel = !!(await prisma.label.findFirst({
       where: {
@@ -72,6 +86,51 @@ export const updateRecipe = publicProcedure
         message: "You do not own one of the specified label ids",
         code: "FORBIDDEN",
       });
+    }
+
+    if (input.linkedRecipeIds) {
+      const newLinkedRecipeIds = input.linkedRecipeIds.filter(
+        (id) => !existingLinkedRecipeIds.has(id),
+      );
+
+      if (newLinkedRecipeIds.length > 0) {
+        const friendshipIds = await getFriendshipIds(session.userId);
+        const allowedUserIds = [session.userId, ...friendshipIds.friends];
+
+        const linkedRecipes = await prisma.recipe.findMany({
+          where: {
+            id: {
+              in: newLinkedRecipeIds,
+            },
+          },
+          select: {
+            id: true,
+            userId: true,
+          },
+        });
+
+        const cannotLinkToRecipe = linkedRecipes.find(
+          (recipe) => !allowedUserIds.includes(recipe.userId),
+        );
+
+        if (cannotLinkToRecipe) {
+          throw new TRPCError({
+            message:
+              "You can only link to recipes you own or recipes from friends",
+            code: "FORBIDDEN",
+          });
+        }
+
+        const missingRecipeIds = newLinkedRecipeIds.filter(
+          (id) => !linkedRecipes.find((r) => r.id === id),
+        );
+        if (missingRecipeIds.length > 0) {
+          throw new TRPCError({
+            message: "One or more linked recipes do not exist",
+            code: "NOT_FOUND",
+          });
+        }
+      }
     }
 
     const recipeLabels = labelIds.map((labelId) => ({
@@ -100,6 +159,53 @@ export const updateRecipe = publicProcedure
     }
 
     return prisma.$transaction(async (tx) => {
+      if (input.linkedRecipeIds !== undefined) {
+        const currentLinkedIds = input.linkedRecipeIds;
+        const linkedRecipeIdsToRemove = Array.from(
+          existingLinkedRecipeIds,
+        ).filter((id) => !currentLinkedIds.includes(id));
+        const linkedRecipeIdsToAdd = currentLinkedIds.filter(
+          (id) => !existingLinkedRecipeIds.has(id),
+        );
+
+        await tx.recipeLink.deleteMany({
+          where: {
+            OR: [
+              {
+                recipeId: input.id,
+                linkedRecipeId: {
+                  in: linkedRecipeIdsToRemove,
+                },
+              },
+              {
+                recipeId: {
+                  in: linkedRecipeIdsToRemove,
+                },
+                linkedRecipeId: input.id,
+              },
+            ],
+          },
+        });
+
+        const bidirectionalLinks = linkedRecipeIdsToAdd.flatMap((linkedId) => [
+          {
+            recipeId: input.id,
+            linkedRecipeId: linkedId,
+          },
+          {
+            recipeId: linkedId,
+            linkedRecipeId: input.id,
+          },
+        ]);
+
+        if (bidirectionalLinks.length > 0) {
+          await tx.recipeLink.createMany({
+            data: bidirectionalLinks,
+            skipDuplicates: true,
+          });
+        }
+      }
+
       await tx.recipeLabel.deleteMany({
         where: {
           recipeId: input.id,

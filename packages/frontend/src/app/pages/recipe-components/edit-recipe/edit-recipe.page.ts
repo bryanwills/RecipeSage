@@ -34,6 +34,7 @@ import type {
   LabelGroupSummary,
   LabelSummary,
   RecipeSummary,
+  RecipeSummaryLite,
 } from "@recipesage/prisma";
 import { TRPCService } from "../../../services/trpc.service";
 import {
@@ -48,6 +49,7 @@ import { RatingComponent } from "../../../components/rating/rating.component";
 import { MultiImageUploadComponent } from "../../../components/multi-image-upload/multi-image-upload.component";
 import { MlService } from "../../../services/ml.service";
 import { Capacitor } from "@capacitor/core";
+import { SelectRecipeComponent } from "../../../components/select-recipe/select-recipe.component";
 
 @Component({
   standalone: true,
@@ -60,6 +62,7 @@ import { Capacitor } from "@capacitor/core";
     SelectMultipleItemsComponent,
     RatingComponent,
     MultiImageUploadComponent,
+    SelectRecipeComponent,
   ],
 })
 export class EditRecipePage {
@@ -103,6 +106,13 @@ export class EditRecipePage {
   labelGroups: LabelGroupSummary[] = [];
   selectedLabels: LabelSummary[] = [];
 
+  selectedLinkedRecipes: {
+    id: string;
+    userId: string;
+    title: string;
+    recipeImages: RecipeSummaryLite["recipeImages"];
+  }[] = [];
+
   isAutoclipPopoverOpen = false;
 
   constructor() {
@@ -144,6 +154,10 @@ export class EditRecipePage {
       this.selectedLabels = this.fullRecipe.recipeLabels
         .map((recipeLabel) => labelsById[recipeLabel.label.id])
         .filter((label) => label);
+
+      this.selectedLinkedRecipes = this.fullRecipe.recipeLinks.map((link) => ({
+        ...link.linkedRecipe,
+      }));
     }
 
     loading.dismiss();
@@ -269,6 +283,7 @@ export class EditRecipePage {
         imageIds: this.images.map((image) => image.id),
         labelIds: this.selectedLabels.map((label) => label.id),
         lastMadeAt: this.recipe.lastMadeAt || null,
+        linkedRecipeIds: this.selectedLinkedRecipes.map((recipe) => recipe.id),
       }),
     );
 
@@ -296,6 +311,7 @@ export class EditRecipePage {
         imageIds: this.images.map((image) => image.id),
         labelIds: this.selectedLabels.map((label) => label.id),
         lastMadeAt: this.recipe.lastMadeAt || null,
+        linkedRecipeIds: this.selectedLinkedRecipes.map((recipe) => recipe.id),
       }),
     );
 
@@ -1175,5 +1191,28 @@ export class EditRecipePage {
 
   setLastMadeAtToday() {
     this.recipe.lastMadeAt = dayjs().format("YYYY-MM-DD");
+  }
+
+  linkedRecipeSelected(recipe: RecipeSummary | undefined) {
+    if (!recipe) return;
+
+    const alreadyLinked = this.selectedLinkedRecipes.find(
+      (r) => r.id === recipe.id,
+    );
+    if (alreadyLinked) return;
+
+    if (recipe.id === this.recipeId) {
+      return;
+    }
+
+    this.selectedLinkedRecipes.push(recipe);
+    this.markAsDirty();
+  }
+
+  removeLinkedRecipe(recipeId: string) {
+    this.selectedLinkedRecipes = this.selectedLinkedRecipes.filter(
+      (r) => r.id !== recipeId,
+    );
+    this.markAsDirty();
   }
 }

@@ -219,6 +219,7 @@
   "pages.recipeDetails.delete.message": "This will permanently delete the recipe from your account. This action is irreversible.",
   "pages.recipeDetails.cloned": "The recipe has been saved to your account",
   "pages.recipeDetails.similar": "Similar recipes in your collection",
+  "pages.recipeDetails.linkedRecipes": "Linked Recipes",
 
   "pages.recipeDetailsPopover.options": "Options",
   "pages.recipeDetailsPopover.keepScreenOn": "Keep Screen On",
@@ -605,6 +606,9 @@
   "pages.editRecipe.input.labels.noItems": "No labels. Type to create a label",
   "pages.editRecipe.input.labels.noItemsGroup": "No labels in this category. Type to create a label",
   "pages.editRecipe.input.labels.search": "Search for a label",
+  "pages.editRecipe.input.linkedRecipes": "Linked Recipes",
+  "pages.editRecipe.input.linkedRecipes.none": "No linked recipes. Link related recipes to easily navigate between them.",
+  "pages.editRecipe.input.linkedRecipes.add": "Add Linked Recipe",
   "pages.editRecipe.addLabel.otherGroup": "Exists in another category",
   "pages.editRecipe.save": "Save",
   "pages.editRecipe.create": "Create",
