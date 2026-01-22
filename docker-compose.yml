@@ -93,6 +93,7 @@ services:
     command: node_modules/nx/bin/nx.js serve queue-worker
     environment:
       <<: *common-env
+      NODE_OPTIONS: --max-old-space-size=2000
     env_file:
       - ./.env
     stop_grace_period: 1s
