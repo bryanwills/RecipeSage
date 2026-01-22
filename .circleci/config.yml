@@ -19,7 +19,7 @@ jobs:
   build_and_test:
     resource_class: large
     docker:
-      - image: cimg/node:24.12
+      - image: cimg/node:24.13
         environment:
           RS_TEST_DB_USERNAME: chefbook
           RS_TEST_DB_PASSWORD: admin
@@ -91,7 +91,7 @@ jobs:
   push_backend:
     resource_class: large
     docker:
-      - image: cimg/node:24.12
+      - image: cimg/node:24.13
     steps:
       - checkout
       - setup_remote_docker:
@@ -106,7 +106,7 @@ jobs:
   push_backend_selfhost_amd64:
     resource_class: large
     docker:
-      - image: cimg/node:24.12
+      - image: cimg/node:24.13
     steps:
       - checkout
       - setup_remote_docker:
@@ -164,7 +164,7 @@ jobs:
   push_frontend:
     resource_class: large
     docker:
-      - image: cimg/node:24.12
+      - image: cimg/node:24.13
     steps:
       - checkout
       - aws-cli/setup
@@ -189,7 +189,7 @@ jobs:
   push_frontend_selfhost:
     resource_class: large
     docker:
-      - image: cimg/node:24.12
+      - image: cimg/node:24.13
     steps:
       - checkout
       - aws-cli/setup
