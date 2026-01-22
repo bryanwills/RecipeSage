@@ -66,7 +66,7 @@
                 @if (exportJob.status === "RUN") {
                   <ion-progress-bar
                     type="determinate"
-                    [value]="(getRunningJob()?.progress || 0) * 0.01"
+                    [value]="(exportJob.progress || 0) * 0.01"
                   ></ion-progress-bar>
                 }
               </p>
