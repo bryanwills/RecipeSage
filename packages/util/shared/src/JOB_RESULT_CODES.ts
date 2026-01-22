@@ -5,4 +5,5 @@ export const JOB_RESULT_CODES = {
   badFile: 5,
   emptyFile: 6,
   badCredentials: 7,
+  tooManyRecipes: 8,
 } as const;

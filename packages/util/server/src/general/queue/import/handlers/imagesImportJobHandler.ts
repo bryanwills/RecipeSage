@@ -10,6 +10,12 @@ import path from "path";
 import type { JobQueueItem } from "../../JobQueueItem";
 import { debounceJobUpdateProgress } from "../../../jobs/updateJobProgress";
 import { IMPORT_JOB_STEP_COUNT } from "../processImportJob";
+import { ImportTooManyRecipesError } from "../../../jobs/jobErrors";
+
+/**
+ * A sanity limit so that we don't overload the service or run up a huge bill.
+ */
+const MAX_COUNT_LIMIT = 100;
 
 export async function imagesImportJobHandler(
   job: JobSummary,
@@ -39,6 +45,10 @@ export async function imagesImportJobHandler(
   });
 
   const totalCount = fileNames.length;
+  if (totalCount > MAX_COUNT_LIMIT) {
+    throw new ImportTooManyRecipesError();
+  }
+
   let processedCount = 0;
   for (const fileName of fileNames) {
     const filePath = path.join(extractPath, fileName);

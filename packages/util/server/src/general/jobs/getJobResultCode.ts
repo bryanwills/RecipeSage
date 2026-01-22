@@ -3,7 +3,9 @@ import {
   ImportBadCredentialsError,
   ImportBadFormatError,
   ImportNoRecipesError,
+  ImportTooManyRecipesError,
 } from "./jobErrors";
+import { ImportStandardizedRecipesTooManyRecipesError } from "../../db/importStandardizedRecipes";
 
 export const jobErrorsToReport: (typeof JOB_RESULT_CODES)[keyof typeof JOB_RESULT_CODES][] =
   [JOB_RESULT_CODES.unknown];
@@ -25,6 +27,13 @@ export const jobErrorToResultCode = (error: unknown) => {
 
   if (error instanceof ImportBadCredentialsError) {
     return JOB_RESULT_CODES.badCredentials;
+  }
+
+  if (
+    error instanceof ImportStandardizedRecipesTooManyRecipesError ||
+    error instanceof ImportTooManyRecipesError
+  ) {
+    return JOB_RESULT_CODES.tooManyRecipes;
   }
 
   return JOB_RESULT_CODES.unknown;

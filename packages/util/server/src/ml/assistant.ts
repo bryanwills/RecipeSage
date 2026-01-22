@@ -15,6 +15,7 @@ import { generateText, ModelMessage } from "ai";
 import { AI_MODEL_HIGH, AI_MODEL_LOW, aiProvider } from "./vercel";
 import type { InputJsonValue } from "@prisma/client/runtime/client";
 import { convertPrismaAssistantMessageSummariesToAssistantMessageSummaries } from "../db/convertPrismaAssistantMessageSummaries";
+import { metrics } from "../general/metrics";
 const showdown = new Converter({
   simplifiedAutoLink: true,
   openLinksInNewWindow: true,
@@ -131,6 +132,15 @@ export class Assistant {
         createRecipe: initCreateAssistantRecipeTool(),
       },
     });
+
+    if (response.totalUsage.totalTokens !== undefined) {
+      metrics.llmTokensConsumed.observe(
+        {
+          category: "sendChat",
+        },
+        response.totalUsage.totalTokens,
+      );
+    }
 
     const toolResultRecipeMap = new Map<string, string>();
     for (const toolResult of response.toolResults) {

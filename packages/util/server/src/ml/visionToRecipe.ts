@@ -2,6 +2,7 @@ import { initOCRFormatRecipeTool } from "../ml/chatFunctionsVercel";
 import { StandardizedRecipeImportEntry } from "../db";
 import { generateText } from "ai";
 import { AI_MODEL_HIGH, aiProvider } from "./vercel";
+import { metrics } from "../general/metrics";
 
 export enum VisionToRecipeInputType {
   Photo,
@@ -24,7 +25,7 @@ export const visionToRecipe = async (
 ) => {
   const recognizedRecipes: StandardizedRecipeImportEntry[] = [];
 
-  await generateText({
+  const llmResponse = await generateText({
     system:
       "You are a data processor utility. Do not summarize or add information, just format and process into the correct shape. Do not insert your own editorial voice, just clean the text and get it into the correct shape. Leave fields that are not present blank. If headers are present in the original text you can notate that for ingredients, instructions, and notes by prefixing the line with a # sign.",
     model: aiProvider(AI_MODEL_HIGH),
@@ -54,6 +55,15 @@ export const visionToRecipe = async (
       toolName: "formatRecipe",
     },
   });
+
+  if (llmResponse.totalUsage.totalTokens !== undefined) {
+    metrics.llmTokensConsumed.observe(
+      {
+        category: "visionToRecipe",
+      },
+      llmResponse.totalUsage.totalTokens,
+    );
+  }
 
   return recognizedRecipes.at(0);
 };

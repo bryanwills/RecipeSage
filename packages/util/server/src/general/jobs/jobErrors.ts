@@ -18,3 +18,10 @@ export class ImportBadCredentialsError extends Error {
     this.name = "ImportBadCredentialsError";
   }
 }
+
+export class ImportTooManyRecipesError extends Error {
+  constructor(message?: string) {
+    super(message);
+    this.name = "ImportTooManyRecipesError";
+  }
+}

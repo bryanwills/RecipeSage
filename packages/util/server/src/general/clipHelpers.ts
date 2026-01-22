@@ -65,7 +65,12 @@ export async function htmlToBodyInnerText(document: string) {
     });
 
     const responseJson = await response.json();
-    return responseJson.data.text;
+    const rawText = responseJson.data.text;
+
+    return rawText
+      .split("\n")
+      .filter((el: string) => el.trim())
+      .join("\n");
   }
 
   const dom = new jsdom.JSDOM(document);

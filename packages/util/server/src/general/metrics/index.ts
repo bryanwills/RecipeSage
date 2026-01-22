@@ -120,6 +120,13 @@ export const metrics = {
     help: "A webhook was successfully handled",
     labelNames: ["eventType"],
   }),
+
+  llmTokensConsumed: new client.Histogram({
+    name: "llm_tokens_consumed",
+    help: "Every time a request hits the app",
+    labelNames: ["category"],
+    buckets: [50, 500, 1000, 10_000, 50_000, 200_000, 500_000, 1_000_000],
+  }),
 };
 
 // Collect default system metrics (such as memory/cpu usage)

@@ -19,6 +19,9 @@ export const getJobFailureI18n = (importJob: JobSummary) => {
     case JOB_RESULT_CODES.badCredentials: {
       return "pages.import.jobs.status.fail.badCredentials";
     }
+    case JOB_RESULT_CODES.tooManyRecipes: {
+      return "pages.import.jobs.status.fail.tooManyRecipes";
+    }
     default: {
       return "pages.import.jobs.status.fail.unknown";
     }

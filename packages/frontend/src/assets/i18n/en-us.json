@@ -737,6 +737,7 @@
   "pages.import.jobs.status.fail.badFile": "Incompatible format.",
   "pages.import.jobs.status.fail.emptyFile": "The submitted import does not contain any recognizable recipes.",
   "pages.import.jobs.status.fail.badCredentials": "The submitted credentials are incorrect.",
+  "pages.import.jobs.status.fail.tooManyRecipes": "Too many recipes for this import format. Please try again with a smaller batch.",
   "pages.import.jobs.status.fail.unknown": "An unknown error occurred. Please contact me.",
   "pages.import.status.success": "Import succesfully completed.",
   "pages.import.step": "Step {{number}}",

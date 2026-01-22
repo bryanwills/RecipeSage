@@ -29,6 +29,8 @@ const prompts = {
  */
 export const OCR_MIN_VALID_TEXT = 20;
 
+export const OCR_MAX_VALID_TEXT = 20000;
+
 export const textToRecipe = async (
   text: string,
   inputType: TextToRecipeInputType,
@@ -36,10 +38,12 @@ export const textToRecipe = async (
   metrics.convertTextToRecipe.inc();
 
   if (text.length < OCR_MIN_VALID_TEXT) return;
+  if (text.length > OCR_MAX_VALID_TEXT)
+    text = text.substring(0, OCR_MAX_VALID_TEXT);
 
   const recognizedRecipes: StandardizedRecipeImportEntry[] = [];
 
-  await generateText({
+  const llmResponse = await generateText({
     system:
       "You are a data processor utility. Do not summarize or add information, just format and process into the correct shape. Do not insert your own editorial voice, just clean the text and get it into the correct shape. Leave fields that are not present blank. If headers are present in the original text you can notate that for ingredients, instructions, and notes by prefixing the line with a # sign.",
     model: aiProvider(AI_MODEL_LOW),
@@ -52,6 +56,15 @@ export const textToRecipe = async (
       toolName: "formatRecipe",
     },
   });
+
+  if (llmResponse.totalUsage.totalTokens !== undefined) {
+    metrics.llmTokensConsumed.observe(
+      {
+        category: "textToRecipe_" + inputType,
+      },
+      llmResponse.totalUsage.totalTokens,
+    );
+  }
 
   const recognizedRecipe = recognizedRecipes[0];
 

@@ -14,6 +14,13 @@ import {
   ObjectTypes,
 } from "../storage";
 
+export class ImportStandardizedRecipesTooManyRecipesError extends Error {
+  constructor(message?: string) {
+    super(message);
+    this.name = "ImportStandardizedRecipesTooManyRecipesError";
+  }
+}
+
 export interface StandardizedRecipeImportEntry
   extends Omit<StandardizedRecipeImportEntryForWeb, "images"> {
   images: (string | Buffer)[];
@@ -44,7 +51,9 @@ export const importStandardizedRecipes = async (
   );
 
   if (entries.length > MAX_IMPORT_LIMIT) {
-    throw new Error("Too many recipes to import in one batch");
+    throw new ImportStandardizedRecipesTooManyRecipesError(
+      "Too many recipes to import in one batch",
+    );
   }
 
   const limit = pLimit(CONCURRENT_IMAGE_IMPORTS);
