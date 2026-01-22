@@ -59,7 +59,7 @@ export const getJobQueueWorker = () => {
     removeOnComplete: { count: 50 },
     removeOnFail: { count: 50 },
     concurrency: parseInt(process.env.JOB_QUEUE_CONCURRENCY || "1"),
-    useWorkerThreads: true,
+    useWorkerThreads: false,
   });
 
   jobQueueWorker.on("error", (err) => {
