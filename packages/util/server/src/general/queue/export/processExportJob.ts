@@ -64,8 +64,8 @@ export const processExportJob = async (
       },
     },
     {
-      batchSize: 50,
-      prefill: 200,
+      batchSize: 100,
+      prefill: 100,
     },
   ) as unknown as AsyncIterable<RecipeSummary>;
 

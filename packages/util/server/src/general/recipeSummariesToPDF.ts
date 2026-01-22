@@ -10,6 +10,8 @@ import { Content, Margins, TDocumentDefinitions } from "pdfmake/interfaces";
 import path from "path";
 import { RecipeSummary } from "@recipesage/prisma";
 import { readFile } from "fs/promises";
+import process from "node:process";
+import { setTimeout } from "node:timers/promises";
 
 const FONT_PATH = process.env.FONTS_PATH;
 if (!FONT_PATH) throw new Error("FONTS_PATH must be provided");
@@ -231,12 +233,14 @@ export async function* recipeAsyncIteratorToPDF(
     };
 
     const doc = pdfmake.createPdf(docDefinition);
-
-    const buffer = await doc.getBuffer();
+    const stream = await doc.getStream();
+    stream.end();
 
     yield {
-      buffer: buffer as Buffer,
+      stream,
       recipe,
     };
+
+    await setTimeout(50);
   }
 }

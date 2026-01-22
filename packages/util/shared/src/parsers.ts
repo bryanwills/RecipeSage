@@ -267,7 +267,7 @@ export const parseIngredients = (
             updatedMeasurement,
           );
         } catch (e) {
-          console.error("failed to parse", e);
+          console.warn("failed to parse", e);
           return ingredientParts[idx];
         }
       };

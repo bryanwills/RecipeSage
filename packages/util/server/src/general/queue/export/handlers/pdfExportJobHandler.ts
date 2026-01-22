@@ -36,7 +36,7 @@ export async function pdfExportJobHandler(
   })) {
     await new Promise<void>((resolve, reject) => {
       zipStream.entry(
-        result.buffer,
+        result.stream,
         {
           name: `${result.recipe.title.replaceAll(/[/\\]/g, "")}-${result.recipe.id.substring(0, 5)}.pdf`,
         },
