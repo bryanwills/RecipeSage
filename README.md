@@ -95,6 +95,16 @@ Code contributions are always very, very welcome. I'm very open to collaborating
 
 Although you don't have to reach out before starting work and contributing a PR, either opening an issue and tagging me (@julianpoy), or commenting on an existing issue is a good idea. I may have suggestions for how to approach the problem, where one might look to implement a feature, or general guidance of how to "fit" the RecipeSage UX.
 
+### Contributions with AI Content
+
+I must note that I do not accept any AI-assisted code or PRs. I won't dive deep into explaining why here, but here are a few of my main reasons:
+
+1. It takes me quite a lot of time since AI-generated PRs almost always require significant changes
+2. AI-generated PRs effectively cause me to act _through you_ as a "proxy" for prompting, as you feed my comments back through your AI prompt
+3. If I haven't tackled something yet, it's probably because it's not trivial and/or requires some thought and design, both of which AI is not great at
+
+Again, as I said above I'm very open to collaborating -- just no AI-generated code please :)
+
 ### Development
 
 Below are some notes for getting setup to contribute code.
