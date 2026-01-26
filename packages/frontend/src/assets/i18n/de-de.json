@@ -1124,5 +1124,6 @@
     "pages.shoppingListPopover.removeSelfFromList.header": "Entfernen der Einkaufsliste bestätigen",
     "pages.shoppingListPopover.removeSelfFromList.message": "Dadurch wird diese Einkaufsliste aus deinem Konto entfernt und du bist kein Mitglied mehr davon. Nur der Eigentümer der Einkaufsliste kann diesen Vorgang rückgängig machen oder die Einkaufsliste vollständig löschen.",
     "generic.yes": "Ja",
-    "generic.no": "Nein"
+    "generic.no": "Nein",
+    "pages.import.jobs.status.fail.tooManyRecipes": "Zu viele Rezepte für dieses Importformat. Bitte versuche es erneut mit weniger Rezepten."
 }
