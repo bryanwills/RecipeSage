@@ -628,7 +628,7 @@ export class RecipePage {
 
   formatDate(date: Date | string | number) {
     if (!date) return "";
-    return dayjs(date).format("YYYY-MM-DD");
+    return this.utilService.formatDate(date, { times: false });
   }
 
   sortedRecipeImages() {

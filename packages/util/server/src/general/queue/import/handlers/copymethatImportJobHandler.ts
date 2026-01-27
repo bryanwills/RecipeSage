@@ -74,13 +74,20 @@ export async function copymethatImportJobHandler(
 
     const notes = $item.find("#recipeNotes").text() || undefined;
 
-    const labels = $item
-      .find("extra_info")
-      .children()
-      .map((_, el) => $(el).attr("id"))
-      .get()
-      .filter(Boolean)
-      .filter((el) => el !== "rating");
+    const labels = [
+      ...$item
+        .find("extra_info")
+        .children()
+        .map((_, el) => $(el).attr("id"))
+        .get()
+        .filter(Boolean)
+        .filter((el) => el !== "rating"),
+      ...$item
+        .find(".recipeCategory")
+        .map((_, el) => $(el).text().trim())
+        .get()
+        .filter(Boolean),
+    ];
 
     const unconfirmedImagePaths = [
       ...new Set(
