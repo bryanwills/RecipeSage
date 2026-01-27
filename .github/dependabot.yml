@@ -12,6 +12,11 @@ updates:
         patterns:
           - "multer"
           - "@types/multer"
+      ai-sdk:
+        patterns:
+          - "ai"
+          - "@ai-sdk/*"
+          - "@openrouter/ai-sdk-provider"
       eslint:
         patterns:
           - "eslint"
@@ -49,6 +54,15 @@ updates:
       fanout:
         patterns:
           - "@fanoutio/*"
+      ngx-translate:
+        patterns:
+          - "@ngx-translate/*"
+      vite:
+        patterns:
+          - "vite"
+          - "vite*"
+          - "vitest*"
+          - "@vitest/*"
       angular:
         patterns:
           - "@angular/*"
