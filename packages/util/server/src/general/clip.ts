@@ -24,9 +24,8 @@ import {
 const INTERCEPT_PLACEHOLDER_URL = "https://example.com/intercept-me";
 
 const require = createRequire(__filename);
-const recipeClipperPath = require.resolve(
-  "@julianpoy/recipe-clipper/dist/recipe-clipper.umd.js",
-);
+const recipeClipperPath =
+  require.resolve("@julianpoy/recipe-clipper/dist/recipe-clipper.umd.js");
 const recipeClipperUMD = readFileSync(recipeClipperPath, "utf-8");
 
 const disconnectPuppeteer = async (browser: Browser) => {

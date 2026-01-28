@@ -44,9 +44,9 @@ export const appRoutes: Routes = [
   {
     path: RouteMap.DownloadAndInstallPage.path,
     loadComponent: () =>
-      import(
-        "./pages/info-components/download-and-install/download-and-install.page"
-      ).then((m) => m.DownloadAndInstallPage),
+      import("./pages/info-components/download-and-install/download-and-install.page").then(
+        (m) => m.DownloadAndInstallPage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.downloadAndInstall.tabTitle",
   },
@@ -89,18 +89,18 @@ export const appRoutes: Routes = [
   {
     path: RouteMap.ContributeCancelPage.path,
     loadComponent: () =>
-      import(
-        "./pages/info-components/contribute-cancel/contribute-cancel.page"
-      ).then((m) => m.ContributeCancelPage),
+      import("./pages/info-components/contribute-cancel/contribute-cancel.page").then(
+        (m) => m.ContributeCancelPage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.contributeCancel.tabTitle",
   },
   {
     path: RouteMap.ContributeThankYouPage.path,
     loadComponent: () =>
-      import(
-        "./pages/info-components/contribute-thankyou/contribute-thankyou.page"
-      ).then((m) => m.ContributeThankYouPage),
+      import("./pages/info-components/contribute-thankyou/contribute-thankyou.page").then(
+        (m) => m.ContributeThankYouPage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.contributeThankYou.tabTitle",
   },
@@ -159,9 +159,9 @@ export const appRoutes: Routes = [
   {
     path: RouteMap.MessageThreadPage.path,
     loadComponent: () =>
-      import(
-        "./pages/messaging-components/message-thread/message-thread.page"
-      ).then((m) => m.MessageThreadPage),
+      import("./pages/messaging-components/message-thread/message-thread.page").then(
+        (m) => m.MessageThreadPage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.messageThread.tabTitle",
   },
@@ -245,72 +245,72 @@ export const appRoutes: Routes = [
   {
     path: RouteMap.ImportLivingcookbookPage.path,
     loadComponent: () =>
-      import(
-        "./pages/settings-components/import-livingcookbook/import-livingcookbook.page"
-      ).then((m) => m.ImportLivingcookbookPage),
+      import("./pages/settings-components/import-livingcookbook/import-livingcookbook.page").then(
+        (m) => m.ImportLivingcookbookPage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.importLivingCookbook.tabTitle",
   },
   {
     path: RouteMap.ImportPaprikaPage.path,
     loadComponent: () =>
-      import(
-        "./pages/settings-components/import-paprika/import-paprika.page"
-      ).then((m) => m.ImportPaprikaPage),
+      import("./pages/settings-components/import-paprika/import-paprika.page").then(
+        (m) => m.ImportPaprikaPage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.importPaprika.tabTitle",
   },
   {
     path: RouteMap.ImportJSONLDPage.path,
     loadComponent: () =>
-      import(
-        "./pages/settings-components/import-json-ld/import-json-ld.page"
-      ).then((m) => m.ImportJSONLDPage),
+      import("./pages/settings-components/import-json-ld/import-json-ld.page").then(
+        (m) => m.ImportJSONLDPage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.importJsonLD.tabTitle",
   },
   {
     path: RouteMap.ImportCookmatePage.path,
     loadComponent: () =>
-      import(
-        "./pages/settings-components/import-cookmate/import-cookmate.page"
-      ).then((m) => m.ImportCookmatePage),
+      import("./pages/settings-components/import-cookmate/import-cookmate.page").then(
+        (m) => m.ImportCookmatePage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.importCookmate.tabTitle",
   },
   {
     path: RouteMap.ImportCopymethatPage.path,
     loadComponent: () =>
-      import(
-        "./pages/settings-components/import-copymethat/import-copymethat.page"
-      ).then((m) => m.ImportCopymethatPage),
+      import("./pages/settings-components/import-copymethat/import-copymethat.page").then(
+        (m) => m.ImportCopymethatPage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.importCopymethat.tabTitle",
   },
   {
     path: RouteMap.ImportRecipeKeeperPage.path,
     loadComponent: () =>
-      import(
-        "./pages/settings-components/import-recipekeeper/import-recipekeeper.page"
-      ).then((m) => m.ImportRecipeKeeperPage),
+      import("./pages/settings-components/import-recipekeeper/import-recipekeeper.page").then(
+        (m) => m.ImportRecipeKeeperPage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.importRecipeKeeper.tabTitle",
   },
   {
     path: RouteMap.ImportPepperplatePage.path,
     loadComponent: () =>
-      import(
-        "./pages/settings-components/import-pepperplate/import-pepperplate.page"
-      ).then((m) => m.ImportPepperplatePage),
+      import("./pages/settings-components/import-pepperplate/import-pepperplate.page").then(
+        (m) => m.ImportPepperplatePage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.importPepperplate.tabTitle",
   },
   {
     path: RouteMap.ImportTextfilesPage.path,
     loadComponent: () =>
-      import(
-        "./pages/settings-components/import-textfiles/import-textfiles.page"
-      ).then((m) => m.ImportTextfilesPage),
+      import("./pages/settings-components/import-textfiles/import-textfiles.page").then(
+        (m) => m.ImportTextfilesPage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.importTextfiles.tabTitle",
   },
@@ -353,27 +353,27 @@ export const appRoutes: Routes = [
   {
     path: RouteMap.ImportImagesPage.path,
     loadComponent: () =>
-      import(
-        "./pages/settings-components/import-images/import-images.page"
-      ).then((m) => m.ImportImagesPage),
+      import("./pages/settings-components/import-images/import-images.page").then(
+        (m) => m.ImportImagesPage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.importImages.tabTitle",
   },
   {
     path: RouteMap.ShoppingListsPage.path,
     loadComponent: () =>
-      import(
-        "./pages/shopping-list-components/shopping-lists/shopping-lists.page"
-      ).then((m) => m.ShoppingListsPage),
+      import("./pages/shopping-list-components/shopping-lists/shopping-lists.page").then(
+        (m) => m.ShoppingListsPage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.shoppingLists.tabTitle",
   },
   {
     path: RouteMap.ShoppingListPage.path,
     loadComponent: () =>
-      import(
-        "./pages/shopping-list-components/shopping-list/shopping-list.page"
-      ).then((m) => m.ShoppingListPage),
+      import("./pages/shopping-list-components/shopping-list/shopping-list.page").then(
+        (m) => m.ShoppingListPage,
+      ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.shoppingList.tabTitle",
   },

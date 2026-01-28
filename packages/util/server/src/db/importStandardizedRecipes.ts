@@ -21,8 +21,10 @@ export class ImportStandardizedRecipesTooManyRecipesError extends Error {
   }
 }
 
-export interface StandardizedRecipeImportEntry
-  extends Omit<StandardizedRecipeImportEntryForWeb, "images"> {
+export interface StandardizedRecipeImportEntry extends Omit<
+  StandardizedRecipeImportEntryForWeb,
+  "images"
+> {
   images: (string | Buffer)[];
 }
 
