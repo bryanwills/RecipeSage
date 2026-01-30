@@ -2,7 +2,11 @@ import { Component, Input, Output, EventEmitter, inject } from "@angular/core";
 import { LoadingService } from "~/services/loading.service";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { TRPCService } from "../../services/trpc.service";
-import type { RecipeSummary, RecipeSummaryLite } from "@recipesage/prisma";
+import type {
+  RecipeSummary,
+  RecipeSummaryLite,
+  UserPublic,
+} from "@recipesage/prisma";
 
 @Component({
   standalone: true,
@@ -14,6 +18,11 @@ import type { RecipeSummary, RecipeSummaryLite } from "@recipesage/prisma";
 export class SelectRecipeComponent {
   private loadingService = inject(LoadingService);
   private trpcService = inject(TRPCService);
+
+  myProfile?: UserPublic;
+  friendsById?: {
+    [key: string]: UserPublic;
+  };
 
   searchTimeout?: NodeJS.Timeout;
   searchText = "";
@@ -37,6 +46,41 @@ export class SelectRecipeComponent {
   @Output() selectedRecipeChange = new EventEmitter<RecipeSummary>();
 
   recipes: RecipeSummaryLite[] = [];
+
+  constructor() {
+    this.fetchMyProfile();
+    this.fetchFriends();
+  }
+
+  async fetchMyProfile() {
+    const response = await this.trpcService.handle(
+      this.trpcService.trpc.users.getMe.query(),
+      {
+        401: () => {},
+      },
+    );
+    if (!response) return;
+
+    this.myProfile = response;
+  }
+
+  async fetchFriends() {
+    const response = await this.trpcService.handle(
+      this.trpcService.trpc.users.getMyFriends.query(),
+      {
+        401: () => {},
+      },
+    );
+    if (!response) return;
+
+    this.friendsById = response.friends.reduce(
+      (acc, friendEntry) => {
+        acc[friendEntry.id] = friendEntry;
+        return acc;
+      },
+      {} as Record<string, UserPublic>,
+    );
+  }
 
   async search(text: string) {
     const loading = this.loadingService.start();
