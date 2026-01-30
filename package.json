@@ -31,7 +31,7 @@
     "@google-cloud/vision": "^5.3.4",
     "@ionic/angular": "^8.7.17",
     "@julianpoy/recipe-clipper": "^3.2.0",
-    "@ngx-loading-bar/core": "^7.0.0",
+    "@ngx-loading-bar/core": "^7.0.1",
     "@ngx-translate/core": "^16.0.4",
     "@ngx-translate/http-loader": "^16.0.1",
     "@openrouter/ai-sdk-provider": "^2.0.2",
