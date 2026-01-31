@@ -17,7 +17,7 @@ const prompts = {
   [TextToRecipeInputType.Document]:
     "I have scanned a recipe from a document this block of text is the result. Please fix any odd capitalization and save the recipe in JSON format in it's original language. Do not add or invent any information that is not present. Please include all recipe detail and do not summarize. Here's the document text:\n\n",
   [TextToRecipeInputType.Text]:
-    "I have copied some recipe text from the internet. Please fix any odd capitalization and save the recipe in JSON format in it's original language. Do not add or invent any information that is not present. Here's the copied text:\n\n",
+    "I have copied some recipe text from the internet. Please fix any odd capitalization and save the recipe in JSON format in it's original language. Do not add or invent any information that is not present in the text. Here's the copied text:\n\n",
   [TextToRecipeInputType.Webpage]:
     "Here's some text from a webpage that contains a recipe. Please grab only the recipe and save it in JSON format in it's original language. Do not add steps, ingredients, or any other content that doesn't exist in the original text. Here's the copied text:\n\n",
 } satisfies Record<TextToRecipeInputType, string>;
