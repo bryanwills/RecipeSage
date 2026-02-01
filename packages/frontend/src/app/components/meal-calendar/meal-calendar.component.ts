@@ -4,12 +4,8 @@ import dayjs, { Dayjs } from "dayjs";
 import { UtilService } from "../../services/util.service";
 import { PreferencesService } from "~/services/preferences.service";
 import { MealPlanPreferenceKey } from "@recipesage/util/shared";
-import {
-  MealName,
-  MealPlan,
-  MealPlanItem,
-} from "../../services/meal-plan.service";
-import type { MealPlanItemSummary, MealPlanSummary } from "@recipesage/prisma";
+import { MealName } from "../../services/meal-plan.service";
+import type { MealPlanItemSummary } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { MealGroupComponent } from "./meal-group/meal-group.component";
 
@@ -21,8 +17,8 @@ import { MealGroupComponent } from "./meal-group/meal-group.component";
   imports: [...SHARED_UI_IMPORTS, MealGroupComponent],
 })
 export class MealCalendarComponent {
-  utilService = inject(UtilService);
-  preferencesService = inject(PreferencesService);
+  private utilService = inject(UtilService);
+  private preferencesService = inject(PreferencesService);
 
   private _mealPlanItems!: MealPlanItemSummary[];
 
