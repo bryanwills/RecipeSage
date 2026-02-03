@@ -21,7 +21,7 @@ export const initCreateAssistantRecipeTool = () =>
         .describe(
           "The source site of the recipe, if it was pulled from a web search",
         )
-        .optional(),
+        .nullable(),
       yield: z
         .string()
         .describe('The yield of the recipe. E.g. "2 servings" or "6 cupcakes"'),
@@ -99,46 +99,48 @@ export const initCreateAssistantRecipeTool = () =>
     },
   });
 
+export const ocrFormatRecipeSchema = z.object({
+  title: z.string().describe("The title of the recipe"),
+  description: z
+    .string()
+    .nullable()
+    .describe("The description provided by the author, if any"),
+  yield: z
+    .string()
+    .nullable()
+    .describe('The yield of the recipe. E.g. "2 servings" or "6 cupcakes"'),
+  activeTime: z
+    .string()
+    .nullable()
+    .describe("The amount of time spent actively preparing the recipe"),
+  totalTime: z
+    .string()
+    .nullable()
+    .describe(
+      "The total amount of time it will take to cook the recipe including prep",
+    ),
+  ingredients: z
+    .string()
+    .nullable()
+    .describe("Multiline string list of ingredients"),
+  instructions: z
+    .string()
+    .nullable()
+    .describe("Multiline string list of instructions"),
+  notes: z
+    .string()
+    .nullable()
+    .describe(
+      "Multiline string of any notes by the author, or content that does not fit into the other fields",
+    ),
+});
+
 export const initOCRFormatRecipeTool = (
   result: StandardizedRecipeImportEntry[],
 ) =>
   tool({
     strict: true,
-    inputSchema: z.object({
-      title: z.string().describe("The title of the recipe"),
-      description: z
-        .string()
-        .optional()
-        .describe("The description provided by the author, if any"),
-      yield: z
-        .string()
-        .optional()
-        .describe('The yield of the recipe. E.g. "2 servings" or "6 cupcakes"'),
-      activeTime: z
-        .string()
-        .optional()
-        .describe("The amount of time spent actively preparing the recipe"),
-      totalTime: z
-        .string()
-        .optional()
-        .describe(
-          "The total amount of time it will take to cook the recipe including prep",
-        ),
-      ingredients: z
-        .string()
-        .optional()
-        .describe("Multiline string list of ingredients"),
-      instructions: z
-        .string()
-        .optional()
-        .describe("Multiline string list of instructions"),
-      notes: z
-        .string()
-        .optional()
-        .describe(
-          "Multiline string of any notes by the author, or content that does not fit into the other fields",
-        ),
-    }),
+    inputSchema: ocrFormatRecipeSchema,
     execute: async ({
       title,
       description,
