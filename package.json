@@ -132,7 +132,7 @@
     "@capacitor/cli": "8.0.2",
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.30.0",
-    "@faker-js/faker": "^9.7.0",
+    "@faker-js/faker": "^10.3.0",
     "@ionic/angular-toolkit": "12.3.0",
     "@nx/devkit": "22.3.3",
     "@nx/esbuild": "22.3.3",
