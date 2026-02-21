@@ -106,7 +106,7 @@
     "tsconfig-paths": "^4.2.0",
     "tslib": "^2.6.2",
     "tsx": "^4.21.0",
-    "typesense": "^2.1.0",
+    "typesense": "^3.0.1",
     "unitz-ts": "^1.0.1",
     "uuid": "^13.0.0",
     "xml-js": "^1.6.11",
