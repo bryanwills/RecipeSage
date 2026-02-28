@@ -63,7 +63,7 @@
     "express": "~5.2.1",
     "extract-zip": "^2.0.1",
     "firebase": "^12.9.0",
-    "firebase-admin": "^13.6.0",
+    "firebase-admin": "^13.7.0",
     "fraction.js": "^5.3.4",
     "fs-extra": "^11.3.3",
     "google-auth-library": "^10.5.0",
