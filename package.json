@@ -139,7 +139,7 @@
     "@nx/eslint": "22.3.3",
     "@nx/eslint-plugin": "22.3.3",
     "@nx/js": "22.3.3",
-    "@nx/s3-cache": "^5.0.0",
+    "@nx/s3-cache": "^5.0.1",
     "@nx/vite": "22.3.3",
     "@nx/vitest": "22.3.3",
     "@nx/web": "22.3.3",
