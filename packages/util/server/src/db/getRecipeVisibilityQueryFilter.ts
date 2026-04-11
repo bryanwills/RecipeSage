@@ -11,20 +11,21 @@ export const getRecipeVisibilityQueryFilter = async (args: {
   tx?: Prisma.TransactionClient;
   userId?: string;
   userIds: string[];
+  friendIds?: Set<string>;
 }) => {
   const { tx = prisma, userId: contextUserId, userIds } = args;
 
-  let friends: Set<string> = new Set();
-  if (contextUserId) {
+  let friendIds: Set<string> = args.friendIds ?? new Set();
+  if (contextUserId && !args.friendIds) {
     const friendships = await getFriendshipIds(contextUserId);
-    friends = new Set(friendships.friends);
+    friendIds = new Set(friendships.friends);
   }
 
   const friendUserIds = userIds.filter(
-    (userId) => friends.has(userId) && userId !== contextUserId,
+    (userId) => friendIds.has(userId) && userId !== contextUserId,
   );
   const nonFriendUserIds = userIds.filter(
-    (userId) => !friends.has(userId) && userId !== contextUserId,
+    (userId) => !friendIds.has(userId) && userId !== contextUserId,
   );
 
   const profileItems = await tx.profileItem.findMany({

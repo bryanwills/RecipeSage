@@ -19,6 +19,7 @@ export const getRecipesWithConstraints = async (args: {
   labels?: string[];
   labelIntersection?: boolean;
   ratings?: (number | null)[];
+  friendIds?: Set<string>;
 }): Promise<{ recipes: RecipeSummaryLite[]; totalCount: number }> => {
   const {
     tx = prisma,
@@ -42,6 +43,7 @@ export const getRecipesWithConstraints = async (args: {
     tx: args.tx,
     userId: contextUserId,
     userIds,
+    friendIds: args.friendIds,
   });
 
   if (!queryFilters.length)

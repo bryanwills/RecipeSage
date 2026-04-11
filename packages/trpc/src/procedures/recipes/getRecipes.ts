@@ -34,9 +34,13 @@ export const getRecipes = publicProcedure
         code: "UNAUTHORIZED",
       });
 
-    if (ctx.session?.userId && input.includeAllFriends) {
+    let friendIds: Set<string> | undefined;
+    if (ctx.session?.userId) {
       const friendships = await getFriendshipIds(ctx.session.userId);
-      userIds.push(...friendships.friends);
+      friendIds = new Set(friendships.friends);
+      if (input.includeAllFriends) {
+        userIds.push(...friendships.friends);
+      }
     }
 
     const result = await getRecipesWithConstraints({
@@ -52,6 +56,7 @@ export const getRecipes = publicProcedure
       labels: input.labels,
       labelIntersection: input.labelIntersection,
       ratings: input.ratings,
+      friendIds,
     });
 
     return result;

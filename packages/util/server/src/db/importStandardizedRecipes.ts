@@ -116,7 +116,7 @@ export const importStandardizedRecipes = async (
     async (tx) => {
       const recipes = await tx.recipe.createManyAndReturn({
         data: entries.map((entry) => ({
-          title: entry.recipe.title,
+          title: (entry.recipe.title || "Untitled").slice(0, 254),
           description: entry.recipe.description || "",
           yield: entry.recipe.yield || "",
           activeTime: entry.recipe.activeTime || "",

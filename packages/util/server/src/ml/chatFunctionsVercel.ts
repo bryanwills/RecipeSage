@@ -74,7 +74,7 @@ export const initCreateAssistantRecipeTool = () =>
 
       const recipe = await prisma.recipe.create({
         data: {
-          title: title || "Unnamed",
+          title: (title || "Unnamed").slice(0, 254),
           description: "",
           folder: "main",
           source: source || "RecipeSage Cooking Assistant",
