@@ -7,9 +7,7 @@ import { FCMToken } from "../models/index.js";
 const invalidFcmTokenErrors = ["messaging/registration-token-not-registered"];
 
 export const sendMessages = (tokens, payload) => {
-  return Promise.all(
-    tokens.map((token) => exports.sendMessage(token, payload)),
-  );
+  return Promise.all(tokens.map((token) => sendMessage(token, payload)));
 };
 
 export const sendMessage = (token, payload) => {
