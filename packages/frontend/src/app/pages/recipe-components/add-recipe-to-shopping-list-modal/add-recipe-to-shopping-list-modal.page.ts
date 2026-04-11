@@ -120,11 +120,19 @@ export class AddRecipeToShoppingListModalPage {
     const items = Object.entries(this.selectedIngredientsByRecipe)
       .map(([recipeId, ingredients]) =>
         (ingredients as ParsedIngredient[]).map((ingredient) => ({
-          title: ingredient.content,
+          title: ingredient.content.trim(),
           recipeId,
         })),
       )
-      .flat();
+      .flat()
+      .filter((item) => item.title.length > 0);
+
+    if (items.length === 0) {
+      this.saving = false;
+      loading.dismiss();
+      this.modalCtrl.dismiss();
+      return;
+    }
 
     const response = await this.trpcService.handle(
       this.trpcService.trpc.shoppingLists.createShoppingListItems.mutate({

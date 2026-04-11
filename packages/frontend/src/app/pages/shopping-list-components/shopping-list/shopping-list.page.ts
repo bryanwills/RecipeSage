@@ -389,16 +389,22 @@ export class ShoppingListPage {
   ) {
     if (!this.shoppingList) return;
 
+    const sanitizedItems = items
+      .map((el) => ({
+        title: el.title.trim(),
+        completed: el.completed,
+        recipeId: el.recipeId,
+      }))
+      .filter((el) => el.title.length > 0);
+
+    if (sanitizedItems.length === 0) return;
+
     const loading = this.loadingService.start();
 
     const response = await this.trpcService.handle(
       this.trpcService.trpc.shoppingLists.createShoppingListItems.mutate({
         shoppingListId: this.shoppingListId,
-        items: items.map((el) => ({
-          title: el.title,
-          completed: el.completed,
-          recipeId: el.recipeId,
-        })),
+        items: sanitizedItems,
       }),
     );
     if (!response) return;
