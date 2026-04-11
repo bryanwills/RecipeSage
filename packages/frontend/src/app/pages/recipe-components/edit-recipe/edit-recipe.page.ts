@@ -1014,6 +1014,23 @@ export class EditRecipePage {
     this.recipe.notes = response.data.notes || "";
     this.recipe.url = url;
 
+    if (!this.recipe.ingredients?.trim() && !this.recipe.instructions?.trim()) {
+      const emptyResultMessage = await this.translate
+        .get("pages.editRecipe.clip.emptyResult")
+        .toPromise();
+      (
+        await this.alertCtrl.create({
+          header: failedHeader,
+          message: emptyResultMessage,
+          buttons: [
+            {
+              text: okay,
+            },
+          ],
+        })
+      ).present();
+    }
+
     if (response.data.imageURL?.trim().length) {
       const IMAGE_LOADING_TIMEOUT = 3000;
 
