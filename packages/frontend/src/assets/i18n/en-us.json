@@ -272,7 +272,6 @@
   "pages.contact.discord": "For any issues, bugs, or feature suggestions, please contact me via our Discord: ",
   "pages.contact.discord.link": "Discord Link",
 
-  "pages.contact.emailMe": "Although I prefer contact via Discord since I get a lot of email, you can email me for urgent or sensitive issues at",
   "pages.contact.socialTitle": "Social Media",
 
   "pages.contribute.tabTitle": "Contribute - RecipeSage",
@@ -761,8 +760,7 @@
   "pages.import.csv": "Import from CSV (PlanToEat, MyRecipeBox & others)",
   "pages.import.pdfs": "Import from PDFs",
   "pages.import.images": "Import from images",
-  "pages.import.fileTooLarge": "This file is too large to upload directly.",
-  "pages.import.fileTooLarge.contact": "Please contact me to have your database imported manually.",
+  "pages.import.fileTooLarge": "This file is too large to import into RecipeSage.",
   "pages.import.upload": "Upload and Import",
   "pages.import.upload.ignoreWarning": "Upload and Import Anyway",
   "pages.import.filePicker.file": "{{fileName}} Selected",

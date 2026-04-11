@@ -6,7 +6,7 @@ import { AlertController, NavController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 
-const MAX_FILE_SIZE_MB = 1000;
+const MAX_FILE_SIZE_MB = 3000;
 
 @Component({
   standalone: true,
