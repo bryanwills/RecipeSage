@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import type { JobSummary } from "@recipesage/prisma";
 import { type JobMeta } from "@recipesage/prisma";
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
@@ -7,11 +5,77 @@ import { importJobFinishCommon } from "../../../index";
 import { textToRecipe, TextToRecipeInputType } from "../../../../ml/index";
 import { cleanLabelTitle } from "@recipesage/util/shared";
 import { downloadS3ToTemp } from "./shared/s3Download";
-import { readFile } from "fs/promises";
+import {
+  countNoteChunks,
+  elementText,
+  extractText,
+  findChild,
+  findChildren,
+  normalizeRecipeText,
+  streamNoteChunks,
+  type XmlElement,
+} from "./shared/enexParsing";
 import xmljs from "xml-js";
+import { mkdtempDisposable, writeFile } from "fs/promises";
+import { randomUUID } from "crypto";
+import path from "path";
 import type { JobQueueItem } from "../../JobQueueItem";
 import { debounceJobUpdateProgress } from "../../../jobs/updateJobProgress";
 import { IMPORT_JOB_STEP_COUNT } from "../processImportJob";
+
+const processNote = async (
+  noteXml: string,
+  importLabels: string[],
+  imageDir: string,
+): Promise<StandardizedRecipeImportEntry | undefined> => {
+  const parsedNote = JSON.parse(
+    xmljs.xml2json(noteXml, { compact: false }),
+  ) as XmlElement;
+  const note = findChild(parsedNote, "note");
+  if (!note) return;
+
+  const cdataText = elementText(findChild(note, "content"));
+  if (!cdataText) return;
+
+  const parsedCdata = JSON.parse(
+    xmljs.xml2json(cdataText, { compact: false }),
+  ) as XmlElement;
+  const enNote = findChild(parsedCdata, "en-note");
+
+  const recipeText = normalizeRecipeText(extractText(enNote));
+  if (!recipeText.length) return;
+
+  const recipe = await textToRecipe(recipeText, TextToRecipeInputType.Document);
+  if (!recipe) return;
+
+  const titleText = elementText(findChild(note, "title")).trim();
+  if (titleText) recipe.recipe.title = titleText;
+
+  const noteAttributes = findChild(note, "note-attributes");
+  if (noteAttributes) {
+    const sourceUrl = elementText(
+      findChild(noteAttributes, "source-url"),
+    ).trim();
+    if (sourceUrl) recipe.recipe.url = sourceUrl;
+    const author = elementText(findChild(noteAttributes, "author")).trim();
+    if (author && !recipe.recipe.source) recipe.recipe.source = author;
+  }
+
+  const labels = findChildren(note, "tag")
+    .map((t) => cleanLabelTitle(elementText(t)))
+    .filter((l) => l.length);
+  recipe.labels.push(...labels, ...importLabels);
+
+  for (const resource of findChildren(note, "resource")) {
+    const base64 = elementText(findChild(resource, "data"));
+    if (!base64) continue;
+    const imagePath = path.join(imageDir, randomUUID());
+    await writeFile(imagePath, Buffer.from(base64, "base64"));
+    recipe.images.push(imagePath);
+  }
+
+  return recipe;
+};
 
 export async function enexImportJobHandler(
   job: JobSummary,
@@ -25,53 +89,7 @@ export async function enexImportJobHandler(
   }
 
   await using downloaded = await downloadS3ToTemp(queueItem.storageKey);
-
-  const xml = await readFile(downloaded.filePath, "utf8");
-  const data = JSON.parse(xmljs.xml2json(xml, { compact: true, spaces: 4 }));
-
-  const grabFieldText = (field: any) => {
-    if (!field) return "";
-    if (field.li && Array.isArray(field.li)) {
-      return field.li.map((item: any) => item._text).join("\n");
-    }
-
-    return field._text || "";
-  };
-
-  const grabLabelTitles = (field: any) => {
-    if (!field) return [];
-    if (field._text) return [cleanLabelTitle(field._text)];
-    if (Array.isArray(field) && field.length)
-      return field.map((item) => cleanLabelTitle(item._text));
-
-    return [];
-  };
-
-  const grabImageBuffers = (field: any) => {
-    if (!field) return [];
-    if (field._text) return [Buffer.from(field._text, "base64")];
-    if (field.data?._text) return [Buffer.from(field.data._text, "base64")];
-    if (Array.isArray(field) && field.length)
-      return field
-        .map((item) => item._text || item.data?._text)
-        .filter((item) => item)
-        .map((item) => Buffer.from(item, "base64"));
-
-    return [];
-  };
-
-  const recursiveGrabText = (field: any) => {
-    let text = field?._text || "";
-
-    if (typeof field === "object" && !Array.isArray(field)) {
-      for (const key of Object.keys(field)) {
-        if (!(key in field)) continue;
-        const childText = recursiveGrabText(field[key]);
-        text += `\n${childText}`;
-      }
-    }
-    return text;
-  };
+  await using imageDir = await mkdtempDisposable("/tmp/");
 
   const standardizedRecipeImportInput: StandardizedRecipeImportEntry[] = [];
 
@@ -80,52 +98,12 @@ export async function enexImportJobHandler(
     userId: job.userId,
   });
 
-  // We want to support both single-note evernote files as well as multi-note
-  const entries = Array.isArray(data["en-export"].note)
-    ? data["en-export"].note
-    : [data["en-export"].note];
-  const totalCount = entries.length;
+  const totalCount = await countNoteChunks(downloaded.filePath);
   let processedCount = 0;
-  for (const enexRecipe of entries) {
-    if (!enexRecipe.content._cdata) continue;
 
-    let recipeText = "";
-    const cdata = JSON.parse(
-      xmljs.xml2json(enexRecipe.content._cdata, {
-        compact: true,
-        spaces: 4,
-      }),
-    );
-
-    if (Array.isArray(cdata["en-note"].div)) {
-      for (const element of cdata["en-note"].div) {
-        recipeText += `\n${recursiveGrabText(element)}`;
-      }
-    } else if (typeof cdata["en-note"].div === "object") {
-      recipeText += `\n${recursiveGrabText(cdata["en-note"].div)}`;
-    }
-
-    recipeText = recipeText
-      .split("\n")
-      .filter((el) => el?.trim())
-      .join("\n");
-
-    if (!recipeText.trim().length) continue;
-
-    const recipe = await textToRecipe(
-      recipeText,
-      TextToRecipeInputType.Document,
-    );
-    if (!recipe) {
-      continue;
-    }
-
-    recipe.recipe.title = grabFieldText(enexRecipe.title);
-    recipe.recipe.folder = "main";
-    recipe.labels.push(...grabLabelTitles(enexRecipe.tag), ...importLabels);
-    recipe.images.push(...grabImageBuffers(enexRecipe.resource));
-
-    standardizedRecipeImportInput.push(recipe);
+  for await (const noteXml of streamNoteChunks(downloaded.filePath)) {
+    const recipe = await processNote(noteXml, importLabels, imageDir.path);
+    if (recipe) standardizedRecipeImportInput.push(recipe);
 
     processedCount++;
     onProgress({
@@ -140,6 +118,6 @@ export async function enexImportJobHandler(
     job,
     userId: job.userId,
     standardizedRecipeImportInput,
-    importTempDirectory: undefined,
+    importTempDirectory: imageDir.path,
   });
 }
