@@ -29,6 +29,7 @@ export enum SupportedLanguages {
   FI = "fi", // Finnish
   SV = "sv", // Swedish
   RO = "ro", // Romanian
+  CS = "cs", // Czech
 }
 
 export enum SupportedFontSize {
