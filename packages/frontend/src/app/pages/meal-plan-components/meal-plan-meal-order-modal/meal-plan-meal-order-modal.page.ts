@@ -1,5 +1,5 @@
 import { Component, inject, Input, type OnInit } from "@angular/core";
-import { ModalController } from "@ionic/angular";
+import { type ItemReorderEventDetail, ModalController } from "@ionic/angular";
 import {
   DEFAULT_MEALS,
   DEFAULT_MEAL_COLORS,
@@ -54,6 +54,31 @@ export class MealPlanMealOrderModalPage implements OnInit {
     if (index === this.entries.length - 1 && this.entries[index].name.trim()) {
       this.entries.push({ name: "", color: null, isDefault: false });
     }
+  }
+
+  onReorder(event: CustomEvent<ItemReorderEventDetail>) {
+    const item = this.entries.splice(event.detail.from, 1)[0];
+    this.entries.splice(event.detail.to, 0, item);
+
+    if (this.openColorPickerIndex !== null) {
+      if (this.openColorPickerIndex === event.detail.from) {
+        this.openColorPickerIndex = event.detail.to;
+      } else {
+        if (
+          event.detail.from < this.openColorPickerIndex &&
+          event.detail.to >= this.openColorPickerIndex
+        ) {
+          this.openColorPickerIndex--;
+        } else if (
+          event.detail.from > this.openColorPickerIndex &&
+          event.detail.to <= this.openColorPickerIndex
+        ) {
+          this.openColorPickerIndex++;
+        }
+      }
+    }
+
+    event.detail.complete(false);
   }
 
   removeEntry(index: number) {
