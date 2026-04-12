@@ -22,7 +22,7 @@
       </ion-avatar>
     }
     <ion-label>
-      <h2>{{ mealItem.title }}</h2>
+      <h1>{{ mealItem.title }}</h1>
       <p class="mealItem-meta">
         <ion-icon name="calendar"></ion-icon>
         <span>
@@ -54,6 +54,27 @@
       }
     </ion-label>
   </ion-item>
+
+  @if (parsedNotes.length > 0) {
+    <ion-item lines="none">
+      <ion-icon name="document-text" slot="start"></ion-icon>
+      <ion-label>
+        <p>{{ "pages.mealPlanItemDetailsModal.notes" | translate }}</p>
+      </ion-label>
+    </ion-item>
+    <ion-item lines="none">
+      <ion-label class="ion-text-wrap">
+        @for (noteLine of parsedNotes; track noteLine) {
+          <p
+            dir="auto"
+            [innerHTML]="noteLine.htmlContent"
+            [ngClass]="{ header: noteLine.isHeader }"
+            class="ion-text-wrap"
+          ></p>
+        }
+      </ion-label>
+    </ion-item>
+  }
 
   <br />
 

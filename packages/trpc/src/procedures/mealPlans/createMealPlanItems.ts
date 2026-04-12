@@ -29,6 +29,7 @@ export const createMealPlanItems = publicProcedure
               z.literal("other"),
             ]),
             recipeId: z.uuid().nullable(),
+            notes: z.string().max(10000).optional(),
           }),
         )
         .min(1),
@@ -56,6 +57,7 @@ export const createMealPlanItems = publicProcedure
         scheduledDate: new Date(el.scheduledDate),
         meal: el.meal,
         recipeId: el.recipeId,
+        notes: el.notes ?? "",
       })),
     });
 

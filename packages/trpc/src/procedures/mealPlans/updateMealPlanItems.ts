@@ -30,6 +30,7 @@ export const updateMealPlanItems = publicProcedure
               z.literal("other"),
             ]),
             recipeId: z.uuid().nullable(),
+            notes: z.string().max(10000).optional(),
           }),
         )
         .min(1)
@@ -82,6 +83,7 @@ export const updateMealPlanItems = publicProcedure
             scheduledDate: new Date(item.scheduledDate),
             meal: item.meal,
             recipeId: item.recipeId,
+            notes: item.notes,
           },
         });
       }

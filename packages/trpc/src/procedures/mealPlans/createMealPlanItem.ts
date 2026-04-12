@@ -26,6 +26,7 @@ export const createMealPlanItem = publicProcedure
         z.literal("other"),
       ]),
       recipeId: z.uuid().nullable(),
+      notes: z.string().max(10000).optional(),
     }),
   )
   .mutation(async ({ ctx, input }) => {
@@ -50,6 +51,7 @@ export const createMealPlanItem = publicProcedure
         scheduledDate: new Date(input.scheduledDate),
         meal: input.meal,
         recipeId: input.recipeId,
+        notes: input.notes ?? "",
       },
     });
 

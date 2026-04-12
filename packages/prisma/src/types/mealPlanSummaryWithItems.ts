@@ -27,6 +27,7 @@ export const mealPlanSummaryWithItems = {
         id: true,
         mealPlanId: true,
         title: true,
+        notes: true,
         scheduled: true,
         scheduledDate: true,
         meal: true,

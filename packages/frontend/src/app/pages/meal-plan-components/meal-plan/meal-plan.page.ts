@@ -19,6 +19,7 @@ import {
 } from "@recipesage/util/shared";
 
 import { MealCalendarComponent } from "~/components/meal-calendar/meal-calendar.component";
+import { NullStateComponent } from "~/components/null-state/null-state.component";
 import { NewMealPlanItemModalPage } from "../new-meal-plan-item-modal/new-meal-plan-item-modal.page";
 import { MealPlanPopoverPage } from "~/pages/meal-plan-components/meal-plan-popover/meal-plan-popover.page";
 import { MealPlanItemDetailsModalPage } from "~/pages/meal-plan-components/meal-plan-item-details-modal/meal-plan-item-details-modal.page";
@@ -38,7 +39,7 @@ import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
   selector: "page-meal-plan",
   templateUrl: "meal-plan.page.html",
   styleUrls: ["meal-plan.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, MealCalendarComponent],
+  imports: [...SHARED_UI_IMPORTS, MealCalendarComponent, NullStateComponent],
 })
 export class MealPlanPage {
   private route = inject(ActivatedRoute);
@@ -181,6 +182,7 @@ export class MealPlanPage {
     title: string;
     recipeId?: string;
     meal: string;
+    notes?: string;
     scheduledDate: string;
   }) {
     const loading = this.loadingService.start();
@@ -191,6 +193,7 @@ export class MealPlanPage {
         title: item.title,
         recipeId: item.recipeId || null,
         meal: item.meal as any, // TODO: Refine this type so that it aligns with Zod
+        notes: item.notes,
         scheduledDate: item.scheduledDate,
       }),
     );
@@ -270,6 +273,7 @@ export class MealPlanPage {
         recipe: mealItem.recipe,
         scheduledDate: dateStamp,
         meal: mealItem.meal,
+        notes: mealItem.notes,
       },
     });
     modal.present();
@@ -286,6 +290,7 @@ export class MealPlanPage {
         recipeId: item.recipeId,
         scheduledDate: item.scheduledDate,
         meal: item.meal,
+        notes: item.notes,
       }),
     );
     loading.dismiss();
@@ -637,6 +642,7 @@ export class MealPlanPage {
             .add(dayDiff, "day")
             .format("YYYY-MM-DD"),
           meal: item.meal as any, // TODO: Refine this type so that it aligns with Zod
+          notes: item.notes,
         }));
       })
       .flat();
@@ -670,6 +676,7 @@ export class MealPlanPage {
             .add(dayDiff, "day")
             .format("YYYY-MM-DD"),
           meal: item.meal as any, // TODO: Refine this type so that it aligns with Zod
+          notes: item.notes,
         }));
       })
       .flat();

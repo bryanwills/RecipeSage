@@ -16,6 +16,7 @@ import { AddRecipeToShoppingListModalPage } from "~/pages/recipe-components/add-
 
 import dayjs from "dayjs";
 import type { MealPlanItemSummary } from "@recipesage/prisma";
+import { parseNotes } from "@recipesage/util/shared";
 import { TRPCService } from "../../../services/trpc.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 
@@ -45,6 +46,14 @@ export class MealPlanItemDetailsModalPage {
   })
   mealItem!: MealPlanItemSummary;
 
+  parsedNotes: ReturnType<typeof parseNotes> = [];
+
+  ngOnInit() {
+    if (this.mealItem.notes) {
+      this.parsedNotes = parseNotes(this.mealItem.notes);
+    }
+  }
+
   openRecipe() {
     if (!this.mealItem.recipe) return;
 
@@ -66,6 +75,7 @@ export class MealPlanItemDetailsModalPage {
           ? dayjs(this.mealItem.scheduled).format("YYYY-MM-DD")
           : this.mealItem.scheduledDate,
         meal: this.mealItem.meal,
+        notes: this.mealItem.notes,
       },
     });
     modal.present();
@@ -83,6 +93,7 @@ export class MealPlanItemDetailsModalPage {
         recipeId: item.recipeId,
         scheduledDate: item.scheduledDate,
         meal: item.meal,
+        notes: item.notes,
       }),
     );
     loading.dismiss();
@@ -103,6 +114,7 @@ export class MealPlanItemDetailsModalPage {
         recipe: this.mealItem.recipe,
         scheduledDate: this.mealItem.scheduledDate,
         meal: this.mealItem.meal,
+        notes: this.mealItem.notes,
       },
     });
     modal.present();
@@ -120,6 +132,7 @@ export class MealPlanItemDetailsModalPage {
         recipeId: item.recipeId,
         scheduledDate: item.scheduledDate,
         meal: item.meal,
+        notes: item.notes,
       }),
     );
 

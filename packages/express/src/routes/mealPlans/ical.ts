@@ -50,6 +50,7 @@ export const mealPlansIcalHandler = defineHandler(
       select: {
         id: true,
         title: true,
+        notes: true,
         scheduled: true,
         scheduledDate: true,
         meal: true,
@@ -104,6 +105,7 @@ export const mealPlansIcalHandler = defineHandler(
             .scheduledDate,
         allDay: true,
         summary: mealPlanItem.recipe?.title || mealPlanItem.title,
+        description: mealPlanItem.notes || undefined,
         url: `https://recipesage.com/#/meal-planners/${mealPlan.id}`,
         attachments: signedImages,
         lastModified,

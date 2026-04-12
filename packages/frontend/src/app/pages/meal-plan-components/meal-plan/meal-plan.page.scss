@@ -2,6 +2,7 @@
   .date-header {
     cursor: pointer;
     font-weight: bold;
+    user-select: none;
     --background: var(--ion-background-color);
 
     &:hover {
@@ -20,6 +21,7 @@
     cursor: pointer;
     font-weight: bold;
     margin-top: 16px;
+    user-select: none;
     --background: var(--ion-background-color);
 
     &:hover {
