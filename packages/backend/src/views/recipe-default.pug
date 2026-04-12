@@ -191,6 +191,23 @@ html
         display: none;
       }
 
+      .noteTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 8px 0;
+      }
+
+      .noteTable th,
+      .noteTable td {
+        border: 1px solid #ccc;
+        padding: 6px 10px;
+      }
+
+      .noteTable th {
+        font-weight: bold;
+        background: #f4f5f8;
+      }
+
       .printPreview span.recipe-source-url {
         display: block;
       }
@@ -278,7 +295,7 @@ html
     div(class='ingrInstrContainer')
       div(class='ingredients')
         each ingredient in recipe.ingredients
-          p(class=('ingredient ' + (ingredient.isHeader ? 'ingredientHeader' : ''))) !{ingredient.content}
+          p(class=('ingredient ' + (ingredient.isHeader ? 'ingredientHeader' : ''))) !{ingredient.htmlContent}
         if modifiers.scale !== 1
           p
             i Ingredients at&nbsp;
@@ -289,20 +306,19 @@ html
           div(class='instruction')
             if instruction.isHeader
               span
-              b !{instruction.content}
+              b !{instruction.htmlContent}
             else
               b(class='count')= instruction.count
-              span !{instruction.content}
+              span !{instruction.htmlContent}
 
     if recipe.notes && !modifiers.hideNotes
       p(class='sans')
         b Notes:
       each note in recipe.notes
-        div(class='note')
-          if note.isHeader
-            b= note.content
-          else
-            span= note.content
+        if note.isTable
+          div !{note.htmlContent}
+        else
+          div(class='note') !{note.htmlContent}
       br
 
     if recipe.url && !modifiers.hideSourceURL

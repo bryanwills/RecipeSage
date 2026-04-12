@@ -109,24 +109,25 @@ export class PrintRecipeModalPage {
       },
     ];
 
+    const token = this.utilService.getToken();
     for (const template of this.templates) {
       template.modifiers.scale = this.scale;
       template.url = this.utilService.generateRecipeTemplateURL(
         this.recipe.id,
         template.modifiers,
       );
+      if (token) template.url += `&token=${token}`;
     }
   }
 
   print() {
     const template = this.templates[this.selectedTemplate];
-    const printUrl = this.utilService.generateRecipeTemplateURL(
-      this.recipe.id,
-      {
-        ...template.modifiers,
-        print: true,
-      },
-    );
+    let printUrl = this.utilService.generateRecipeTemplateURL(this.recipe.id, {
+      ...template.modifiers,
+      print: true,
+    });
+    const token = this.utilService.getToken();
+    if (token) printUrl += `&token=${token}`;
     window.open(printUrl, "_blank", 'rel="noopener"');
     this.modalCtrl.dismiss();
   }

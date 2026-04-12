@@ -461,7 +461,7 @@ export class UtilService {
       .map(([key, value]) => `${key}=${value}`)
       .join("&");
 
-    const url = `${this.getBase()}embed/recipe/${recipeId}?${modifierQuery}`;
+    const url = `${this.getBase()}print/recipe/${recipeId}?${modifierQuery}`;
 
     return url;
   }

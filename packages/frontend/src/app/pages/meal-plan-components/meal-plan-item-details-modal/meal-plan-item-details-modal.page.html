@@ -65,12 +65,16 @@
     <ion-item lines="none">
       <ion-label class="ion-text-wrap">
         @for (noteLine of parsedNotes; track noteLine) {
-          <p
-            dir="auto"
-            [innerHTML]="noteLine.htmlContent"
-            [ngClass]="{ header: noteLine.isHeader }"
-            class="ion-text-wrap"
-          ></p>
+          @if (noteLine.isTable) {
+            <div [innerHTML]="noteLine.htmlContent" class="ion-text-wrap"></div>
+          } @else {
+            <p
+              dir="auto"
+              [innerHTML]="noteLine.htmlContent"
+              [ngClass]="{ header: noteLine.isHeader }"
+              class="ion-text-wrap"
+            ></p>
+          }
         }
       </ion-label>
     </ion-item>

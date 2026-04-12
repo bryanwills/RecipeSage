@@ -6,6 +6,8 @@ import {
   parseIngredients,
   parseInstructions,
   parseNotes,
+  applyInlineFormatting,
+  stripInlineFormatting,
   isRtlText,
 } from "./parsers";
 
@@ -416,6 +418,261 @@ describe("parsers", () => {
         const result = parseNotes("Keep refrigerated");
         expect(result[0].isRtl).toBe(false);
       });
+    });
+
+    describe("tables", () => {
+      it("parses a basic table", () => {
+        const result = parseNotes(
+          "| Name | Amount |\n| --- | --- |\n| Salt | 1 tsp |",
+        );
+        expect(result).toHaveLength(1);
+        expect(result[0].isTable).toBe(true);
+        expect(result[0].isHeader).toBe(false);
+        expect(result[0].htmlContent).toContain("<table");
+        expect(result[0].htmlContent).toContain("<th>Name</th>");
+        expect(result[0].htmlContent).toContain("<th>Amount</th>");
+        expect(result[0].htmlContent).toContain("<td>Salt</td>");
+        expect(result[0].htmlContent).toContain("<td>1 tsp</td>");
+      });
+
+      it("parses a table with alignment", () => {
+        const result = parseNotes(
+          "| Left | Center | Right |\n| --- | :---: | ---: |\n| a | b | c |",
+        );
+        expect(result).toHaveLength(1);
+        expect(result[0].htmlContent).toContain("<th>Left</th>");
+        expect(result[0].htmlContent).toContain(
+          '<th style="text-align:center">Center</th>',
+        );
+        expect(result[0].htmlContent).toContain(
+          '<th style="text-align:right">Right</th>',
+        );
+      });
+
+      it("preserves content before and after a table", () => {
+        const result = parseNotes(
+          "Some note\n| A | B |\n| --- | --- |\n| 1 | 2 |\nAnother note",
+        );
+        expect(result).toHaveLength(3);
+        expect(result[0].isTable).toBe(false);
+        expect(result[0].content).toBe("Some note");
+        expect(result[1].isTable).toBe(true);
+        expect(result[2].isTable).toBe(false);
+        expect(result[2].content).toBe("Another note");
+      });
+
+      it("parses a header-only table with no body rows", () => {
+        const result = parseNotes("| A | B |\n| --- | --- |");
+        expect(result).toHaveLength(1);
+        expect(result[0].isTable).toBe(true);
+        expect(result[0].htmlContent).toContain("<th>A</th>");
+        expect(result[0].htmlContent).not.toContain("<tbody>");
+      });
+
+      it("does not treat pipe lines without separator as table", () => {
+        const result = parseNotes("| not a table |");
+        expect(result).toHaveLength(1);
+        expect(result[0].isTable).toBe(false);
+      });
+
+      it("sets isTable to false on non-table lines", () => {
+        const result = parseNotes("Regular note");
+        expect(result[0].isTable).toBe(false);
+      });
+
+      it("preserves raw content for plain text output", () => {
+        const input = "| A | B |\n| --- | --- |\n| 1 | 2 |";
+        const result = parseNotes(input);
+        expect(result[0].content).toBe(input);
+      });
+
+      it("handles empty cells", () => {
+        const result = parseNotes("| A | B |\n| --- | --- |\n| | val |");
+        expect(result).toHaveLength(1);
+        expect(result[0].isTable).toBe(true);
+        expect(result[0].htmlContent).toContain("<td></td>");
+        expect(result[0].htmlContent).toContain("<td>val</td>");
+      });
+
+      it("handles body rows with fewer columns than header", () => {
+        const result = parseNotes(
+          "| A | B | C |\n| --- | --- | --- |\n| only |",
+        );
+        expect(result).toHaveLength(1);
+        expect(result[0].isTable).toBe(true);
+        expect(result[0].htmlContent).toContain("<td>only</td>");
+        expect(result[0].htmlContent).toMatch(/<td><\/td>.*<td><\/td>/);
+      });
+
+      it("drops extra columns in body rows beyond header count", () => {
+        const result = parseNotes("| A |\n| --- |\n| 1 | 2 | 3 |");
+        expect(result).toHaveLength(1);
+        expect(result[0].htmlContent).toContain("<td>1</td>");
+        expect(result[0].htmlContent).not.toContain("<td>2</td>");
+        expect(result[0].htmlContent).not.toContain("<td>3</td>");
+      });
+
+      it("passes cell content through to html", () => {
+        const result = parseNotes("| Header |\n| --- |\n| some content |");
+        expect(result).toHaveLength(1);
+        expect(result[0].htmlContent).toContain("<td>some content</td>");
+      });
+
+      it("handles escaped pipes in cell content", () => {
+        const result = parseNotes(
+          "| Formula | Result |\n| --- | --- |\n| a \\| b | yes |",
+        );
+        expect(result).toHaveLength(1);
+        expect(result[0].htmlContent).toContain("<td>a | b</td>");
+        expect(result[0].htmlContent).toContain("<td>yes</td>");
+      });
+
+      it("handles multiple tables separated by text", () => {
+        const result = parseNotes(
+          "| A |\n| --- |\n| 1 |\nSome text\n| B |\n| --- |\n| 2 |",
+        );
+        expect(result).toHaveLength(3);
+        expect(result[0].isTable).toBe(true);
+        expect(result[1].isTable).toBe(false);
+        expect(result[1].content).toBe("Some text");
+        expect(result[2].isTable).toBe(true);
+      });
+
+      it("handles table immediately after a header note", () => {
+        const result = parseNotes(
+          "[Section]\n| A | B |\n| --- | --- |\n| 1 | 2 |",
+        );
+        expect(result).toHaveLength(2);
+        expect(result[0].isHeader).toBe(true);
+        expect(result[0].content).toBe("Section");
+        expect(result[1].isTable).toBe(true);
+      });
+
+      it("handles whitespace-only cells", () => {
+        const result = parseNotes("|   |   |\n| --- | --- |\n|   |   |");
+        expect(result).toHaveLength(1);
+        expect(result[0].isTable).toBe(true);
+        expect(result[0].htmlContent).toContain("<th></th>");
+        expect(result[0].htmlContent).toContain("<td></td>");
+      });
+    });
+  });
+
+  describe("applyInlineFormatting", () => {
+    it("converts **bold** to <b> tags", () => {
+      expect(applyInlineFormatting("some **bold** text")).toBe(
+        "some <b>bold</b> text",
+      );
+    });
+
+    it("converts *italic* to <i> tags", () => {
+      expect(applyInlineFormatting("some *italic* text")).toBe(
+        "some <i>italic</i> text",
+      );
+    });
+
+    it("converts __underline__ to <u> tags", () => {
+      expect(applyInlineFormatting("some __underline__ text")).toBe(
+        "some <u>underline</u> text",
+      );
+    });
+
+    it("converts ***bold italic*** to nested <b><i> tags", () => {
+      expect(applyInlineFormatting("***both***")).toBe("<b><i>both</i></b>");
+    });
+
+    it("handles multiple formats in one line", () => {
+      expect(
+        applyInlineFormatting("**bold** and *italic* and __underline__"),
+      ).toBe("<b>bold</b> and <i>italic</i> and <u>underline</u>");
+    });
+
+    it("handles nested bold within italic context", () => {
+      expect(applyInlineFormatting("*italic **bold** italic*")).toBe(
+        "<i>italic <b>bold</b> italic</i>",
+      );
+    });
+
+    it("returns plain text unchanged", () => {
+      expect(applyInlineFormatting("no formatting here")).toBe(
+        "no formatting here",
+      );
+    });
+
+    it("leaves unmatched delimiters unchanged", () => {
+      expect(applyInlineFormatting("a single * asterisk")).toBe(
+        "a single * asterisk",
+      );
+      expect(applyInlineFormatting("a __ single")).toBe("a __ single");
+    });
+  });
+
+  describe("stripInlineFormatting", () => {
+    it("strips **bold** markers", () => {
+      expect(stripInlineFormatting("some **bold** text")).toBe(
+        "some bold text",
+      );
+    });
+
+    it("strips *italic* markers", () => {
+      expect(stripInlineFormatting("some *italic* text")).toBe(
+        "some italic text",
+      );
+    });
+
+    it("strips __underline__ markers", () => {
+      expect(stripInlineFormatting("some __underline__ text")).toBe(
+        "some underline text",
+      );
+    });
+
+    it("strips ***bold italic*** markers", () => {
+      expect(stripInlineFormatting("***both***")).toBe("both");
+    });
+
+    it("strips multiple formats in one line", () => {
+      expect(
+        stripInlineFormatting("**bold** and *italic* and __underline__"),
+      ).toBe("bold and italic and underline");
+    });
+
+    it("leaves plain text unchanged", () => {
+      expect(stripInlineFormatting("no formatting here")).toBe(
+        "no formatting here",
+      );
+    });
+  });
+
+  describe("inline formatting in parsers", () => {
+    it("applies inline formatting in parseIngredients htmlContent", () => {
+      const result = parseIngredients("**bold** ingredient", 1);
+      expect(result[0].htmlContent).toContain("<b>bold</b>");
+      expect(result[0].content).toBe("**bold** ingredient");
+      expect(result[0].plaintextContent).toBe("bold ingredient");
+    });
+
+    it("applies inline formatting in parseInstructions htmlContent", () => {
+      const result = parseInstructions("*italic* step", 1);
+      expect(result[0].htmlContent).toContain("<i>italic</i>");
+      expect(result[0].content).toBe("*italic* step");
+      expect(result[0].plaintextContent).toBe("italic step");
+    });
+
+    it("applies inline formatting in parseNotes htmlContent", () => {
+      const result = parseNotes("__underlined__ note");
+      expect(result[0].htmlContent).toContain("<u>underlined</u>");
+      expect(result[0].content).toBe("__underlined__ note");
+      expect(result[0].plaintextContent).toBe("underlined note");
+    });
+
+    it("applies inline formatting in table cells", () => {
+      const result = parseNotes(
+        "| **Bold** | *Italic* |\n| --- | --- |\n| __underline__ | plain |",
+      );
+      expect(result[0].htmlContent).toContain("<th><b>Bold</b></th>");
+      expect(result[0].htmlContent).toContain("<th><i>Italic</i></th>");
+      expect(result[0].htmlContent).toContain("<td><u>underline</u></td>");
+      expect(result[0].htmlContent).toContain("<td>plain</td>");
     });
   });
 

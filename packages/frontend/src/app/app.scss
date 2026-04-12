@@ -237,6 +237,23 @@ ion-button.button-outline {
   color-scheme: light;
 }
 
+.noteTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+
+  th,
+  td {
+    border: 1px solid var(--ion-border-color);
+    padding: 6px 10px;
+  }
+
+  th {
+    font-weight: bold;
+    background: var(--ion-background-tint-color);
+  }
+}
+
 .scaleRecipeModal {
   --max-width: 300px;
   --max-height: 300px;

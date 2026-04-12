@@ -55,6 +55,22 @@ const replaceFractionsInText = (rawText: string): string => {
   });
 };
 
+export const applyInlineFormatting = (html: string): string => {
+  return html
+    .replace(/\*\*\*(.+?)\*\*\*/g, "<b><i>$1</i></b>")
+    .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+    .replace(/\*(.+?)\*/g, "<i>$1</i>")
+    .replace(/__(.+?)__/g, "<u>$1</u>");
+};
+
+export const stripInlineFormatting = (text: string): string => {
+  return text
+    .replace(/\*\*\*(.+?)\*\*\*/g, "$1")
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1")
+    .replace(/__(.+?)__/g, "$1");
+};
+
 // Convert backslash-newline to <br> or \n based on output format
 const convertEscapedLineContinuations = (
   text: string,
@@ -185,6 +201,7 @@ export const parseIngredients = (
   scale: number,
 ): {
   content: string;
+  plaintextContent: string;
   originalContent: string;
   htmlContent: string;
   complete: boolean;
@@ -197,6 +214,7 @@ export const parseIngredients = (
 
   const lines = ingredients.split(lineSplitRegex).map((match) => ({
     content: match,
+    plaintextContent: match,
     originalContent: match,
     htmlContent: match,
     complete: false,
@@ -301,9 +319,9 @@ export const parseIngredients = (
     }
 
     lines[i].content = convertEscapedLineContinuations(lines[i].content, false);
-    lines[i].htmlContent = convertEscapedLineContinuations(
-      lines[i].htmlContent,
-      true,
+    lines[i].plaintextContent = stripInlineFormatting(lines[i].content);
+    lines[i].htmlContent = applyInlineFormatting(
+      convertEscapedLineContinuations(lines[i].htmlContent, true),
     );
   }
 
@@ -339,6 +357,7 @@ export const parseInstructions = (
   scale: number,
 ): {
   content: string;
+  plaintextContent: string;
   htmlContent: string;
   isHeader: boolean;
   count: number;
@@ -372,18 +391,26 @@ export const parseInstructions = (
 
       stepCount = 1;
 
+      const content = convertEscapedLineContinuations(plainHeader, false);
       return {
-        content: convertEscapedLineContinuations(plainHeader, false),
-        htmlContent: convertEscapedLineContinuations(htmlHeader, true),
+        content,
+        plaintextContent: stripInlineFormatting(content),
+        htmlContent: applyInlineFormatting(
+          convertEscapedLineContinuations(htmlHeader, true),
+        ),
         isHeader: true,
         count: 0,
         complete: false,
         isRtl: isRtlText(plainHeader, true),
       };
     } else {
+      const content = convertEscapedLineContinuations(plainLine, false);
       return {
-        content: convertEscapedLineContinuations(plainLine, false),
-        htmlContent: convertEscapedLineContinuations(htmlLine, true),
+        content,
+        plaintextContent: stripInlineFormatting(content),
+        htmlContent: applyInlineFormatting(
+          convertEscapedLineContinuations(htmlLine, true),
+        ),
         isHeader: false,
         count: stepCount++,
         complete: false,
@@ -393,44 +420,166 @@ export const parseInstructions = (
   });
 };
 
-export const parseNotes = (
-  notes: string,
-): {
+export interface ParsedNote {
   content: string;
+  plaintextContent: string;
   htmlContent: string;
   isHeader: boolean;
+  isTable: boolean;
   isRtl: boolean;
-}[] => {
-  // Starts with [, anything inbetween, ends with ]
+}
+
+const tableRowRegexp = /^\|(.+)\|$/;
+const tableSeparatorRegexp = /^\|( *:?-+:? *\|)+ *$/;
+
+export const parseTableCells = (row: string): string[] => {
+  const cells: string[] = [];
+  const inner = row.slice(1, -1);
+  let current = "";
+  for (let i = 0; i < inner.length; i++) {
+    if (inner[i] === "\\" && i + 1 < inner.length && inner[i + 1] === "|") {
+      current += "|";
+      i++;
+    } else if (inner[i] === "|") {
+      cells.push(current.trim());
+      current = "";
+    } else {
+      current += inner[i];
+    }
+  }
+  cells.push(current.trim());
+  return cells;
+};
+
+const parseTableBlock = (lines: string[]): ParsedNote | null => {
+  if (lines.length < 2) return null;
+
+  const hasSeparator = tableSeparatorRegexp.test(lines[1].trim());
+  if (!hasSeparator) return null;
+
+  const headerCells = parseTableCells(lines[0].trim());
+  const separatorCells = parseTableCells(lines[1].trim());
+
+  if (headerCells.length !== separatorCells.length) return null;
+
+  const alignments = separatorCells.map((sep) => {
+    const left = sep.startsWith(":");
+    const right = sep.endsWith(":");
+    if (left && right) return "center";
+    if (right) return "right";
+    return "left";
+  });
+
+  const bodyLines = lines.slice(2);
+
+  let htmlContent = '<table class="noteTable">';
+  htmlContent += "<thead><tr>";
+  for (let i = 0; i < headerCells.length; i++) {
+    const align =
+      alignments[i] !== "left" ? ` style="text-align:${alignments[i]}"` : "";
+    htmlContent += `<th${align}>${applyInlineFormatting(headerCells[i])}</th>`;
+  }
+  htmlContent += "</tr></thead>";
+
+  if (bodyLines.length > 0) {
+    htmlContent += "<tbody>";
+    for (const line of bodyLines) {
+      const cells = parseTableCells(line.trim());
+      htmlContent += "<tr>";
+      for (let i = 0; i < headerCells.length; i++) {
+        const align =
+          alignments[i] !== "left"
+            ? ` style="text-align:${alignments[i]}"`
+            : "";
+        htmlContent += `<td${align}>${applyInlineFormatting(cells[i] ?? "")}</td>`;
+      }
+      htmlContent += "</tr>";
+    }
+    htmlContent += "</tbody>";
+  }
+
+  htmlContent += "</table>";
+
+  const content = lines.join("\n");
+
+  return {
+    content,
+    plaintextContent: stripInlineFormatting(content),
+    htmlContent,
+    isHeader: false,
+    isTable: true,
+    isRtl: false,
+  };
+};
+
+export const parseNotes = (notes: string): ParsedNote[] => {
   const headerRegexp = /^\[.*\]$/;
 
-  const plainLines = notes.split(lineSplitRegex);
-  const htmlLines = notes.split(lineSplitRegex);
+  const allLines = notes.split(lineSplitRegex);
+  const result: ParsedNote[] = [];
 
-  return plainLines.map((note, idx) => {
-    const plainLine = note.trim();
-    const htmlLine = htmlLines[idx].trim();
+  let i = 0;
+  while (i < allLines.length) {
+    const trimmedLine = allLines[i].trim();
+
+    if (
+      tableRowRegexp.test(trimmedLine) &&
+      i + 1 < allLines.length &&
+      tableSeparatorRegexp.test(allLines[i + 1].trim())
+    ) {
+      const tableLines: string[] = [allLines[i]];
+      let j = i + 1;
+      while (j < allLines.length && tableRowRegexp.test(allLines[j].trim())) {
+        tableLines.push(allLines[j]);
+        j++;
+      }
+
+      const table = parseTableBlock(tableLines);
+      if (table) {
+        result.push(table);
+        i = j;
+        continue;
+      }
+    }
+
+    const plainLine = trimmedLine;
     const headerMatches = plainLine.match(headerRegexp);
 
     if (headerMatches && headerMatches.length > 0) {
-      const plainHeader = plainLine.substring(1, plainLine.length - 1); // Chop off brackets
-      const htmlHeader = `<b class="sectionHeader">${htmlLine.substring(1, htmlLine.length - 1)}</b>`; // Chop off brackets
+      const headerContent = plainLine.substring(1, plainLine.length - 1);
 
-      return {
-        content: convertEscapedLineContinuations(plainHeader, false),
-        htmlContent: convertEscapedLineContinuations(htmlHeader, true),
+      const content = convertEscapedLineContinuations(headerContent, false);
+      result.push({
+        content,
+        plaintextContent: stripInlineFormatting(content),
+        htmlContent: applyInlineFormatting(
+          convertEscapedLineContinuations(
+            `<b class="sectionHeader">${headerContent}</b>`,
+            true,
+          ),
+        ),
         isHeader: true,
-        isRtl: isRtlText(plainHeader),
-      };
+        isTable: false,
+        isRtl: isRtlText(headerContent),
+      });
     } else {
-      return {
-        content: convertEscapedLineContinuations(plainLine, false),
-        htmlContent: convertEscapedLineContinuations(htmlLine, true),
+      const content = convertEscapedLineContinuations(plainLine, false);
+      result.push({
+        content,
+        plaintextContent: stripInlineFormatting(content),
+        htmlContent: applyInlineFormatting(
+          convertEscapedLineContinuations(plainLine, true),
+        ),
         isHeader: false,
+        isTable: false,
         isRtl: isRtlText(plainLine),
-      };
+      });
     }
-  });
+
+    i++;
+  }
+
+  return result;
 };
 
 /* eslint-disable no-control-regex */

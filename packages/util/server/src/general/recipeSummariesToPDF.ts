@@ -3,8 +3,10 @@ import {
   parseIngredients,
   parseInstructions,
   parseNotes,
+  parseTableCells,
+  ParsedNote,
 } from "@recipesage/util/shared";
-import sanitizeHtml from "sanitize-html";
+import { sanitizeRemoveHtmlFromString } from "./sanitizeRemoveHtmlFromString";
 import { fetchURL } from "../general/fetch";
 import { Content, Margins, TDocumentDefinitions } from "pdfmake/interfaces";
 import path from "path";
@@ -34,19 +36,85 @@ export interface ExportOptions {
   includeImageUrls?: boolean;
 }
 
+const inlineFormattingRegex =
+  /(\*\*\*(.+?)\*\*\*|\*\*(.+?)\*\*|\*(.+?)\*|__(.+?)__)/g;
+
+const applyInlineFormattingPdfmake = (text: string): Content => {
+  const segments: Content[] = [];
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(inlineFormattingRegex)) {
+    if (match.index > lastIndex) {
+      segments.push(text.slice(lastIndex, match.index));
+    }
+
+    if (match[2]) {
+      segments.push({ text: match[2], bold: true, italics: true });
+    } else if (match[3]) {
+      segments.push({ text: match[3], bold: true });
+    } else if (match[4]) {
+      segments.push({ text: match[4], italics: true });
+    } else if (match[5]) {
+      segments.push({ text: match[5], decoration: "underline" });
+    }
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (segments.length === 0) return text;
+
+  if (lastIndex < text.length) {
+    segments.push(text.slice(lastIndex));
+  }
+
+  return { text: segments };
+};
+
 const parsedToSchema = (
   parsedItems: { content: string; isHeader: boolean }[],
   includeMargin: boolean,
-): {
-  text: string;
-  bold: boolean;
-  margin: Margins | undefined;
-}[] => {
+): Content[] => {
   return parsedItems.map((item) => ({
-    text: item.content,
+    text: applyInlineFormattingPdfmake(item.content),
     bold: item.isHeader,
-    margin: includeMargin ? [0, 0, 0, 5] : undefined,
+    margin: includeMargin ? ([0, 0, 0, 5] satisfies Margins) : undefined,
   }));
+};
+
+const parsedNotesToSchema = (parsedNotes: ParsedNote[]): Content[] => {
+  return parsedNotes.map((note) => {
+    if (note.isTable) {
+      const lines = note.content.split("\n");
+      const headerRow = lines[0];
+      const bodyRows = lines.slice(2);
+
+      const headerCells = parseTableCells(headerRow.trim());
+      const body: string[][] = [headerCells];
+      for (const row of bodyRows) {
+        const cells = parseTableCells(row.trim());
+        const padded = headerCells.map((_, i) => cells[i] ?? "");
+        body.push(padded);
+      }
+
+      return {
+        table: {
+          headerRows: 1,
+          body: body.map((row, rowIdx) =>
+            row.map((cell) =>
+              rowIdx === 0
+                ? { text: applyInlineFormattingPdfmake(cell), bold: true }
+                : { text: applyInlineFormattingPdfmake(cell) },
+            ),
+          ),
+        },
+        margin: [0, 4, 0, 4] satisfies Margins,
+      };
+    }
+    return {
+      text: applyInlineFormattingPdfmake(note.content),
+      bold: note.isHeader,
+    };
+  });
 };
 
 const recipeToSchema = async (
@@ -137,14 +205,16 @@ const recipeToSchema = async (
   }
 
   const parsedInstructions = parseInstructions(
-    sanitizeHtml(recipe.instructions || ""),
+    sanitizeRemoveHtmlFromString(recipe.instructions || ""),
     1,
   );
   const parsedIngredients = parseIngredients(
-    sanitizeHtml(recipe.ingredients || ""),
+    sanitizeRemoveHtmlFromString(recipe.ingredients || ""),
     1,
   );
-  const parsedNotes = parseNotes(sanitizeHtml(recipe.notes || ""));
+  const parsedNotes = parseNotes(
+    sanitizeRemoveHtmlFromString(recipe.notes || ""),
+  );
   if (recipe.ingredients && recipe.instructions) {
     schema.push({
       columns: [
@@ -175,7 +245,7 @@ const recipeToSchema = async (
       bold: true,
     };
     schema.push(header);
-    schema.push(...parsedToSchema(parsedNotes, false));
+    schema.push(...parsedNotesToSchema(parsedNotes));
   }
   if (recipe.url) {
     schema.push({

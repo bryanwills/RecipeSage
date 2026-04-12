@@ -59,7 +59,7 @@ export class NewShoppingListItemModalPage {
       if (!this.selectedRecipe) return;
 
       items = this.selectedIngredients.map((ingredient) => ({
-        title: ingredient.content,
+        title: ingredient.plaintextContent,
         completed: false,
         recipeId: this.selectedRecipe?.id || null,
       }));

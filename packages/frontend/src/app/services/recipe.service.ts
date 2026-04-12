@@ -11,6 +11,7 @@ import {
   parseIngredients,
   parseInstructions,
   parseNotes,
+  ParsedNote,
 } from "@recipesage/util/shared";
 
 export interface Label {
@@ -52,6 +53,7 @@ export interface Recipe extends BaseRecipe {
 
 export interface ParsedIngredient {
   content: string;
+  plaintextContent: string;
   originalContent: string;
   htmlContent: string;
   isHeader: boolean;
@@ -61,6 +63,7 @@ export interface ParsedIngredient {
 
 export interface ParsedInstruction {
   content: string;
+  plaintextContent: string;
   htmlContent: string;
   isHeader: boolean;
   complete: boolean;
@@ -68,12 +71,7 @@ export interface ParsedInstruction {
   isRtl: boolean;
 }
 
-export interface ParsedNote {
-  content: string;
-  htmlContent: string;
-  isHeader: boolean;
-  isRtl: boolean;
-}
+export type { ParsedNote };
 
 export enum ExportFormat {
   PDF = "pdf",
@@ -178,21 +176,6 @@ export class RecipeService {
       query: params,
       errorHandlers,
     });
-  }
-
-  print(recipe: Recipe, template: { name: string; modifiers: string }) {
-    window.open(
-      this.utilService.getBase() +
-        "print/" +
-        this.utilService.getTokenQuery() +
-        "&recipeId=" +
-        recipe.id +
-        "&template=" +
-        template.name +
-        "&modifiers=" +
-        template.modifiers +
-        "&print=true",
-    );
   }
 
   parseIngredients(ingredients: string, scale: number): ParsedIngredient[] {

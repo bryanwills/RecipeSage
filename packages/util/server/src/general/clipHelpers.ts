@@ -1,5 +1,5 @@
 import jsdom from "jsdom";
-import sanitizeHtml from "sanitize-html";
+import { sanitizeRemoveHtmlFromString } from "./sanitizeRemoveHtmlFromString";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore No typings available
 import RecipeClipper from "@julianpoy/recipe-clipper";
@@ -33,10 +33,7 @@ export async function htmlToRecipeViaRecipeClipper(document: string) {
   Object.defineProperty(window.Element.prototype, "innerText", {
     get() {
       const html = replaceBrWithBreak(this.innerHTML);
-      return sanitizeHtml(html, {
-        allowedTags: [], // remove all tags and return text content only
-        allowedAttributes: {}, // remove all tags and return text content only
-      });
+      return sanitizeRemoveHtmlFromString(html);
     },
   });
 
@@ -80,10 +77,7 @@ export async function htmlToBodyInnerText(document: string) {
   Object.defineProperty(window.Element.prototype, "innerText", {
     get() {
       const html = replaceBrWithBreak(this.innerHTML);
-      return sanitizeHtml(html, {
-        allowedTags: [], // remove all tags and return text content only
-        allowedAttributes: {}, // remove all tags and return text content only
-      });
+      return sanitizeRemoveHtmlFromString(html);
     },
   });
 
