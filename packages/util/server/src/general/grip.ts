@@ -1,5 +1,5 @@
 import { WebSocketMessageFormat } from "@fanoutio/grip";
-import { ServeGrip } from "@fanoutio/serve-grip";
+import { ServeGrip } from "@fanoutio/serve-grip/node";
 import { config } from "./config";
 import * as Sentry from "@sentry/node";
 import { metrics } from "./metrics";
