@@ -19,18 +19,108 @@
 <ion-content>
   <br />
   @if (mealPlanItems) {
-    <div class="mealplan-flex">
-      <meal-calendar
-        [mealPlanItems]="mealPlanItems"
-        (selectedDaysChange)="setSelectedDays($event)"
-        (itemClicked)="itemClicked($event)"
-        (itemMoved)="itemMoved($event)"
-        (dayClicked)="dayClicked($event)"
-        (mealsByDateChange)="setMealsByDate($event)"
-        [enableEditing]="true"
-        mode="{{ calendarMode }}"
-      ></meal-calendar>
-    </div>
+    @if (preferences[preferenceKeys.ViewType] === viewTypeOptions.List) {
+      @if (upcomingDates.length === 0 && pastDates.length === 0) {
+        <ion-item lines="none">
+          <ion-label class="ion-text-wrap ion-text-center">
+            <p>{{ "pages.mealPlan.list.empty" | translate }}</p>
+          </ion-label>
+        </ion-item>
+      }
+      <ion-list class="meal-list-view" lines="none">
+        @if (upcomingDates.length === 0 && pastDates.length > 0) {
+          <ion-item lines="none">
+            <ion-label class="ion-text-wrap ion-text-center">
+              <p>{{ "pages.mealPlan.list.noUpcoming" | translate }}</p>
+            </ion-label>
+          </ion-item>
+        }
+        @for (dateStr of upcomingDates; track dateStr) {
+          <ion-item-group>
+            <ion-item-divider
+              class="date-header"
+              [class.selected]="selectedDaysSet.has(dateStr)"
+              (click)="toggleDaySelection(dateStr)"
+            >
+              <ion-label>{{ listFormattedDates.get(dateStr) }}</ion-label>
+            </ion-item-divider>
+            @for (item of listItemsByDate.get(dateStr); track item.id) {
+              <ion-item
+                class="meal-list-item"
+                [class.breakfast]="item.meal === 'breakfast'"
+                [class.lunch]="item.meal === 'lunch'"
+                [class.dinner]="item.meal === 'dinner'"
+                [class.snacks]="item.meal === 'snacks'"
+                [class.other]="item.meal === 'other'"
+                (click)="itemClicked(item)"
+                button
+              >
+                <ion-label>{{ item.recipe?.title || item.title }}</ion-label>
+              </ion-item>
+            }
+          </ion-item-group>
+        }
+        @if (pastDates.length > 0) {
+          <ion-item-group>
+            <ion-item-divider
+              class="past-header"
+              (click)="pastMealsExpanded = !pastMealsExpanded"
+              button
+            >
+              <ion-label>
+                {{ "pages.mealPlan.list.pastMeals" | translate }}
+              </ion-label>
+              <ion-icon
+                [name]="pastMealsExpanded ? 'chevron-up' : 'chevron-down'"
+                slot="end"
+              ></ion-icon>
+            </ion-item-divider>
+          </ion-item-group>
+          @if (pastMealsExpanded) {
+            @for (dateStr of pastDates; track dateStr) {
+              <ion-item-group>
+                <ion-item-divider
+                  class="date-header"
+                  [class.selected]="selectedDaysSet.has(dateStr)"
+                  (click)="toggleDaySelection(dateStr)"
+                >
+                  <ion-label>{{ listFormattedDates.get(dateStr) }}</ion-label>
+                </ion-item-divider>
+                @for (item of listItemsByDate.get(dateStr); track item.id) {
+                  <ion-item
+                    class="meal-list-item"
+                    [class.breakfast]="item.meal === 'breakfast'"
+                    [class.lunch]="item.meal === 'lunch'"
+                    [class.dinner]="item.meal === 'dinner'"
+                    [class.snacks]="item.meal === 'snacks'"
+                    [class.other]="item.meal === 'other'"
+                    (click)="itemClicked(item)"
+                    button
+                  >
+                    <ion-label>{{
+                      item.recipe?.title || item.title
+                    }}</ion-label>
+                  </ion-item>
+                }
+              </ion-item-group>
+            }
+          }
+        }
+      </ion-list>
+    } @else {
+      <div class="mealplan-flex">
+        <meal-calendar
+          [mealPlanItems]="mealPlanItems"
+          (selectedDaysChange)="setSelectedDays($event)"
+          (itemClicked)="itemClicked($event)"
+          (itemMoved)="itemMoved($event)"
+          (dayClicked)="dayClicked($event)"
+          (mealsByDateChange)="setMealsByDate($event)"
+          [enableEditing]="true"
+          [mode]="calendarMode"
+        ></meal-calendar>
+      </div>
+    }
   }
 
   <br /><br /><br /><br />

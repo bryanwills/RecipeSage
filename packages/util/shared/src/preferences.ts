@@ -82,6 +82,11 @@ export enum MealPlanStartOfWeekOptions {
   Sunday = "sunday",
 }
 
+export enum MealPlanViewTypeOptions {
+  Calendar = "calendar",
+  List = "list",
+}
+
 export enum StartPageOptions {
   MyRecipes = "myRecipes",
   ManageLabels = "manageLabels",
@@ -129,6 +134,7 @@ export enum MealPlanPreferenceKey {
   ShowAddedBy = "MealPlan.showAddedBy",
   ShowAddedOn = "MealPlan.showAddedOn",
   StartOfWeek = "MealPlan.startOfWeek",
+  ViewType = "MealPlan.viewType",
 }
 
 export enum ShoppingListPreferenceKey {
@@ -169,6 +175,7 @@ export interface AppPreferenceTypes {
   [MealPlanPreferenceKey.ShowAddedBy]: boolean;
   [MealPlanPreferenceKey.ShowAddedOn]: boolean;
   [MealPlanPreferenceKey.StartOfWeek]: MealPlanStartOfWeekOptions;
+  [MealPlanPreferenceKey.ViewType]: MealPlanViewTypeOptions;
 
   [ShoppingListPreferenceKey.SortBy]: ShoppingListSortOptions;
   [ShoppingListPreferenceKey.ShowAddedBy]: boolean;

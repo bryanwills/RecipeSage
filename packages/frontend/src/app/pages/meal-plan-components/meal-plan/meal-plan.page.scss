@@ -1,0 +1,56 @@
+.meal-list-view {
+  .date-header {
+    cursor: pointer;
+    font-weight: bold;
+    --background: var(--ion-background-color);
+
+    &:hover {
+      --background: var(
+        --ion-item-background-hover,
+        rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.04)
+      );
+    }
+
+    &.selected {
+      --background: rgba(var(--ion-color-primary-rgb), 0.15);
+    }
+  }
+
+  .past-header {
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 16px;
+    --background: var(--ion-background-color);
+
+    &:hover {
+      --background: var(
+        --ion-item-background-hover,
+        rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.04)
+      );
+    }
+  }
+
+  .meal-list-item {
+    --padding-start: 16px;
+
+    &.breakfast {
+      border-left: 4px solid var(--ion-color-danger);
+    }
+
+    &.lunch {
+      border-left: 4px solid var(--ion-color-warning);
+    }
+
+    &.dinner {
+      border-left: 4px solid var(--ion-color-success);
+    }
+
+    &.snacks {
+      border-left: 4px solid var(--ion-color-tertiary);
+    }
+
+    &.other {
+      border-left: 4px solid var(--ion-text-color);
+    }
+  }
+}

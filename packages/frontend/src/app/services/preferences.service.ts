@@ -6,6 +6,7 @@ import {
   ManageLabelsPreferenceKey,
   MealPlanPreferenceKey,
   MealPlanStartOfWeekOptions,
+  MealPlanViewTypeOptions,
   MyRecipesIncludeFriendsOptions,
   MyRecipesPreferenceKey,
   MyRecipesSortOptions,
@@ -65,6 +66,7 @@ export class PreferencesService {
     [MealPlanPreferenceKey.ShowAddedBy]: false,
     [MealPlanPreferenceKey.ShowAddedOn]: false,
     [MealPlanPreferenceKey.StartOfWeek]: MealPlanStartOfWeekOptions.Monday,
+    [MealPlanPreferenceKey.ViewType]: MealPlanViewTypeOptions.Calendar,
 
     [ShoppingListPreferenceKey.SortBy]: ShoppingListSortOptions.CreatedAtDesc,
     [ShoppingListPreferenceKey.ShowAddedBy]: false,
