@@ -58,7 +58,7 @@ router.get("/healthz", async (req, res) => {
 router.get("/embed/recipe/:recipeId", (req, res) => {
   res.redirect(
     302,
-    `/api/print/${req.params.recipeId}${req._parsedUrl.search}`,
+    `/api/print/recipe/${req.params.recipeId}${req._parsedUrl.search}`,
   );
 });
 

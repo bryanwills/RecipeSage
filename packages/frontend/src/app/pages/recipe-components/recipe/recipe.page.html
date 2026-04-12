@@ -275,12 +275,19 @@
           <ion-item lines="none" class="ion-text-wrap">
             <ion-label dir="auto">
               @for (note of notes; track note; let noteIdx = $index) {
-                <p
-                  dir="auto"
-                  [innerHTML]="note.htmlContent"
-                  [ngClass]="{ header: note.isHeader }"
-                  class="ion-text-wrap"
-                ></p>
+                @if (note.isTable) {
+                  <div
+                    [innerHTML]="note.htmlContent"
+                    class="ion-text-wrap"
+                  ></div>
+                } @else {
+                  <p
+                    dir="auto"
+                    [innerHTML]="note.htmlContent"
+                    [ngClass]="{ header: note.isHeader }"
+                    class="ion-text-wrap"
+                  ></p>
+                }
               }
               @if (!notes || notes.length === 0) {
                 <p>{{ "pages.recipeDetails.noNotes" | translate }}</p>

@@ -417,6 +417,143 @@ describe("parsers", () => {
         expect(result[0].isRtl).toBe(false);
       });
     });
+
+    describe("tables", () => {
+      it("parses a basic table", () => {
+        const result = parseNotes(
+          "| Name | Amount |\n| --- | --- |\n| Salt | 1 tsp |",
+        );
+        expect(result).toHaveLength(1);
+        expect(result[0].isTable).toBe(true);
+        expect(result[0].isHeader).toBe(false);
+        expect(result[0].htmlContent).toContain("<table");
+        expect(result[0].htmlContent).toContain("<th>Name</th>");
+        expect(result[0].htmlContent).toContain("<th>Amount</th>");
+        expect(result[0].htmlContent).toContain("<td>Salt</td>");
+        expect(result[0].htmlContent).toContain("<td>1 tsp</td>");
+      });
+
+      it("parses a table with alignment", () => {
+        const result = parseNotes(
+          "| Left | Center | Right |\n| --- | :---: | ---: |\n| a | b | c |",
+        );
+        expect(result).toHaveLength(1);
+        expect(result[0].htmlContent).toContain("<th>Left</th>");
+        expect(result[0].htmlContent).toContain(
+          '<th style="text-align:center">Center</th>',
+        );
+        expect(result[0].htmlContent).toContain(
+          '<th style="text-align:right">Right</th>',
+        );
+      });
+
+      it("preserves content before and after a table", () => {
+        const result = parseNotes(
+          "Some note\n| A | B |\n| --- | --- |\n| 1 | 2 |\nAnother note",
+        );
+        expect(result).toHaveLength(3);
+        expect(result[0].isTable).toBe(false);
+        expect(result[0].content).toBe("Some note");
+        expect(result[1].isTable).toBe(true);
+        expect(result[2].isTable).toBe(false);
+        expect(result[2].content).toBe("Another note");
+      });
+
+      it("parses a header-only table with no body rows", () => {
+        const result = parseNotes("| A | B |\n| --- | --- |");
+        expect(result).toHaveLength(1);
+        expect(result[0].isTable).toBe(true);
+        expect(result[0].htmlContent).toContain("<th>A</th>");
+        expect(result[0].htmlContent).not.toContain("<tbody>");
+      });
+
+      it("does not treat pipe lines without separator as table", () => {
+        const result = parseNotes("| not a table |");
+        expect(result).toHaveLength(1);
+        expect(result[0].isTable).toBe(false);
+      });
+
+      it("sets isTable to false on non-table lines", () => {
+        const result = parseNotes("Regular note");
+        expect(result[0].isTable).toBe(false);
+      });
+
+      it("preserves raw content for plain text output", () => {
+        const input = "| A | B |\n| --- | --- |\n| 1 | 2 |";
+        const result = parseNotes(input);
+        expect(result[0].content).toBe(input);
+      });
+
+      it("handles empty cells", () => {
+        const result = parseNotes("| A | B |\n| --- | --- |\n| | val |");
+        expect(result).toHaveLength(1);
+        expect(result[0].isTable).toBe(true);
+        expect(result[0].htmlContent).toContain("<td></td>");
+        expect(result[0].htmlContent).toContain("<td>val</td>");
+      });
+
+      it("handles body rows with fewer columns than header", () => {
+        const result = parseNotes(
+          "| A | B | C |\n| --- | --- | --- |\n| only |",
+        );
+        expect(result).toHaveLength(1);
+        expect(result[0].isTable).toBe(true);
+        expect(result[0].htmlContent).toContain("<td>only</td>");
+        expect(result[0].htmlContent).toMatch(/<td><\/td>.*<td><\/td>/);
+      });
+
+      it("drops extra columns in body rows beyond header count", () => {
+        const result = parseNotes("| A |\n| --- |\n| 1 | 2 | 3 |");
+        expect(result).toHaveLength(1);
+        expect(result[0].htmlContent).toContain("<td>1</td>");
+        expect(result[0].htmlContent).not.toContain("<td>2</td>");
+        expect(result[0].htmlContent).not.toContain("<td>3</td>");
+      });
+
+      it("passes cell content through to html", () => {
+        const result = parseNotes("| Header |\n| --- |\n| some content |");
+        expect(result).toHaveLength(1);
+        expect(result[0].htmlContent).toContain("<td>some content</td>");
+      });
+
+      it("handles escaped pipes in cell content", () => {
+        const result = parseNotes(
+          "| Formula | Result |\n| --- | --- |\n| a \\| b | yes |",
+        );
+        expect(result).toHaveLength(1);
+        expect(result[0].htmlContent).toContain("<td>a | b</td>");
+        expect(result[0].htmlContent).toContain("<td>yes</td>");
+      });
+
+      it("handles multiple tables separated by text", () => {
+        const result = parseNotes(
+          "| A |\n| --- |\n| 1 |\nSome text\n| B |\n| --- |\n| 2 |",
+        );
+        expect(result).toHaveLength(3);
+        expect(result[0].isTable).toBe(true);
+        expect(result[1].isTable).toBe(false);
+        expect(result[1].content).toBe("Some text");
+        expect(result[2].isTable).toBe(true);
+      });
+
+      it("handles table immediately after a header note", () => {
+        const result = parseNotes(
+          "[Section]\n| A | B |\n| --- | --- |\n| 1 | 2 |",
+        );
+        expect(result).toHaveLength(2);
+        expect(result[0].isHeader).toBe(true);
+        expect(result[0].content).toBe("Section");
+        expect(result[1].isTable).toBe(true);
+      });
+
+      it("handles whitespace-only cells", () => {
+        const result = parseNotes("|   |   |\n| --- | --- |\n|   |   |");
+        expect(result).toHaveLength(1);
+        expect(result[0].isTable).toBe(true);
+        expect(result[0].htmlContent).toContain("<th></th>");
+        expect(result[0].htmlContent).toContain("<td></td>");
+      });
+    });
   });
 
   describe("isRtlText", () => {

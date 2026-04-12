@@ -191,6 +191,23 @@ html
         display: none;
       }
 
+      .noteTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 8px 0;
+      }
+
+      .noteTable th,
+      .noteTable td {
+        border: 1px solid #ccc;
+        padding: 6px 10px;
+      }
+
+      .noteTable th {
+        font-weight: bold;
+        background: #f4f5f8;
+      }
+
       .printPreview span.recipe-source-url {
         display: block;
       }
@@ -298,11 +315,14 @@ html
       p(class='sans')
         b Notes:
       each note in recipe.notes
-        div(class='note')
-          if note.isHeader
-            b= note.content
-          else
-            span= note.content
+        if note.isTable
+          div !{note.htmlContent}
+        else
+          div(class='note')
+            if note.isHeader
+              b= note.content
+            else
+              span= note.content
       br
 
     if recipe.url && !modifiers.hideSourceURL

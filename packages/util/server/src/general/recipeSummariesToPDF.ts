@@ -3,8 +3,10 @@ import {
   parseIngredients,
   parseInstructions,
   parseNotes,
+  parseTableCells,
+  ParsedNote,
 } from "@recipesage/util/shared";
-import sanitizeHtml from "sanitize-html";
+import { sanitizeRemoveHtmlFromString } from "./sanitizeRemoveHtmlFromString";
 import { fetchURL } from "../general/fetch";
 import { Content, Margins, TDocumentDefinitions } from "pdfmake/interfaces";
 import path from "path";
@@ -47,6 +49,40 @@ const parsedToSchema = (
     bold: item.isHeader,
     margin: includeMargin ? [0, 0, 0, 5] : undefined,
   }));
+};
+
+const parsedNotesToSchema = (parsedNotes: ParsedNote[]): Content[] => {
+  return parsedNotes.map((note) => {
+    if (note.isTable) {
+      const lines = note.content.split("\n");
+      const headerRow = lines[0];
+      const bodyRows = lines.slice(2);
+
+      const headerCells = parseTableCells(headerRow.trim());
+      const body: string[][] = [headerCells];
+      for (const row of bodyRows) {
+        const cells = parseTableCells(row.trim());
+        const padded = headerCells.map((_, i) => cells[i] ?? "");
+        body.push(padded);
+      }
+
+      return {
+        table: {
+          headerRows: 1,
+          body: body.map((row, rowIdx) =>
+            row.map((cell) =>
+              rowIdx === 0 ? { text: cell, bold: true } : { text: cell },
+            ),
+          ),
+        },
+        margin: [0, 4, 0, 4] satisfies Margins,
+      };
+    }
+    return {
+      text: note.content,
+      bold: note.isHeader,
+    };
+  });
 };
 
 const recipeToSchema = async (
@@ -137,14 +173,16 @@ const recipeToSchema = async (
   }
 
   const parsedInstructions = parseInstructions(
-    sanitizeHtml(recipe.instructions || ""),
+    sanitizeRemoveHtmlFromString(recipe.instructions || ""),
     1,
   );
   const parsedIngredients = parseIngredients(
-    sanitizeHtml(recipe.ingredients || ""),
+    sanitizeRemoveHtmlFromString(recipe.ingredients || ""),
     1,
   );
-  const parsedNotes = parseNotes(sanitizeHtml(recipe.notes || ""));
+  const parsedNotes = parseNotes(
+    sanitizeRemoveHtmlFromString(recipe.notes || ""),
+  );
   if (recipe.ingredients && recipe.instructions) {
     schema.push({
       columns: [
@@ -175,7 +213,7 @@ const recipeToSchema = async (
       bold: true,
     };
     schema.push(header);
-    schema.push(...parsedToSchema(parsedNotes, false));
+    schema.push(...parsedNotesToSchema(parsedNotes));
   }
   if (recipe.url) {
     schema.push({

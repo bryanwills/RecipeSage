@@ -6,6 +6,7 @@ import {
   type RecipeSummaryLite,
 } from "@recipesage/prisma";
 import { convertPrismaDateToDatestampNullable } from "./convertPrismaDateToDatestamp";
+import { sanitizeRemoveHtmlFromString } from "../general/sanitizeRemoveHtmlFromString";
 
 type PrismaRecipeSummary = Prisma.RecipeGetPayload<typeof recipeSummary>;
 type PrismaRecipeSummaryLite = Prisma.RecipeGetPayload<
@@ -15,7 +16,13 @@ type PrismaRecipeSummaryLite = Prisma.RecipeGetPayload<
 export const convertPrismaRecipeSummaryToRecipeSummary = (
   recipe: PrismaRecipeSummary,
 ): RecipeSummary => {
-  return convertPrismaDateToDatestampNullable(recipe, "lastMadeAt");
+  const converted = convertPrismaDateToDatestampNullable(recipe, "lastMadeAt");
+  return {
+    ...converted,
+    notes: sanitizeRemoveHtmlFromString(converted.notes),
+    ingredients: sanitizeRemoveHtmlFromString(converted.ingredients),
+    instructions: sanitizeRemoveHtmlFromString(converted.instructions),
+  };
 };
 
 export const convertPrismaRecipeSummariesToRecipeSummaries = (

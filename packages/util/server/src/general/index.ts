@@ -32,3 +32,4 @@ export * from "./decryptWithRSAKey";
 export * from "./deletePathsSilent";
 export * from "./throttleDropPromise";
 export * from "./translate";
+export * from "./sanitizeRemoveHtmlFromString";
