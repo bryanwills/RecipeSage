@@ -32,6 +32,22 @@
       </ion-select-option>
     </ion-select>
   </ion-item>
+  <ion-item lines="full">
+    <ion-select
+      label="{{ 'pages.mealPlanPopover.options.viewType.title' | translate }}"
+      [(ngModel)]="preferences[preferenceKeys.ViewType]"
+      (ngModelChange)="savePreferences()"
+      okText="{{ 'generic.ok' | translate }}"
+      cancelText="{{ 'generic.cancel' | translate }}"
+    >
+      <ion-select-option value="calendar">
+        {{ "pages.mealPlanPopover.options.viewType.calendar" | translate }}
+      </ion-select-option>
+      <ion-select-option value="list">
+        {{ "pages.mealPlanPopover.options.viewType.list" | translate }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
   <ion-list-header>
     {{ "pages.mealPlanPopover.actions.title" | translate }}
   </ion-list-header>
@@ -55,6 +71,7 @@
   </ion-button>
   <ion-button
     (click)="copySelected()"
+    [disabled]="preferences[preferenceKeys.ViewType] === viewTypeOptions.List"
     expand="block"
     size="small"
     class="ion-margin"
@@ -64,6 +81,7 @@
   </ion-button>
   <ion-button
     (click)="moveSelected()"
+    [disabled]="preferences[preferenceKeys.ViewType] === viewTypeOptions.List"
     expand="block"
     size="small"
     class="ion-margin"

@@ -10,7 +10,10 @@ import { TranslateService } from "@ngx-translate/core";
 import { LoadingService } from "~/services/loading.service";
 import { RouteMap } from "~/services/util.service";
 import { PreferencesService } from "~/services/preferences.service";
-import { MealPlanPreferenceKey } from "@recipesage/util/shared";
+import {
+  MealPlanPreferenceKey,
+  MealPlanViewTypeOptions,
+} from "@recipesage/util/shared";
 import { ICalMealPlanModalPage } from "../ical-meal-plan-modal/ical-meal-plan-modal.page";
 import { TRPCService } from "../../../services/trpc.service";
 import { UpdateMealPlanModalPage } from "../update-meal-plan-modal/update-meal-plan-modal.page";
@@ -36,6 +39,7 @@ export class MealPlanPopoverPage {
 
   preferences = this.preferencesService.preferences;
   preferenceKeys = MealPlanPreferenceKey;
+  viewTypeOptions = MealPlanViewTypeOptions;
 
   @Input({
     required: true,

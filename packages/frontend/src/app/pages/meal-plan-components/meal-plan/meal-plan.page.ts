@@ -13,7 +13,10 @@ import { LoadingService } from "~/services/loading.service";
 import { WebsocketService } from "~/services/websocket.service";
 import { RouteMap } from "~/services/util.service";
 import { PreferencesService } from "~/services/preferences.service";
-import { MealPlanPreferenceKey } from "@recipesage/util/shared";
+import {
+  MealPlanPreferenceKey,
+  MealPlanViewTypeOptions,
+} from "@recipesage/util/shared";
 
 import { MealCalendarComponent } from "~/components/meal-calendar/meal-calendar.component";
 import { NewMealPlanItemModalPage } from "../new-meal-plan-item-modal/new-meal-plan-item-modal.page";
@@ -77,8 +80,15 @@ export class MealPlanPage {
 
   preferences = this.preferencesService.preferences;
   preferenceKeys = MealPlanPreferenceKey;
+  viewTypeOptions = MealPlanViewTypeOptions;
 
   selectedDays: string[] = [];
+  selectedDaysSet = new Set<string>();
+  pastMealsExpanded = false;
+  upcomingDates: string[] = [];
+  pastDates: string[] = [];
+  listItemsByDate = new Map<string, MealPlanItemSummary[]>();
+  listFormattedDates = new Map<string, string>();
 
   @ViewChild(MealCalendarComponent, { static: true })
   mealPlanCalendar?: MealCalendarComponent;
@@ -151,6 +161,13 @@ export class MealPlanPage {
     if (!mealPlan || !mealPlanItems) return;
     this.mealPlan = mealPlan;
     this.mealPlanItems = mealPlanItems;
+
+    if (
+      this.preferences[MealPlanPreferenceKey.ViewType] ===
+      MealPlanViewTypeOptions.List
+    ) {
+      this.processItemsForListView();
+    }
 
     const title = await this.translate
       .get("generic.labeledPageTitle", {
@@ -244,7 +261,6 @@ export class MealPlanPage {
     dateStamp: string;
     mealItem: MealPlanItemSummary;
   }) {
-    console.log(dateStamp, mealItem);
     const modal = await this.modalCtrl.create({
       component: NewMealPlanItemModalPage,
       componentProps: {
@@ -490,7 +506,8 @@ export class MealPlanPage {
     modal.present();
   }
 
-  async dayClicked(dateStamp: string) {
+  async dayClicked(date: Date) {
+    const dateStamp = dayjs(date).format("YYYY-MM-DD");
     if (this.dayMoveInProgress || this.dayCopyInProgress) {
       const selectedDayList = (this.selectedDaysInProgress || [])
         .map((selectedDay) => dayjs(selectedDay).format("MMM D"))
@@ -521,7 +538,10 @@ export class MealPlanPage {
 
         const alert = await this.alertCtrl.create({
           header,
-          message: selectedDayList.length > 1 ? messageMultiple : messageSingle,
+          message:
+            (this.selectedDaysInProgress?.length ?? 0) > 1
+              ? messageMultiple
+              : messageSingle,
           buttons: [
             {
               text: cancel,
@@ -569,7 +589,10 @@ export class MealPlanPage {
 
         const alert = await this.alertCtrl.create({
           header,
-          message: selectedDayList.length > 1 ? messageMultiple : messageSingle,
+          message:
+            (this.selectedDaysInProgress?.length ?? 0) > 1
+              ? messageMultiple
+              : messageSingle,
           buttons: [
             {
               text: cancel,
@@ -684,5 +707,87 @@ export class MealPlanPage {
 
   setSelectedDays(selectedDays: string[]) {
     this.selectedDays = selectedDays;
+    this.selectedDaysSet = new Set(selectedDays);
+  }
+
+  processItemsForListView() {
+    if (!this.mealPlanItems) return;
+
+    const mealSortOrder: Record<string, number> = {
+      breakfast: 1,
+      lunch: 2,
+      dinner: 3,
+      snacks: 4,
+      other: 5,
+    };
+
+    this.mealsByDate = {};
+
+    [...this.mealPlanItems]
+      .sort((a, b) => {
+        const comp =
+          (mealSortOrder[a.meal] || 6) - (mealSortOrder[b.meal] || 6);
+        if (comp === 0) return a.title.localeCompare(b.title);
+        return comp;
+      })
+      .forEach((item) => {
+        const [year, month, day] = item.scheduledDate
+          .split("-")
+          .map((el) => parseInt(el, 10));
+        this.mealsByDate[year] = this.mealsByDate[year] || {};
+        this.mealsByDate[year][month] = this.mealsByDate[year][month] || {};
+        this.mealsByDate[year][month][day] = this.mealsByDate[year][month][
+          day
+        ] || {
+          items: [],
+        };
+        this.mealsByDate[year][month][day].items.push(item);
+      });
+
+    const today = dayjs().format("YYYY-MM-DD");
+    const upcoming: string[] = [];
+    const past: string[] = [];
+
+    for (const year of Object.keys(this.mealsByDate).map(Number)) {
+      for (const month of Object.keys(this.mealsByDate[year]).map(Number)) {
+        for (const day of Object.keys(this.mealsByDate[year][month]).map(
+          Number,
+        )) {
+          const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          if (dateStr >= today) {
+            upcoming.push(dateStr);
+          } else {
+            past.push(dateStr);
+          }
+        }
+      }
+    }
+
+    this.upcomingDates = upcoming.sort();
+    this.pastDates = past.sort().reverse();
+
+    this.listItemsByDate = new Map();
+    this.listFormattedDates = new Map();
+    for (const dateStr of [...this.upcomingDates, ...this.pastDates]) {
+      const d = dayjs(dateStr);
+      this.listItemsByDate.set(
+        dateStr,
+        this.mealsByDate[d.year()]?.[d.month() + 1]?.[d.date()]?.items || [],
+      );
+      this.listFormattedDates.set(dateStr, d.format("MMMM D, YYYY"));
+    }
+
+    this.selectedDays = [];
+    this.selectedDaysSet = new Set();
+  }
+
+  toggleDaySelection(dateStr: string) {
+    if (this.selectedDaysSet.has(dateStr)) {
+      this.selectedDaysSet.delete(dateStr);
+      this.selectedDays = this.selectedDays.filter((d) => d !== dateStr);
+    } else {
+      this.selectedDaysSet.add(dateStr);
+      this.selectedDays = [...this.selectedDays, dateStr];
+    }
   }
 }
