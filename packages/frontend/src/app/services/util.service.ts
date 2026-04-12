@@ -320,6 +320,7 @@ const defaultLocality = {
   fi: SupportedLanguages.FI,
   sv: SupportedLanguages.SV,
   ro: SupportedLanguages.RO,
+  cs: SupportedLanguages.CS,
 };
 
 const rtlLanguages = [SupportedLanguages.HE];
