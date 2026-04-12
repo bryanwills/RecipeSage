@@ -43,7 +43,7 @@ export const textToRecipe = async (
 
   const llmResponse = await generateText({
     system:
-      "You are a data processor utility. Do not summarize or add information, just format and process into the correct shape. Do not insert your own editorial voice, just clean the text and get it into the correct shape. Leave fields that are not present blank. If headers are present in the original text you can notate that for ingredients, instructions, and notes by prefixing the line with a # sign.",
+      "You are a data processor utility. Do not summarize or add information, just format and process into the correct shape. Do not insert your own editorial voice, just clean the text and get it into the correct shape. Leave fields that are not present blank. A header can be denoted in the ingredients, instructions, or notes by prefixing the line with a # sign.",
     model: aiProvider(AI_MODEL_LOW),
     temperature: 0,
     prompt: prompts[inputType] + text,
