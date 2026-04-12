@@ -90,6 +90,7 @@ model MealPlanItem {
   mealPlanId        String             @db.Uuid
   recipeId          String?            @db.Uuid
   title             String
+  notes             String             @default("")
   scheduledDate     DateTime           @db.Date
   scheduled         DateTime?          @db.Timestamptz(6)
   meal              String             @db.VarChar(255)

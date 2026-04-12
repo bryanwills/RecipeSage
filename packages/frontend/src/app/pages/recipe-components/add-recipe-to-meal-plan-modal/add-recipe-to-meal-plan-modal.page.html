@@ -59,6 +59,15 @@
         (selectedDaysChange)="selectedDays = $event"
       ></meal-calendar>
     </div>
+    <ion-item>
+      <ion-textarea
+        label="{{ 'pages.newMealPlanItemModal.notes' | translate }}"
+        labelPlacement="stacked"
+        [(ngModel)]="notes"
+        autoGrow="true"
+        rows="2"
+      ></ion-textarea>
+    </ion-item>
   }
 </ion-content>
 

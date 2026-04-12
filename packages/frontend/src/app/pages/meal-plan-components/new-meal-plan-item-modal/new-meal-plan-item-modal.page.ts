@@ -21,6 +21,7 @@ export class NewMealPlanItemModalPage {
   @Input() recipe?: RecipeSummary;
   @Input() title: string = "";
   @Input() meal?: string;
+  @Input() notes: string = "";
   @Input() scheduledDate = dayjs().format("YYYY-MM-DD");
 
   scheduledDateChange(event: any) {
@@ -52,6 +53,7 @@ export class NewMealPlanItemModalPage {
       recipeId:
         this.inputType === "recipe" && this.recipe ? this.recipe.id : null,
       meal: this.meal,
+      notes: this.notes,
       scheduledDate: this.scheduledDate,
     };
 

@@ -21,19 +21,29 @@
   @if (mealPlanItems) {
     @if (preferences[preferenceKeys.ViewType] === viewTypeOptions.List) {
       @if (upcomingDates.length === 0 && pastDates.length === 0) {
-        <ion-item lines="none">
-          <ion-label class="ion-text-wrap ion-text-center">
+        <null-state>
+          <ion-icon
+            name="calendar"
+            class="big-icon"
+            virtualSlot="header"
+          ></ion-icon>
+          <ion-label virtualSlot="body">
             <p>{{ "pages.mealPlan.list.empty" | translate }}</p>
           </ion-label>
-        </ion-item>
+        </null-state>
       }
       <ion-list class="meal-list-view" lines="none">
         @if (upcomingDates.length === 0 && pastDates.length > 0) {
-          <ion-item lines="none">
-            <ion-label class="ion-text-wrap ion-text-center">
+          <null-state>
+            <ion-icon
+              name="calendar"
+              class="big-icon"
+              virtualSlot="header"
+            ></ion-icon>
+            <ion-label virtualSlot="body">
               <p>{{ "pages.mealPlan.list.noUpcoming" | translate }}</p>
             </ion-label>
-          </ion-item>
+          </null-state>
         }
         @for (dateStr of upcomingDates; track dateStr) {
           <ion-item-group>

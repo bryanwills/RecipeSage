@@ -9,6 +9,7 @@ export const mealPlanItemSummary = {
     id: true,
     mealPlanId: true,
     title: true,
+    notes: true,
     scheduled: true,
     scheduledDate: true,
     meal: true,

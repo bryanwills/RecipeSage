@@ -32,6 +32,7 @@ export class AddRecipeToMealPlanModalPage {
   selectedMealPlan?: MealPlanSummary;
   selectedMealPlanItems?: MealPlanItemSummary[];
   meal?: string;
+  notes = "";
 
   @Input() reference?: string;
 
@@ -113,6 +114,7 @@ export class AddRecipeToMealPlanModalPage {
         title: this.recipe.title,
         recipeId: this.recipe.id,
         meal: this.meal as any, // TODO: Refine this type so that it aligns with Zod
+        notes: this.notes,
         scheduledDate: this.selectedDays[0],
       }),
     );

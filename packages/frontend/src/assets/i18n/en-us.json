@@ -463,6 +463,7 @@
   "pages.mealPlanItemDetailsModal.scheduled": "Scheduled for {{meal}} on {{date}}",
   "pages.mealPlanItemDetailsModal.lastModified": "Last modified by {{name}} on {{date}}",
   "pages.mealPlanItemDetailsModal.clickToOpen": "Click to open recipe",
+  "pages.mealPlanItemDetailsModal.notes": "Notes",
   "pages.mealPlanItemDetailsModal.actions.addToShoppingList": "Add this recipe to shopping list",
   "pages.mealPlanItemDetailsModal.actions.pinRecipe": "Pin this recipe open",
   "pages.mealPlanItemDetailsModal.actions.unpinRecipe": "Unpin this recipe",
@@ -510,6 +511,7 @@
   "pages.newMealPlanItemModal.inputType.manual": "Manual Entry",
   "pages.newMealPlanItemModal.itemTitle": "Item title",
   "pages.newMealPlanItemModal.date": "Date",
+  "pages.newMealPlanItemModal.notes": "Notes (optional)",
   "pages.newMealPlanItemModal.save": "Save Changes",
   "pages.newMealPlanItemModal.create": "Add to Meal Plan",
 
