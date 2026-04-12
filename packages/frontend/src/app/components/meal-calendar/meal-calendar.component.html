@@ -63,6 +63,8 @@
                   <meal-group
                     [mealItems]="mealItemsByDay(day)"
                     [enableEditing]="enableEditing"
+                    [mealColors]="mealColors"
+                    [mealDisplayNames]="mealDisplayNames"
                     (itemClicked)="itemClicked.emit($event)"
                     (itemDragEnd)="itemDragEnd()"
                   ></meal-group>
@@ -131,6 +133,8 @@
         <meal-group
           [mealItems]="mealItemsByDay(this.selectedDays[0])"
           [enableEditing]="enableEditing"
+          [mealColors]="mealColors"
+          [mealDisplayNames]="mealDisplayNames"
           (itemClicked)="itemClicked.emit($event)"
         ></meal-group>
       }

@@ -1,7 +1,13 @@
 @for (mealName of mealItems.meals; track mealName) {
   <div class="group">
     @if (mealItems.itemsByMeal[mealName].length > 0) {
-      <span class="meal-title">{{ mealNameToI18n(mealName) | translate }}</span>
+      @if (isDefaultMeal(mealName)) {
+        <span class="meal-title">{{
+          mealNameToI18n(mealName) | translate
+        }}</span>
+      } @else {
+        <span class="meal-title">{{ getDisplayName(mealName) }}</span>
+      }
     }
     @for (mealItem of mealItems.itemsByMeal[mealName]; track mealItem) {
       <calendar-item
@@ -10,14 +16,10 @@
         draggable="{{ enableEditing }}"
         (dragstart)="dragStart($event, mealItem)"
         (dragend)="dragEnd($event, mealItem)"
-        [ngClass]="{
-          dragging: mealItemsDragging[mealItem.id],
-          breakfast: mealItem.meal === 'breakfast',
-          lunch: mealItem.meal === 'lunch',
-          dinner: mealItem.meal === 'dinner',
-          snacks: mealItem.meal === 'snacks',
-          other: mealItem.meal === 'other',
-        }"
+        [ngClass]="{ dragging: mealItemsDragging[mealItem.id] }"
+        [style.border-left-color]="
+          getMealBorderColor(mealItem.meal.toLowerCase())
+        "
       ></calendar-item>
     }
   </div>

@@ -1,0 +1,29 @@
+.meal-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.meal-entry-item {
+  flex: 1;
+}
+
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+
+  &.no-color {
+    background: var(--ion-background-color) !important;
+    border: 2px dashed var(--ion-border-color, #d7d8da);
+  }
+}
+
+.color-picker-container {
+  padding: 8px 0 12px 36px;
+}

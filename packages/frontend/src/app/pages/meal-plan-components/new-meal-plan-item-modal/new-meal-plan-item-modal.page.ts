@@ -22,6 +22,7 @@ export class NewMealPlanItemModalPage {
   @Input() title: string = "";
   @Input() meal?: string;
   @Input() notes: string = "";
+  @Input() customMealOptions: string | null = null;
   @Input() scheduledDate = dayjs().format("YYYY-MM-DD");
 
   scheduledDateChange(event: any) {

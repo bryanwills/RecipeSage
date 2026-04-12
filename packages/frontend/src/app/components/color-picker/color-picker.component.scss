@@ -1,0 +1,37 @@
+.color-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.color-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.selected {
+    border-color: var(--ion-text-color);
+  }
+}
+
+.no-color-option {
+  background: var(--ion-background-color);
+  border-color: var(--ion-border-color, #d7d8da);
+
+  ion-icon {
+    font-size: 18px;
+    color: var(--ion-color-medium);
+  }
+}
+
+.hex-input-item {
+  max-width: 140px;
+  margin-top: 8px;
+  --padding-start: 0;
+}

@@ -6,6 +6,7 @@ import { RouteMap } from "~/services/util.service";
 import { TRPCService } from "../../../services/trpc.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectCollaboratorsComponent } from "../../../components/select-collaborators/select-collaborators.component";
+import { MealPlanMealOrderModalPage } from "../meal-plan-meal-order-modal/meal-plan-meal-order-modal.page";
 
 @Component({
   standalone: true,
@@ -21,8 +22,24 @@ export class NewMealPlanModalPage {
   private trpcService = inject(TRPCService);
 
   mealPlanTitle = "";
-
+  customMealOptions: string | null = null;
   selectedCollaboratorIds: any = [];
+
+  async openCustomMealOptions() {
+    const modal = await this.modalCtrl.create({
+      component: MealPlanMealOrderModalPage,
+      componentProps: {
+        customMealOptions: this.customMealOptions || undefined,
+      },
+    });
+
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+
+    if (data?.customMealOptions !== undefined) {
+      this.customMealOptions = data.customMealOptions || null;
+    }
+  }
 
   async save() {
     const loading = this.loadingService.start();
@@ -31,6 +48,7 @@ export class NewMealPlanModalPage {
       this.trpcService.trpc.mealPlans.createMealPlan.mutate({
         title: this.mealPlanTitle,
         collaboratorUserIds: this.selectedCollaboratorIds,
+        customMealOptions: this.customMealOptions,
       }),
     );
     loading.dismiss();

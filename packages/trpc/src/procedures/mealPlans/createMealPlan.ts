@@ -13,6 +13,7 @@ export const createMealPlan = publicProcedure
     z.object({
       title: z.string().min(1).max(254),
       collaboratorUserIds: z.array(z.uuid()),
+      customMealOptions: z.string().max(10000).nullable().optional(),
     }),
   )
   .mutation(async ({ ctx, input }) => {
@@ -40,6 +41,7 @@ export const createMealPlan = publicProcedure
     const createdMealPlan = await prisma.mealPlan.create({
       data: {
         title: input.title,
+        customMealOptions: input.customMealOptions,
         userId: session.userId,
         collaboratorUsers: {
           createMany: {

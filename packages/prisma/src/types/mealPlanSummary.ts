@@ -16,6 +16,7 @@ export const mealPlanSummary = {
       },
     },
     title: true,
+    customMealOptions: true,
     createdAt: true,
     updatedAt: true,
     _count: {

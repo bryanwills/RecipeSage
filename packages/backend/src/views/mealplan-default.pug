@@ -91,7 +91,6 @@ html
       }
 
       .meal-title {
-        text-transform: capitalize;
         font-weight: bold;
         font-size: 10px;
         color: #555;
@@ -101,30 +100,10 @@ html
         margin: 3px 0;
         padding: 4px 6px;
         font-size: 11px;
-        border-left: 4px solid #999;
+        border-left: 4px solid #92949c;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-      }
-
-      .meal-item.breakfast {
-        border-left-color: #eb445a;
-      }
-
-      .meal-item.lunch {
-        border-left-color: #ffc409;
-      }
-
-      .meal-item.dinner {
-        border-left-color: #2dd36f;
-      }
-
-      .meal-item.snacks {
-        border-left-color: #6a64ff;
-      }
-
-      .meal-item.other {
-        border-left-color: #92949c;
       }
 
       .item-notes {
@@ -155,33 +134,13 @@ html
       .list-meal-item {
         padding: 6px 8px;
         margin: 4px 0;
-        border-left: 4px solid #999;
+        border-left: 4px solid #92949c;
       }
 
       .list-item-header {
         display: flex;
         align-items: baseline;
         gap: 6px;
-      }
-
-      .list-meal-item.breakfast {
-        border-left-color: #eb445a;
-      }
-
-      .list-meal-item.lunch {
-        border-left-color: #ffc409;
-      }
-
-      .list-meal-item.dinner {
-        border-left-color: #2dd36f;
-      }
-
-      .list-meal-item.snacks {
-        border-left-color: #6a64ff;
-      }
-
-      .list-meal-item.other {
-        border-left-color: #92949c;
       }
 
       .list-item-title {
@@ -191,7 +150,6 @@ html
       .list-meal-label {
         font-size: 11px;
         font-weight: bold;
-        text-transform: capitalize;
         color: #555;
         flex-shrink: 0;
       }
@@ -227,9 +185,9 @@ html
                   span(class='date-badge' + (day.inactive ? ' inactive' : '') + (day.isToday ? ' today' : ''))= day.date
                   each meal in day.meals
                     div(class="meal-group")
-                      div(class="meal-title")= mealLabels[meal]
+                      div(class="meal-title")= mealLabels[meal] || meal
                       each item in day.itemsByMeal[meal]
-                        div(class="meal-item " + item.meal)
+                        div(class="meal-item" style="border-left-color: " + (mealColors[item.meal] || '#92949c'))
                           span= item.title
                           if item.notes
                             div(class="item-notes")= item.notes
@@ -239,7 +197,7 @@ html
         div(class="date-group")
           div(class="date-header")= dateGroup.formattedDate
           each item in dateGroup.items
-            div(class="list-meal-item " + item.meal)
+            div(class="list-meal-item" style="border-left-color: " + (mealColors[item.meal] || '#92949c'))
               div(class="list-item-header")
                 span(class="list-meal-label")= item.mealLabel
                 span(class="list-item-title")= item.title
