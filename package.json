@@ -7,6 +7,9 @@
     "postinstall": "[ -f 'packages/prisma/src/prisma/schema.prisma' ] && prisma generate || echo 'Prisma schema does not exist'"
   },
   "private": true,
+  "engines": {
+    "node": "24.13.x"
+  },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.33",
     "@ai-sdk/google": "^3.0.18",
