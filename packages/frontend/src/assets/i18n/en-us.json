@@ -497,6 +497,10 @@
   "pages.mealPlanPopover.removeSelfFromPlan.header": "Confirm Remove Plan",
   "pages.mealPlanPopover.removeSelfFromPlan.message": "This will remove this meal plan from your account. Only the owner of the meal plan can permanently delete it completely, but you won't be a member of this meal plan if you proceed. Only the owner of the meal plan can reverse this action.",
 
+  "pages.mealPlanMealOrderModal.title": "Customize Meal Options",
+  "pages.mealPlanMealOrderModal.description": "Add custom meal types and arrange them in the order you'd like them displayed. Default meals not listed will appear after your custom entries.",
+  "pages.mealPlanMealOrderModal.entryPlaceholder": "Meal name",
+
   "pages.mealPlans.tabTitle": "Meal Plans - RecipeSage",
   "pages.mealPlans.title": "Meal Plans",
   "pages.mealPlans.metadata.createdOn": "Created {{date}}",
@@ -525,6 +529,8 @@
   "pages.updateMealPlanModal.input.title": "Title",
   "pages.updateMealPlanModal.update": "Update",
   "pages.updateMealPlanModal.updateAndShare": "Update and Share",
+  "pages.updateMealPlanModal.detailsTitle": "Details",
+  "pages.updateMealPlanModal.customizeMealOptions": "Customize Meal Options",
 
   "pages.icalMealPlanModal.title": "Meal Plan iCal Link",
   "pages.icalMealPlanModal.description": "The iCal/ICS link below can be used in almost any calendar program to sync your meal plan outside of RecipeSage",
@@ -1142,11 +1148,6 @@
   "components.selectMultipleItems.searchPlaceholder": "Search for an item to add",
 
   "components.selectMeal.title": "Select Meal",
-  "components.selectMeal.breakfast": "Breakfast",
-  "components.selectMeal.lunch": "Lunch",
-  "components.selectMeal.dinner": "Dinner",
-  "components.selectMeal.snack": "Snack",
-  "components.selectMeal.other": "Other",
 
   "components.selectRecipe.change": "Click to change",
   "components.selectRecipe.select": "Click to select",
@@ -1232,6 +1233,7 @@
   "generic.no": "No",
   "generic.close": "Close",
   "generic.save": "Save",
+  "generic.done": "Done",
   "generic.okay": "Okay",
   "generic.ok": "Ok",
   "generic.ignore": "Ignore",

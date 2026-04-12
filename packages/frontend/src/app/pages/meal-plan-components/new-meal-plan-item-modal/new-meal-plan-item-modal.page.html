@@ -73,7 +73,11 @@
 
   <br /><br />
 
-  <select-meal [meal]="meal || ''" (mealChange)="meal = $event"></select-meal>
+  <select-meal
+    [meal]="meal || ''"
+    [customMealOptions]="customMealOptions"
+    (mealChange)="meal = $event"
+  ></select-meal>
 
   <br /><br />
 

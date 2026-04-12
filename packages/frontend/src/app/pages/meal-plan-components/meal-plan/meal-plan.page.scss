@@ -34,25 +34,6 @@
 
   .meal-list-item {
     --padding-start: 16px;
-
-    &.breakfast {
-      border-left: 4px solid var(--ion-color-danger);
-    }
-
-    &.lunch {
-      border-left: 4px solid var(--ion-color-warning);
-    }
-
-    &.dinner {
-      border-left: 4px solid var(--ion-color-success);
-    }
-
-    &.snacks {
-      border-left: 4px solid var(--ion-color-tertiary);
-    }
-
-    &.other {
-      border-left: 4px solid var(--ion-text-color);
-    }
+    border-left: 4px solid var(--ion-text-color);
   }
 }

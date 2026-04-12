@@ -45,6 +45,7 @@ export class MealPlanItemDetailsModalPage {
     required: true,
   })
   mealItem!: MealPlanItemSummary;
+  @Input() customMealOptions: string | null = null;
 
   parsedNotes: ReturnType<typeof parseNotes> = [];
 
@@ -76,6 +77,7 @@ export class MealPlanItemDetailsModalPage {
           : this.mealItem.scheduledDate,
         meal: this.mealItem.meal,
         notes: this.mealItem.notes,
+        customMealOptions: this.customMealOptions,
       },
     });
     modal.present();
@@ -115,6 +117,7 @@ export class MealPlanItemDetailsModalPage {
         scheduledDate: this.mealItem.scheduledDate,
         meal: this.mealItem.meal,
         notes: this.mealItem.notes,
+        customMealOptions: this.customMealOptions,
       },
     });
     modal.present();

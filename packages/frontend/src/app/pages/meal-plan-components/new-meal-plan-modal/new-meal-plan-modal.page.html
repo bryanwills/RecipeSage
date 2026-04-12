@@ -11,6 +11,7 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <h6>{{ "pages.updateMealPlanModal.detailsTitle" | translate }}</h6>
   <ion-item>
     <ion-input
       label="{{ 'pages.newMealPlanModal.input.title' | translate }}"
@@ -24,8 +25,14 @@
       spellcheck="true"
     ></ion-input>
   </ion-item>
-
-  <br /><br />
+  <br />
+  <ion-item button detail lines="none" (click)="openCustomMealOptions()">
+    <ion-icon name="reorder-three" slot="start"></ion-icon>
+    <ion-label>{{
+      "pages.updateMealPlanModal.customizeMealOptions" | translate
+    }}</ion-label>
+  </ion-item>
+  <br />
 
   <select-collaborators
     [selectedCollaboratorIds]="selectedCollaboratorIds"

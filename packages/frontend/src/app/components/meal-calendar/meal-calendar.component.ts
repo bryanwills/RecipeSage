@@ -3,8 +3,13 @@ import dayjs, { Dayjs } from "dayjs";
 
 import { UtilService } from "../../services/util.service";
 import { PreferencesService } from "~/services/preferences.service";
-import { MealPlanPreferenceKey } from "@recipesage/util/shared";
-import { MealName } from "../../services/meal-plan.service";
+import {
+  MealPlanPreferenceKey,
+  getMealSortOrder,
+  getOrderedMeals,
+  getMealColors,
+  getMealDisplayNames,
+} from "@recipesage/util/shared";
 import type { MealPlanItemSummary } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { MealGroupComponent } from "./meal-group/meal-group.component";
@@ -35,17 +40,16 @@ export class MealCalendarComponent {
 
   @Input() enableEditing = false;
   @Input() mode = "outline";
+  @Input() customMealOptions: string | null = null;
 
   @Output() mealsByDateChange = new EventEmitter<typeof this._mealsByDate>();
   _mealsByDate: {
     [year: number]: {
       [month: number]: {
         [day: number]: {
-          itemsByMeal: {
-            [key in MealName]: MealPlanItemSummary[];
-          };
+          itemsByMeal: Record<string, MealPlanItemSummary[]>;
           items: MealPlanItemSummary[];
-          meals: MealName[];
+          meals: string[];
         };
       };
     };
@@ -58,6 +62,8 @@ export class MealCalendarComponent {
     return this._mealsByDate;
   }
 
+  mealColors: Record<string, string> = {};
+  mealDisplayNames: Record<string, string> = {};
   preferences = this.preferencesService.preferences;
   preferenceKeys = MealPlanPreferenceKey;
 
@@ -194,18 +200,16 @@ export class MealCalendarComponent {
   processIncomingMealPlan() {
     this.mealsByDate = {};
 
-    const mealSortOrder = {
-      breakfast: 1,
-      lunch: 2,
-      dinner: 3,
-      snacks: 4,
-      other: 5,
-    };
+    const sortOrder = getMealSortOrder(this.customMealOptions);
+    const orderedMeals = getOrderedMeals(this.customMealOptions);
+    this.mealColors = getMealColors(this.customMealOptions);
+    this.mealDisplayNames = getMealDisplayNames(this.customMealOptions);
+
     this.mealPlanItems
       .sort((a, b) => {
         const comp =
-          (mealSortOrder[a.meal as keyof typeof mealSortOrder] || 6) -
-          (mealSortOrder[b.meal as keyof typeof mealSortOrder] || 6);
+          (sortOrder.get(a.meal.toLowerCase()) ?? 999) -
+          (sortOrder.get(b.meal.toLowerCase()) ?? 999);
         if (comp === 0) return a.title.localeCompare(b.title);
         return comp;
       })
@@ -218,19 +222,18 @@ export class MealCalendarComponent {
         const dayData = (this.mealsByDate[year][month][day] = this.mealsByDate[
           year
         ][month][day] || {
-          itemsByMeal: {
-            breakfast: [],
-            lunch: [],
-            dinner: [],
-            snacks: [],
-            other: [],
-          },
+          itemsByMeal: Object.fromEntries(
+            orderedMeals.map((m) => [m.toLowerCase(), []]),
+          ),
           items: [],
-          meals: Object.values(MealName),
+          meals: orderedMeals.map((m) => m.toLowerCase()),
         });
-        dayData.itemsByMeal[
-          item.meal as keyof typeof dayData.itemsByMeal
-        ]?.push(item);
+        const mealKey = item.meal.toLowerCase();
+        if (!dayData.itemsByMeal[mealKey]) {
+          dayData.itemsByMeal[mealKey] = [];
+          dayData.meals.push(mealKey);
+        }
+        dayData.itemsByMeal[mealKey].push(item);
         dayData.items.push(item);
       });
   }
@@ -239,6 +242,7 @@ export class MealCalendarComponent {
     const [year, month, day] = this.getYMD(dateStamp);
     return (
       this.mealsByDate[year]?.[month]?.[day] || {
+        itemsByMeal: {},
         meals: [],
         items: [],
       }

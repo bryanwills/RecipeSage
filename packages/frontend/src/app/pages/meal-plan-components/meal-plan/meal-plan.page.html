@@ -57,11 +57,7 @@
             @for (item of listItemsByDate.get(dateStr); track item.id) {
               <ion-item
                 class="meal-list-item"
-                [class.breakfast]="item.meal === 'breakfast'"
-                [class.lunch]="item.meal === 'lunch'"
-                [class.dinner]="item.meal === 'dinner'"
-                [class.snacks]="item.meal === 'snacks'"
-                [class.other]="item.meal === 'other'"
+                [style.border-left-color]="getMealBorderColor(item.meal)"
                 (click)="itemClicked(item)"
                 button
               >
@@ -99,11 +95,7 @@
                 @for (item of listItemsByDate.get(dateStr); track item.id) {
                   <ion-item
                     class="meal-list-item"
-                    [class.breakfast]="item.meal === 'breakfast'"
-                    [class.lunch]="item.meal === 'lunch'"
-                    [class.dinner]="item.meal === 'dinner'"
-                    [class.snacks]="item.meal === 'snacks'"
-                    [class.other]="item.meal === 'other'"
+                    [style.border-left-color]="getMealBorderColor(item.meal)"
                     (click)="itemClicked(item)"
                     button
                   >
@@ -120,6 +112,7 @@
     } @else {
       <div class="mealplan-flex">
         <meal-calendar
+          [customMealOptions]="mealPlan?.customMealOptions ?? null"
           [mealPlanItems]="mealPlanItems"
           (selectedDaysChange)="setSelectedDays($event)"
           (itemClicked)="itemClicked($event)"

@@ -7,6 +7,13 @@ import {
 import { NotFoundError } from "../../errors";
 import { AuthenticationEnforcement, defineHandler } from "../../defineHandler";
 import { translate } from "@recipesage/util/server/general";
+import {
+  DEFAULT_MEAL_I18N,
+  getMealSortOrder,
+  getOrderedMeals,
+  getMealColors,
+  getMealDisplayNames,
+} from "@recipesage/util/shared";
 
 const schema = {
   query: z.object({
@@ -20,22 +27,6 @@ const schema = {
   params: z.object({
     mealPlanId: z.string(),
   }),
-};
-
-const MEAL_SORT_ORDER: Record<string, number> = {
-  breakfast: 1,
-  lunch: 2,
-  dinner: 3,
-  snacks: 4,
-  other: 5,
-};
-
-const MEAL_I18N_KEYS: Record<string, string> = {
-  breakfast: "components.mealCalendar.breakfast",
-  lunch: "components.mealCalendar.lunch",
-  dinner: "components.mealCalendar.dinner",
-  snacks: "components.mealCalendar.snack",
-  other: "components.mealCalendar.other",
 };
 
 function formatDateUTC(date: Date): string {
@@ -95,6 +86,7 @@ export const printMealPlanHandler = defineHandler(
       select: {
         id: true,
         title: true,
+        customMealOptions: true,
       },
     });
 
@@ -130,18 +122,28 @@ export const printMealPlanHandler = defineHandler(
       req.query.preferredLanguage || req.headers["accept-language"] || "en-us";
     const locale = (req.query.preferredLanguage || "en-US").replace("_", "-");
 
+    const sortOrder = getMealSortOrder(mealPlan.customMealOptions);
+    const mealColorMap = getMealColors(mealPlan.customMealOptions);
+    const mealDisplayNameMap = getMealDisplayNames(mealPlan.customMealOptions);
+
     const mealLabels: Record<string, string> = {};
-    for (const [meal, key] of Object.entries(MEAL_I18N_KEYS)) {
+    for (const [meal, key] of Object.entries(DEFAULT_MEAL_I18N)) {
       mealLabels[meal] = await translate(languageHeader, key);
     }
 
     const itemsByDateStr = new Map<string, PrintItem[]>();
     for (const item of mealPlanItems) {
       const dateStr = formatDateUTC(item.scheduledDate);
+      const mealKey = item.meal.toLowerCase();
+
+      if (!mealLabels[mealKey]) {
+        mealLabels[mealKey] = mealDisplayNameMap[mealKey] || item.meal;
+      }
+
       const printItem: PrintItem = {
         title: item.recipe?.title || item.title,
-        meal: item.meal,
-        mealLabel: mealLabels[item.meal] || item.meal,
+        meal: mealKey,
+        mealLabel: mealLabels[mealKey] || item.meal,
         notes: item.notes,
       };
 
@@ -156,7 +158,7 @@ export const printMealPlanHandler = defineHandler(
     for (const items of itemsByDateStr.values()) {
       items.sort(
         (a, b) =>
-          (MEAL_SORT_ORDER[a.meal] || 6) - (MEAL_SORT_ORDER[b.meal] || 6),
+          (sortOrder.get(a.meal) ?? 999) - (sortOrder.get(b.meal) ?? 999),
       );
     }
 
@@ -192,6 +194,7 @@ export const printMealPlanHandler = defineHandler(
           ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
           : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+      const orderedMeals = getOrderedMeals(mealPlan.customMealOptions);
       const todayStr = formatDateUTC(new Date());
       const weeks: CalendarDay[][] = [];
       let currentWeek: CalendarDay[] = [];
@@ -203,12 +206,20 @@ export const printMealPlanHandler = defineHandler(
 
         const itemsByMeal: Record<string, PrintItem[]> = {};
         const mealsPresent: string[] = [];
-        const mealOrder = ["breakfast", "lunch", "dinner", "snacks", "other"];
-        for (const m of mealOrder) {
-          const mealItems = dayItems.filter((i) => i.meal === m);
+        for (const m of orderedMeals) {
+          const key = m.toLowerCase();
+          const mealItems = dayItems.filter((i) => i.meal === key);
           if (mealItems.length > 0) {
-            itemsByMeal[m] = mealItems;
-            mealsPresent.push(m);
+            itemsByMeal[key] = mealItems;
+            mealsPresent.push(key);
+          }
+        }
+        for (const item of dayItems) {
+          if (!itemsByMeal[item.meal]) {
+            itemsByMeal[item.meal] = dayItems.filter(
+              (i) => i.meal === item.meal,
+            );
+            mealsPresent.push(item.meal);
           }
         }
 
@@ -240,6 +251,7 @@ export const printMealPlanHandler = defineHandler(
         dayTitles,
         weeks,
         mealLabels,
+        mealColors: mealColorMap,
         date: new Date().toDateString(),
       });
     } else {
@@ -259,6 +271,7 @@ export const printMealPlanHandler = defineHandler(
         title: mealPlan.title,
         viewType: "list",
         dates,
+        mealColors: mealColorMap,
         date: new Date().toDateString(),
       });
     }

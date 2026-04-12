@@ -16,8 +16,9 @@ export const updateMealPlan = publicProcedure
   .input(
     z.object({
       id: z.uuid(),
-      title: z.string().min(1).max(254),
-      collaboratorUserIds: z.array(z.uuid()),
+      title: z.string().min(1).max(254).optional(),
+      collaboratorUserIds: z.array(z.uuid()).optional(),
+      customMealOptions: z.string().max(10000).nullable().optional(),
     }),
   )
   .mutation(async ({ ctx, input }) => {
@@ -33,29 +34,74 @@ export const updateMealPlan = publicProcedure
       });
     }
 
-    const collaboratorUsers = await prisma.user.findMany({
-      where: {
-        id: {
-          in: input.collaboratorUserIds,
+    if (input.collaboratorUserIds !== undefined) {
+      const collaboratorUsers = await prisma.user.findMany({
+        where: {
+          id: {
+            in: input.collaboratorUserIds,
+          },
         },
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    if (collaboratorUsers.length < input.collaboratorUserIds.length) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "One or more of the collaborators you specified are not valid",
+        select: {
+          id: true,
+        },
       });
-    }
 
-    await prisma.mealPlanCollaborator.deleteMany({
-      where: {
-        mealPlanId: input.id,
-      },
-    });
+      if (collaboratorUsers.length < input.collaboratorUserIds.length) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "One or more of the collaborators you specified are not valid",
+        });
+      }
+
+      await prisma.mealPlanCollaborator.deleteMany({
+        where: {
+          mealPlanId: input.id,
+        },
+      });
+
+      const updatedMealPlan = await prisma.mealPlan.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          title: input.title,
+          customMealOptions: input.customMealOptions,
+          userId: session.userId,
+          collaboratorUsers: {
+            createMany: {
+              data: collaboratorUsers.map((collaboratorUser) => ({
+                userId: collaboratorUser.id,
+              })),
+            },
+          },
+        },
+      });
+
+      const reference = crypto.randomUUID();
+      const subscriberIds = [
+        ...new Set([
+          updatedMealPlan.userId,
+          ...access.subscriberIds,
+          ...input.collaboratorUserIds,
+        ]),
+      ];
+      for (const subscriberId of subscriberIds) {
+        broadcastWSEventIgnoringErrors(
+          subscriberId,
+          WSBoardcastEventType.MealPlanUpdated,
+          {
+            reference,
+            mealPlanId: updatedMealPlan.id,
+          },
+        );
+      }
+
+      return {
+        reference,
+        id: updatedMealPlan.id,
+      };
+    }
 
     const updatedMealPlan = await prisma.mealPlan.update({
       where: {
@@ -63,27 +109,13 @@ export const updateMealPlan = publicProcedure
       },
       data: {
         title: input.title,
+        customMealOptions: input.customMealOptions,
         userId: session.userId,
-        collaboratorUsers: {
-          createMany: {
-            data: collaboratorUsers.map((collaboratorUser) => ({
-              userId: collaboratorUser.id,
-            })),
-          },
-        },
       },
     });
 
     const reference = crypto.randomUUID();
-    const subscriberIds = [
-      ...new Set([
-        updatedMealPlan.userId,
-        // We need to notify both the old collaborators and the new collaborators of the update
-        ...access.subscriberIds,
-        ...input.collaboratorUserIds,
-      ]),
-    ];
-    for (const subscriberId of subscriberIds) {
+    for (const subscriberId of access.subscriberIds) {
       broadcastWSEventIgnoringErrors(
         subscriberId,
         WSBoardcastEventType.MealPlanUpdated,

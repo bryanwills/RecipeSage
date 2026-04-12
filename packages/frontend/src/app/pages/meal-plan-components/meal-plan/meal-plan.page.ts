@@ -16,6 +16,9 @@ import { PreferencesService } from "~/services/preferences.service";
 import {
   MealPlanPreferenceKey,
   MealPlanViewTypeOptions,
+  getMealSortOrder,
+  getMealColors,
+  DEFAULT_MEAL_COLORS,
 } from "@recipesage/util/shared";
 
 import { MealCalendarComponent } from "~/components/meal-calendar/meal-calendar.component";
@@ -76,6 +79,7 @@ export class MealPlanPage {
     };
   } = {};
 
+  mealColors: Record<string, string> = {};
   itemsByRecipeId: { [key: string]: MealPlanItemSummary } = {};
   recipeIds: string[] = [];
 
@@ -162,6 +166,7 @@ export class MealPlanPage {
     if (!mealPlan || !mealPlanItems) return;
     this.mealPlan = mealPlan;
     this.mealPlanItems = mealPlanItems;
+    this.mealColors = getMealColors(this.mealPlan.customMealOptions);
 
     if (
       this.preferences[MealPlanPreferenceKey.ViewType] ===
@@ -192,7 +197,7 @@ export class MealPlanPage {
         mealPlanId: this.mealPlanId,
         title: item.title,
         recipeId: item.recipeId || null,
-        meal: item.meal as any, // TODO: Refine this type so that it aligns with Zod
+        meal: item.meal,
         notes: item.notes,
         scheduledDate: item.scheduledDate,
       }),
@@ -208,6 +213,7 @@ export class MealPlanPage {
       component: NewMealPlanItemModalPage,
       componentProps: {
         scheduledDate: this.selectedDays[0],
+        customMealOptions: this.mealPlan?.customMealOptions ?? null,
       },
     });
     modal.present();
@@ -251,6 +257,7 @@ export class MealPlanPage {
       componentProps: {
         mealItem,
         mealPlanId: this.mealPlanId,
+        customMealOptions: this.mealPlan?.customMealOptions ?? null,
       },
     });
     modal.present();
@@ -276,6 +283,7 @@ export class MealPlanPage {
         scheduledDate: dateStamp,
         meal: mealItem.meal,
         notes: mealItem.notes,
+        customMealOptions: this.mealPlan?.customMealOptions ?? null,
       },
     });
     modal.present();
@@ -643,7 +651,7 @@ export class MealPlanPage {
           scheduledDate: dayjs(item.scheduledDate)
             .add(dayDiff, "day")
             .format("YYYY-MM-DD"),
-          meal: item.meal as any, // TODO: Refine this type so that it aligns with Zod
+          meal: item.meal,
           notes: item.notes,
         }));
       })
@@ -677,7 +685,7 @@ export class MealPlanPage {
           scheduledDate: dayjs(item.scheduledDate)
             .add(dayDiff, "day")
             .format("YYYY-MM-DD"),
-          meal: item.meal as any, // TODO: Refine this type so that it aligns with Zod
+          meal: item.meal,
           notes: item.notes,
         }));
       })
@@ -710,6 +718,14 @@ export class MealPlanPage {
     this.loadWithProgress();
   }
 
+  getMealBorderColor(meal: string): string {
+    return (
+      this.mealColors[meal.toLowerCase()] ||
+      DEFAULT_MEAL_COLORS[meal.toLowerCase()] ||
+      DEFAULT_MEAL_COLORS.other
+    );
+  }
+
   setMealsByDate(mealsByDate: typeof this.mealsByDate) {
     this.mealsByDate = mealsByDate;
   }
@@ -722,20 +738,15 @@ export class MealPlanPage {
   processItemsForListView() {
     if (!this.mealPlanItems) return;
 
-    const mealSortOrder: Record<string, number> = {
-      breakfast: 1,
-      lunch: 2,
-      dinner: 3,
-      snacks: 4,
-      other: 5,
-    };
+    const sortOrder = getMealSortOrder(this.mealPlan?.customMealOptions);
 
     this.mealsByDate = {};
 
     [...this.mealPlanItems]
       .sort((a, b) => {
         const comp =
-          (mealSortOrder[a.meal] || 6) - (mealSortOrder[b.meal] || 6);
+          (sortOrder.get(a.meal.toLowerCase()) ?? 999) -
+          (sortOrder.get(b.meal.toLowerCase()) ?? 999);
         if (comp === 0) return a.title.localeCompare(b.title);
         return comp;
       })
