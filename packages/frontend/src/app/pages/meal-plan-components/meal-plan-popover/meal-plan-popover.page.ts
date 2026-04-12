@@ -8,9 +8,10 @@ import {
 import { TranslateService } from "@ngx-translate/core";
 
 import { LoadingService } from "~/services/loading.service";
-import { RouteMap } from "~/services/util.service";
+import { RouteMap, UtilService } from "~/services/util.service";
 import { PreferencesService } from "~/services/preferences.service";
 import {
+  GlobalPreferenceKey,
   MealPlanPreferenceKey,
   MealPlanViewTypeOptions,
 } from "@recipesage/util/shared";
@@ -36,6 +37,7 @@ export class MealPlanPopoverPage {
   private loadingService = inject(LoadingService);
   private trpcService = inject(TRPCService);
   private alertCtrl = inject(AlertController);
+  private utilService = inject(UtilService);
 
   preferences = this.preferencesService.preferences;
   preferenceKeys = MealPlanPreferenceKey;
@@ -53,6 +55,8 @@ export class MealPlanPopoverPage {
     required: true,
   })
   isOwner!: boolean;
+  @Input() calendarCenter?: Date;
+  @Input() viewType?: string;
 
   savePreferences() {
     this.preferencesService.save();
@@ -75,6 +79,29 @@ export class MealPlanPopoverPage {
     });
 
     modal.present();
+    this.dismiss();
+  }
+
+  print() {
+    const viewType =
+      this.viewType || this.preferences[MealPlanPreferenceKey.ViewType];
+
+    window.open(
+      this.utilService.generatePrintMealPlanURL(this.mealPlanId, {
+        viewType,
+        calendarMonth: this.calendarCenter
+          ? this.calendarCenter.getMonth() + 1
+          : undefined,
+        calendarYear: this.calendarCenter
+          ? this.calendarCenter.getFullYear()
+          : undefined,
+        startOfWeek:
+          this.preferences[MealPlanPreferenceKey.StartOfWeek] || undefined,
+        preferredLanguage:
+          this.preferences[GlobalPreferenceKey.Language] || undefined,
+      }),
+    );
+
     this.dismiss();
   }
 
