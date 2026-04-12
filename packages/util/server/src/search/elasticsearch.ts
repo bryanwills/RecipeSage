@@ -25,22 +25,20 @@ async function init() {
   if (!exists) {
     await client.indices.create({
       index: "recipes",
-      body: {
-        mappings: {
-          properties: {
-            title: {
-              type: "text",
-              analyzer: "english", // Enable stemming
-              fields: {
-                keyword: {
-                  type: "keyword",
-                  ignore_above: 256,
-                },
+      mappings: {
+        properties: {
+          title: {
+            type: "text",
+            analyzer: "english", // Enable stemming
+            fields: {
+              keyword: {
+                type: "keyword",
+                ignore_above: 256,
               },
             },
-            userId: {
-              type: "keyword",
-            },
+          },
+          userId: {
+            type: "keyword",
           },
         },
       },
@@ -104,7 +102,7 @@ export const indexRecipes = async (recipes: Recipe[]) => {
   if (actions.length === 0) return Promise.resolve();
 
   await client.bulk({
-    body: actions,
+    operations: actions,
   });
 };
 
@@ -119,40 +117,38 @@ export const deleteRecipes = async (recipeIds: string[]) => {
   if (actions.length === 0) return Promise.resolve();
 
   await client.bulk({
-    body: actions,
+    operations: actions,
   });
 };
 
 export const searchRecipes = async (userIds: string[], queryString: string) => {
   const results = await client.search({
     index: "recipes",
-    body: {
-      query: {
-        bool: {
-          should: [
-            {
-              match_phrase_prefix: {
-                // Increase score of items with titles that match the entire phrase exactly
-                title: {
-                  query: queryString,
-                },
-              },
-            },
-          ],
-          must: {
-            match_bool_prefix: {
-              // Items must contain all terms that were searched for
-              fullText: {
+    query: {
+      bool: {
+        should: [
+          {
+            match_phrase_prefix: {
+              // Increase score of items with titles that match the entire phrase exactly
+              title: {
                 query: queryString,
-                fuzziness: "AUTO",
-                operator: "and",
               },
             },
           },
-          filter: {
-            terms: {
-              userId: userIds,
+        ],
+        must: {
+          match_bool_prefix: {
+            // Items must contain all terms that were searched for
+            fullText: {
+              query: queryString,
+              fuzziness: "AUTO",
+              operator: "and",
             },
+          },
+        },
+        filter: {
+          terms: {
+            userId: userIds,
           },
         },
       },
