@@ -113,6 +113,10 @@
     <ion-icon name="share" slot="start"></ion-icon>
     {{ "pages.mealPlanPopover.actions.ical" | translate }}
   </ion-button>
+  <ion-button (click)="print()" expand="block" size="small" class="ion-margin">
+    <ion-icon name="print" slot="start"></ion-icon>
+    {{ "pages.mealPlanPopover.actions.print" | translate }}
+  </ion-button>
   <ion-list-header>
     {{ "pages.mealPlanPopover.dangerZone.title" | translate }}
   </ion-list-header>

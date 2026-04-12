@@ -224,6 +224,8 @@ export class MealPlanPage {
         mealPlanId: this.mealPlanId,
         mealPlan: this.mealPlan,
         isOwner: this.me?.id === this.mealPlan?.user.id,
+        calendarCenter: this.mealPlanCalendar?.center,
+        viewType: this.preferences[MealPlanPreferenceKey.ViewType],
       },
       event,
     });

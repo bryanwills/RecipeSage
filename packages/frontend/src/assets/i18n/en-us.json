@@ -483,6 +483,7 @@
   "pages.mealPlanPopover.options.viewType.list": "List",
   "pages.mealPlanPopover.actions.title": "Actions",
   "pages.mealPlanPopover.actions.ical": "Get ICal Link",
+  "pages.mealPlanPopover.actions.print": "Print",
   "pages.mealPlanPopover.actions.pinRecipesOpen": "Pin recipes open",
   "pages.mealPlanPopover.actions.addToShoppingList": "Add to shopping list",
   "pages.mealPlanPopover.actions.copyDays": "Copy selected day(s)",

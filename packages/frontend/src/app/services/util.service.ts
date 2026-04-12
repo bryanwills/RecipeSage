@@ -425,6 +425,32 @@ export class UtilService {
     return `${this.getBase()}print/shoppingList/${shoppingListId}${query}`;
   }
 
+  generatePrintMealPlanURL(
+    mealPlanId: string,
+    options: {
+      viewType: string;
+      calendarMonth?: number;
+      calendarYear?: number;
+      startOfWeek?: string;
+      preferredLanguage?: string;
+    },
+  ) {
+    let query = `${this.getTokenQuery()}&version=${
+      (window as any).version
+    }&print=true`;
+
+    query += `&viewType=${options.viewType}`;
+    if (options.calendarMonth !== undefined)
+      query += `&calendarMonth=${options.calendarMonth}`;
+    if (options.calendarYear !== undefined)
+      query += `&calendarYear=${options.calendarYear}`;
+    if (options.startOfWeek) query += `&startOfWeek=${options.startOfWeek}`;
+    if (options.preferredLanguage)
+      query += `&preferredLanguage=${options.preferredLanguage}`;
+
+    return `${this.getBase()}print/mealPlan/${mealPlanId}${query}`;
+  }
+
   generateRecipeTemplateURL(
     recipeId: string,
     modifiers: RecipeTemplateModifiers,
