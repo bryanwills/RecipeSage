@@ -53,6 +53,7 @@ export interface Recipe extends BaseRecipe {
 
 export interface ParsedIngredient {
   content: string;
+  plaintextContent: string;
   originalContent: string;
   htmlContent: string;
   isHeader: boolean;
@@ -62,6 +63,7 @@ export interface ParsedIngredient {
 
 export interface ParsedInstruction {
   content: string;
+  plaintextContent: string;
   htmlContent: string;
   isHeader: boolean;
   complete: boolean;

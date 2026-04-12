@@ -295,7 +295,7 @@ html
     div(class='ingrInstrContainer')
       div(class='ingredients')
         each ingredient in recipe.ingredients
-          p(class=('ingredient ' + (ingredient.isHeader ? 'ingredientHeader' : ''))) !{ingredient.content}
+          p(class=('ingredient ' + (ingredient.isHeader ? 'ingredientHeader' : ''))) !{ingredient.htmlContent}
         if modifiers.scale !== 1
           p
             i Ingredients at&nbsp;
@@ -306,10 +306,10 @@ html
           div(class='instruction')
             if instruction.isHeader
               span
-              b !{instruction.content}
+              b !{instruction.htmlContent}
             else
               b(class='count')= instruction.count
-              span !{instruction.content}
+              span !{instruction.htmlContent}
 
     if recipe.notes && !modifiers.hideNotes
       p(class='sans')
@@ -318,11 +318,7 @@ html
         if note.isTable
           div !{note.htmlContent}
         else
-          div(class='note')
-            if note.isHeader
-              b= note.content
-            else
-              span= note.content
+          div(class='note') !{note.htmlContent}
       br
 
     if recipe.url && !modifiers.hideSourceURL

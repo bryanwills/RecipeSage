@@ -6,6 +6,8 @@ import {
   parseIngredients,
   parseInstructions,
   parseNotes,
+  applyInlineFormatting,
+  stripInlineFormatting,
   isRtlText,
 } from "./parsers";
 
@@ -553,6 +555,124 @@ describe("parsers", () => {
         expect(result[0].htmlContent).toContain("<th></th>");
         expect(result[0].htmlContent).toContain("<td></td>");
       });
+    });
+  });
+
+  describe("applyInlineFormatting", () => {
+    it("converts **bold** to <b> tags", () => {
+      expect(applyInlineFormatting("some **bold** text")).toBe(
+        "some <b>bold</b> text",
+      );
+    });
+
+    it("converts *italic* to <i> tags", () => {
+      expect(applyInlineFormatting("some *italic* text")).toBe(
+        "some <i>italic</i> text",
+      );
+    });
+
+    it("converts __underline__ to <u> tags", () => {
+      expect(applyInlineFormatting("some __underline__ text")).toBe(
+        "some <u>underline</u> text",
+      );
+    });
+
+    it("converts ***bold italic*** to nested <b><i> tags", () => {
+      expect(applyInlineFormatting("***both***")).toBe("<b><i>both</i></b>");
+    });
+
+    it("handles multiple formats in one line", () => {
+      expect(
+        applyInlineFormatting("**bold** and *italic* and __underline__"),
+      ).toBe("<b>bold</b> and <i>italic</i> and <u>underline</u>");
+    });
+
+    it("handles nested bold within italic context", () => {
+      expect(applyInlineFormatting("*italic **bold** italic*")).toBe(
+        "<i>italic <b>bold</b> italic</i>",
+      );
+    });
+
+    it("returns plain text unchanged", () => {
+      expect(applyInlineFormatting("no formatting here")).toBe(
+        "no formatting here",
+      );
+    });
+
+    it("leaves unmatched delimiters unchanged", () => {
+      expect(applyInlineFormatting("a single * asterisk")).toBe(
+        "a single * asterisk",
+      );
+      expect(applyInlineFormatting("a __ single")).toBe("a __ single");
+    });
+  });
+
+  describe("stripInlineFormatting", () => {
+    it("strips **bold** markers", () => {
+      expect(stripInlineFormatting("some **bold** text")).toBe(
+        "some bold text",
+      );
+    });
+
+    it("strips *italic* markers", () => {
+      expect(stripInlineFormatting("some *italic* text")).toBe(
+        "some italic text",
+      );
+    });
+
+    it("strips __underline__ markers", () => {
+      expect(stripInlineFormatting("some __underline__ text")).toBe(
+        "some underline text",
+      );
+    });
+
+    it("strips ***bold italic*** markers", () => {
+      expect(stripInlineFormatting("***both***")).toBe("both");
+    });
+
+    it("strips multiple formats in one line", () => {
+      expect(
+        stripInlineFormatting("**bold** and *italic* and __underline__"),
+      ).toBe("bold and italic and underline");
+    });
+
+    it("leaves plain text unchanged", () => {
+      expect(stripInlineFormatting("no formatting here")).toBe(
+        "no formatting here",
+      );
+    });
+  });
+
+  describe("inline formatting in parsers", () => {
+    it("applies inline formatting in parseIngredients htmlContent", () => {
+      const result = parseIngredients("**bold** ingredient", 1);
+      expect(result[0].htmlContent).toContain("<b>bold</b>");
+      expect(result[0].content).toBe("**bold** ingredient");
+      expect(result[0].plaintextContent).toBe("bold ingredient");
+    });
+
+    it("applies inline formatting in parseInstructions htmlContent", () => {
+      const result = parseInstructions("*italic* step", 1);
+      expect(result[0].htmlContent).toContain("<i>italic</i>");
+      expect(result[0].content).toBe("*italic* step");
+      expect(result[0].plaintextContent).toBe("italic step");
+    });
+
+    it("applies inline formatting in parseNotes htmlContent", () => {
+      const result = parseNotes("__underlined__ note");
+      expect(result[0].htmlContent).toContain("<u>underlined</u>");
+      expect(result[0].content).toBe("__underlined__ note");
+      expect(result[0].plaintextContent).toBe("underlined note");
+    });
+
+    it("applies inline formatting in table cells", () => {
+      const result = parseNotes(
+        "| **Bold** | *Italic* |\n| --- | --- |\n| __underline__ | plain |",
+      );
+      expect(result[0].htmlContent).toContain("<th><b>Bold</b></th>");
+      expect(result[0].htmlContent).toContain("<th><i>Italic</i></th>");
+      expect(result[0].htmlContent).toContain("<td><u>underline</u></td>");
+      expect(result[0].htmlContent).toContain("<td>plain</td>");
     });
   });
 

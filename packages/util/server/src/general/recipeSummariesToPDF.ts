@@ -36,18 +36,48 @@ export interface ExportOptions {
   includeImageUrls?: boolean;
 }
 
+const inlineFormattingRegex =
+  /(\*\*\*(.+?)\*\*\*|\*\*(.+?)\*\*|\*(.+?)\*|__(.+?)__)/g;
+
+const applyInlineFormattingPdfmake = (text: string): Content => {
+  const segments: Content[] = [];
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(inlineFormattingRegex)) {
+    if (match.index > lastIndex) {
+      segments.push(text.slice(lastIndex, match.index));
+    }
+
+    if (match[2]) {
+      segments.push({ text: match[2], bold: true, italics: true });
+    } else if (match[3]) {
+      segments.push({ text: match[3], bold: true });
+    } else if (match[4]) {
+      segments.push({ text: match[4], italics: true });
+    } else if (match[5]) {
+      segments.push({ text: match[5], decoration: "underline" });
+    }
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (segments.length === 0) return text;
+
+  if (lastIndex < text.length) {
+    segments.push(text.slice(lastIndex));
+  }
+
+  return { text: segments };
+};
+
 const parsedToSchema = (
   parsedItems: { content: string; isHeader: boolean }[],
   includeMargin: boolean,
-): {
-  text: string;
-  bold: boolean;
-  margin: Margins | undefined;
-}[] => {
+): Content[] => {
   return parsedItems.map((item) => ({
-    text: item.content,
+    text: applyInlineFormattingPdfmake(item.content),
     bold: item.isHeader,
-    margin: includeMargin ? [0, 0, 0, 5] : undefined,
+    margin: includeMargin ? ([0, 0, 0, 5] satisfies Margins) : undefined,
   }));
 };
 
@@ -71,7 +101,9 @@ const parsedNotesToSchema = (parsedNotes: ParsedNote[]): Content[] => {
           headerRows: 1,
           body: body.map((row, rowIdx) =>
             row.map((cell) =>
-              rowIdx === 0 ? { text: cell, bold: true } : { text: cell },
+              rowIdx === 0
+                ? { text: applyInlineFormattingPdfmake(cell), bold: true }
+                : { text: applyInlineFormattingPdfmake(cell) },
             ),
           ),
         },
@@ -79,7 +111,7 @@ const parsedNotesToSchema = (parsedNotes: ParsedNote[]): Content[] => {
       };
     }
     return {
-      text: note.content,
+      text: applyInlineFormattingPdfmake(note.content),
       bold: note.isHeader,
     };
   });

@@ -120,7 +120,7 @@ export class AddRecipeToShoppingListModalPage {
     const items = Object.entries(this.selectedIngredientsByRecipe)
       .map(([recipeId, ingredients]) =>
         (ingredients as ParsedIngredient[]).map((ingredient) => ({
-          title: ingredient.content.trim(),
+          title: ingredient.plaintextContent.trim(),
           recipeId,
         })),
       )
