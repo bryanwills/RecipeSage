@@ -31,6 +31,7 @@ model Friendship {
   user      User     @relation("Friendships_userIdToUsers", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, friendId], map: "Friendships_userId_friendId_uk")
+  @@index([friendId], map: "friendships_friend_id")
   @@map("Friendships")
 }
 
@@ -236,7 +237,7 @@ model Recipe {
   id                String             @id @default(uuid()) @db.Uuid
   userId            String             @db.Uuid
   fromUserId        String?            @db.Uuid
-  title             String
+  title             String             @db.VarChar(255)
   description       String             @default("")
   yield             String             @default("")
   activeTime        String             @default("")
@@ -267,6 +268,8 @@ model Recipe {
 
   @@index([userId], map: "recipes_user_id")
   @@index([fromUserId], map: "recipes_from_user_id")
+  @@index([userId, folder, createdAt(sort: Desc)], map: "recipes_user_folder_created_at")
+  @@index([userId, folder, title], map: "recipes_user_folder_title")
   @@map("Recipes")
 }
 

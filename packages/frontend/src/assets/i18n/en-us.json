@@ -272,7 +272,6 @@
   "pages.contact.discord": "For any issues, bugs, or feature suggestions, please contact me via our Discord: ",
   "pages.contact.discord.link": "Discord Link",
 
-  "pages.contact.emailMe": "Although I prefer contact via Discord since I get a lot of email, you can email me for urgent or sensitive issues at",
   "pages.contact.socialTitle": "Social Media",
 
   "pages.contribute.tabTitle": "Contribute - RecipeSage",
@@ -625,7 +624,8 @@
   "pages.editRecipe.clipImage.selectMore.header": "Select An Additional Image?",
   "pages.editRecipe.clipImage.selectMore.message": "If you were unable to fit the entire recipe within a single photo you can scan up to {{maxCount}} images. Please try to limit overlapping text as much as possible, as overlapping text may appear more than once in the resulting recipe scan.",
   "pages.editRecipe.clip.loading": "Please wait...",
-  "pages.editRecipe.clip.failed": "Failed to autofill. Some sites block autofill, so you may have better luck with the RecipeSage browser extension, or by copying the site text and using the autofill from text option. Please contact me if you're having consistent issues with multiple different sites.",
+  "pages.editRecipe.clip.failed": "Failed to autofill. Unfortunately many sites block autofill - I recommend the RecipeSage browser extension, or copying the site text and using the autofill from text option",
+  "pages.editRecipe.clip.emptyResult": "There was a problem autofilling from this URL. I recommend the RecipeSage browser extension, or copying the site text and using the autofill from text option",
   "pages.editRecipe.clip.failedSelfhost": "Please check your OpenAI credentials as described in the selfhosting readme",
   "pages.editRecipe.missingLabelGroup.title": "Missing label group",
   "pages.editRecipe.missingLabelGroup.message": "You've specified that the label group \"{{groupName}}\" should be required. You can turn this off via the my labels page.",
@@ -760,8 +760,7 @@
   "pages.import.csv": "Import from CSV (PlanToEat, MyRecipeBox & others)",
   "pages.import.pdfs": "Import from PDFs",
   "pages.import.images": "Import from images",
-  "pages.import.fileTooLarge": "This file is too large to upload directly.",
-  "pages.import.fileTooLarge.contact": "Please contact me to have your database imported manually.",
+  "pages.import.fileTooLarge": "This file is too large to import into RecipeSage.",
   "pages.import.upload": "Upload and Import",
   "pages.import.upload.ignoreWarning": "Upload and Import Anyway",
   "pages.import.filePicker.file": "{{fileName}} Selected",

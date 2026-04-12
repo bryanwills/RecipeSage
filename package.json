@@ -7,6 +7,9 @@
     "postinstall": "[ -f 'packages/prisma/src/prisma/schema.prisma' ] && prisma generate || echo 'Prisma schema does not exist'"
   },
   "private": true,
+  "engines": {
+    "node": "24.13.x"
+  },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.68",
     "@ai-sdk/google": "^3.0.61",
@@ -160,7 +163,6 @@
     "@types/pdfkit": "^0.17.4",
     "@types/pdfmake": "^0.2.12",
     "@types/sanitize-html": "^2.16.0",
-    "@types/sharp": "^0.32.0",
     "@types/showdown": "^2.0.6",
     "@types/supertest": "^6.0.2",
     "@types/zip-stream": "^7.0.0",

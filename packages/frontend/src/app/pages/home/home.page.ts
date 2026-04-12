@@ -85,6 +85,7 @@ export class HomePage {
   preferenceKeys = MyRecipesPreferenceKey;
 
   reloadPending = true;
+  recipeLoadGeneration = 0;
 
   userId?: string;
 
@@ -269,7 +270,7 @@ export class HomePage {
 
     while (
       this.totalRecipeCount &&
-      this.lastRecipeCount <= this.totalRecipeCount &&
+      this.lastRecipeCount < this.totalRecipeCount &&
       this.lastRecipeCount < endIndex + this.recipeFetchBuffer
     ) {
       await this.loadRecipes(this.lastRecipeCount, this.fetchPerPage);
@@ -307,16 +308,18 @@ export class HomePage {
   }
 
   async resetAndLoadRecipes(scrollToLastPosition?: boolean) {
+    const generation = ++this.recipeLoadGeneration;
     this.loading = true;
     this.resetRecipes();
 
     await this._resetAndLoadRecipes(scrollToLastPosition);
+    if (this.recipeLoadGeneration !== generation) return;
     this.loading = false;
   }
 
   async _resetAndLoadRecipes(scrollToLastPosition?: boolean) {
     if (this.searchText && this.searchText.trim().length > 0) {
-      await this.search(this.searchText);
+      await this.search(this.searchText, this.recipeLoadGeneration);
     } else {
       await this.loadRecipes(0, this.fetchPerPage);
     }
@@ -332,6 +335,7 @@ export class HomePage {
     this.datasource.settings!.startIndex = 0;
     this.recipes = [];
     this.lastRecipeCount = 0;
+    this.totalRecipeCount = undefined;
   }
 
   isIncludeFriendsEnabled() {
@@ -344,7 +348,7 @@ export class HomePage {
   }
 
   async loadRecipes(offset: number, numToFetch: number) {
-    this.lastRecipeCount += numToFetch;
+    const generation = this.recipeLoadGeneration;
 
     const sortPreference = this.preferences[MyRecipesPreferenceKey.SortBy];
 
@@ -368,7 +372,9 @@ export class HomePage {
     );
 
     if (!result) return;
+    if (this.recipeLoadGeneration !== generation) return;
 
+    this.lastRecipeCount += numToFetch;
     this.totalRecipeCount = result.totalCount;
     this.recipes = this.recipes.concat(result.recipes);
   }
@@ -485,13 +491,14 @@ export class HomePage {
     event.target.blur();
   }
 
-  async search(text: string) {
+  async search(text: string, existingGeneration?: number) {
     if (text.trim().length === 0) {
       this.searchText = "";
       this.resetAndLoadRecipes();
       return;
     }
 
+    const generation = existingGeneration ?? ++this.recipeLoadGeneration;
     const loading = this.loadingService.start();
 
     this.searchText = text;
@@ -517,14 +524,11 @@ export class HomePage {
       .finally(loading.dismiss);
 
     if (!result) return;
+    if (this.recipeLoadGeneration !== generation) return;
 
     this.resetRecipes();
     this.recipes = result.recipes;
-    this.datasource.adapter.reset();
-  }
-
-  trackByFn(_: number, item: { id: string }) {
-    return item.id;
+    await this.datasource.adapter.reset();
   }
 
   selectRecipe(recipe: Recipe) {

@@ -1,7 +1,7 @@
-import { initOCRFormatRecipeTool } from "../ml/chatFunctionsVercel";
+import { ocrFormatRecipeSchema } from "../ml/chatFunctionsVercel";
 import { StandardizedRecipeImportEntry } from "../db";
 import { metrics } from "../general";
-import { generateText } from "ai";
+import { generateText, Output } from "ai";
 import { AI_MODEL_LOW, aiProvider } from "./vercel";
 
 export enum TextToRecipeInputType {
@@ -41,20 +41,15 @@ export const textToRecipe = async (
   if (text.length > OCR_MAX_VALID_TEXT)
     text = text.substring(0, OCR_MAX_VALID_TEXT);
 
-  const recognizedRecipes: StandardizedRecipeImportEntry[] = [];
-
   const llmResponse = await generateText({
     system:
-      "You are a data processor utility. Do not summarize or add information, just format and process into the correct shape. Do not insert your own editorial voice, just clean the text and get it into the correct shape. Leave fields that are not present blank. If headers are present in the original text you can notate that for ingredients, instructions, and notes by prefixing the line with a # sign.",
+      "You are a data processor utility. Do not summarize or add information, just format and process into the correct shape. Do not insert your own editorial voice, just clean the text and get it into the correct shape. Leave fields that are not present blank. A header can be denoted in the ingredients, instructions, or notes by prefixing the line with a # sign.",
     model: aiProvider(AI_MODEL_LOW),
+    temperature: 0,
     prompt: prompts[inputType] + text,
-    tools: {
-      formatRecipe: initOCRFormatRecipeTool(recognizedRecipes),
-    },
-    toolChoice: {
-      type: "tool",
-      toolName: "formatRecipe",
-    },
+    output: Output.object({
+      schema: ocrFormatRecipeSchema,
+    }),
   });
 
   if (llmResponse.totalUsage.totalTokens !== undefined) {
@@ -66,7 +61,49 @@ export const textToRecipe = async (
     );
   }
 
-  const recognizedRecipe = recognizedRecipes[0];
+  const markdownHeadersToRS = (line: string) => {
+    if (line.startsWith("#")) {
+      return `[${line.replace(/^#\s*/, "")}]`;
+    }
+    return line;
+  };
 
-  return recognizedRecipe;
+  const entry: StandardizedRecipeImportEntry = {
+    recipe: {
+      title: llmResponse.output.title || "Unnamed",
+      description: llmResponse.output.description || "",
+      folder: "main",
+      source: "",
+      url: "",
+      rating: undefined,
+      yield: (llmResponse.output.yield || "").replaceAll("<UNKNOWN>", ""),
+      activeTime: (llmResponse.output.activeTime || "").replaceAll(
+        "<UNKNOWN>",
+        "",
+      ),
+      totalTime: (llmResponse.output.totalTime || "").replaceAll(
+        "<UNKNOWN>",
+        "",
+      ),
+      ingredients: (llmResponse.output.ingredients || "")
+        .replaceAll("\\n", "\n")
+        .split("\n")
+        .map(markdownHeadersToRS)
+        .join("\n"),
+      instructions: (llmResponse.output.instructions || "")
+        .replaceAll("\\n", "\n")
+        .split("\n")
+        .map(markdownHeadersToRS)
+        .join("\n"),
+      notes: (llmResponse.output.notes || "")
+        .replaceAll("\\n", "\n")
+        .split("\n")
+        .map(markdownHeadersToRS)
+        .join("\n"),
+    },
+    labels: [],
+    images: [],
+  };
+
+  return entry;
 };

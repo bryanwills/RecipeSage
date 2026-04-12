@@ -109,7 +109,7 @@ router.post(
       const recipe = await Recipe.create(
         {
           userId: res.locals.session.userId,
-          title: adjustedTitle,
+          title: adjustedTitle.slice(0, 254),
           description: req.body.description || "",
           yield: req.body.yield || "",
           activeTime: req.body.activeTime || "",
@@ -658,7 +658,7 @@ router.put(
         transaction,
       );
 
-      recipe.title = adjustedTitle;
+      recipe.title = adjustedTitle.slice(0, 254);
 
       const updatedRecipe = await recipe.save({
         transaction,
