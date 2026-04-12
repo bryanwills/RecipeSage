@@ -73,76 +73,11 @@ export interface Capabilities {
 export class UserService {
   private httpService = inject(HttpService);
 
-  register(
-    payload: {
-      name: string;
-      email: string;
-      password: string;
-    },
-    errorHandlers?: ErrorHandlers,
-  ) {
-    return this.httpService.requestWithWrapper<{ token: string }>({
-      path: "users/register",
-      method: "POST",
-      payload: payload,
-      query: undefined,
-      errorHandlers,
-    });
-  }
-
-  login(
-    payload: {
-      email: string;
-      password: string;
-    },
-    errorHandlers?: ErrorHandlers,
-  ) {
-    return this.httpService.requestWithWrapper<{ token: string }>({
-      path: "users/login",
-      method: "POST",
-      payload: payload,
-      query: undefined,
-      errorHandlers,
-    });
-  }
-
   logout(errorHandlers?: ErrorHandlers) {
     return this.httpService.requestWithWrapper<void>({
       path: "users/logout",
       method: "POST",
       payload: {},
-      query: undefined,
-      errorHandlers,
-    });
-  }
-
-  forgot(
-    payload: {
-      email: string;
-    },
-    errorHandlers?: ErrorHandlers,
-  ) {
-    return this.httpService.requestWithWrapper<void>({
-      path: "users/forgot",
-      method: "POST",
-      payload: payload,
-      query: undefined,
-      errorHandlers,
-    });
-  }
-
-  update(
-    payload: {
-      name?: string;
-      email?: string;
-      password?: string;
-    },
-    errorHandlers?: ErrorHandlers,
-  ) {
-    return this.httpService.requestWithWrapper<void>({
-      path: "users/",
-      method: "PUT",
-      payload: payload,
       query: undefined,
       errorHandlers,
     });
@@ -296,30 +231,10 @@ export class UserService {
     });
   }
 
-  myStats(errorHandlers?: ErrorHandlers) {
-    return this.httpService.requestWithWrapper<any>({
-      path: `users/stats`,
-      method: "GET",
-      payload: undefined,
-      query: undefined,
-      errorHandlers,
-    });
-  }
-
   capabilities(errorHandlers?: ErrorHandlers) {
     return this.httpService.requestWithWrapper<Capabilities>({
       path: `users/capabilities`,
       method: "GET",
-      payload: undefined,
-      query: undefined,
-      errorHandlers,
-    });
-  }
-
-  delete(errorHandlers?: ErrorHandlers) {
-    return this.httpService.requestWithWrapper<void>({
-      path: `users/`,
-      method: "DELETE",
       payload: undefined,
       query: undefined,
       errorHandlers,

@@ -1,15 +1,6 @@
 import { Input, Component, inject } from "@angular/core";
-import {
-  NavController,
-  ModalController,
-  AlertController,
-  ToastController,
-} from "@ionic/angular";
-import { MealPlanItem, MealPlanService } from "~/services/meal-plan.service";
-import { RecipeService } from "~/services/recipe.service";
-import { LoadingService } from "~/services/loading.service";
+import { ModalController } from "@ionic/angular";
 import { CookingToolbarService } from "~/services/cooking-toolbar.service";
-import { UtilService } from "~/services/util.service";
 import type { MealPlanItemSummary } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 
@@ -21,15 +12,8 @@ import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
   imports: [...SHARED_UI_IMPORTS],
 })
 export class MealPlanBulkPinModalPage {
-  navCtrl = inject(NavController);
-  modalCtrl = inject(ModalController);
-  alertCtrl = inject(AlertController);
-  mealPlanService = inject(MealPlanService);
-  cookingToolbarService = inject(CookingToolbarService);
-  recipeService = inject(RecipeService);
-  loadingService = inject(LoadingService);
-  utilService = inject(UtilService);
-  toastCtrl = inject(ToastController);
+  private modalCtrl = inject(ModalController);
+  private cookingToolbarService = inject(CookingToolbarService);
 
   @Input({
     required: true,

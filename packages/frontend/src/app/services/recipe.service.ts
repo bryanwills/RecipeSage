@@ -1,8 +1,6 @@
 import { AlertController } from "@ionic/angular";
 import { Injectable, inject } from "@angular/core";
 
-import { Label } from "./label.service";
-
 import { HttpService } from "./http.service";
 import { ErrorHandlers } from "./http-error-handler.service";
 import { UtilService } from "./util.service";
@@ -14,6 +12,14 @@ import {
   parseInstructions,
   parseNotes,
 } from "@recipesage/util/shared";
+
+export interface Label {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  recipeCount?: number;
+}
 
 export type RecipeFolderName = "main" | "inbox";
 
@@ -103,32 +109,6 @@ export class RecipeService {
     });
   }
 
-  fetch(
-    params: {
-      folder?: RecipeFolderName;
-      userId?: string;
-      sort?: string;
-      offset?: number;
-      count?: number;
-      labels?: string;
-      labelIntersection?: boolean;
-      ratingFilter?: string;
-      includeFriends?: boolean;
-    },
-    errorHandlers?: ErrorHandlers,
-  ) {
-    return this.httpService.requestWithWrapper<{
-      data: Recipe[];
-      totalCount: number;
-    }>({
-      path: `recipes/by-page`,
-      method: "GET",
-      payload: null,
-      query: params,
-      errorHandlers,
-    });
-  }
-
   search(
     params: {
       query: string;
@@ -169,85 +149,6 @@ export class RecipeService {
       query: undefined,
       errorHandlers,
     });
-  }
-
-  async create(
-    payload: Partial<BaseRecipe> & {
-      title: string;
-      labels?: string[];
-      imageIds?: string[];
-    },
-    errorHandlers?: ErrorHandlers,
-  ) {
-    const response = await this.httpService.requestWithWrapper<Recipe>({
-      path: `recipes`,
-      method: "POST",
-      payload: payload,
-      query: undefined,
-      errorHandlers,
-    });
-
-    this.events.publish(EventName.RecipeCreated);
-
-    return response;
-  }
-
-  async update(
-    payload: Partial<BaseRecipe> & {
-      id: string;
-      imageIds?: string[];
-    },
-    errorHandlers?: ErrorHandlers,
-  ) {
-    const response = await this.httpService.requestWithWrapper<Recipe>({
-      path: `recipes/${payload.id}`,
-      method: "PUT",
-      payload: payload,
-      query: undefined,
-      errorHandlers,
-    });
-
-    this.events.publish(EventName.RecipeUpdated);
-
-    return response;
-  }
-
-  async deleteByLabelIds(
-    payload: {
-      labelIds: string[];
-    },
-    errorHandlers?: ErrorHandlers,
-  ) {
-    const response = await this.httpService.requestWithWrapper<void>({
-      path: `recipes/delete-by-labelIds`,
-      method: "POST",
-      payload: payload,
-      query: undefined,
-      errorHandlers,
-    });
-
-    this.events.publish(EventName.RecipeDeleted);
-
-    return response;
-  }
-
-  async deleteBulk(
-    payload: {
-      recipeIds: string[];
-    },
-    errorHandlers?: ErrorHandlers,
-  ) {
-    const response = await this.httpService.requestWithWrapper<void>({
-      path: `recipes/delete-bulk`,
-      method: "POST",
-      payload: payload,
-      query: undefined,
-      errorHandlers,
-    });
-
-    this.events.publish(EventName.RecipeDeleted);
-
-    return response;
   }
 
   async delete(recipeId: string, errorHandlers?: ErrorHandlers) {
@@ -292,114 +193,6 @@ export class RecipeService {
         template.modifiers +
         "&print=true",
     );
-  }
-
-  scrapePepperplate(
-    params: {
-      username: string;
-      password: string;
-    },
-    errorHandlers?: ErrorHandlers,
-  ) {
-    return this.httpService.requestWithWrapper<Recipe>({
-      path: `scrape/pepperplate`,
-      method: "GET",
-      payload: undefined,
-      query: params,
-      errorHandlers,
-    });
-  }
-
-  importFDXZ(
-    fdxzFile: Blob,
-    payload: {
-      excludeImages?: boolean;
-    },
-    errorHandlers?: ErrorHandlers,
-  ) {
-    const formData: FormData = new FormData();
-    formData.append("fdxzdb", fdxzFile);
-
-    return this.httpService.multipartRequestWithWrapper<void>({
-      path: "import/fdxz",
-      method: "POST",
-      payload: formData,
-      query: payload,
-      errorHandlers,
-    });
-  }
-
-  importLCB(
-    lcbFile: Blob,
-    payload: {
-      includeStockRecipes?: boolean;
-      includeTechniques?: boolean;
-      excludeImages?: boolean;
-    },
-    errorHandlers?: ErrorHandlers,
-  ) {
-    const formData: FormData = new FormData();
-    formData.append("lcbdb", lcbFile);
-
-    return this.httpService.multipartRequestWithWrapper<void>({
-      path: "import/livingcookbook",
-      method: "POST",
-      payload: formData,
-      query: payload,
-      errorHandlers,
-    });
-  }
-
-  importPaprika(paprikaFile: Blob, errorHandlers?: ErrorHandlers) {
-    const formData: FormData = new FormData();
-    formData.append("paprikadb", paprikaFile);
-
-    return this.httpService.multipartRequestWithWrapper<void>({
-      path: "data/import/paprika",
-      method: "POST",
-      payload: formData,
-      query: undefined,
-      errorHandlers,
-    });
-  }
-
-  importJSONLD(jsonLDFile: Blob, errorHandlers?: ErrorHandlers) {
-    const formData: FormData = new FormData();
-    formData.append("jsonLD", jsonLDFile);
-
-    return this.httpService.multipartRequestWithWrapper<void>({
-      path: "data/import/json-ld",
-      method: "POST",
-      payload: formData,
-      query: undefined,
-      errorHandlers,
-    });
-  }
-
-  importCookmate(file: Blob, errorHandlers?: ErrorHandlers) {
-    const formData: FormData = new FormData();
-    formData.append("cookmatedb", file);
-
-    return this.httpService.multipartRequestWithWrapper<void>({
-      path: "data/import/cookmate",
-      method: "POST",
-      payload: formData,
-      query: undefined,
-      errorHandlers,
-    });
-  }
-
-  importRecipeKeeper(file: Blob, errorHandlers?: ErrorHandlers) {
-    const formData: FormData = new FormData();
-    formData.append("file", file);
-
-    return this.httpService.multipartRequestWithWrapper<void>({
-      path: "data/import/recipe-keeper",
-      method: "POST",
-      payload: formData,
-      query: undefined,
-      errorHandlers,
-    });
   }
 
   parseIngredients(ingredients: string, scale: number): ParsedIngredient[] {

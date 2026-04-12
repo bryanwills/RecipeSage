@@ -2,7 +2,6 @@ import { Component, ViewChild, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
   NavController,
-  ToastController,
   ModalController,
   PopoverController,
   AlertController,
@@ -12,8 +11,7 @@ import { TranslateService } from "@ngx-translate/core";
 
 import { LoadingService } from "~/services/loading.service";
 import { WebsocketService } from "~/services/websocket.service";
-import { UtilService, RouteMap } from "~/services/util.service";
-import { ShoppingListService } from "~/services/shopping-list.service";
+import { RouteMap } from "~/services/util.service";
 import { PreferencesService } from "~/services/preferences.service";
 import { MealPlanPreferenceKey } from "@recipesage/util/shared";
 
@@ -40,19 +38,16 @@ import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
   imports: [...SHARED_UI_IMPORTS, MealCalendarComponent],
 })
 export class MealPlanPage {
-  route = inject(ActivatedRoute);
-  translate = inject(TranslateService);
-  navCtrl = inject(NavController);
-  loadingService = inject(LoadingService);
-  trpcService = inject(TRPCService);
-  shoppingListService = inject(ShoppingListService);
-  websocketService = inject(WebsocketService);
-  utilService = inject(UtilService);
-  preferencesService = inject(PreferencesService);
-  toastCtrl = inject(ToastController);
-  modalCtrl = inject(ModalController);
-  popoverCtrl = inject(PopoverController);
-  alertCtrl = inject(AlertController);
+  private route = inject(ActivatedRoute);
+  private translate = inject(TranslateService);
+  private navCtrl = inject(NavController);
+  private loadingService = inject(LoadingService);
+  private trpcService = inject(TRPCService);
+  private websocketService = inject(WebsocketService);
+  private preferencesService = inject(PreferencesService);
+  private modalCtrl = inject(ModalController);
+  private popoverCtrl = inject(PopoverController);
+  private alertCtrl = inject(AlertController);
   private titleService = inject(Title);
 
   defaultBackHref: string = RouteMap.MealPlansPage.getPath();
