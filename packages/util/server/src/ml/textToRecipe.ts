@@ -100,6 +100,7 @@ export const textToRecipe = async (
         .split("\n")
         .map(markdownHeadersToRS)
         .join("\n"),
+      nutritionInfo: llmResponse.output.nutritionInfo || undefined,
     },
     labels: [],
     images: [],

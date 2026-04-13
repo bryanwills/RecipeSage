@@ -296,6 +296,265 @@
           </ion-item>
         </div>
       }
+      @if (hasNutrition()) {
+        <div class="nutrition ion-margin-top">
+          <ion-item lines="none">
+            <ion-icon name="fitness" slot="start" size="large"></ion-icon>
+            <ion-label class="section-title">
+              <p>{{ "pages.recipeDetails.nutrition" | translate }}</p>
+            </ion-label>
+          </ion-item>
+          <ion-item lines="none">
+            <ion-grid class="meta">
+              <ion-row class="ion-justify-content-start">
+                @if (
+                  recipe.nutritionCalories !== null &&
+                  recipe.nutritionCalories !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionCalories" | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionCalories }}
+                      {{ "pages.recipeDetails.units.kcal" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionTotalFat !== null &&
+                  recipe.nutritionTotalFat !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionTotalFat" | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionTotalFat }}
+                      {{ "pages.recipeDetails.units.g" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionSaturatedFat !== null &&
+                  recipe.nutritionSaturatedFat !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionSaturatedFat"
+                            | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionSaturatedFat }}
+                      {{ "pages.recipeDetails.units.g" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionTransFat !== null &&
+                  recipe.nutritionTransFat !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionTransFat" | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionTransFat }}
+                      {{ "pages.recipeDetails.units.g" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionCholesterol !== null &&
+                  recipe.nutritionCholesterol !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionCholesterol"
+                            | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionCholesterol }}
+                      {{ "pages.recipeDetails.units.mg" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionSodium !== null &&
+                  recipe.nutritionSodium !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionSodium" | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionSodium }}
+                      {{ "pages.recipeDetails.units.mg" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionTotalCarbs !== null &&
+                  recipe.nutritionTotalCarbs !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionTotalCarbs" | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionTotalCarbs }}
+                      {{ "pages.recipeDetails.units.g" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionDietaryFiber !== null &&
+                  recipe.nutritionDietaryFiber !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionDietaryFiber"
+                            | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionDietaryFiber }}
+                      {{ "pages.recipeDetails.units.g" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionTotalSugars !== null &&
+                  recipe.nutritionTotalSugars !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionTotalSugars"
+                            | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionTotalSugars }}
+                      {{ "pages.recipeDetails.units.g" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionAddedSugars !== null &&
+                  recipe.nutritionAddedSugars !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionAddedSugars"
+                            | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionAddedSugars }}
+                      {{ "pages.recipeDetails.units.g" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionProtein !== null &&
+                  recipe.nutritionProtein !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionProtein" | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionProtein }}
+                      {{ "pages.recipeDetails.units.g" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionVitaminD !== null &&
+                  recipe.nutritionVitaminD !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionVitaminD" | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionVitaminD }}
+                      {{ "pages.recipeDetails.units.mcg" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionCalcium !== null &&
+                  recipe.nutritionCalcium !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionCalcium" | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionCalcium }}
+                      {{ "pages.recipeDetails.units.mg" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionIron !== null &&
+                  recipe.nutritionIron !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{ "pages.recipeDetails.nutritionIron" | translate }}:
+                      </b>
+                      {{ recipe.nutritionIron }}
+                      {{ "pages.recipeDetails.units.mg" | translate }}
+                    </p>
+                  </ion-col>
+                }
+                @if (
+                  recipe.nutritionPotassium !== null &&
+                  recipe.nutritionPotassium !== undefined
+                ) {
+                  <ion-col class="ion-no-padding" size="auto">
+                    <p class="ion-text-wrap">
+                      <b
+                        >{{
+                          "pages.recipeDetails.nutritionPotassium" | translate
+                        }}:
+                      </b>
+                      {{ recipe.nutritionPotassium }}
+                      {{ "pages.recipeDetails.units.mg" | translate }}
+                    </p>
+                  </ion-col>
+                }
+              </ion-row>
+            </ion-grid>
+          </ion-item>
+        </div>
+      }
       @if (linkedRecipes.length) {
         <br />
         <div>

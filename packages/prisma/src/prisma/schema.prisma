@@ -255,6 +255,21 @@ model Recipe {
   indexedAt         DateTime?          @db.Timestamptz(6)
   lastMadeAt        DateTime?          @db.Date
   rating            Int?
+  nutritionCalories     Float?
+  nutritionTotalFat     Float?
+  nutritionSaturatedFat Float?
+  nutritionTransFat     Float?
+  nutritionCholesterol  Float?
+  nutritionSodium       Float?
+  nutritionTotalCarbs   Float?
+  nutritionDietaryFiber Float?
+  nutritionTotalSugars  Float?
+  nutritionAddedSugars  Float?
+  nutritionProtein      Float?
+  nutritionVitaminD     Float?
+  nutritionCalcium      Float?
+  nutritionIron         Float?
+  nutritionPotassium    Float?
   mealPlanItems     MealPlanItem[]
   originalRecipe    Message[]          @relation("Messages_originalRecipeIdToRecipes")
   messages          Message[]          @relation("Messages_recipeIdToRecipes")

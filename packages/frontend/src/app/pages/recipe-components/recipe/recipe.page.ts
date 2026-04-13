@@ -105,6 +105,26 @@ export class RecipePage {
 
   isLoggedIn: boolean = !!localStorage.getItem("token");
 
+  hasNutrition(): boolean {
+    return [
+      this.recipe?.nutritionCalories,
+      this.recipe?.nutritionTotalFat,
+      this.recipe?.nutritionSaturatedFat,
+      this.recipe?.nutritionTransFat,
+      this.recipe?.nutritionCholesterol,
+      this.recipe?.nutritionSodium,
+      this.recipe?.nutritionTotalCarbs,
+      this.recipe?.nutritionDietaryFiber,
+      this.recipe?.nutritionTotalSugars,
+      this.recipe?.nutritionAddedSugars,
+      this.recipe?.nutritionProtein,
+      this.recipe?.nutritionVitaminD,
+      this.recipe?.nutritionCalcium,
+      this.recipe?.nutritionIron,
+      this.recipe?.nutritionPotassium,
+    ].some((v) => v != null);
+  }
+
   constructor() {
     this.updateIsLoggedIn();
 

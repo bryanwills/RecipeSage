@@ -265,6 +265,238 @@ export class EditRecipePage {
     this.markAsDirty();
   }
 
+  private isValidNutritionValue(value: unknown): boolean {
+    if (value == null || value === "") return true;
+    const num = Number(value);
+    return !isNaN(num) && num >= 0;
+  }
+
+  private toNutritionNumber(value: unknown): number | null {
+    if (value == null || value === "") return null;
+    return Number(value);
+  }
+
+  private nutritionFieldValues(): unknown[] {
+    return [
+      this.recipe.nutritionCalories,
+      this.recipe.nutritionTotalFat,
+      this.recipe.nutritionSaturatedFat,
+      this.recipe.nutritionTransFat,
+      this.recipe.nutritionCholesterol,
+      this.recipe.nutritionSodium,
+      this.recipe.nutritionTotalCarbs,
+      this.recipe.nutritionDietaryFiber,
+      this.recipe.nutritionTotalSugars,
+      this.recipe.nutritionAddedSugars,
+      this.recipe.nutritionProtein,
+      this.recipe.nutritionVitaminD,
+      this.recipe.nutritionCalcium,
+      this.recipe.nutritionIron,
+      this.recipe.nutritionPotassium,
+    ];
+  }
+
+  hasNutrition(): boolean {
+    return this.nutritionFieldValues().some((v) => v != null && v !== "");
+  }
+
+  nutritionFieldCount(): number {
+    return this.nutritionFieldValues().filter((v) => v != null && v !== "")
+      .length;
+  }
+
+  hasInvalidNutritionFields(): boolean {
+    return this.nutritionFieldValues().some(
+      (v) => !this.isValidNutritionValue(v),
+    );
+  }
+
+  async parseAndApplyNutrition(text: string) {
+    const response = await this.trpcService.handle(
+      this.trpcService.trpc.ml.getNutritionFromText.mutate({ text }),
+    );
+    if (!response) return;
+
+    this.recipe.nutritionCalories = response.calories;
+    this.recipe.nutritionTotalFat = response.totalFat;
+    this.recipe.nutritionSaturatedFat = response.saturatedFat;
+    this.recipe.nutritionTransFat = response.transFat;
+    this.recipe.nutritionCholesterol = response.cholesterol;
+    this.recipe.nutritionSodium = response.sodium;
+    this.recipe.nutritionTotalCarbs = response.totalCarbs;
+    this.recipe.nutritionDietaryFiber = response.dietaryFiber;
+    this.recipe.nutritionTotalSugars = response.totalSugars;
+    this.recipe.nutritionAddedSugars = response.addedSugars;
+    this.recipe.nutritionProtein = response.protein;
+    this.recipe.nutritionVitaminD = response.vitaminD;
+    this.recipe.nutritionCalcium = response.calcium;
+    this.recipe.nutritionIron = response.iron;
+    this.recipe.nutritionPotassium = response.potassium;
+    this.markAsDirty();
+  }
+
+  async confirmClearNutrition() {
+    const header = await this.translate
+      .get("pages.editRecipe.input.nutritionClearConfirm.header")
+      .toPromise();
+    const message = await this.translate
+      .get("pages.editRecipe.input.nutritionClearConfirm.message")
+      .toPromise();
+    const cancel = await this.translate.get("generic.cancel").toPromise();
+    const confirm = await this.translate
+      .get("pages.editRecipe.input.nutritionClear")
+      .toPromise();
+
+    (
+      await this.alertCtrl.create({
+        header,
+        message,
+        buttons: [
+          {
+            text: cancel,
+            role: "cancel",
+          },
+          {
+            text: confirm,
+            cssClass: "alertDanger",
+            handler: () => {
+              this.clearNutrition();
+            },
+          },
+        ],
+      })
+    ).present();
+  }
+
+  clearNutrition() {
+    this.recipe.nutritionCalories = undefined;
+    this.recipe.nutritionTotalFat = undefined;
+    this.recipe.nutritionSaturatedFat = undefined;
+    this.recipe.nutritionTransFat = undefined;
+    this.recipe.nutritionCholesterol = undefined;
+    this.recipe.nutritionSodium = undefined;
+    this.recipe.nutritionTotalCarbs = undefined;
+    this.recipe.nutritionDietaryFiber = undefined;
+    this.recipe.nutritionTotalSugars = undefined;
+    this.recipe.nutritionAddedSugars = undefined;
+    this.recipe.nutritionProtein = undefined;
+    this.recipe.nutritionVitaminD = undefined;
+    this.recipe.nutritionCalcium = undefined;
+    this.recipe.nutritionIron = undefined;
+    this.recipe.nutritionPotassium = undefined;
+    this.markAsDirty();
+  }
+
+  async autofillNutritionFromText() {
+    const header = await this.translate
+      .get("pages.editRecipe.nutritionAutofill.header")
+      .toPromise();
+    const message = await this.translate
+      .get("pages.editRecipe.nutritionAutofill.message")
+      .toPromise();
+    const placeholder = await this.translate
+      .get("pages.editRecipe.nutritionAutofill.placeholder")
+      .toPromise();
+    const cancel = await this.translate.get("generic.cancel").toPromise();
+    const okay = await this.translate.get("generic.okay").toPromise();
+    const error = await this.translate.get("generic.error").toPromise();
+    const invalid = await this.translate
+      .get("pages.editRecipe.nutritionAutofill.invalid")
+      .toPromise();
+
+    const inputId = "nutrition-autofill-text-input";
+    const prompt = await this.alertCtrl.create({
+      header,
+      message,
+      inputs: [
+        {
+          id: inputId,
+          name: "text",
+          type: "textarea",
+          placeholder,
+        },
+      ],
+      buttons: [
+        {
+          text: cancel,
+          role: "cancel",
+        },
+        {
+          text: okay,
+          handler: async (data) => {
+            const { text } = data;
+            if (!text || text.length < 10) {
+              (
+                await this.alertCtrl.create({
+                  header: error,
+                  message: invalid,
+                  buttons: [{ text: okay }],
+                })
+              ).present();
+              return;
+            }
+            this._autofillNutrition(text);
+          },
+        },
+      ],
+    });
+
+    await prompt.present();
+    document.getElementById(inputId)?.focus();
+  }
+
+  async _autofillNutrition(text: string) {
+    const pleaseWait = await this.translate
+      .get("pages.editRecipe.nutritionAutofill.loading")
+      .toPromise();
+    const failedHeader = await this.translate.get("generic.error").toPromise();
+    const failedMessage = await this.translate
+      .get("pages.editRecipe.nutritionAutofill.failed")
+      .toPromise();
+    const okay = await this.translate.get("generic.okay").toPromise();
+
+    const loading = await this.loadingCtrl.create({
+      message: pleaseWait,
+    });
+    await loading.present();
+
+    const response = await this.trpcService.handle(
+      this.trpcService.trpc.ml.getNutritionFromText.mutate({ text }),
+      {
+        400: async () => {
+          (
+            await this.alertCtrl.create({
+              header: failedHeader,
+              message: failedMessage,
+              buttons: [{ text: okay }],
+            })
+          ).present();
+        },
+      },
+    );
+
+    if (response) {
+      this.recipe.nutritionCalories = response.calories;
+      this.recipe.nutritionTotalFat = response.totalFat;
+      this.recipe.nutritionSaturatedFat = response.saturatedFat;
+      this.recipe.nutritionTransFat = response.transFat;
+      this.recipe.nutritionCholesterol = response.cholesterol;
+      this.recipe.nutritionSodium = response.sodium;
+      this.recipe.nutritionTotalCarbs = response.totalCarbs;
+      this.recipe.nutritionDietaryFiber = response.dietaryFiber;
+      this.recipe.nutritionTotalSugars = response.totalSugars;
+      this.recipe.nutritionAddedSugars = response.addedSugars;
+      this.recipe.nutritionProtein = response.protein;
+      this.recipe.nutritionVitaminD = response.vitaminD;
+      this.recipe.nutritionCalcium = response.calcium;
+      this.recipe.nutritionIron = response.iron;
+      this.recipe.nutritionPotassium = response.potassium;
+      this.markAsDirty();
+    }
+
+    loading.dismiss();
+  }
+
   async _create(title: string) {
     const response = await this.trpcService.handle(
       this.trpcService.trpc.recipes.createRecipe.mutate({
@@ -284,6 +516,43 @@ export class EditRecipePage {
         labelIds: this.selectedLabels.map((label) => label.id),
         lastMadeAt: this.recipe.lastMadeAt || null,
         linkedRecipeIds: this.selectedLinkedRecipes.map((recipe) => recipe.id),
+        nutritionCalories: this.toNutritionNumber(
+          this.recipe.nutritionCalories,
+        ),
+        nutritionTotalFat: this.toNutritionNumber(
+          this.recipe.nutritionTotalFat,
+        ),
+        nutritionSaturatedFat: this.toNutritionNumber(
+          this.recipe.nutritionSaturatedFat,
+        ),
+        nutritionTransFat: this.toNutritionNumber(
+          this.recipe.nutritionTransFat,
+        ),
+        nutritionCholesterol: this.toNutritionNumber(
+          this.recipe.nutritionCholesterol,
+        ),
+        nutritionSodium: this.toNutritionNumber(this.recipe.nutritionSodium),
+        nutritionTotalCarbs: this.toNutritionNumber(
+          this.recipe.nutritionTotalCarbs,
+        ),
+        nutritionDietaryFiber: this.toNutritionNumber(
+          this.recipe.nutritionDietaryFiber,
+        ),
+        nutritionTotalSugars: this.toNutritionNumber(
+          this.recipe.nutritionTotalSugars,
+        ),
+        nutritionAddedSugars: this.toNutritionNumber(
+          this.recipe.nutritionAddedSugars,
+        ),
+        nutritionProtein: this.toNutritionNumber(this.recipe.nutritionProtein),
+        nutritionVitaminD: this.toNutritionNumber(
+          this.recipe.nutritionVitaminD,
+        ),
+        nutritionCalcium: this.toNutritionNumber(this.recipe.nutritionCalcium),
+        nutritionIron: this.toNutritionNumber(this.recipe.nutritionIron),
+        nutritionPotassium: this.toNutritionNumber(
+          this.recipe.nutritionPotassium,
+        ),
       }),
     );
 
@@ -312,6 +581,43 @@ export class EditRecipePage {
         labelIds: this.selectedLabels.map((label) => label.id),
         lastMadeAt: this.recipe.lastMadeAt || null,
         linkedRecipeIds: this.selectedLinkedRecipes.map((recipe) => recipe.id),
+        nutritionCalories: this.toNutritionNumber(
+          this.recipe.nutritionCalories,
+        ),
+        nutritionTotalFat: this.toNutritionNumber(
+          this.recipe.nutritionTotalFat,
+        ),
+        nutritionSaturatedFat: this.toNutritionNumber(
+          this.recipe.nutritionSaturatedFat,
+        ),
+        nutritionTransFat: this.toNutritionNumber(
+          this.recipe.nutritionTransFat,
+        ),
+        nutritionCholesterol: this.toNutritionNumber(
+          this.recipe.nutritionCholesterol,
+        ),
+        nutritionSodium: this.toNutritionNumber(this.recipe.nutritionSodium),
+        nutritionTotalCarbs: this.toNutritionNumber(
+          this.recipe.nutritionTotalCarbs,
+        ),
+        nutritionDietaryFiber: this.toNutritionNumber(
+          this.recipe.nutritionDietaryFiber,
+        ),
+        nutritionTotalSugars: this.toNutritionNumber(
+          this.recipe.nutritionTotalSugars,
+        ),
+        nutritionAddedSugars: this.toNutritionNumber(
+          this.recipe.nutritionAddedSugars,
+        ),
+        nutritionProtein: this.toNutritionNumber(this.recipe.nutritionProtein),
+        nutritionVitaminD: this.toNutritionNumber(
+          this.recipe.nutritionVitaminD,
+        ),
+        nutritionCalcium: this.toNutritionNumber(this.recipe.nutritionCalcium),
+        nutritionIron: this.toNutritionNumber(this.recipe.nutritionIron),
+        nutritionPotassium: this.toNutritionNumber(
+          this.recipe.nutritionPotassium,
+        ),
       }),
     );
 
@@ -433,6 +739,23 @@ export class EditRecipePage {
               text: okay,
             },
           ],
+        })
+      ).present();
+      return;
+    }
+
+    if (this.hasInvalidNutritionFields()) {
+      const header = await this.translate.get("generic.error").toPromise();
+      const message = await this.translate
+        .get("pages.editRecipe.nutritionInvalid")
+        .toPromise();
+      const okay = await this.translate.get("generic.okay").toPromise();
+
+      (
+        await this.alertCtrl.create({
+          header,
+          message,
+          buttons: [{ text: okay }],
         })
       ).present();
       return;
@@ -763,70 +1086,37 @@ export class EditRecipePage {
     }
   }
 
-  async clipFromText() {
-    const header = await this.translate
-      .get("pages.editRecipe.clipText.header")
-      .toPromise();
-    const message = await this.translate
-      .get("pages.editRecipe.clipText.message")
-      .toPromise();
-    const placeholder = await this.translate
-      .get("pages.editRecipe.clipText.placeholder")
-      .toPromise();
-    const cancel = await this.translate.get("generic.cancel").toPromise();
-    const okay = await this.translate.get("generic.okay").toPromise();
-    const error = await this.translate.get("generic.error").toPromise();
-    const invalid = await this.translate
-      .get("pages.editRecipe.clipText.invalid")
-      .toPromise();
+  isClipTextModalOpen = false;
+  clipTextInput = "";
+  clipTextIncludeNutrition = false;
 
-    const clipInputId = "autoclip-prompt-text-input";
-    const clipPrompt = await this.alertCtrl.create({
-      header,
-      message,
-      inputs: [
-        {
-          id: clipInputId,
-          name: "text",
-          type: "textarea",
-          placeholder,
-        },
-      ],
-      buttons: [
-        {
-          text: cancel,
-          role: "cancel",
-        },
-        {
-          text: okay,
-          handler: async (data) => {
-            const { text } = data;
-            if (!text || text.length < 10) {
-              (
-                await this.alertCtrl.create({
-                  header: error,
-                  message: invalid,
-                  buttons: [
-                    {
-                      text: okay,
-                    },
-                  ],
-                })
-              ).present();
-              return;
-            }
-            this._clipFromText(text);
-          },
-        },
-      ],
-    });
-
-    await clipPrompt.present();
-
-    document.getElementById(clipInputId)?.focus();
+  clipFromText() {
+    this.clipTextInput = "";
+    this.clipTextIncludeNutrition = false;
+    this.isClipTextModalOpen = true;
   }
 
-  async _clipFromText(text: string) {
+  async submitClipText() {
+    if (!this.clipTextInput || this.clipTextInput.length < 10) {
+      const error = await this.translate.get("generic.error").toPromise();
+      const invalid = await this.translate
+        .get("pages.editRecipe.clipText.invalid")
+        .toPromise();
+      const okay = await this.translate.get("generic.okay").toPromise();
+      (
+        await this.alertCtrl.create({
+          header: error,
+          message: invalid,
+          buttons: [{ text: okay }],
+        })
+      ).present();
+      return;
+    }
+    this.isClipTextModalOpen = false;
+    this._clipFromText(this.clipTextInput, this.clipTextIncludeNutrition);
+  }
+
+  async _clipFromText(text: string, includeNutrition: boolean) {
     const pleaseWait = await this.translate
       .get("pages.editRecipe.clip.loading")
       .toPromise();
@@ -877,94 +1167,71 @@ export class EditRecipePage {
     this.recipe.instructions = response.recipe.instructions || "";
     this.recipe.notes = response.recipe.notes || "";
 
+    if (includeNutrition && response.recipe.nutritionInfo) {
+      await this.parseAndApplyNutrition(response.recipe.nutritionInfo);
+    }
+
     loading.dismiss();
   }
 
-  async clipFromUrl() {
-    const header = await this.translate
-      .get("pages.editRecipe.clipURL.header")
-      .toPromise();
-    const message = await this.translate
-      .get("pages.editRecipe.clipURL.message")
-      .toPromise();
-    const placeholder = await this.translate
-      .get("pages.editRecipe.clipURL.placeholder")
-      .toPromise();
-    const cancel = await this.translate.get("generic.cancel").toPromise();
-    const okay = await this.translate.get("generic.okay").toPromise();
-    const error = await this.translate.get("generic.error").toPromise();
-    const invalidUrl = await this.translate
-      .get("pages.editRecipe.clipURL.invalidUrl")
-      .toPromise();
-    const warning = await this.translate.get("generic.warning").toPromise();
-    const unsupportedSiteUrl = await this.translate
-      .get("pages.editRecipe.clipURL.unsupportedSiteUrl")
-      .toPromise();
+  isClipUrlModalOpen = false;
+  clipUrlInput = "";
+  clipUrlIncludeNutrition = false;
 
-    const clipInputId = "autoclip-prompt-url-input";
-    const clipPrompt = await this.alertCtrl.create({
-      header,
-      message,
-      inputs: [
-        {
-          id: clipInputId,
-          name: "url",
-          type: "text",
-          placeholder,
-        },
-      ],
-      buttons: [
-        {
-          text: cancel,
-          role: "cancel",
-        },
-        {
-          text: okay,
-          handler: async (data) => {
-            const { url } = data;
-            if (!url || !this.isValidHttpUrl(url)) {
-              (
-                await this.alertCtrl.create({
-                  header: error,
-                  message: invalidUrl,
-                  buttons: [
-                    {
-                      text: okay,
-                    },
-                  ],
-                })
-              ).present();
-              return;
-            }
-            if (this.isUnsupportedSiteUrl(url)) {
-              (
-                await this.alertCtrl.create({
-                  header: warning,
-                  message: unsupportedSiteUrl,
-                  buttons: [
-                    {
-                      text: okay,
-                      handler: () => {
-                        this._clipFromUrl(data.url);
-                      },
-                    },
-                  ],
-                })
-              ).present();
-              return;
-            }
-            this._clipFromUrl(data.url);
-          },
-        },
-      ],
-    });
-
-    await clipPrompt.present();
-
-    document.getElementById(clipInputId)?.focus();
+  clipFromUrl() {
+    this.clipUrlInput = "";
+    this.clipUrlIncludeNutrition = false;
+    this.isClipUrlModalOpen = true;
   }
 
-  async _clipFromUrl(url: string) {
+  async submitClipUrl() {
+    if (!this.clipUrlInput || !this.isValidHttpUrl(this.clipUrlInput)) {
+      const error = await this.translate.get("generic.error").toPromise();
+      const invalidUrl = await this.translate
+        .get("pages.editRecipe.clipURL.invalidUrl")
+        .toPromise();
+      const okay = await this.translate.get("generic.okay").toPromise();
+      (
+        await this.alertCtrl.create({
+          header: error,
+          message: invalidUrl,
+          buttons: [{ text: okay }],
+        })
+      ).present();
+      return;
+    }
+    if (this.isUnsupportedSiteUrl(this.clipUrlInput)) {
+      const warning = await this.translate.get("generic.warning").toPromise();
+      const unsupportedSiteUrl = await this.translate
+        .get("pages.editRecipe.clipURL.unsupportedSiteUrl")
+        .toPromise();
+      const okay = await this.translate.get("generic.okay").toPromise();
+      const url = this.clipUrlInput;
+      const includeNutrition = this.clipUrlIncludeNutrition;
+      this.isClipUrlModalOpen = false;
+      (
+        await this.alertCtrl.create({
+          header: warning,
+          message: unsupportedSiteUrl,
+          buttons: [
+            {
+              text: okay,
+              handler: () => {
+                this._clipFromUrl(url, includeNutrition);
+              },
+            },
+          ],
+        })
+      ).present();
+      return;
+    }
+    const url = this.clipUrlInput;
+    const includeNutrition = this.clipUrlIncludeNutrition;
+    this.isClipUrlModalOpen = false;
+    this._clipFromUrl(url, includeNutrition);
+  }
+
+  async _clipFromUrl(url: string, includeNutrition = false) {
     const pleaseWait = await this.translate
       .get("pages.editRecipe.clip.loading")
       .toPromise();
@@ -1013,6 +1280,10 @@ export class EditRecipePage {
     this.recipe.instructions = response.data.instructions || "";
     this.recipe.notes = response.data.notes || "";
     this.recipe.url = url;
+
+    if (includeNutrition && response.data.nutritionInfo) {
+      await this.parseAndApplyNutrition(response.data.nutritionInfo);
+    }
 
     if (!this.recipe.ingredients?.trim() && !this.recipe.instructions?.trim()) {
       const emptyResultMessage = await this.translate
