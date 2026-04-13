@@ -23,6 +23,16 @@ import {
 
 const INTERCEPT_PLACEHOLDER_URL = "https://example.com/intercept-me";
 
+const isBotChallengePage = (html: string): boolean => {
+  const lower = html.toLowerCase();
+  return (
+    (lower.includes("<title>just a moment...</title>") ||
+      lower.includes("<title>attention required!</title>") ||
+      lower.includes("<title>access denied</title>")) &&
+    (lower.includes("cloudflare") || lower.includes("cf-browser-verification"))
+  );
+};
+
 const require = createRequire(__filename);
 const recipeClipperPath =
   require.resolve("@julianpoy/recipe-clipper/dist/recipe-clipper.umd.js");
@@ -162,6 +172,12 @@ const clipRecipeUrlWithPuppeteer = async (
     await page.addScriptTag({
       content: recipeClipperUMD,
     });
+    const pageContent = await page.content();
+    if (isBotChallengePage(pageContent)) {
+      disconnectPuppeteer(browser);
+      return undefined;
+    }
+
     const result = await page.evaluate((interceptUrl) => {
       return (window as any).RecipeClipper.clipRecipe({
         mlClassifyEndpoint: interceptUrl,
@@ -194,6 +210,8 @@ const clipRecipeUrlWithPuppeteer = async (
 };
 
 const clipRecipeHtmlWithJSDOM = async (document: string) => {
+  if (isBotChallengePage(document)) return undefined;
+
   metrics.clipStartedProcessing.inc({
     method: "jsdom",
   });
@@ -218,6 +236,8 @@ const clipRecipeHtmlWithJSDOM = async (document: string) => {
 };
 
 const clipRecipeHtmlWithGPT = async (document: string) => {
+  if (isBotChallengePage(document)) return undefined;
+
   metrics.clipStartedProcessing.inc({
     method: "gpt",
   });
@@ -349,7 +369,17 @@ export const clipUrl = async (
 
   const htmlDocument = await response.text();
 
-  const merge = (entries: StandardizedRecipeImportEntry[]) => {
+  const merge = (
+    entries: StandardizedRecipeImportEntry[],
+  ): StandardizedRecipeImportEntry => {
+    if (entries.length === 0) {
+      return {
+        recipe: { title: "", url },
+        images: [],
+        labels: [],
+      };
+    }
+
     return entries.slice(1).reduce((acc, entry) => {
       return {
         recipe: {
