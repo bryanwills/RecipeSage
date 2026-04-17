@@ -1,4 +1,5 @@
 import express from "express";
+import { clipRouter } from "./clip";
 import { imageRouter } from "./image";
 import { importRouter } from "./import";
 import { mealPlansRouter } from "./mealPlans";
@@ -10,6 +11,7 @@ import { mlRouter } from "./ml";
 
 const router = express.Router();
 
+router.use("/clip", clipRouter);
 router.use("/images", imageRouter);
 router.use("/import", importRouter);
 router.use("/mealplans", mealPlansRouter);

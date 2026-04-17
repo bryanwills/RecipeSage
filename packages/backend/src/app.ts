@@ -29,7 +29,6 @@ import mealPlans from "./routes/mealPlans.js";
 import print from "./routes/print.js";
 import payments from "./routes/payments.js";
 import images from "./routes/images.js";
-import clip from "./routes/clip.js";
 import data from "./routes/data.js";
 import proxy from "./routes/proxy.js";
 
@@ -147,7 +146,6 @@ app.use("/mealPlans", mealPlans);
 app.use("/print", print);
 app.use("/payments", payments);
 app.use("/images", images);
-app.use("/clip", clip);
 app.use("/proxy", proxy);
 app.use("/data", data);
 
