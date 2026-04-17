@@ -6,6 +6,11 @@ import {
   clipUrl,
   ClipTimeoutError,
 } from "@recipesage/util/server/general";
+import {
+  isRecipeRecognitionSuccess,
+  recordCreditsSpent,
+} from "@recipesage/util/server/general";
+import { assertCreditsAvailableExpress } from "../../util/assertCreditsAvailableExpress";
 
 const schema = {
   query: z.object({
@@ -16,16 +21,25 @@ const schema = {
 export const clipGetHandler = defineHandler(
   {
     schema,
-    authentication: AuthenticationEnforcement.None,
+    authentication: AuthenticationEnforcement.Required,
   },
-  async (req) => {
+  async (req, res) => {
+    const userId = res.locals.session.userId;
+
     const url = (req.query.url || "").trim();
     if (!url) {
       throw new BadRequestError("Must provide a URL");
     }
 
+    await assertCreditsAvailableExpress(userId, "clipUrl");
+
     try {
       const results = await clipUrl(url);
+
+      if (isRecipeRecognitionSuccess(results.recipe)) {
+        await recordCreditsSpent(userId, "clipUrl");
+      }
+
       return {
         statusCode: 200,
         data: {

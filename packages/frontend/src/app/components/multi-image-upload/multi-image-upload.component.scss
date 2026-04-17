@@ -51,6 +51,18 @@
       border-radius: 100%;
     }
 
+    .contributor-hint {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: translate(-40%, -40%);
+      font-size: 1.5rem;
+      background: var(--ion-background-color);
+      border-radius: 100%;
+      cursor: pointer;
+      z-index: 1;
+    }
+
     img {
       width: 200px;
       height: 200px;

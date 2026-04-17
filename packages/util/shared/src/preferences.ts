@@ -124,6 +124,7 @@ export enum MyRecipesPreferenceKey {
 
 export enum RecipeDetailsPreferenceKey {
   EnableWakeLock = "recipeDetails.enableWakeLock",
+  AutoExpandNutrition = "recipeDetails.autoExpandNutrition",
 }
 
 export enum ManageLabelsPreferenceKey {
@@ -169,6 +170,7 @@ export interface AppPreferenceTypes {
   [MyRecipesPreferenceKey.IncludeFriends]: MyRecipesIncludeFriendsOptions;
 
   [RecipeDetailsPreferenceKey.EnableWakeLock]: boolean;
+  [RecipeDetailsPreferenceKey.AutoExpandNutrition]: boolean;
 
   [ManageLabelsPreferenceKey.ShowCreatedAt]: boolean;
 

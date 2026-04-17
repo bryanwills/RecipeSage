@@ -23,6 +23,14 @@ vi.mock("@recipesage/util/server/general", async () => {
     clipHtml: vi.fn(),
     ClipTimeoutError,
     ClipFetchError,
+    validateSession: vi.fn(async () => ({
+      id: "session-id",
+      userId: "user-id",
+    })),
+    extendSession: vi.fn(),
+    assertCreditsAvailable: vi.fn(),
+    recordCreditsSpent: vi.fn(),
+    isRecipeRecognitionSuccess: vi.fn(() => true),
   };
 });
 
@@ -53,6 +61,7 @@ describe("GET /clip", () => {
     const app = await buildApp();
     const response = await request(app)
       .get("/clip")
+      .set("Authorization", "Bearer token")
       .query({ url: "https://example.com/recipe" });
 
     expect(response.status).toBe(200);
@@ -75,6 +84,7 @@ describe("GET /clip", () => {
     const app = await buildApp();
     const response = await request(app)
       .get("/clip")
+      .set("Authorization", "Bearer token")
       .query({ url: "https://example.com/recipe" });
 
     expect(response.status).toBe(200);
@@ -91,6 +101,7 @@ describe("GET /clip", () => {
     const app = await buildApp();
     await request(app)
       .get("/clip")
+      .set("Authorization", "Bearer token")
       .query({ url: "   https://example.com/recipe   " });
 
     expect(clipUrlMock).toHaveBeenCalledWith("https://example.com/recipe");
@@ -98,7 +109,9 @@ describe("GET /clip", () => {
 
   it("returns 400 when url query param is missing", async () => {
     const app = await buildApp();
-    const response = await request(app).get("/clip");
+    const response = await request(app)
+      .get("/clip")
+      .set("Authorization", "Bearer token");
 
     expect(response.status).toBe(400);
     expect(clipUrlMock).not.toHaveBeenCalled();
@@ -106,7 +119,10 @@ describe("GET /clip", () => {
 
   it("returns 400 when url query param is empty", async () => {
     const app = await buildApp();
-    const response = await request(app).get("/clip").query({ url: "   " });
+    const response = await request(app)
+      .get("/clip")
+      .set("Authorization", "Bearer token")
+      .query({ url: "   " });
 
     expect(response.status).toBe(400);
     expect(clipUrlMock).not.toHaveBeenCalled();
@@ -120,6 +136,7 @@ describe("GET /clip", () => {
     const app = await buildApp();
     const response = await request(app)
       .get("/clip")
+      .set("Authorization", "Bearer token")
       .query({ url: "https://example.com/slow" });
 
     expect(response.status).toBe(400);
@@ -132,6 +149,7 @@ describe("GET /clip", () => {
     const app = await buildApp();
     const response = await request(app)
       .get("/clip")
+      .set("Authorization", "Bearer token")
       .query({ url: "https://example.com/unreachable" });
 
     expect(response.status).toBe(400);
@@ -144,6 +162,7 @@ describe("GET /clip", () => {
     const app = await buildApp();
     const response = await request(app)
       .get("/clip")
+      .set("Authorization", "Bearer token")
       .query({ url: "https://example.com/broken" });
 
     expect(response.status).toBe(500);

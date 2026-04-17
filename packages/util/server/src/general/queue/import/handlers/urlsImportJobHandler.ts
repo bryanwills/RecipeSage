@@ -68,5 +68,6 @@ export async function urlsImportJobHandler(
     userId: job.userId,
     standardizedRecipeImportInput,
     importTempDirectory: undefined,
+    creditOperation: "importUrls",
   });
 }

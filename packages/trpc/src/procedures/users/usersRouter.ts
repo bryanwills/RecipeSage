@@ -2,6 +2,7 @@ import { router } from "../../trpc";
 import { deleteUser } from "./deleteUser";
 import { forgotPassword } from "./forgotPassword";
 import { getMe } from "./getMe";
+import { getMyCreditUsage } from "./getMyCreditUsage";
 import { getMyFriends } from "./getMyFriends";
 import { getMyStats } from "./getMyStats";
 import { getPreferences } from "./getPreferences";
@@ -18,6 +19,7 @@ import { validateSession } from "./validateSession";
 export const usersRouter = router({
   getMe,
   getMyStats,
+  getMyCreditUsage,
   getMyFriends,
   getUserProfileByEmail,
   getUserProfileByHandle,

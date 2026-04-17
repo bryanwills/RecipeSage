@@ -1,5 +1,10 @@
 import { ocrImagesToRecipe } from "@recipesage/util/server/ml";
+import {
+  isRecipeRecognitionSuccess,
+  recordCreditsSpent,
+} from "@recipesage/util/server/general";
 import { publicProcedure } from "../../trpc";
+import { assertCreditsAvailableTrpc } from "../../util/assertCreditsAvailableTrpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -21,6 +26,8 @@ export const getRecipeFromOCR = publicProcedure
       });
     }
 
+    await assertCreditsAvailableTrpc(session.userId, "mlOcr");
+
     const imageBuffer = Buffer.from(input.image, "base64");
 
     const recognizedRecipe = await ocrImagesToRecipe([imageBuffer]);
@@ -29,6 +36,10 @@ export const getRecipeFromOCR = publicProcedure
         message: "Could not parse recipe from OCR results",
         code: "BAD_REQUEST",
       });
+    }
+
+    if (isRecipeRecognitionSuccess(recognizedRecipe.recipe)) {
+      await recordCreditsSpent(session.userId, "mlOcr");
     }
 
     return recognizedRecipe;

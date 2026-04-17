@@ -1,5 +1,7 @@
 import { textToNutrition } from "@recipesage/util/server/ml";
+import { recordCreditsSpent } from "@recipesage/util/server/general";
 import { publicProcedure } from "../../trpc";
+import { assertCreditsAvailableTrpc } from "../../util/assertCreditsAvailableTrpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -18,12 +20,21 @@ export const getNutritionFromText = publicProcedure
       });
     }
 
+    await assertCreditsAvailableTrpc(session.userId, "mlTextNutrition");
+
     const nutrition = await textToNutrition(input.text);
     if (!nutrition) {
       throw new TRPCError({
         message: "Could not extract nutrition from text",
         code: "BAD_REQUEST",
       });
+    }
+
+    const hasAnyNutritionData = Object.values(nutrition).some(
+      (value) => value !== null && value !== undefined,
+    );
+    if (hasAnyNutritionData) {
+      await recordCreditsSpent(session.userId, "mlTextNutrition");
     }
 
     return nutrition;

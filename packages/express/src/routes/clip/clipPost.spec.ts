@@ -24,6 +24,14 @@ vi.mock("@recipesage/util/server/general", async () => {
     clipHtml: (...args: unknown[]) => clipHtmlMock(...args),
     ClipTimeoutError,
     ClipFetchError,
+    validateSession: vi.fn(async () => ({
+      id: "session-id",
+      userId: "user-id",
+    })),
+    extendSession: vi.fn(),
+    assertCreditsAvailable: vi.fn(),
+    recordCreditsSpent: vi.fn(),
+    isRecipeRecognitionSuccess: vi.fn(() => true),
   };
 });
 
@@ -57,6 +65,7 @@ describe("POST /clip", () => {
       const app = await buildApp();
       const response = await request(app)
         .post("/clip")
+        .set("Authorization", "Bearer token")
         .send({ url: "https://example.com/taco" });
 
       expect(response.status).toBe(200);
@@ -75,6 +84,7 @@ describe("POST /clip", () => {
       const app = await buildApp();
       await request(app)
         .post("/clip")
+        .set("Authorization", "Bearer token")
         .send({ url: "  https://example.com/a  " });
 
       expect(clipUrlMock).toHaveBeenCalledWith("https://example.com/a");
@@ -88,6 +98,7 @@ describe("POST /clip", () => {
       const app = await buildApp();
       const response = await request(app)
         .post("/clip")
+        .set("Authorization", "Bearer token")
         .send({ url: "https://example.com/slow" });
 
       expect(response.status).toBe(400);
@@ -101,6 +112,7 @@ describe("POST /clip", () => {
       const app = await buildApp();
       const response = await request(app)
         .post("/clip")
+        .set("Authorization", "Bearer token")
         .send({ url: "https://example.com/no" });
 
       expect(response.status).toBe(400);
@@ -116,6 +128,7 @@ describe("POST /clip", () => {
       const app = await buildApp();
       const response = await request(app)
         .post("/clip")
+        .set("Authorization", "Bearer token")
         .send({ url: "https://example.com/r", html: "<html></html>" });
 
       expect(response.status).toBe(200);
@@ -139,6 +152,7 @@ describe("POST /clip", () => {
       const app = await buildApp();
       const response = await request(app)
         .post("/clip")
+        .set("Authorization", "Bearer token")
         .send({ html: "<html><body>recipe</body></html>" });
 
       expect(response.status).toBe(200);
@@ -163,6 +177,7 @@ describe("POST /clip", () => {
       const app = await buildApp();
       const response = await request(app)
         .post("/clip")
+        .set("Authorization", "Bearer token")
         .send({ html: "<html></html>" });
 
       expect(response.status).toBe(200);
@@ -172,7 +187,10 @@ describe("POST /clip", () => {
 
   it("returns 400 when neither url nor html are provided", async () => {
     const app = await buildApp();
-    const response = await request(app).post("/clip").send({});
+    const response = await request(app)
+      .post("/clip")
+      .set("Authorization", "Bearer token")
+      .send({});
 
     expect(response.status).toBe(400);
     expect(clipUrlMock).not.toHaveBeenCalled();
@@ -183,6 +201,7 @@ describe("POST /clip", () => {
     const app = await buildApp();
     const response = await request(app)
       .post("/clip")
+      .set("Authorization", "Bearer token")
       .send({ url: "  ", html: "  " });
 
     expect(response.status).toBe(400);

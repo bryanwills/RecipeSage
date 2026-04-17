@@ -83,6 +83,10 @@ ion-thumbnail {
   color: var(--ion-color-danger) !important;
 }
 
+.alert-preline .alert-message {
+  white-space: pre-line;
+}
+
 #loading-bar-spinner {
   display: none !important;
 }

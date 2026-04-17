@@ -19,6 +19,7 @@ export const SUBSCRIPTION_MODELS = {
       Capabilities.MultipleImages,
       Capabilities.ExpandablePreviews,
       Capabilities.AssistantMoreMessages,
+      Capabilities.MoreUsageCredits,
     ],
   },
   [SubscriptionModelName.PyoYearly]: {
@@ -29,6 +30,7 @@ export const SUBSCRIPTION_MODELS = {
       Capabilities.MultipleImages,
       Capabilities.ExpandablePreviews,
       Capabilities.AssistantMoreMessages,
+      Capabilities.MoreUsageCredits,
     ],
   },
   [SubscriptionModelName.PyoSingle]: {
@@ -39,6 +41,7 @@ export const SUBSCRIPTION_MODELS = {
       Capabilities.MultipleImages,
       Capabilities.ExpandablePreviews,
       Capabilities.AssistantMoreMessages,
+      Capabilities.MoreUsageCredits,
     ],
   },
   [SubscriptionModelName.Forever]: {
@@ -49,6 +52,7 @@ export const SUBSCRIPTION_MODELS = {
       Capabilities.MultipleImages,
       Capabilities.ExpandablePreviews,
       Capabilities.AssistantMoreMessages,
+      Capabilities.MoreUsageCredits,
     ],
   },
 };

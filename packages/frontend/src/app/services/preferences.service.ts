@@ -60,6 +60,7 @@ export class PreferencesService {
     [MyRecipesPreferenceKey.IncludeFriends]: MyRecipesIncludeFriendsOptions.No,
 
     [RecipeDetailsPreferenceKey.EnableWakeLock]: true,
+    [RecipeDetailsPreferenceKey.AutoExpandNutrition]: false,
 
     [ManageLabelsPreferenceKey.ShowCreatedAt]: true,
 

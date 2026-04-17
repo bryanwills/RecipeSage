@@ -42,6 +42,10 @@ export class AccountPage {
     ReturnType<typeof this.trpcService.trpc.users.getMyStats.query>
   > | null = null;
 
+  myCreditUsage: Awaited<
+    ReturnType<typeof this.trpcService.trpc.users.getMyCreditUsage.query>
+  > | null = null;
+
   name = "";
   nameChanged = false;
   email = "";
@@ -68,11 +72,14 @@ export class AccountPage {
     Promise.all([
       this.trpcService.handle(this.trpcService.trpc.users.getMe.query()),
       this.trpcService.handle(this.trpcService.trpc.users.getMyStats.query()),
+      this.trpcService.handle(
+        this.trpcService.trpc.users.getMyCreditUsage.query(),
+      ),
       this.capabilitiesService.updateCapabilities(),
-    ]).then(async ([me, myStats]) => {
+    ]).then(async ([me, myStats, myCreditUsage]) => {
       loading.dismiss();
 
-      if (!me || !myStats) return;
+      if (!me || !myStats || !myCreditUsage) return;
 
       this.me = me;
 
@@ -92,6 +99,7 @@ export class AccountPage {
       this.email = me.email;
 
       this.myStats = myStats;
+      this.myCreditUsage = myCreditUsage;
 
       Object.entries(this.capabilitiesService.capabilities).map(
         ([name, enabled]) => {

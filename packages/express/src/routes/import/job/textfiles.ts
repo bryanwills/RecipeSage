@@ -17,6 +17,7 @@ import { enqueueJob } from "@recipesage/util/server/general";
 import { z } from "zod";
 import { BadRequestError } from "../../../errors";
 import { tmpdir } from "os";
+import { assertCreditsAvailableExpress } from "../../../util/assertCreditsAvailableExpress";
 
 const schema = {
   query: z.object({
@@ -42,6 +43,8 @@ export const textfilesHandler = defineHandler(
   },
   async (req, res) => {
     const userId = res.locals.session.userId;
+
+    await assertCreditsAvailableExpress(userId, "importTextfiles");
 
     const file = req.file;
     if (!file) {

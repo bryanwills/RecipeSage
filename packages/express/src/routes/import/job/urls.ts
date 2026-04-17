@@ -6,6 +6,7 @@ import { z } from "zod";
 import { importJobSetupCommon } from "@recipesage/util/server/general";
 import { ObjectTypes, writeBuffer } from "@recipesage/util/server/storage";
 import { enqueueJob } from "@recipesage/util/server/general";
+import { assertCreditsAvailableExpress } from "../../../util/assertCreditsAvailableExpress";
 
 const schema = {
   body: z.object({
@@ -23,6 +24,8 @@ export const urlsHandler = defineHandler(
   },
   async (req, res) => {
     const userId = res.locals.session.userId;
+
+    await assertCreditsAvailableExpress(userId, "importUrls");
 
     const urls = req.body.urls;
 

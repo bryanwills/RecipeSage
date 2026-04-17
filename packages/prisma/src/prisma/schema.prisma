@@ -170,6 +170,18 @@ model AssistantMessage {
   @@map("AssistantMessages")
 }
 
+model UserCreditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  operation String   @db.VarChar(64)
+  credits   Int
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt], map: "user_credit_logs_user_id_created_at")
+  @@map("UserCreditLogs")
+}
+
 model ProfileItem {
   id         String   @id @default(uuid()) @db.Uuid
   userId     String   @db.Uuid
@@ -444,6 +456,7 @@ model User {
   profileImages             UserProfileImage[]
   jobs                      Job[]
   stripeEvents              StripeEvent[]
+  creditLogs                UserCreditLog[]
 
   @@map("Users")
 }

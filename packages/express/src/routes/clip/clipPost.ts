@@ -7,6 +7,11 @@ import {
   clipUrl,
   ClipTimeoutError,
 } from "@recipesage/util/server/general";
+import {
+  isRecipeRecognitionSuccess,
+  recordCreditsSpent,
+} from "@recipesage/util/server/general";
+import { assertCreditsAvailableExpress } from "../../util/assertCreditsAvailableExpress";
 
 const schema = {
   body: z.object({
@@ -18,15 +23,24 @@ const schema = {
 export const clipPostHandler = defineHandler(
   {
     schema,
-    authentication: AuthenticationEnforcement.None,
+    authentication: AuthenticationEnforcement.Required,
   },
-  async (req) => {
+  async (req, res) => {
+    const userId = res.locals.session.userId;
+
     const url = (req.body.url || "").trim();
     const html = (req.body.html || "").trim();
 
     if (url) {
+      await assertCreditsAvailableExpress(userId, "clipUrl");
+
       try {
         const results = await clipUrl(url);
+
+        if (isRecipeRecognitionSuccess(results.recipe)) {
+          await recordCreditsSpent(userId, "clipUrl");
+        }
+
         return {
           statusCode: 200,
           data: results,
@@ -40,7 +54,13 @@ export const clipPostHandler = defineHandler(
     }
 
     if (html) {
+      await assertCreditsAvailableExpress(userId, "clipHtml");
+
       const results = await clipHtml(html);
+
+      if (isRecipeRecognitionSuccess(results.recipe)) {
+        await recordCreditsSpent(userId, "clipHtml");
+      }
 
       return {
         statusCode: 200,

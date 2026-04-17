@@ -26,6 +26,8 @@ import { LoadingService } from "~/services/loading.service";
 import { UnsavedChangesService } from "~/services/unsaved-changes.service";
 import { CapabilitiesService } from "~/services/capabilities.service";
 import { ImageService } from "~/services/image.service";
+import { PreferencesService } from "~/services/preferences.service";
+import { RecipeDetailsPreferenceKey } from "@recipesage/util/shared";
 import { getQueryParam } from "~/utils/queryParams";
 
 import { EditRecipePopoverPage } from "../edit-recipe-popover/edit-recipe-popover.page";
@@ -80,9 +82,16 @@ export class EditRecipePage {
   private imageService = inject(ImageService);
   private capabilitiesService = inject(CapabilitiesService);
   private events = inject(EventService);
+  private preferencesService = inject(PreferencesService);
 
   saving = false;
   defaultBackHref: string;
+
+  nutritionAccordionValue: string | null = this.preferencesService.preferences[
+    RecipeDetailsPreferenceKey.AutoExpandNutrition
+  ]
+    ? "nutrition"
+    : null;
 
   recipeId?: string;
   originalTitle?: string;

@@ -107,5 +107,6 @@ export async function textfilesImportJobHandler(
     userId: job.userId,
     standardizedRecipeImportInput,
     importTempDirectory: extractPath,
+    creditOperation: "importTextfiles",
   });
 }

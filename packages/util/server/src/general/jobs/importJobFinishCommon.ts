@@ -9,12 +9,14 @@ import { indexRecipes } from "../../search";
 import { ImportNoRecipesError } from "./jobErrors";
 import { convertJobProgress, updateJobProgress } from "./updateJobProgress";
 import { IMPORT_JOB_STEP_COUNT } from "../queue/import/processImportJob";
+import { CreditOperation, recordCreditsSpent } from "../credits";
 
 export async function importJobFinishCommon(args: {
   job: JobSummary;
   userId: string;
   standardizedRecipeImportInput: StandardizedRecipeImportEntry[];
   importTempDirectory: string | undefined;
+  creditOperation?: CreditOperation;
 }) {
   if (args.standardizedRecipeImportInput.length === 0) {
     throw new ImportNoRecipesError();
@@ -68,4 +70,8 @@ export async function importJobFinishCommon(args: {
       progress: 100,
     },
   });
+
+  if (args.creditOperation && createdRecipeIds.length > 0) {
+    await recordCreditsSpent(args.userId, args.creditOperation);
+  }
 }

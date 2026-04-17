@@ -18,6 +18,18 @@
             (click)="removeImage(image)"
             color="danger"
           ></ion-icon>
+          @if (
+            i === 0 &&
+            (!capabilitiesService.capabilities.multipleImages ||
+              !capabilitiesService.capabilities.highResImages)
+          ) {
+            <ion-icon
+              name="information-circle"
+              class="contributor-hint"
+              color="primary"
+              (click)="showContributorHint(); $event.stopPropagation()"
+            ></ion-icon>
+          }
           <img src="{{ image.location }}" />
         </div>
         @if (images.length > 1) {
@@ -46,6 +58,18 @@
     ) {
       <div class="recipe-image" (click)="filePicker()">
         <div class="image-frame">
+          @if (
+            images.length === 0 &&
+            (!capabilitiesService.capabilities.multipleImages ||
+              !capabilitiesService.capabilities.highResImages)
+          ) {
+            <ion-icon
+              name="information-circle"
+              class="contributor-hint"
+              color="primary"
+              (click)="showContributorHint(); $event.stopPropagation()"
+            ></ion-icon>
+          }
           <span>
             +
             <br />

@@ -49,6 +49,7 @@ export const updatePreferences = publicProcedure
       ),
 
       [RecipeDetailsPreferenceKey.EnableWakeLock]: z.boolean(),
+      [RecipeDetailsPreferenceKey.AutoExpandNutrition]: z.boolean(),
 
       [ManageLabelsPreferenceKey.ShowCreatedAt]: z.boolean(),
 

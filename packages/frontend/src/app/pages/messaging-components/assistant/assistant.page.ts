@@ -235,26 +235,6 @@ export class AssistantPage {
       this.trpcService.trpc.assistant.sendAssistantMessage.query({
         content: pendingMessage,
       }),
-      {
-        429: async () => {
-          const message = await this.translate
-            .get("pages.assistant.messageLimit")
-            .toPromise();
-          const close = await this.translate.get("generic.close").toPromise();
-
-          const toast = await this.alertCtrl.create({
-            message,
-            buttons: [
-              {
-                text: close,
-                role: "cancel",
-              },
-            ],
-          });
-          await toast.present();
-          return;
-        },
-      },
     );
 
     if (!response) {
