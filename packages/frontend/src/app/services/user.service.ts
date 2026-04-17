@@ -65,6 +65,7 @@ export interface Capabilities {
   multipleImages: boolean;
   expandablePreviews: boolean;
   assistantMoreMessages: boolean;
+  moreUsageCredits: boolean;
 }
 
 @Injectable({

@@ -3,3 +3,4 @@ export * from "./ocr";
 export * from "./ocrImagesToRecipe";
 export * from "./pdfToRecipe";
 export * from "./textToRecipe";
+export * from "./textToNutrition";

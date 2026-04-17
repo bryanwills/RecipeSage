@@ -1,5 +1,10 @@
 import { pdfToRecipe } from "@recipesage/util/server/ml";
+import {
+  isRecipeRecognitionSuccess,
+  recordCreditsSpent,
+} from "@recipesage/util/server/general";
 import { publicProcedure } from "../../trpc";
+import { assertCreditsAvailableTrpc } from "../../util/assertCreditsAvailableTrpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -21,6 +26,8 @@ export const getRecipeFromPDF = publicProcedure
       });
     }
 
+    await assertCreditsAvailableTrpc(session.userId, "mlPdf");
+
     const pdf = Buffer.from(input.pdf, "base64");
 
     const recognizedRecipe = await pdfToRecipe(pdf);
@@ -29,6 +36,10 @@ export const getRecipeFromPDF = publicProcedure
         message: "Could not parse recipe from OCR results",
         code: "BAD_REQUEST",
       });
+    }
+
+    if (isRecipeRecognitionSuccess(recognizedRecipe.recipe)) {
+      await recordCreditsSpent(session.userId, "mlPdf");
     }
 
     return recognizedRecipe;

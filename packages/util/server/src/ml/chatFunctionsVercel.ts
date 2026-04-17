@@ -133,6 +133,12 @@ export const ocrFormatRecipeSchema = z.object({
     .describe(
       "Multiline string of any notes by the author, or content that does not fit into the other fields",
     ),
+  nutritionInfo: z
+    .string()
+    .nullable()
+    .describe(
+      "Any nutrition information present in the source text, preserved as-is. Include all nutrition values found (calories, fat, protein, carbs, etc). Null if no nutrition information is present.",
+    ),
 });
 
 export const initOCRFormatRecipeTool = (

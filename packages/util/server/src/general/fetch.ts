@@ -11,6 +11,7 @@ const FETCH_DOMAIN_ALLOWLIST = [
   "chefbook-prod.s3.amazonaws.com", // Prod S3
   "chefbook-prod.s3.us-west-2.amazonaws.com", // Prod S3
   "cdn2.pepperplate.com", // Pepperplate import
+  "api.scrapfly.io", // A supported scraping proxy option
 ];
 if (process.env.FETCH_DOMAIN_ALLOWLIST) {
   FETCH_DOMAIN_ALLOWLIST.push(...process.env.FETCH_DOMAIN_ALLOWLIST.split(","));
@@ -23,19 +24,9 @@ export const fetchURL = (
     timeout?: number;
   },
 ) => {
-  const controller = new AbortController();
-  if (options?.timeout) {
-    setTimeout(() => {
-      if (controller.signal.aborted) {
-        return;
-      }
-      controller.abort();
-    }, options.timeout);
-  }
-
   const fetchOpts: RequestInit = {
     method: "GET",
-    signal: controller.signal,
+    signal: options?.timeout ? AbortSignal.timeout(options.timeout) : undefined,
     ...options?.requestConfig,
     headers: {
       "User-Agent":

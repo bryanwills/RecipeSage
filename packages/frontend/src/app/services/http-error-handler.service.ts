@@ -30,6 +30,7 @@ export class HttpErrorHandlerService {
         "errors.resourceNotFound",
         "errors.resourceNotFound.message",
       ),
+    420: () => this.presentSimpleAlert("pages.credits.limitReached"),
     500: (error) => {
       Sentry.captureException(error);
       this.presentAlert(
@@ -56,6 +57,28 @@ export class HttpErrorHandlerService {
     this.isAuthOpen = false;
 
     window.location.reload();
+  }
+
+  async presentSimpleAlert(messageKey: string) {
+    if (this.isErrorAlertOpen) return;
+    this.isErrorAlertOpen = true;
+
+    try {
+      const message = await this.translate.get(messageKey).toPromise();
+      const close = await this.translate.get("generic.close").toPromise();
+
+      const toast = await this.alertCtrl.create({
+        message,
+        buttons: [{ text: close, role: "cancel" }],
+      });
+
+      await toast.present();
+      await toast.onDidDismiss();
+      this.isErrorAlertOpen = false;
+    } catch (e) {
+      this.isErrorAlertOpen = false;
+      throw e;
+    }
   }
 
   async presentAlert(headerKey: string, messageKey: string) {

@@ -43,6 +43,18 @@ export class UnsupportedMediaTypeError extends ServerError {
   }
 }
 
+export class TooManyRequestsError extends ServerError {
+  constructor(...args: ConstructorParameters<typeof Error>) {
+    super(429, ...args);
+  }
+}
+
+export class CreditLimitExceededHttpError extends ServerError {
+  constructor(...args: ConstructorParameters<typeof Error>) {
+    super(420, ...args);
+  }
+}
+
 export class InternalServerError extends ServerError {
   constructor(...args: ConstructorParameters<typeof Error>) {
     super(500, ...args);

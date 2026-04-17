@@ -6,6 +6,11 @@ import { tmpdir } from "os";
 import { ocrImagesToRecipe } from "@recipesage/util/server/ml";
 import { createReadStream } from "fs";
 import type { StandardizedRecipeImportEntryForWeb } from "@recipesage/prisma";
+import {
+  isRecipeRecognitionSuccess,
+  recordCreditsSpent,
+} from "@recipesage/util/server/general";
+import { assertCreditsAvailableExpress } from "../../util/assertCreditsAvailableExpress";
 
 const FILE_SIZE_LIMIT_MB = 50;
 
@@ -28,7 +33,11 @@ export const getRecipeFromOCRHandler = defineHandler(
       }).array("file"),
     ],
   },
-  async (req) => {
+  async (req, res) => {
+    const userId = res.locals.session.userId;
+
+    await assertCreditsAvailableExpress(userId, "mlOcr");
+
     const files = req.files as Express.Multer.File[] | undefined;
     if (!files) {
       throw new BadRequestError(
@@ -41,6 +50,10 @@ export const getRecipeFromOCRHandler = defineHandler(
     );
     if (!recognizedRecipe) {
       throw new BadRequestError("Could not parse recipe from OCR results");
+    }
+
+    if (isRecipeRecognitionSuccess(recognizedRecipe.recipe)) {
+      await recordCreditsSpent(userId, "mlOcr");
     }
 
     return {

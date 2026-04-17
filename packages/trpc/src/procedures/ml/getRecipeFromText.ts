@@ -2,7 +2,12 @@ import {
   TextToRecipeInputType,
   textToRecipe,
 } from "@recipesage/util/server/ml";
+import {
+  isRecipeRecognitionSuccess,
+  recordCreditsSpent,
+} from "@recipesage/util/server/general";
 import { publicProcedure } from "../../trpc";
+import { assertCreditsAvailableTrpc } from "../../util/assertCreditsAvailableTrpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -21,6 +26,8 @@ export const getRecipeFromText = publicProcedure
       });
     }
 
+    await assertCreditsAvailableTrpc(session.userId, "mlTextRecipe");
+
     const recognizedRecipe = await textToRecipe(
       input.text,
       TextToRecipeInputType.Text,
@@ -30,6 +37,10 @@ export const getRecipeFromText = publicProcedure
         message: "Could not parse recipe from OCR results",
         code: "BAD_REQUEST",
       });
+    }
+
+    if (isRecipeRecognitionSuccess(recognizedRecipe.recipe)) {
+      await recordCreditsSpent(session.userId, "mlTextRecipe");
     }
 
     return recognizedRecipe;

@@ -74,15 +74,15 @@ export const metrics = {
     name: "clip_started_processing",
     help: "A clip started with a given processor. This can happen multiple times for a single clip",
     labelNames: [
-      "method", // Either 'jsdom' or 'puppeteer'
+      "method", // One of: 'jsdom' | 'gpt'
     ],
   }),
   clipSuccess: new client.Counter({
     name: "clip_success",
-    help: "A clip request fell back to jsdom",
+    help: "A clip request succeeded",
     labelNames: [
       "form", // Either 'html' or 'url'
-      "method", // One of: 'jsdom' | 'puppeteer' | 'gpt' | 'merged'
+      "method", // One of: 'jsdom' | 'gpt' | 'merged' | 'pdf' | 'image' | 'cached'
     ],
   }),
   clipError: new client.Counter({
@@ -90,7 +90,7 @@ export const metrics = {
     help: "A clip request failed",
     labelNames: [
       "form", // Either 'html' or 'url'
-      "method", // Either 'jsdom' or 'puppeteer'
+      "method", // One of: 'jsdom' | 'gpt' | 'pdf' | 'image' | 'timeout' | 'fetch'
     ],
   }),
 

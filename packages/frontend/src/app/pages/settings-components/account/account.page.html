@@ -335,6 +335,76 @@
         }
       </ion-label>
     </ion-item>
+    <ion-item lines="none" class="ion-text-wrap">
+      <ion-label class="ion-text-wrap">
+        <h2>{{ "pages.account.bonus.moreUsageCredits" | translate }}</h2>
+        @if (capabilitySubscriptions["moreUsageCredits"]?.enabled) {
+          <p>{{ "pages.account.bonus.enabled" | translate }}</p>
+        }
+        @if (!capabilitySubscriptions["moreUsageCredits"]?.enabled) {
+          <p>{{ "pages.account.bonus.notEnabled" | translate }}</p>
+        }
+        @if (myCreditUsage) {
+          <p>
+            {{
+              "pages.account.credits.usageValue"
+                | translate
+                  : { used: myCreditUsage.used, limit: myCreditUsage.limit }
+            }}
+          </p>
+        }
+        @if (
+          capabilitySubscriptions["moreUsageCredits"] &&
+          capabilitySubscriptions["moreUsageCredits"].expired !== null
+        ) {
+          <p>
+            @if (
+              capabilitySubscriptions["moreUsageCredits"].expires &&
+              capabilitySubscriptions["moreUsageCredits"].expired
+            ) {
+              <span>
+                {{
+                  "pages.account.bonus.subscriptionExpired"
+                    | translate
+                      : {
+                          date: capabilitySubscriptions["moreUsageCredits"]
+                            .expires,
+                        }
+                }}
+              </span>
+            }
+            @if (
+              capabilitySubscriptions["moreUsageCredits"].expires &&
+              !capabilitySubscriptions["moreUsageCredits"].expired
+            ) {
+              <span>
+                {{
+                  "pages.account.bonus.subscriptionExpires"
+                    | translate
+                      : {
+                          date: capabilitySubscriptions["moreUsageCredits"]
+                            .expires,
+                        }
+                }}
+              </span>
+            }
+            @if (!capabilitySubscriptions["moreUsageCredits"].expires) {
+              <span>
+                {{ "pages.account.bonus.subscriptionNeverExpires" | translate }}
+              </span>
+            }
+            @if (
+              capabilitySubscriptions["moreUsageCredits"].expires &&
+              capabilitySubscriptions["moreUsageCredits"].enabled
+            ) {
+              <span>
+                {{ "pages.account.bonus.automaticRenewal" | translate }}
+              </span>
+            }
+          </p>
+        }
+      </ion-label>
+    </ion-item>
     <br /><br />
     <ion-item lines="none">
       <ion-icon name="warning" color="danger" slot="start"></ion-icon>

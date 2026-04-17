@@ -166,6 +166,11 @@ const clipWithAPI = async () => {
   });
 
   if (!clipResponse.ok) {
+    if (clipResponse.status === 420) {
+      return window.alert(
+        "Daily limit reached for clipping, imports, and cooking assistant (sorry, they're costly!). Cooking credits reset at 0:00GMT. Consider contributing for a larger daily allowance.",
+      );
+    }
     return window.alert(
       "Failed to clip recipe. If this continues, please report a bug",
     );

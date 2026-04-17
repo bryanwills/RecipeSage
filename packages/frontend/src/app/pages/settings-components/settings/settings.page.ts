@@ -13,6 +13,7 @@ import {
   encryptUtf8WithRSAKey,
   GlobalPreferenceKey,
   PreferencesSync,
+  RecipeDetailsPreferenceKey,
   StartPageOptions,
   SupportedLanguages,
 } from "@recipesage/util/shared";
@@ -63,6 +64,7 @@ export class SettingsPage {
 
   preferences = this.preferencesService.preferences;
   preferenceKeys = GlobalPreferenceKey;
+  recipeDetailsPreferenceKeys = RecipeDetailsPreferenceKey;
 
   featureFlags = this.featureFlagService.flags;
   featureFlagKeys = FeatureFlagKeys;

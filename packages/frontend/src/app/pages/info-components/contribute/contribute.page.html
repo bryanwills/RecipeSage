@@ -167,6 +167,14 @@
             }
           </li>
         }
+        <li>
+          {{ "pages.contribute.bonus.feature.4" | translate }} &nbsp;
+          @if (capabilitiesService.capabilities.moreUsageCredits) {
+            <ion-badge slot="end">{{
+              "pages.contribute.bonus.enabled" | translate
+            }}</ion-badge>
+          }
+        </li>
       </ul>
     </div>
 

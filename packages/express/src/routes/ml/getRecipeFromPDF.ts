@@ -4,6 +4,11 @@ import multer from "multer";
 import { multerAutoCleanup } from "@recipesage/util/server/general";
 import { tmpdir } from "os";
 import { pdfToRecipe } from "@recipesage/util/server/ml";
+import {
+  isRecipeRecognitionSuccess,
+  recordCreditsSpent,
+} from "@recipesage/util/server/general";
+import { assertCreditsAvailableExpress } from "../../util/assertCreditsAvailableExpress";
 
 const FILE_SIZE_LIMIT_MB = 50;
 
@@ -25,7 +30,11 @@ export const getRecipeFromPDFHandler = defineHandler(
       }).single("file"),
     ],
   },
-  async (req) => {
+  async (req, res) => {
+    const userId = res.locals.session.userId;
+
+    await assertCreditsAvailableExpress(userId, "mlPdf");
+
     const file = req.file;
     if (!file) {
       throw new BadRequestError(
@@ -36,6 +45,10 @@ export const getRecipeFromPDFHandler = defineHandler(
     const recognizedRecipe = await pdfToRecipe(file.path);
     if (!recognizedRecipe) {
       throw new BadRequestError("Could not parse recipe from OCR results");
+    }
+
+    if (isRecipeRecognitionSuccess(recognizedRecipe.recipe)) {
+      await recordCreditsSpent(userId, "mlPdf");
     }
 
     return {

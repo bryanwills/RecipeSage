@@ -20,6 +20,7 @@ export * from "./metrics";
 
 export * from "./queue";
 
+export * from "./credits";
 export * from "./clip";
 export * from "./sortRecipeImages";
 export * from "./fileTransformer";

@@ -170,6 +170,18 @@ model AssistantMessage {
   @@map("AssistantMessages")
 }
 
+model UserCreditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  operation String   @db.VarChar(64)
+  credits   Int
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt], map: "user_credit_logs_user_id_created_at")
+  @@map("UserCreditLogs")
+}
+
 model ProfileItem {
   id         String   @id @default(uuid()) @db.Uuid
   userId     String   @db.Uuid
@@ -255,6 +267,21 @@ model Recipe {
   indexedAt         DateTime?          @db.Timestamptz(6)
   lastMadeAt        DateTime?          @db.Date
   rating            Int?
+  nutritionCalories     Float?
+  nutritionTotalFat     Float?
+  nutritionSaturatedFat Float?
+  nutritionTransFat     Float?
+  nutritionCholesterol  Float?
+  nutritionSodium       Float?
+  nutritionTotalCarbs   Float?
+  nutritionDietaryFiber Float?
+  nutritionTotalSugars  Float?
+  nutritionAddedSugars  Float?
+  nutritionProtein      Float?
+  nutritionVitaminD     Float?
+  nutritionCalcium      Float?
+  nutritionIron         Float?
+  nutritionPotassium    Float?
   mealPlanItems     MealPlanItem[]
   originalRecipe    Message[]          @relation("Messages_originalRecipeIdToRecipes")
   messages          Message[]          @relation("Messages_recipeIdToRecipes")
@@ -429,8 +456,20 @@ model User {
   profileImages             UserProfileImage[]
   jobs                      Job[]
   stripeEvents              StripeEvent[]
+  creditLogs                UserCreditLog[]
 
   @@map("Users")
+}
+
+model ClipCache {
+  id        String   @id @default(uuid()) @db.Uuid
+  url       String
+  urlHash   Bytes    @unique
+  recipe    Json
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("ClipCache")
 }
 
 model SequelizeMeta {

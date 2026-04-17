@@ -53,6 +53,21 @@
   margin-bottom: 100px;
 }
 
+ion-accordion [slot="content"] {
+  overflow: hidden;
+}
+
+.nutrition-badge {
+  margin-right: 8px;
+}
+
+.nutrition-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  padding: 0 16px;
+}
+
 .recipe-input {
   margin-bottom: 16px;
 }

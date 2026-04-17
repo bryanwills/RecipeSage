@@ -18,6 +18,7 @@ export class CapabilitiesService {
     multipleImages: false,
     expandablePreviews: false,
     assistantMoreMessages: false,
+    moreUsageCredits: false,
   };
 
   constructor() {

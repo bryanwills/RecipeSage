@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, inject } from "@angular/core";
-import { ToastController } from "@ionic/angular";
+import { AlertController, ToastController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 
 import { ImageService } from "~/services/image.service";
@@ -17,6 +17,7 @@ import type { ImageSummary } from "@recipesage/prisma";
 })
 export class MultiImageUploadComponent {
   private toastCtrl = inject(ToastController);
+  private alertCtrl = inject(AlertController);
   private imageService = inject(ImageService);
   private loadingService = inject(LoadingService);
   private translate = inject(TranslateService);
@@ -114,6 +115,24 @@ export class MultiImageUploadComponent {
     this.images.splice(newImgIdx, 0, image); // Insert
 
     this.imageUpdate.emit(this.images);
+  }
+
+  async showContributorHint() {
+    const header = await this.translate
+      .get("components.multiImageUpload.contributorHint.header")
+      .toPromise();
+    const message = await this.translate
+      .get("components.multiImageUpload.contributorHint.message")
+      .toPromise();
+    const okay = await this.translate.get("generic.okay").toPromise();
+
+    const alert = await this.alertCtrl.create({
+      header,
+      message,
+      cssClass: "alert-preline",
+      buttons: [{ text: okay }],
+    });
+    alert.present();
   }
 
   removeImage(image: ImageSummary) {
