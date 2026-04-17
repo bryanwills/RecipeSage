@@ -48,6 +48,7 @@ const clipRecipeHtmlWithJSDOM = async (document: string) => {
       ingredients: he.decode(result?.ingredients || ""),
       instructions: he.decode(result?.instructions || ""),
       notes: he.decode(result?.notes || ""),
+      nutritionInfo: he.decode(result?.nutritionInfo || ""),
     },
     images: result?.imageURL ? [result.imageURL] : [],
     labels: [],
@@ -107,16 +108,42 @@ export const clipUrl = async (
   });
 
   if (cached && cached.url === url) {
-    metrics.clipSuccess.inc({
-      form: "url",
-      method: "cached",
-    });
-    return cached.recipe as unknown as StandardizedRecipeImportEntry;
+    const cachedRecipe =
+      cached.recipe as unknown as StandardizedRecipeImportEntry;
+    if (
+      cachedRecipe.recipe.title &&
+      cachedRecipe.recipe.ingredients &&
+      cachedRecipe.recipe.instructions
+    ) {
+      metrics.clipSuccess.inc({
+        form: "url",
+        method: "cached",
+      });
+      return cachedRecipe;
+    }
   }
 
-  const response = await fetchURL(url, {
-    timeout: parseInt(process.env.CLIP_BROWSER_NAVIGATE_TIMEOUT || "10000"),
-  }).catch((e) => {
+  const response = await (async () => {
+    const timeout = parseInt(
+      process.env.CLIP_BROWSER_NAVIGATE_TIMEOUT || "10000",
+    );
+
+    let _url = url;
+    if (process.env.SCRAPFLY_API_KEY) {
+      const params = new URLSearchParams({
+        asp: "true",
+        key: process.env.SCRAPFLY_API_KEY,
+        url,
+        proxified_response: "true",
+      });
+
+      _url = `https://api.scrapfly.io/scrape?${params}`;
+    }
+
+    return fetchURL(_url, {
+      timeout,
+    });
+  })().catch((e) => {
     if (e instanceof AbortError) {
       metrics.clipError.inc({
         form: "url",
@@ -124,6 +151,7 @@ export const clipUrl = async (
       });
       throw new ClipTimeoutError();
     }
+    console.error(e);
     metrics.clipError.inc({
       form: "url",
       method: "fetch",
@@ -281,6 +309,7 @@ export const clipHtml = async (
           ingredients: acc.recipe.ingredients || entry.recipe.ingredients,
           instructions: acc.recipe.instructions || entry.recipe.instructions,
           notes: acc.recipe.notes || entry.recipe.notes,
+          nutritionInfo: acc.recipe.nutritionInfo || entry.recipe.nutritionInfo,
         },
         images: acc.images.length ? acc.images : entry.images,
         labels: acc.labels.length ? acc.labels : entry.labels,
