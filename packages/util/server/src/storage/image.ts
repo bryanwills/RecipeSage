@@ -1,14 +1,10 @@
-import { StorageObjectRecord, writeBuffer, writeStream } from "./index";
+import { StorageObjectRecord, writeBuffer } from "./index";
 import { ObjectTypes } from "./shared";
-import {
-  fetchURL,
-  transformImageBuffer,
-  transformImageStream,
-} from "../general";
+import { fetchURL, transformImageBuffer } from "../general";
 import { sanitizeFilePath } from "./sanitizeFilePath";
 import { createReadStream } from "fs";
-import { PassThrough, type Readable } from "stream";
-import { pipeline } from "stream/promises";
+import { buffer as streamToBuffer } from "stream/consumers";
+import type { Readable } from "stream";
 import type { ReadableStream } from "stream/web";
 
 const HIGH_RES_IMG_CONVERSION_WIDTH = 1024;
@@ -69,25 +65,21 @@ export const writeImageStream = async (
     ? HIGH_RES_IMG_CONVERSION_QUALITY
     : LOW_RES_IMG_CONVERSION_QUALITY;
 
-  const write = new PassThrough();
-
-  const pipelinePromise = pipeline(
-    inputStream,
-    transformImageStream(
-      width,
-      height,
-      quality,
-      highResConversion ? "inside" : "cover",
-    ),
-    write,
+  // Buffer the full input before transform so HEIC can be detected and
+  // pre-decoded via heic-decode (Sharp's prebuilt libvips cannot decode HEVC).
+  const inputBuffer = await streamToBuffer(
+    inputStream as Readable | ReadableStream,
   );
 
-  const [result] = await Promise.all([
-    writeStream(objectType, write, "image/jpeg"),
-    pipelinePromise,
-  ]);
+  const converted = await transformImageBuffer(
+    inputBuffer,
+    width,
+    height,
+    quality,
+    highResConversion ? "inside" : "cover",
+  );
 
-  return result;
+  return writeBuffer(objectType, converted, "image/jpeg");
 };
 
 /**

@@ -278,38 +278,31 @@ async function main() {
         chunkedRecipesWithImages.push(recipesWithImages.slice(i, i + chunk));
       }
 
-      await chunkedRecipesWithImages.reduce((acc, lcbRecipeChunk) => {
-        return acc.then(() => {
-          return Promise.all(
-            lcbRecipeChunk.map(async (lcbRecipe) => {
-              await Promise.all(
-                lcbRecipe.imageFileNames.map((imageFileName) => {
-                  const possibleImageFiles = UtilService.findFilesByRegex(
-                    extractPath,
-                    new RegExp(`(${imageFileName})$`, "i"),
-                  );
+      for (const lcbRecipeChunk of chunkedRecipesWithImages) {
+        for (const lcbRecipe of lcbRecipeChunk) {
+          for (const imageFileName of lcbRecipe.imageFileNames) {
+            const possibleImageFiles = UtilService.findFilesByRegex(
+              extractPath,
+              new RegExp(`(${imageFileName})$`, "i"),
+            );
 
-                  if (possibleImageFiles.length == 0) return;
+            if (possibleImageFiles.length == 0) continue;
 
-                  return writeImageFile(
-                    ObjectTypes.RECIPE_IMAGE,
-                    possibleImageFiles[0],
-                    false,
-                    extractPath,
-                  )
-                    .then((image) => {
-                      lcbRecipe.images = lcbRecipe.images || [];
-                      lcbRecipe.images.push(image);
-                    })
-                    .catch(() => {
-                      // Do nothing
-                    });
-                }),
+            try {
+              const image = await writeImageFile(
+                ObjectTypes.RECIPE_IMAGE,
+                possibleImageFiles[0],
+                false,
+                extractPath,
               );
-            }),
-          );
-        });
-      }, Promise.resolve());
+              lcbRecipe.images = lcbRecipe.images || [];
+              lcbRecipe.images.push(image);
+            } catch {
+              // Do nothing
+            }
+          }
+        }
+      }
 
       await Promise.all(
         tableMap.t_recipe.map(async (lcbRecipe) => {

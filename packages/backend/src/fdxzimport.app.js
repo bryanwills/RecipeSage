@@ -244,60 +244,54 @@ async function main() {
         chunkedRecipesWithImages.push(recipesWithImages.slice(i, i + chunk));
       }
 
-      await chunkedRecipesWithImages.reduce((acc, lcbRecipeChunk) => {
-        return acc.then(() => {
-          return Promise.all(
-            lcbRecipeChunk.map((lcbRecipe) => {
-              const imageRefs = lcbRecipe.imageRefs;
+      for (const lcbRecipeChunk of chunkedRecipesWithImages) {
+        for (const lcbRecipe of lcbRecipeChunk) {
+          const imageRefs = lcbRecipe.imageRefs;
 
-              if (imageRefs.length == 0) return;
+          if (imageRefs.length == 0) continue;
 
-              if (!runConfig.multipleImages) imageRefs.splice(1); // Remove all but first image
+          if (!runConfig.multipleImages) imageRefs.splice(1); // Remove all but first image
 
-              return Promise.all(
-                lcbRecipe.imageRefs.map((imageRef) => {
-                  if (imageRef._text) {
-                    return writeImageBuffer(
-                      ObjectTypes.RECIPE_IMAGE,
-                      Buffer.from(imageRef._text, "base64"),
-                      false,
-                    )
-                      .then((image) => {
-                        lcbRecipe.images.push(image);
-                      })
-                      .catch(() => {
-                        // Do nothing
-                      });
-                  }
+          for (const imageRef of lcbRecipe.imageRefs) {
+            if (imageRef._text) {
+              const base64Buffer = Buffer.from(imageRef._text, "base64");
+              try {
+                const image = await writeImageBuffer(
+                  ObjectTypes.RECIPE_IMAGE,
+                  base64Buffer,
+                  false,
+                );
+                lcbRecipe.images.push(image);
+              } catch {
+                // Do nothing
+              }
+              continue;
+            }
 
-                  // let possibleFileNameRegex = imageFileNames.join('|')
-                  const possibleFileNameRegex = imageRef._attributes.FileName;
+            // let possibleFileNameRegex = imageFileNames.join('|')
+            const possibleFileNameRegex = imageRef._attributes.FileName;
 
-                  const possibleImageFiles = UtilService.findFilesByRegex(
-                    extractPath,
-                    new RegExp(`(${possibleFileNameRegex})$`, "i"),
-                  );
+            const possibleImageFiles = UtilService.findFilesByRegex(
+              extractPath,
+              new RegExp(`(${possibleFileNameRegex})$`, "i"),
+            );
 
-                  if (possibleImageFiles.length == 0) return;
+            if (possibleImageFiles.length == 0) continue;
 
-                  return writeImageFile(
-                    ObjectTypes.RECIPE_IMAGE,
-                    possibleImageFiles[0],
-                    false,
-                    extractPath,
-                  )
-                    .then((image) => {
-                      lcbRecipe.images.push(image);
-                    })
-                    .catch(() => {
-                      // Do nothing
-                    });
-                }),
+            try {
+              const image = await writeImageFile(
+                ObjectTypes.RECIPE_IMAGE,
+                possibleImageFiles[0],
+                false,
+                extractPath,
               );
-            }),
-          );
-        });
-      }, Promise.resolve());
+              lcbRecipe.images.push(image);
+            } catch {
+              // Do nothing
+            }
+          }
+        }
+      }
 
       const recipes = await Recipe.bulkCreate(
         pendingRecipes.map((el) => el.model),

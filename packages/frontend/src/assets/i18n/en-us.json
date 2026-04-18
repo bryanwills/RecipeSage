@@ -1168,6 +1168,7 @@
   "components.multiImageUpload.add": "Click to Add Image",
   "components.multiImageUpload.imageLimit": "You can attach attach up to 10 images",
   "components.multiImageUpload.imageError": "There was an error processing one or more of the images that you selected",
+  "components.multiImageUpload.imageFormatError": "One or more images couldn't be processed because the format isn't supported. Try uploading JPEG, PNG, or HEIC files.",
   "components.multiImageUpload.contributorHint.header": "About Recipe Images",
   "components.multiImageUpload.contributorHint.message": "Hosting images is one of the biggest costs of running RecipeSage.\n\nTo keep the rest of the app free for everyone, uploading multiple images per recipe and storing images in high resolution are reserved for contributors as a thank you.\n\nIf you're enjoying RecipeSage, please consider contributing to help keep it alive!",
 
