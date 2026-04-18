@@ -225,7 +225,9 @@ export class RecipePage {
         this.labelGroupById[labelGroup.id] = labelGroup;
       }
     }
-    this.labelGroupIds = Array.from(groupIdsSet);
+    this.labelGroupIds = Array.from(groupIdsSet).sort((a, b) =>
+      this.labelGroupById[a].title.localeCompare(this.labelGroupById[b].title),
+    );
 
     this.applyScale();
 
@@ -235,9 +237,9 @@ export class RecipePage {
   recipeLabelsForGroupId(labelGroupId: string | null) {
     if (!this.recipe) return [];
 
-    return this.recipe.recipeLabels.filter(
-      (recipeLabel) => recipeLabel.label.labelGroupId === labelGroupId,
-    );
+    return this.recipe.recipeLabels
+      .filter((recipeLabel) => recipeLabel.label.labelGroupId === labelGroupId)
+      .sort((a, b) => a.label.title.localeCompare(b.label.title));
   }
 
   async _loadSimilarRecipes() {

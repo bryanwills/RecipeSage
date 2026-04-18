@@ -391,7 +391,7 @@ export class HomePage {
       );
       if (!response) return;
 
-      this.labels = response;
+      this.labels = response.sort((a, b) => a.title.localeCompare(b.title));
     } else if (this.isIncludeFriendsEnabled()) {
       const response = await this.trpcService.handle(
         this.trpcService.trpc.labels.getAllVisibleLabels.query(),
@@ -401,7 +401,7 @@ export class HomePage {
       );
       if (!response) return;
 
-      this.labels = response;
+      this.labels = response.sort((a, b) => a.title.localeCompare(b.title));
     } else {
       const response = await this.trpcService.handle(
         this.trpcService.trpc.labels.getLabels.query(),
@@ -411,7 +411,7 @@ export class HomePage {
       );
       if (!response) return;
 
-      this.labels = response;
+      this.labels = response.sort((a, b) => a.title.localeCompare(b.title));
     }
   }
 

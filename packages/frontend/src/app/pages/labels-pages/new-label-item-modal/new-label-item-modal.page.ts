@@ -51,8 +51,8 @@ export class NewLabelItemModalPage {
       this.trpcService.trpc.labels.getLabels.query(),
     );
     if (labelsResult) {
-      this.labels = labelsResult;
-      this.ungroupedLabels = labelsResult.filter((label) => {
+      this.labels = labelsResult.sort((a, b) => a.title.localeCompare(b.title));
+      this.ungroupedLabels = this.labels.filter((label) => {
         return !label.labelGroupId;
       });
 
