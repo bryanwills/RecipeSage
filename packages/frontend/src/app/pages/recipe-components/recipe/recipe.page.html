@@ -206,10 +206,16 @@
                 <p>{{ "pages.recipeDetails.noIngredients" | translate }}</p>
               }
               <p>
-                <a class="scale" (click)="changeScale()">{{
-                  "pages.recipeDetails.scaleStatus"
-                    | translate: { scale: scale }
-                }}</a>
+                <a class="scale" (click)="changeScale()"
+                  >{{
+                    "pages.recipeDetails.scaleStatus"
+                      | translate: { scale: scale }
+                  }}
+                  ·
+                  {{
+                    "components.scaleRecipe.system." + unitSystem | translate
+                  }}</a
+                >
               </p>
               <br />
             </ion-label>

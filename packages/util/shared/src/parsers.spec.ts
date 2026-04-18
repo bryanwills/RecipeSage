@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { System } from "unitz-ts";
 import {
   getMeasurementsForIngredient,
   getTitleForIngredient,
@@ -760,6 +761,129 @@ describe("parsers", () => {
         expect(parseIngredients("3 eggs", 1 / 3)[0].content).toBe("1 eggs");
       });
     });
+
+    describe("metric/imperial conversion", () => {
+      it("converts cups to metric volume", () => {
+        const result = parseIngredients("2 cups flour", 1, System.METRIC)[0]
+          .content;
+        expect(result).toMatch(/\b(ml|l|cl|dl)\b/);
+        expect(result).not.toContain("cup");
+        expect(result).toContain("flour");
+      });
+
+      it("converts cups to metric after scaling", () => {
+        const result = parseIngredients("2 cups flour", 2, System.METRIC)[0]
+          .content;
+        expect(result).toMatch(/\b(ml|l|cl|dl)\b/);
+        expect(result).not.toContain("cup");
+      });
+
+      it("converts metric volume to imperial", () => {
+        const result = parseIngredients("500 ml milk", 1, System.US)[0].content;
+        expect(result).not.toMatch(/\bml\b/);
+        expect(result).toContain("milk");
+      });
+
+      it("converts weight from US to metric", () => {
+        const result = parseIngredients("4 oz cheese", 1, System.METRIC)[0]
+          .content;
+        expect(result).toMatch(/\b(g|kg|mg)\b/);
+        expect(result).not.toMatch(/\boz\b/);
+      });
+
+      it("converts small volumes (tbsp) to metric", () => {
+        const result = parseIngredients("1 tbsp oil", 1, System.METRIC)[0]
+          .content;
+        expect(result).toMatch(/\b(ml|l|cl|dl)\b/);
+      });
+
+      it("preserves user notation when already in target system (metric)", () => {
+        const result = parseIngredients("500 ml milk", 1, System.METRIC)[0]
+          .content;
+        expect(result).toBe("500 ml milk");
+      });
+
+      it("scales in user notation when already in target system", () => {
+        const result = parseIngredients("500 ml milk", 2, System.METRIC)[0]
+          .content;
+        expect(result).toBe("1000 ml milk");
+      });
+
+      it("leaves unit-less ingredients untouched in metric", () => {
+        const result = parseIngredients("3 eggs", 1, System.METRIC)[0].content;
+        expect(result).toBe("3 eggs");
+      });
+
+      it("leaves unit-less ingredients untouched in imperial", () => {
+        const result = parseIngredients("3 eggs", 2, System.US)[0].content;
+        expect(result).toBe("6 eggs");
+      });
+
+      it("leaves system-agnostic units (can) untouched", () => {
+        const result = parseIngredients("1 can tomatoes", 1, System.METRIC)[0]
+          .content;
+        expect(result).toBe("1 can tomatoes");
+      });
+
+      it("leaves system-agnostic units (pinch) untouched", () => {
+        const result = parseIngredients("1 pinch salt", 2, System.US)[0]
+          .content;
+        expect(result).toContain("pinch");
+        expect(result).toMatch(/^2 /);
+      });
+
+      it("is a no-op when targetSystem is not provided", () => {
+        const result = parseIngredients("2 cups flour", 1)[0].content;
+        expect(result).toBe("2 cups flour");
+      });
+
+      it("converts each side of a range", () => {
+        const result = parseIngredients("1-2 cups milk", 1, System.METRIC)[0]
+          .content;
+        expect(result).toMatch(/\b(ml|l|cl|dl)\b/);
+        expect(result).not.toContain("cup");
+      });
+
+      it("converts each part of a multipart measurement independently", () => {
+        const result = parseIngredients(
+          "1 cup + 2 tbsp flour",
+          1,
+          System.METRIC,
+        )[0].content;
+        expect(result).toMatch(/\b(ml|l|cl|dl)\b/);
+        expect(result).not.toContain("cup");
+        expect(result).not.toContain("tbsp");
+        expect(result).toContain(" + ");
+      });
+
+      it("converts outer measurement and brace measurement together", () => {
+        const result = parseIngredients(
+          "1 cup soy sauce ({8 fl oz})",
+          1,
+          System.METRIC,
+        )[0].content;
+        expect(result).toMatch(/\b(ml|l|cl|dl)\b/);
+        expect(result).not.toContain("cup");
+        expect(result).not.toContain("fl oz");
+      });
+
+      it("leaves brace untouched when already in target system", () => {
+        const result = parseIngredients(
+          "1 cup soy sauce ({236ml})",
+          1,
+          System.METRIC,
+        )[0].content;
+        expect(result).toContain("236ml");
+      });
+
+      it("wraps converted measurement in bold for html output", () => {
+        const result = parseIngredients("2 cups flour", 1, System.METRIC)[0]
+          .htmlContent;
+        expect(result).toMatch(
+          /<b class="ingredientMeasurement">[^<]*(ml|l|cl|dl)[^<]*<\/b>/,
+        );
+      });
+    });
   });
 
   describe("parseInstructions", () => {
@@ -925,6 +1049,59 @@ describe("parsers", () => {
       it("preserves non-measurement multipart brace content verbatim", () => {
         const result = parseInstructions("Add {1 cup + 2 tbsp} flour", 2);
         expect(result[0].content).toBe("Add {1 cup + 2 tbsp} flour");
+      });
+    });
+
+    describe("metric/imperial conversion", () => {
+      it("converts brace measurement to metric", () => {
+        const result = parseInstructions(
+          "Add {2 cups} flour",
+          1,
+          System.METRIC,
+        )[0].content;
+        expect(result).toMatch(/\b(ml|l|cl|dl)\b/);
+        expect(result).not.toContain("cup");
+      });
+
+      it("scales then converts brace measurement to metric", () => {
+        const result = parseInstructions(
+          "Add {2 cups} flour",
+          2,
+          System.METRIC,
+        )[0].content;
+        expect(result).toMatch(/\b(ml|l|cl|dl)\b/);
+        expect(result).not.toContain("cup");
+      });
+
+      it("leaves plain number brace untouched when converting", () => {
+        const result = parseInstructions("Bake at {350}°F", 1, System.METRIC)[0]
+          .content;
+        expect(result).toBe("Bake at 350°F");
+      });
+
+      it("leaves time brace untouched when converting", () => {
+        const result = parseInstructions(
+          "Bake for {30 minutes}",
+          1,
+          System.METRIC,
+        )[0].content;
+        expect(result).toBe("Bake for 30 minutes");
+      });
+
+      it("is a no-op when targetSystem is not provided", () => {
+        const result = parseInstructions("Add {2 cups} flour", 1)[0].content;
+        expect(result).toBe("Add 2 cups flour");
+      });
+
+      it("wraps converted brace measurement in bold for html", () => {
+        const result = parseInstructions(
+          "Add {2 cups} flour",
+          1,
+          System.METRIC,
+        )[0].htmlContent;
+        expect(result).toMatch(
+          /<b class="instructionMeasurement">[^<]*(ml|l|cl|dl)[^<]*<\/b>/,
+        );
       });
     });
 

@@ -36,7 +36,11 @@ import {
 import { ShareModalPage } from "~/pages/share-modal/share-modal.page";
 import { AuthPage } from "~/pages/auth/auth.page";
 import { ImageViewerComponent } from "~/modals/image-viewer/image-viewer.component";
-import { ScaleRecipeComponent } from "~/modals/scale-recipe/scale-recipe.component";
+import {
+  ScaleRecipeComponent,
+  type UnitSystem,
+} from "~/modals/scale-recipe/scale-recipe.component";
+import { System } from "unitz-ts";
 import type {
   RecipeSummary,
   RecipeSummaryLite,
@@ -94,6 +98,7 @@ export class RecipePage {
   instructions?: ParsedInstruction[];
   notes?: ParsedNote[];
   scale = 1;
+  unitSystem: UnitSystem = "original";
 
   labelGroupIds: string[] = [];
   labelGroupById: Record<
@@ -369,6 +374,7 @@ export class RecipePage {
       component: ScaleRecipeComponent,
       componentProps: {
         scale: this.scale.toString(),
+        unitSystem: this.unitSystem,
       },
       cssClass: "scaleRecipeModal",
     });
@@ -376,26 +382,40 @@ export class RecipePage {
     await modal.present();
     const { data } = await modal.onDidDismiss();
 
-    if (data?.scale) {
+    if (!data) return;
+
+    if (data.scale) {
       this.scale = data.scale;
       this.recipeCompletionTrackerService.setRecipeScale(
         this.recipeId,
         this.scale,
       );
-      this.applyScale();
     }
+    if (data.unitSystem) {
+      this.unitSystem = data.unitSystem;
+    }
+    this.applyScale();
   }
 
   applyScale() {
     if (!this.recipe) return;
 
+    const targetSystem =
+      this.unitSystem === "metric"
+        ? System.METRIC
+        : this.unitSystem === "imperial"
+          ? System.US
+          : undefined;
+
     this.ingredients = this.recipeService.parseIngredients(
       this.recipe.ingredients,
       this.scale,
+      targetSystem,
     );
     this.instructions = this.recipeService.parseInstructions(
       this.recipe.instructions,
       this.scale,
+      targetSystem,
     );
   }
 
