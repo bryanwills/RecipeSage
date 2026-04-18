@@ -75,9 +75,10 @@ export class LabelsPage {
     this.loading = false;
     if (!labelsResponse || !labelGroupsResponse) return;
 
-    this.labels = labelsResponse;
-    console.log("labelsResponse", labelsResponse);
-    this.labelGroups = labelGroupsResponse;
+    this.labels = labelsResponse.sort((a, b) => a.title.localeCompare(b.title));
+    this.labelGroups = labelGroupsResponse.sort((a, b) =>
+      a.title.localeCompare(b.title),
+    );
   }
 
   loadWithBar() {

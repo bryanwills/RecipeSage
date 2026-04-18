@@ -86,7 +86,9 @@ export class AddRecipeToShoppingListModalPage {
     );
     if (!response) return;
 
-    this.shoppingLists = response;
+    this.shoppingLists = response.sort((a, b) =>
+      a.title.localeCompare(b.title),
+    );
 
     this.selectLastUsedShoppingList();
   }

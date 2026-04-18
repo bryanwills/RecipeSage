@@ -78,7 +78,7 @@ export class AddRecipeToMealPlanModalPage {
     );
     if (!mealPlans) return;
 
-    this.mealPlans = mealPlans;
+    this.mealPlans = mealPlans.sort((a, b) => a.title.localeCompare(b.title));
 
     this.selectLastUsedMealPlan();
   }

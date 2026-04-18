@@ -196,7 +196,7 @@ export class EditRecipePage {
       this.trpcService.trpc.labels.getLabels.query(),
     );
     if (labels) {
-      this.labels = labels;
+      this.labels = labels.sort((a, b) => a.title.localeCompare(b.title));
     }
   }
 
@@ -205,7 +205,9 @@ export class EditRecipePage {
       this.trpcService.trpc.labelGroups.getLabelGroups.query(),
     );
     if (labelGroups) {
-      this.labelGroups = labelGroups;
+      this.labelGroups = labelGroups.sort((a, b) =>
+        a.title.localeCompare(b.title),
+      );
     }
   }
 

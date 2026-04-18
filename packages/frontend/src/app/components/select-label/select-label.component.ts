@@ -45,7 +45,7 @@ export class SelectLabelComponent {
     loading.dismiss();
     if (!response) return;
 
-    this.labels = response;
+    this.labels = response.sort((a, b) => a.title.localeCompare(b.title));
     this.results = this.labels;
   }
 
