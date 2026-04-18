@@ -17,63 +17,51 @@
 
   <ion-reorder-group (ionItemReorder)="onReorder($event)" disabled="false">
     @for (entry of entries; track $index) {
-      @if ($index < entries.length - 1) {
-        <div class="meal-entry">
-          <button
-            class="color-swatch"
-            [style.background-color]="entry.color"
-            [class.no-color]="!entry.color"
-            (click)="toggleColorPicker($index)"
-          ></button>
-          <ion-item class="meal-entry-item">
-            <ion-input
-              label="{{
-                'pages.mealPlanMealOrderModal.entryPlaceholder' | translate
-              }}"
-              labelPlacement="stacked"
-              [(ngModel)]="entry.name"
-              (ionInput)="onEntryInput($index)"
-              type="text"
-              [readonly]="entry.isDefault"
-            ></ion-input>
-          </ion-item>
+      <div class="meal-entry">
+        <button
+          class="color-swatch"
+          [style.background-color]="entry.color"
+          [class.no-color]="!entry.color"
+          (click)="toggleColorPicker($index)"
+        ></button>
+        <ion-item class="meal-entry-item">
+          <ion-input
+            label="{{
+              'pages.mealPlanMealOrderModal.entryPlaceholder' | translate
+            }}"
+            labelPlacement="stacked"
+            [(ngModel)]="entry.name"
+            (ionInput)="onEntryInput($index)"
+            (ionFocus)="closeColorPicker()"
+            type="text"
+            [disabled]="entry.isDefault"
+          ></ion-input>
+        </ion-item>
+        @if ($index < entries.length - 1) {
           <ion-button
             fill="clear"
             size="small"
             color="medium"
             (click)="removeEntry($index)"
+            [disabled]="entry.isDefault"
           >
             <ion-icon name="close-circle" slot="icon-only"></ion-icon>
           </ion-button>
           <ion-reorder></ion-reorder>
-        </div>
-
-        @if (openColorPickerIndex === $index) {
-          <div class="color-picker-container">
-            <color-picker
-              [color]="entry.color"
-              (colorChange)="onColorChange($index, $event)"
-            ></color-picker>
-          </div>
         }
+      </div>
+
+      @if (openColorPickerIndex === $index) {
+        <div class="color-picker-container" #colorPickerContainer>
+          <color-picker
+            [color]="entry.color"
+            (colorChange)="onColorChange($index, $event)"
+            (presetSelected)="closeColorPicker()"
+          ></color-picker>
+        </div>
       }
     }
   </ion-reorder-group>
-
-  <div class="meal-entry">
-    <button class="color-swatch no-color"></button>
-    <ion-item class="meal-entry-item">
-      <ion-input
-        label="{{
-          'pages.mealPlanMealOrderModal.entryPlaceholder' | translate
-        }}"
-        labelPlacement="stacked"
-        [(ngModel)]="entries[entries.length - 1].name"
-        (ionInput)="onEntryInput(entries.length - 1)"
-        type="text"
-      ></ion-input>
-    </ion-item>
-  </div>
 </ion-content>
 
 <ion-footer class="ion-padding">

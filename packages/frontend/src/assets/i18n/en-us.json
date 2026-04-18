@@ -519,7 +519,7 @@
   "pages.mealPlanPopover.removeSelfFromPlan.message": "This will remove this meal plan from your account. Only the owner of the meal plan can permanently delete it completely, but you won't be a member of this meal plan if you proceed. Only the owner of the meal plan can reverse this action.",
 
   "pages.mealPlanMealOrderModal.title": "Customize Meal Options",
-  "pages.mealPlanMealOrderModal.description": "Add custom meal types and arrange them in the order you'd like them displayed. Default meals not listed will appear after your custom entries.",
+  "pages.mealPlanMealOrderModal.description": "Tap a color swatch to recolor, drag to reorder, or add a new option using the empty row below. Default meal types can't be renamed or removed.",
   "pages.mealPlanMealOrderModal.entryPlaceholder": "Meal name",
 
   "pages.mealPlans.tabTitle": "Meal Plans - RecipeSage",

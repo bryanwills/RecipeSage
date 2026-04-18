@@ -329,7 +329,10 @@
       ></ion-textarea>
     </ion-item>
 
-    <ion-accordion-group [(ngModel)]="nutritionAccordionValue">
+    <ion-accordion-group
+      [value]="nutritionAccordionValue"
+      (ionChange)="nutritionAccordionValue = $event.detail.value"
+    >
       <ion-accordion value="nutrition">
         <ion-item slot="header">
           <ion-label>
