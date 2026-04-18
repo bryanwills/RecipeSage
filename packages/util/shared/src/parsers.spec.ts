@@ -263,6 +263,503 @@ describe("parsers", () => {
         expect(result[0].isRtl).toBe(false);
       });
     });
+
+    describe("input format coverage", () => {
+      describe("integers", () => {
+        it("keeps integer at scale 1", () => {
+          expect(parseIngredients("2 cups flour", 1)[0].content).toBe(
+            "2 cups flour",
+          );
+        });
+        it("scales integer by integer", () => {
+          expect(parseIngredients("2 cups flour", 2)[0].content).toBe(
+            "4 cups flour",
+          );
+        });
+        it("scales integer by 1/2", () => {
+          expect(parseIngredients("2 cups flour", 1 / 2)[0].content).toBe(
+            "1 cups flour",
+          );
+        });
+        it("keeps unit-less integer at scale 1", () => {
+          expect(parseIngredients("3 eggs", 1)[0].content).toBe("3 eggs");
+        });
+        it("scales unit-less integer by 1/2", () => {
+          expect(parseIngredients("3 eggs", 1 / 2)[0].content).toBe(
+            "1 1/2 eggs",
+          );
+        });
+        it("scales unit-less integer to whole", () => {
+          expect(parseIngredients("3 eggs", 1 / 3)[0].content).toBe("1 eggs");
+        });
+      });
+
+      describe("decimals", () => {
+        it("preserves decimal at scale 1", () => {
+          expect(parseIngredients("1.5 cups milk", 1)[0].content).toBe(
+            "1.5 cups milk",
+          );
+        });
+        it("scales decimal by integer", () => {
+          expect(parseIngredients("1.5 cups milk", 2)[0].content).toBe(
+            "3 cups milk",
+          );
+        });
+        it("scales decimal by 1/3 to clean fraction", () => {
+          expect(parseIngredients("1.5 cups milk", 1 / 3)[0].content).toBe(
+            "1/2 cups milk",
+          );
+        });
+        it("scales decimal to whole", () => {
+          expect(parseIngredients("0.25 cup oil", 4)[0].content).toBe(
+            "1 cup oil",
+          );
+        });
+      });
+
+      describe("simple fractions", () => {
+        it("preserves fraction at scale 1", () => {
+          expect(parseIngredients("1/2 cup sugar", 1)[0].content).toBe(
+            "1/2 cup sugar",
+          );
+        });
+        it("scales fraction by 2", () => {
+          expect(parseIngredients("1/2 cup sugar", 2)[0].content).toBe(
+            "1 cup sugar",
+          );
+        });
+        it("scales 1/3 cup by 2 to 2/3", () => {
+          expect(parseIngredients("1/3 cup sugar", 2)[0].content).toBe(
+            "2/3 cup sugar",
+          );
+        });
+        it("scales 3/4 down by 1/3", () => {
+          expect(parseIngredients("3/4 cup sugar", 1 / 3)[0].content).toBe(
+            "1/4 cup sugar",
+          );
+        });
+      });
+
+      describe("mixed fractions", () => {
+        it("preserves mixed fraction at scale 1", () => {
+          expect(parseIngredients("1 1/2 cups flour", 1)[0].content).toBe(
+            "1 1/2 cups flour",
+          );
+        });
+        it("scales mixed fraction by 2", () => {
+          expect(parseIngredients("1 1/2 cups flour", 2)[0].content).toBe(
+            "3 cups flour",
+          );
+        });
+        it("scales mixed fraction down", () => {
+          expect(parseIngredients("1 1/2 cups flour", 1 / 3)[0].content).toBe(
+            "1/2 cups flour",
+          );
+        });
+        it("scales mixed fraction to another mixed fraction", () => {
+          expect(parseIngredients("2 1/4 teaspoons salt", 2)[0].content).toBe(
+            "4 1/2 teaspoons salt",
+          );
+        });
+      });
+
+      describe("unicode fractions", () => {
+        it("scales unicode fraction to whole", () => {
+          expect(parseIngredients("½ cup butter", 2)[0].content).toBe(
+            "1 cup butter",
+          );
+        });
+        it("scales unicode thirds", () => {
+          expect(parseIngredients("⅓ cup sugar", 2)[0].content).toBe(
+            "2/3 cup sugar",
+          );
+        });
+        it("scales unicode quarters down", () => {
+          expect(parseIngredients("¾ cup flour", 1 / 3)[0].content).toBe(
+            "1/4 cup flour",
+          );
+        });
+        it("scales unicode in mixed position", () => {
+          expect(parseIngredients("1 ½ cups milk", 2)[0].content).toBe(
+            "3 cups milk",
+          );
+        });
+      });
+
+      describe("ranges", () => {
+        it("preserves dash range at scale 1", () => {
+          expect(parseIngredients("1-2 teaspoons salt", 1)[0].content).toBe(
+            "1-2 teaspoons salt",
+          );
+        });
+        it("scales dash range up", () => {
+          expect(parseIngredients("1-2 teaspoons salt", 2)[0].content).toBe(
+            "2-4 teaspoons salt",
+          );
+        });
+        it("scales dash range down to fractions", () => {
+          expect(parseIngredients("1-2 teaspoons salt", 1 / 2)[0].content).toBe(
+            "1/2-1 teaspoons salt",
+          );
+        });
+        it("preserves spaced-dash range delimiter", () => {
+          expect(parseIngredients("1 - 2 cups milk", 2)[0].content).toBe(
+            "2 - 4 cups milk",
+          );
+        });
+        it("preserves 'to' range delimiter at scale 1", () => {
+          expect(
+            parseIngredients("3 to 4 tablespoons butter", 1)[0].content,
+          ).toBe("3 to 4 tablespoons butter");
+        });
+        it("preserves 'to' range delimiter while scaling", () => {
+          expect(
+            parseIngredients("3 to 4 tablespoons butter", 2)[0].content,
+          ).toBe("6 to 8 tablespoons butter");
+        });
+        it("scales fraction range to integer range", () => {
+          expect(parseIngredients("1/2 to 1 cup water", 2)[0].content).toBe(
+            "1 to 2 cup water",
+          );
+        });
+        it("scales mixed-fraction range", () => {
+          expect(parseIngredients("1 1/2 - 2 cups flour", 2)[0].content).toBe(
+            "3 - 4 cups flour",
+          );
+        });
+        it("scales decimal range", () => {
+          expect(parseIngredients("0.5-1 cup cream", 2)[0].content).toBe(
+            "1-2 cup cream",
+          );
+        });
+      });
+
+      describe("multipart", () => {
+        it("preserves plus delimiter at scale 1", () => {
+          expect(
+            parseIngredients("1 cup + 2 tablespoons flour", 1)[0].content,
+          ).toBe("1 cup + 2 tablespoons flour");
+        });
+        it("scales each side of plus delimiter", () => {
+          expect(
+            parseIngredients("1 cup + 2 tablespoons flour", 2)[0].content,
+          ).toBe("2 cup + 4 tablespoons flour");
+        });
+        it("preserves 'plus' word delimiter", () => {
+          expect(
+            parseIngredients("1 cup plus 2 tablespoons flour", 2)[0].content,
+          ).toBe("2 cup plus 4 tablespoons flour");
+        });
+        it("preserves 'or' delimiter", () => {
+          expect(parseIngredients("1 cup or 250ml milk", 2)[0].content).toBe(
+            "2 cup or 500ml milk",
+          );
+        });
+        it("scales fractional multipart", () => {
+          expect(
+            parseIngredients("1/2 cup + 1 tablespoon butter", 2)[0].content,
+          ).toBe("1 cup + 2 tablespoon butter");
+        });
+        it("scales range within multipart", () => {
+          expect(
+            parseIngredients("1-2 cups + 1 tablespoon water", 2)[0].content,
+          ).toBe("2-4 cups + 2 tablespoon water");
+        });
+      });
+
+      describe("parenthesised notes", () => {
+        it("scales while preserving trailing note", () => {
+          expect(parseIngredients("2 cups flour (sifted)", 2)[0].content).toBe(
+            "4 cups flour (sifted)",
+          );
+        });
+        it("scales while preserving inline note", () => {
+          expect(
+            parseIngredients("1 cup (packed) brown sugar", 2)[0].content,
+          ).toBe("2 cup (packed) brown sugar");
+        });
+        it("scales fraction while preserving note", () => {
+          expect(
+            parseIngredients("1/2 cup water (boiling)", 2)[0].content,
+          ).toBe("1 cup water (boiling)");
+        });
+      });
+
+      describe("unit variations", () => {
+        it("preserves abbreviated unit", () => {
+          expect(parseIngredients("1 tbsp oil", 2)[0].content).toBe(
+            "2 tbsp oil",
+          );
+        });
+        it("preserves abbreviation with period", () => {
+          expect(parseIngredients("1 tbs. oil", 2)[0].content).toBe(
+            "2 tbs. oil",
+          );
+        });
+        it("preserves swedish teaspoon alias", () => {
+          expect(parseIngredients("1 tsk salt", 2)[0].content).toBe(
+            "2 tsk salt",
+          );
+        });
+        it("resolves teaspoon fully despite tea prefix alternation", () => {
+          expect(parseIngredients("1 teaspoon salt", 2)[0].content).toBe(
+            "2 teaspoon salt",
+          );
+        });
+      });
+
+      describe("headers are untouched", () => {
+        it("does not scale bracketed header content", () => {
+          const result = parseIngredients("[Sauce]\n2 cups tomato", 2);
+          expect(result).toHaveLength(2);
+          expect(result[0].isHeader).toBe(true);
+          expect(result[0].content).toBe("Sauce");
+          expect(result[1].content).toBe("4 cups tomato");
+        });
+      });
+    });
+
+    describe("clean-denominator scaling", () => {
+      it("outputs 1/3 cup for 1 cup × 1/3", () => {
+        expect(parseIngredients("1 cup sugar", 1 / 3)[0].content).toBe(
+          "1/3 cup sugar",
+        );
+      });
+      it("outputs 1/4 cup for 1 cup × 1/4", () => {
+        expect(parseIngredients("1 cup sugar", 1 / 4)[0].content).toBe(
+          "1/4 cup sugar",
+        );
+      });
+      it("outputs 1/2 cup for 1 cup × 1/2", () => {
+        expect(parseIngredients("1 cup sugar", 1 / 2)[0].content).toBe(
+          "1/2 cup sugar",
+        );
+      });
+      it("outputs 1/8 cup for 1 cup × 1/8", () => {
+        expect(parseIngredients("1 cup sugar", 1 / 8)[0].content).toBe(
+          "1/8 cup sugar",
+        );
+      });
+      it("outputs 3/4 cup for 1 cup × 3/4", () => {
+        expect(parseIngredients("1 cup sugar", 3 / 4)[0].content).toBe(
+          "3/4 cup sugar",
+        );
+      });
+      it("outputs integer for integer-ish float scale", () => {
+        expect(parseIngredients("2 cups flour", 3.5)[0].content).toBe(
+          "7 cups flour",
+        );
+      });
+      it("keeps denom-16 fraction in original unit when cooking-friendly", () => {
+        expect(parseIngredients("1 teaspoon vanilla", 1 / 4)[0].content).toBe(
+          "1/4 teaspoon vanilla",
+        );
+      });
+    });
+
+    describe("brace-embedded supplementary measurements", () => {
+      it("scales {unit} brace alongside the main measurement", () => {
+        const result = parseIngredients("1 cup of soy sauce ({236ml})", 2)[0]
+          .content;
+        expect(result).toBe("2 cup of soy sauce (472ml)");
+      });
+
+      it("preserves {unit} brace content at scale 1", () => {
+        const result = parseIngredients("1 cup of soy sauce ({236ml})", 1)[0]
+          .content;
+        expect(result).toBe("1 cup of soy sauce (236ml)");
+      });
+
+      it("scales {unit} brace down to clean fraction", () => {
+        const result = parseIngredients("1 cup sugar ({16tbsp})", 1 / 2)[0]
+          .content;
+        expect(result).toBe("1/2 cup sugar (8tbsp)");
+      });
+
+      it("supports spaced unit inside brace", () => {
+        const result = parseIngredients("1 cup milk ({240 ml})", 2)[0].content;
+        expect(result).toBe("2 cup milk (480 ml)");
+      });
+
+      it("scales brace when it is the only measurement on the line", () => {
+        const result = parseIngredients("{236ml} of soy sauce", 2)[0].content;
+        expect(result).toBe("472ml of soy sauce");
+      });
+
+      it("scales multiple braces on the same line independently", () => {
+        const result = parseIngredients(
+          "1 cup ({236ml}) and 2 tsp ({10ml}) of things",
+          2,
+        )[0].content;
+        expect(result).toBe("2 cup (472ml) and 2 tsp (20ml) of things");
+      });
+
+      it("leaves non-measurement brace content alone", () => {
+        const result = parseIngredients(
+          "1 cup flour {note not scalable} here",
+          2,
+        )[0].content;
+        expect(result).toBe("2 cup flour {note not scalable} here");
+      });
+
+      it("leaves empty braces alone", () => {
+        const result = parseIngredients("1 cup flour {} here", 2)[0].content;
+        expect(result).toBe("2 cup flour {} here");
+      });
+
+      it("wraps scaled brace content in bold tag for html", () => {
+        const result = parseIngredients("1 cup soy sauce ({236ml})", 2)[0]
+          .htmlContent;
+        expect(result).toContain('<b class="ingredientMeasurement">472ml</b>');
+      });
+
+      it("preserves originalContent with the raw brace syntax", () => {
+        const result = parseIngredients("1 cup soy sauce ({236ml})", 2)[0];
+        expect(result.originalContent).toBe("1 cup soy sauce ({236ml})");
+      });
+
+      it("scales unicode fraction inside brace", () => {
+        const result = parseIngredients("1 cup sugar ({½ pint})", 2)[0].content;
+        expect(result).toBe("2 cup sugar (1 pint)");
+      });
+
+      it("scales decimal inside brace", () => {
+        const result = parseIngredients("1 cup flour ({0.5 cup})", 2)[0]
+          .content;
+        expect(result).toBe("2 cup flour (1 cup)");
+      });
+
+      it("scales range inside brace", () => {
+        const result = parseIngredients("1 cup flour ({1-2 cups} milk)", 2)[0]
+          .content;
+        expect(result).toBe("2 cup flour (2-4 cups milk)");
+      });
+
+      it("preserves non-measurement brace content verbatim without scaling its digits", () => {
+        const result = parseIngredients("1 cup ({.5 cup} note)", 2)[0].content;
+        expect(result).toBe("2 cup ({.5 cup} note)");
+      });
+
+      it("preserves multipart-style brace content verbatim (unsupported)", () => {
+        const result = parseIngredients("1 cup flour ({1 cup + 2 tbsp})", 2)[0]
+          .content;
+        expect(result).toBe("2 cup flour ({1 cup + 2 tbsp})");
+      });
+
+      it("keeps plaintextContent consistent with content for brace lines", () => {
+        const result = parseIngredients("1 cup soy sauce ({236ml})", 2)[0];
+        expect(result.plaintextContent).toBe(result.content);
+      });
+    });
+
+    describe("edge cases and robustness", () => {
+      it("returns empty array for empty input", () => {
+        expect(parseIngredients("", 2)).toEqual([]);
+      });
+
+      it("preserves whitespace-only lines", () => {
+        const result = parseIngredients("  ", 2);
+        expect(result).toHaveLength(1);
+        expect(result[0].content).toBe("  ");
+      });
+
+      it("strips surrounding whitespace on scaling", () => {
+        const result = parseIngredients("   1 cup flour   ", 2);
+        expect(result[0].content).toBe("2 cup flour");
+      });
+
+      it("scales with scale of 0 to literal 0", () => {
+        const result = parseIngredients("1 cup flour", 0);
+        expect(result[0].content).toBe("0 cup flour");
+      });
+
+      it("handles very large scale", () => {
+        const result = parseIngredients("1 cup flour", 100000);
+        expect(result[0].content).toBe("100000 cup flour");
+      });
+
+      it("preserves zero-value measurement", () => {
+        expect(parseIngredients("0 cups flour", 2)[0].content).toBe(
+          "0 cups flour",
+        );
+      });
+
+      it("scales three-way multipart with plus delimiter", () => {
+        const result = parseIngredients("1 cup + 2 tbsp + 3 tsp sugar", 2)[0]
+          .content;
+        expect(result).toBe("2 cup + 4 tbsp + 6 tsp sugar");
+      });
+
+      it("preserves tabs between measurement and ingredient text", () => {
+        const result = parseIngredients("1 cup\t\tof flour", 2)[0].content;
+        expect(result).toBe("2 cup\t\tof flour");
+      });
+
+      it("splits on real newlines", () => {
+        const result = parseIngredients("1 cup milk\n2 eggs", 2);
+        expect(result).toHaveLength(2);
+        expect(result[0].content).toBe("2 cup milk");
+        expect(result[1].content).toBe("4 eggs");
+      });
+
+      it("treats escaped newline as inline continuation within a single ingredient", () => {
+        const result = parseIngredients("1 cup milk\\\nwhole", 2);
+        expect(result).toHaveLength(1);
+        expect(result[0].content).toBe("2 cup milk\nwhole");
+      });
+    });
+
+    describe("multi-lingual support", () => {
+      it("scales ingredient with Arabic ingredient name and ASCII digits", () => {
+        const result = parseIngredients("1 كوب دقيق", 2)[0];
+        expect(result.content).toBe("2 كوب دقيق");
+        expect(result.isRtl).toBe(true);
+      });
+
+      it("scales ingredient with Hebrew ingredient name and ASCII digits", () => {
+        const result = parseIngredients("1 כוס קמח", 2)[0];
+        expect(result.content).toBe("2 כוס קמח");
+        expect(result.isRtl).toBe(true);
+      });
+
+      it("scales Swedish tablespoon alias (spsk)", () => {
+        expect(parseIngredients("1 spsk socker", 2)[0].content).toBe(
+          "2 spsk socker",
+        );
+      });
+
+      it("scales Swedish pinch alias (knsp)", () => {
+        expect(parseIngredients("1 knsp salt", 2)[0].content).toBe(
+          "2 knsp salt",
+        );
+      });
+
+      it("leaves Arabic-Indic digits untouched (not currently parsed)", () => {
+        // Documents current limitation: Arabic-Indic digits like "١" are
+        // not matched by \d+ in JavaScript without the /u flag. Preserved
+        // rather than throwing so users see their input unchanged.
+        expect(parseIngredients("١ كوب دقيق", 2)[0].content).toBe("١ كوب دقيق");
+      });
+    });
+
+    describe("absurd-result fallback", () => {
+      it("avoids raw decimals for weird denominators", () => {
+        const result = parseIngredients("1 cup sugar", 1 / 17)[0].content;
+        expect(result).not.toContain("0.0588");
+        expect(result).not.toContain("0.059");
+        // Should be either a clean fraction (possibly with tilde) or a
+        // unitz-ts-chosen smaller unit that has no decimal.
+        expect(result).not.toMatch(/\d\.\d/);
+      });
+      it("marks approximations with a tilde when truly rounded", () => {
+        const result = parseIngredients("3 eggs", 1 / 17)[0].content;
+        expect(result).toMatch(/^~\d/);
+        expect(result).toContain("eggs");
+      });
+      it("emits an exact integer or fraction without tilde when arithmetic is exact", () => {
+        expect(parseIngredients("3 eggs", 1 / 3)[0].content).toBe("1 eggs");
+      });
+    });
   });
 
   describe("parseInstructions", () => {
@@ -339,6 +836,95 @@ describe("parsers", () => {
       it("leaves non-numeric curly braces unchanged", () => {
         const result = parseInstructions("Add {variable} to mix", 1);
         expect(result[0].content).toBe("Add {variable} to mix");
+      });
+
+      it("uses clean-denominator output for number-only braces", () => {
+        const result = parseInstructions("Add {2} cups", 1 / 3);
+        expect(result[0].content).toBe("Add 2/3 cups");
+      });
+
+      it("scales mixed fraction inside brace", () => {
+        const result = parseInstructions("Add {1 1/2} cups", 2);
+        expect(result[0].content).toBe("Add 3 cups");
+      });
+
+      it("scales range inside brace", () => {
+        const result = parseInstructions("Mix for {3-4} minutes", 2);
+        expect(result[0].content).toBe("Mix for 6-8 minutes");
+      });
+
+      it("rounds time with tilde when no clean fraction fits", () => {
+        const result = parseInstructions("Bake {30} minutes", 0.5);
+        expect(result[0].content).toBe("Bake 15 minutes");
+      });
+
+      it("leaves empty braces untouched", () => {
+        const result = parseInstructions("Test {} empty", 2);
+        expect(result[0].content).toBe("Test {} empty");
+      });
+    });
+
+    describe("scaling with brace-embedded units", () => {
+      it("scales {number unit} as a measurement", () => {
+        const result = parseInstructions("Add {2 cups} flour", 1 / 2);
+        expect(result[0].content).toBe("Add 1 cups flour");
+      });
+
+      it("preserves brace-embedded unit at scale 1", () => {
+        const result = parseInstructions("Add {2 cups} flour", 1);
+        expect(result[0].content).toBe("Add 2 cups flour");
+      });
+
+      it("scales fraction with unit inside brace", () => {
+        const result = parseInstructions("Add {1/2 cup} sugar", 2);
+        expect(result[0].content).toBe("Add 1 cup sugar");
+      });
+
+      it("scales fraction to clean fraction with unit inside brace", () => {
+        const result = parseInstructions("Add {1/3 cup} sugar", 2);
+        expect(result[0].content).toBe("Add 2/3 cup sugar");
+      });
+
+      it("scales range with unit inside brace", () => {
+        const result = parseInstructions("Add {1-2 cups} flour", 2);
+        expect(result[0].content).toBe("Add 2-4 cups flour");
+      });
+
+      it("leaves non-unit trailing text untouched", () => {
+        const result = parseInstructions("Bake at {350}°F", 1);
+        expect(result[0].content).toBe("Bake at 350°F");
+      });
+
+      it("scales time unit inside brace", () => {
+        const result = parseInstructions("Bake for {30 minutes}", 1 / 3);
+        expect(result[0].content).toBe("Bake for 10 minutes");
+      });
+
+      it("wraps full number+unit result in bold tag for html", () => {
+        const result = parseInstructions("Add {2 cups} flour", 2);
+        expect(result[0].htmlContent).toContain(
+          '<b class="instructionMeasurement">4 cups</b>',
+        );
+      });
+
+      it("scales unicode fraction inside brace", () => {
+        const result = parseInstructions("Add {½ cup} sugar", 2);
+        expect(result[0].content).toBe("Add 1 cup sugar");
+      });
+
+      it("scales decimal inside brace", () => {
+        const result = parseInstructions("Add {0.5 cup} sugar", 2);
+        expect(result[0].content).toBe("Add 1 cup sugar");
+      });
+
+      it("scales no-space number+unit brace", () => {
+        const result = parseInstructions("Pour {236ml} water", 2);
+        expect(result[0].content).toBe("Pour 472ml water");
+      });
+
+      it("preserves non-measurement multipart brace content verbatim", () => {
+        const result = parseInstructions("Add {1 cup + 2 tbsp} flour", 2);
+        expect(result[0].content).toBe("Add {1 cup + 2 tbsp} flour");
       });
     });
 
