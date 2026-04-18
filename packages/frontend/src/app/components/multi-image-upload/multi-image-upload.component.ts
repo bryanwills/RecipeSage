@@ -68,6 +68,7 @@ export class MultiImageUploadComponent {
     const MAX_FILE_SIZE_MB = 39;
 
     let someUploadFailed = false;
+    let someUploadHadUnsupportedFormat = false;
     for (const file of files) {
       const isOverMaxSize = file.size / 1024 / 1024 > MAX_FILE_SIZE_MB; // Image is larger than MAX_FILE_SIZE_MB
 
@@ -77,15 +78,20 @@ export class MultiImageUploadComponent {
       }
 
       const response = await this.imageService.create(file, {
+        415: () => {
+          someUploadFailed = true;
+          someUploadHadUnsupportedFormat = true;
+        },
         "*": () => (someUploadFailed = true),
       });
       if (response.success) this.images.push(response.data);
     }
 
     if (someUploadFailed) {
-      const message = await this.translate
-        .get("components.multiImageUpload.imageError")
-        .toPromise();
+      const messageKey = someUploadHadUnsupportedFormat
+        ? "components.multiImageUpload.imageFormatError"
+        : "components.multiImageUpload.imageError";
+      const message = await this.translate.get(messageKey).toPromise();
       const close = await this.translate.get("generic.close").toPromise();
 
       const imageUploadErrorToast = await this.toastCtrl.create({
