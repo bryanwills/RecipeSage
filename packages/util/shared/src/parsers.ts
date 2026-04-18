@@ -1,6 +1,6 @@
 import _FractionJS from "fraction.js";
 import FractionJSModule from "fraction.js";
-import { unitNames } from "./units";
+import { unitNames, parseUnit } from "./units";
 
 // Fix for https://github.com/rawify/Fraction.js/issues/72
 const FractionJS =
@@ -48,6 +48,10 @@ const fractionMatchRegexp = new RegExp(
   "g",
 );
 
+/**
+ * Replace symbol-based fractions with text-based fractions.
+ * For example, ½ would become 1/2.
+ */
 const replaceFractionsInText = (rawText: string): string => {
   return rawText.replace(fractionMatchRegexp, (match) => {
     const matcher = fractionMatchers[match.trim().charCodeAt(0)];
@@ -85,37 +89,85 @@ const stripNewlines = (text: string): string => {
   return text.replace(/\n/g, " ");
 };
 
-// Starts with [, anything inbetween, ends with ]
+/**
+ * Section header — a line that starts with [ and ends with ].
+ * Used to group ingredients/instructions under subsections.
+ */
 const headerRegexp = /^\[.*\]$/;
 
+/**
+ * Separates multipart measurements like "1 cup + 2 tablespoons",
+ * "1 cup plus 2 tablespoons", or "1 cup or 250ml".
+ */
 const multipartQuantifierRegexp = / \+ | plus | or /;
 
+/**
+ * Matches a measurement number, including mixed fractions ("1 1/2"),
+ * fractions ("1/2"), decimals ("1.5"), integers ("2"), and ranges
+ * joined by "-", " - ", or " to ".
+ */
 const measurementRegexp =
   /((\d+ )?\d+([/.]\d+)?((-)|( to )|( - ))(\d+ )?\d+([/.]\d+)?)|((\d+ )?\d+[/.]\d+)|\d+/;
 // TODO: Replace measurementRegexp with this:
 // var measurementRegexp = /(( ?\d+([\/\.]\d+)?){1,2})(((-)|( to )|( - ))(( ?\d+([\/\.]\d+)?){1,2}))?/; // Simpler version of above, but has a bug where it removes some spacing
 
-const quantityRegexp = new RegExp(
-  `(${unitNames.join("|").replace(/[.*+?^${}()[\]\\]/g, "\\$&")})s?(\\.)?( |$)`,
-);
-
-const measurementQuantityRegExp = new RegExp(
-  `^(${measurementRegexp.source}) *(${quantityRegexp.source})?`,
-); // Should always be used with 'i' flag
+/**
+ * All known unit names sanitized for use within a regex pattern.
+ * Sorted by length descending so that longer names (e.g. "tablespoons") are
+ * matched before shorter aliases that are prefixes of them (e.g. "tbs").
+ */
+const preparedUnitNames = unitNames
+  .slice()
+  .sort((a, b) => b.length - a.length)
+  .join("|")
+  .replace(/[.*+?^${}()[\]\\]/g, "\\$&");
 
 /**
- * This removes critical information from the context of an ingredient, and
- * should only be used in a situation where you want to remove anything but, say, an ingredient title.
+ * Matches a unit name with an optional trailing "s" (plural) and/or "."
+ * (abbreviation), followed by a space or end-of-string.
+ */
+const quantityRegexp = new RegExp(`(${preparedUnitNames})s?(\\.)?( |$)`);
+
+/**
+ * Matches a measurement followed by an optional unit, anchored to the start
+ * of a string. For example: "1 1/2 cups" or "1 to 2 teaspoons".
+ * Should always be used with the 'i' flag.
+ */
+const measurementQuantityRegExp = new RegExp(
+  `^(${measurementRegexp.source}) *(${quantityRegexp.source})?`,
+);
+
+/**
+ * These descriptive words commonly appear in ingredients but do not add
+ * information needed to identify the ingredient. This removes critical
+ * information from the context of an ingredient, and should only be used
+ * where you want just the ingredient title.
  */
 const fillerWordsRegexp =
   /\b(halved|cored|cubed|peeled|minced|grated|shredded|crushed|roasted|toasted|melted|chilled|whipped|diced|trimmed|rinsed|chopped fine|chopped course|chopped|chilled|patted dry|heaped|about|approximately|approx|(slice(s|d)?)|blended|tossed)\b/;
 
+/**
+ * Matches inline notes within parenthesis.
+ * For example: "1 cup tomato sauce (see sauce section)".
+ */
 const notesRegexp = /\(.*?\)/;
 
+/**
+ * Removes inline notes within parenthesis.
+ * For example: "1 cup tomato sauce (see sauce section)" becomes
+ * "1 cup tomato sauce".
+ */
 const stripNotes = (ingredient: string): string => {
   return ingredient.replace(new RegExp(notesRegexp, "g"), "").trim();
 };
 
+/**
+ * Return only the measurement parts of an ingredient.
+ * For example, "1 cup tomato sauce" returns ["1 cup"].
+ *
+ * **Note:** There is currently a bug when the unit sits in the middle of a
+ * range. For example, "1 cup to 2 cups tomato sauce" returns only ["1 cup"].
+ */
 export const getMeasurementsForIngredient = (ingredient: string): string[] => {
   ingredient = stripNewlines(ingredient);
   const strippedIngredient = replaceFractionsInText(ingredient);
@@ -194,7 +246,185 @@ export const stripIngredient = (ingredient: string): string => {
   }
 };
 
-const NUM_SCALED_DECIMAL_PLACES = 3;
+/**
+ * Denominators commonly seen in recipes. When a scaled FractionJS result has
+ * a denominator in this set, we keep it as a fraction in the user's original
+ * unit (preserving their notation). When it does not, we try a unit switch
+ * via unitz-ts, and otherwise approximate to the nearest fraction in this set.
+ */
+const CLEAN_DENOMINATORS = [1, 2, 3, 4, 6, 8, 12, 16];
+
+/**
+ * Return the nearest n/d approximation of `value` whose denominator is in
+ * `CLEAN_DENOMINATORS`. Used when the exact scaled fraction is not a clean
+ * cooking fraction and unitz-ts cannot propose a better unit.
+ */
+const nearestCleanFraction = (
+  value: number,
+): { n: number; d: number; err: number } => {
+  let best = {
+    n: Math.round(value),
+    d: 1,
+    err: Math.abs(value - Math.round(value)),
+  };
+  for (const d of CLEAN_DENOMINATORS) {
+    const n = Math.round(value * d);
+    const err = Math.abs(value - n / d);
+    if (err < best.err) best = { n, d, err };
+  }
+  return best;
+};
+
+/**
+ * Try to use unitz-ts to switch units when the scaled value is awkwardly
+ * small or large in its original unit. Returns the full "value unit" string
+ * only when unitz-ts chose a different unit group (e.g. cup -> tsp) and
+ * produced a clean, fraction-or-integer output (no decimal point). Otherwise
+ * returns null so the caller can fall back to the user's original unit.
+ */
+const tryUnitzSwitch = (
+  fullMeasurement: string,
+  scale: number,
+): string | null => {
+  try {
+    const base = parseUnit(fullMeasurement);
+    if (!base.isValid || base.ranges.length === 0) return null;
+    const baseGroup = base.ranges[0].min.group;
+    if (!baseGroup) return null;
+
+    const scaled = base.scale(scale).fractions().normalize();
+    if (!scaled.isValid || scaled.ranges.length === 0) return null;
+    const scaledValue = scaled.ranges[0].min;
+    if (!scaledValue.group) return null;
+
+    if (scaledValue.group === baseGroup) return null;
+
+    const out = scaled.output({ unitSpacer: " ", significant: 3 });
+    if (out.includes(".")) return null;
+
+    return out;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Format a scaled-by-FractionJS value for display inside an ingredient line.
+ *
+ * Pipeline:
+ *  - If the scaled fraction has a clean cooking denominator, emit it as a
+ *    mixed fraction with the user's original unit preserved upstream.
+ *  - Else if unitz-ts can parse the full measurement and switch to a smaller
+ *    unit in the same class (e.g. cup -> tablespoon), emit its output. This
+ *    handles cases like "1 cup" scaled by 1/16 becoming "3 tsp".
+ *  - Else approximate to the nearest clean fraction prefixed with "~" to
+ *    indicate the value has been rounded for readability.
+ *
+ * Returns `{ formatted, replacesUnit }` where `replacesUnit` is true if the
+ * formatted string already contains a unit (so the caller should not append
+ * the original unit) and false if only the numeric portion was produced.
+ */
+const formatScaledMeasurementPart = (
+  originalNumberText: string,
+  fullMeasurement: string | null,
+  scale: number,
+): { formatted: string; replacesUnit: boolean } => {
+  const trimmedOriginal = originalNumberText.trim();
+
+  // A scale of 1 is a view-only operation; preserve the user's original
+  // notation rather than normalising decimals to fractions (or vice versa).
+  if (scale === 1) {
+    return { formatted: trimmedOriginal, replacesUnit: false };
+  }
+
+  const frac = new FractionJS(trimmedOriginal).mul(scale);
+  const denominator = Number(frac.d);
+
+  if (CLEAN_DENOMINATORS.includes(denominator)) {
+    return { formatted: frac.toFraction(true), replacesUnit: false };
+  }
+
+  if (fullMeasurement) {
+    const switched = tryUnitzSwitch(fullMeasurement, scale);
+    if (switched !== null) {
+      return { formatted: switched, replacesUnit: true };
+    }
+  }
+
+  const approx = nearestCleanFraction(frac.valueOf());
+  const approxFrac = new FractionJS(approx.n, approx.d);
+  if (approx.err === 0) {
+    return { formatted: approxFrac.toFraction(true), replacesUnit: false };
+  }
+  return { formatted: "~" + approxFrac.toFraction(true), replacesUnit: false };
+};
+
+/**
+ * Unicode Private Use Area code point used as a sentinel character for
+ * `{...}` brace placeholders within an ingredient line. Each brace in a
+ * line gets assigned a unique `\uE000 + index` char that the main
+ * measurement regex cannot match (it is not a digit and not a unit letter),
+ * letting us run the main scaling pipeline over the line without
+ * double-scaling the brace content.
+ */
+const BRACE_PLACEHOLDER_BASE = 0xe000;
+
+/**
+ * Per-line state tracking the plain-text and HTML replacements for each
+ * brace placeholder. Indexed by the sentinel char's offset from
+ * `BRACE_PLACEHOLDER_BASE`.
+ */
+interface BracePlaceholders {
+  plain: string[];
+  html: string[];
+}
+
+const extractBracesForIngredientLine = (
+  lineText: string,
+  scale: number,
+): { withPlaceholders: string; placeholders: BracePlaceholders } => {
+  const placeholders: BracePlaceholders = { plain: [], html: [] };
+  const withPlaceholders = lineText.replace(
+    /\{([^{}]+)\}/g,
+    (match, content) => {
+      // Replace every brace — not just measurements — with a sentinel so
+      // the main measurement regex cannot scale digits that happen to sit
+      // inside a non-measurement brace like `{.5 cup}` or `{note}`.
+      const plain = scaleBraceContent(
+        content,
+        scale,
+        false,
+        "ingredientMeasurement",
+      );
+      const html = scaleBraceContent(
+        content,
+        scale,
+        true,
+        "ingredientMeasurement",
+      );
+      const idx = placeholders.plain.length;
+      placeholders.plain.push(plain ?? match);
+      placeholders.html.push(html ?? match);
+      return String.fromCharCode(BRACE_PLACEHOLDER_BASE + idx);
+    },
+  );
+  return { withPlaceholders, placeholders };
+};
+
+const restoreBracePlaceholders = (
+  text: string,
+  replacements: string[],
+): string => {
+  if (replacements.length === 0) return text;
+  let out = text;
+  for (let i = 0; i < replacements.length; i++) {
+    const placeholder = String.fromCharCode(BRACE_PLACEHOLDER_BASE + i);
+    if (out.indexOf(placeholder) !== -1) {
+      out = out.split(placeholder).join(replacements[i]);
+    }
+  }
+  return out;
+};
 
 export const parseIngredients = (
   ingredients: string,
@@ -212,15 +442,22 @@ export const parseIngredients = (
 
   ingredients = replaceFractionsInText(ingredients);
 
-  const lines = ingredients.split(lineSplitRegex).map((match) => ({
-    content: match,
-    plaintextContent: match,
-    originalContent: match,
-    htmlContent: match,
-    complete: false,
-    isHeader: false,
-    isRtl: isRtlText(match),
-  }));
+  const lines = ingredients.split(lineSplitRegex).map((match) => {
+    const { withPlaceholders, placeholders } = extractBracesForIngredientLine(
+      match,
+      scale,
+    );
+    return {
+      content: withPlaceholders,
+      plaintextContent: withPlaceholders,
+      originalContent: match,
+      htmlContent: withPlaceholders,
+      complete: false,
+      isHeader: false,
+      isRtl: isRtlText(match),
+      _bracePlaceholders: placeholders,
+    };
+  });
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].content.trim(); // Trim only spaces (no newlines)
@@ -255,29 +492,53 @@ export const parseIngredients = (
           const measurementPartDelimiters =
             measurement.match(/(-)|( to )|( - )/g);
           const measurementParts = measurement.split(/-|to/);
+          const isRange = measurementParts.length > 1;
 
-          for (let j = 0; j < measurementParts.length; j++) {
-            const frac = new FractionJS(measurementParts[j].trim()).mul(scale);
-            let scaledMeasurement = frac.toString(NUM_SCALED_DECIMAL_PLACES);
+          // Locate the unit token attached to this measurement (if any) so we
+          // can pass it to unitz-ts for potential unit switching. Unit switching
+          // is only attempted for non-range measurements to keep range output
+          // consistent across the two endpoints.
+          const unitMatch = ingredientParts[idx].match(
+            new RegExp(measurementQuantityRegExp.source, "i"),
+          );
+          const fullMeasurementForUnitz =
+            !isRange && unitMatch ? unitMatch[0].trim() : null;
 
-            if (measurementParts[j].indexOf("/") > -1) {
-              scaledMeasurement = frac.toFraction(true);
-            }
+          let unitReplacement: string | null = null;
+          const scaledParts = measurementParts.map((part) => {
+            const { formatted, replacesUnit } = formatScaledMeasurementPart(
+              part,
+              fullMeasurementForUnitz,
+              scale,
+            );
+            if (replacesUnit) unitReplacement = formatted;
+            return formatted;
+          });
 
-            measurementParts[j] = wrapInBold
-              ? '<b class="ingredientMeasurement">' + scaledMeasurement + "</b>"
-              : scaledMeasurement.toString();
+          const wrap = (text: string): string =>
+            wrapInBold ? `<b class="ingredientMeasurement">${text}</b>` : text;
+
+          // If unitz-ts chose a different unit, replace both measurement and
+          // unit in the ingredient part in a single pass (the output already
+          // bundles value + unit together).
+          if (unitReplacement !== null && unitMatch) {
+            return ingredientParts[idx].replace(
+              new RegExp(measurementQuantityRegExp.source, "i"),
+              wrap(unitReplacement) + " ",
+            );
           }
+
+          const wrapped = scaledParts.map(wrap);
 
           let updatedMeasurement: string;
           if (measurementPartDelimiters) {
-            updatedMeasurement = measurementParts.reduce(
+            updatedMeasurement = wrapped.reduce(
               (acc, measurementPart, idx) =>
                 acc + measurementPart + (measurementPartDelimiters[idx] || ""),
               "",
             );
           } else {
-            updatedMeasurement = measurementParts.join(" to ");
+            updatedMeasurement = wrapped.join(" to ");
           }
 
           return ingredientParts[idx].replace(
@@ -318,38 +579,112 @@ export const parseIngredients = (
       lines[i].isHeader = false;
     }
 
-    lines[i].content = convertEscapedLineContinuations(lines[i].content, false);
+    const placeholders = lines[i]._bracePlaceholders;
+    lines[i].content = restoreBracePlaceholders(
+      convertEscapedLineContinuations(lines[i].content, false),
+      placeholders.plain,
+    );
     lines[i].plaintextContent = stripInlineFormatting(lines[i].content);
     lines[i].htmlContent = applyInlineFormatting(
-      convertEscapedLineContinuations(lines[i].htmlContent, true),
+      restoreBracePlaceholders(
+        convertEscapedLineContinuations(lines[i].htmlContent, true),
+        placeholders.html,
+      ),
     );
   }
 
-  return lines;
+  return lines.map(({ _bracePlaceholders: _unused, ...rest }) => rest);
 };
 
-const scaleInstructionNumbers = (
-  instructions: string,
+/**
+ * Matches the entire content of a `{ ... }` group as either a standalone
+ * measurement (e.g. `{2}`, `{1/2}`, `{1-2}`) or a measurement followed by a
+ * unit with or without a separating space (e.g. `{2 cups}`, `{1/2 cup}`,
+ * `{236ml}`, `{1-2 tablespoons}`). Non-measurement brace content such as
+ * `{variable}` will not match and is left untouched.
+ */
+const measurementBracePattern = new RegExp(
+  `^(${measurementRegexp.source})\\s*((?:${preparedUnitNames})s?\\.?)?$`,
+  "i",
+);
+
+/**
+ * Scale the content of a single `{ ... }` group. Returns the formatted
+ * replacement for the brace (without the braces themselves), or `null` if the
+ * content is not a recognisable measurement so the caller can leave the
+ * original `{...}` intact.
+ */
+const scaleBraceContent = (
+  rawContent: string,
   scale: number,
   htmlOutput: boolean,
-): string =>
-  instructions.replace(/\{([^{}]+)\}/g, (match, value) => {
-    const trimmed = value.trim();
-    if (!trimmed || !/^[0-9./\s-]+$/.test(trimmed)) return match;
+  htmlClassName: string,
+): string | null => {
+  const trimmed = rawContent.trim();
+  if (!trimmed) return null;
 
-    try {
-      const frac = new FractionJS(trimmed).mul(scale);
-      let result = frac.toString(NUM_SCALED_DECIMAL_PLACES);
-      if (trimmed.includes("/")) {
-        result = frac.toFraction(true);
-      }
+  const braceMatch = measurementBracePattern.exec(trimmed);
+  if (!braceMatch) return null;
 
-      if (htmlOutput) return `<b class="instructionMeasurement">${result}</b>`;
-      return result;
-    } catch (e) {
-      console.warn(value, match, e);
-      return match;
+  const numberText = braceMatch[1];
+  const afterNumber = trimmed.slice(numberText.length); // preserve exact spacing
+  const hasUnit = afterNumber.trim().length > 0;
+
+  const measurementPartDelimiters = numberText.match(/(-)|( to )|( - )/g);
+  const measurementParts = numberText.split(/-|to/);
+  const isRange = measurementParts.length > 1;
+
+  const fullMeasurementForUnitz = !isRange && hasUnit ? trimmed : null;
+
+  try {
+    let unitReplacement: string | null = null;
+    const scaledParts = measurementParts.map((part) => {
+      const { formatted, replacesUnit } = formatScaledMeasurementPart(
+        part,
+        fullMeasurementForUnitz,
+        scale,
+      );
+      if (replacesUnit) unitReplacement = formatted;
+      return formatted;
+    });
+
+    const wrap = (text: string): string =>
+      htmlOutput ? `<b class="${htmlClassName}">${text}</b>` : text;
+
+    if (unitReplacement !== null) return wrap(unitReplacement);
+
+    let scaledNumber: string;
+    if (measurementPartDelimiters) {
+      scaledNumber = scaledParts.reduce(
+        (acc, part, idx) => acc + part + (measurementPartDelimiters[idx] || ""),
+        "",
+      );
+    } else {
+      scaledNumber = scaledParts.join(" to ");
     }
+
+    return wrap(scaledNumber + afterNumber);
+  } catch (e) {
+    console.warn(rawContent, e);
+    return null;
+  }
+};
+
+/**
+ * Scale every `{ ... }` group in a string whose content is a recognisable
+ * measurement. Non-measurement braces like `{variable}` are preserved
+ * verbatim. Each scaled brace is optionally wrapped in a
+ * `<b class="{htmlClassName}">…</b>` tag when `htmlOutput` is true.
+ */
+const scaleBracesInText = (
+  text: string,
+  scale: number,
+  htmlOutput: boolean,
+  htmlClassName: string,
+): string =>
+  text.replace(/\{([^{}]+)\}/g, (match, value) => {
+    const scaled = scaleBraceContent(value, scale, htmlOutput, htmlClassName);
+    return scaled === null ? match : scaled;
   });
 
 export const parseInstructions = (
@@ -366,8 +701,18 @@ export const parseInstructions = (
 }[] => {
   instructions = replaceFractionsInText(instructions);
 
-  const plainInstructions = scaleInstructionNumbers(instructions, scale, false);
-  const htmlInstructions = scaleInstructionNumbers(instructions, scale, true);
+  const plainInstructions = scaleBracesInText(
+    instructions,
+    scale,
+    false,
+    "instructionMeasurement",
+  );
+  const htmlInstructions = scaleBracesInText(
+    instructions,
+    scale,
+    true,
+    "instructionMeasurement",
+  );
 
   // Starts with [, anything inbetween, ends with ]
   const headerRegexp = /^\[.*\]$/;
