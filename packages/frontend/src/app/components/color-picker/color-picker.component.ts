@@ -26,6 +26,7 @@ const HEX_COLOR_RE = /^[0-9a-fA-F]{6}$/;
 export class ColorPickerComponent {
   @Input() color: string | null = null;
   @Output() colorChange = new EventEmitter<string | null>();
+  @Output() presetSelected = new EventEmitter<string | null>();
 
   readonly presetColors = PRESET_COLORS;
   customHexValue = "";
@@ -34,6 +35,7 @@ export class ColorPickerComponent {
     this.color = color;
     this.customHexValue = "";
     this.colorChange.emit(this.color);
+    this.presetSelected.emit(this.color);
   }
 
   onCustomHexInput() {

@@ -1,4 +1,12 @@
-import { Component, inject, Input, type OnInit } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  inject,
+  Input,
+  type OnInit,
+  QueryList,
+  ViewChildren,
+} from "@angular/core";
 import { type ItemReorderEventDetail, ModalController } from "@ionic/angular";
 import {
   DEFAULT_MEALS,
@@ -32,6 +40,9 @@ export class MealPlanMealOrderModalPage implements OnInit {
   entries: MealOptionEntry[] = [{ name: "", color: null, isDefault: false }];
   openColorPickerIndex: number | null = null;
 
+  @ViewChildren("colorPickerContainer")
+  colorPickerContainers!: QueryList<ElementRef<HTMLElement>>;
+
   ngOnInit() {
     const parsed = parseCustomMealOptions(this.customMealOptions);
     if (parsed.length > 0) {
@@ -57,21 +68,30 @@ export class MealPlanMealOrderModalPage implements OnInit {
   }
 
   onReorder(event: CustomEvent<ItemReorderEventDetail>) {
-    const item = this.entries.splice(event.detail.from, 1)[0];
-    this.entries.splice(event.detail.to, 0, item);
+    const lastIndex = this.entries.length - 1;
+    const from = event.detail.from;
+    const to = Math.min(event.detail.to, lastIndex - 1);
+
+    if (from === lastIndex || from === to) {
+      event.detail.complete(false);
+      return;
+    }
+
+    const item = this.entries.splice(from, 1)[0];
+    this.entries.splice(to, 0, item);
 
     if (this.openColorPickerIndex !== null) {
-      if (this.openColorPickerIndex === event.detail.from) {
-        this.openColorPickerIndex = event.detail.to;
+      if (this.openColorPickerIndex === from) {
+        this.openColorPickerIndex = to;
       } else {
         if (
-          event.detail.from < this.openColorPickerIndex &&
-          event.detail.to >= this.openColorPickerIndex
+          from < this.openColorPickerIndex &&
+          to >= this.openColorPickerIndex
         ) {
           this.openColorPickerIndex--;
         } else if (
-          event.detail.from > this.openColorPickerIndex &&
-          event.detail.to <= this.openColorPickerIndex
+          from > this.openColorPickerIndex &&
+          to <= this.openColorPickerIndex
         ) {
           this.openColorPickerIndex++;
         }
@@ -98,11 +118,24 @@ export class MealPlanMealOrderModalPage implements OnInit {
       this.openColorPickerIndex = null;
     } else {
       this.openColorPickerIndex = index;
+      setTimeout(() => {
+        this.colorPickerContainers.first?.nativeElement.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      });
     }
   }
 
   onColorChange(index: number, color: string | null) {
     this.entries[index].color = color;
+    if (index === this.entries.length - 1 && color) {
+      this.entries.push({ name: "", color: null, isDefault: false });
+    }
+  }
+
+  closeColorPicker() {
+    this.openColorPickerIndex = null;
   }
 
   save() {
