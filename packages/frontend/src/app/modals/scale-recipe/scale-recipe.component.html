@@ -32,6 +32,25 @@
     ></ion-input>
   </ion-item>
 
+  <ion-item>
+    <ion-select
+      [(ngModel)]="unitSystem"
+      label="{{ 'components.scaleRecipe.systemLabel' | translate }}"
+      labelPlacement="stacked"
+      interface="popover"
+    >
+      <ion-select-option value="original">
+        {{ "components.scaleRecipe.system.original" | translate }}
+      </ion-select-option>
+      <ion-select-option value="metric">
+        {{ "components.scaleRecipe.system.metric" | translate }}
+      </ion-select-option>
+      <ion-select-option value="imperial">
+        {{ "components.scaleRecipe.system.imperial" | translate }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+
   <br />
 </ion-content>
 

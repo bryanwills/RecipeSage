@@ -3,6 +3,8 @@ import { ModalController } from "@ionic/angular";
 import fractionjs from "fraction.js";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 
+export type UnitSystem = "original" | "metric" | "imperial";
+
 @Component({
   standalone: true,
   selector: "scale-recipe",
@@ -14,6 +16,7 @@ export class ScaleRecipeComponent {
   private modalCtrl = inject(ModalController);
 
   @Input() scale: string = "1";
+  @Input() unitSystem: UnitSystem = "original";
 
   format(input: string) {
     // Support fractions
@@ -35,6 +38,7 @@ export class ScaleRecipeComponent {
   apply() {
     this.modalCtrl.dismiss({
       scale: this.format(this.scale),
+      unitSystem: this.unitSystem,
     });
   }
 }

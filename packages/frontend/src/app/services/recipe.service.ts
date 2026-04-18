@@ -7,6 +7,7 @@ import { UtilService } from "./util.service";
 import { EventName, EventService } from "./event.service";
 import { Image } from "./image.service";
 
+import { System } from "unitz-ts";
 import {
   parseIngredients,
   parseInstructions,
@@ -178,12 +179,20 @@ export class RecipeService {
     });
   }
 
-  parseIngredients(ingredients: string, scale: number): ParsedIngredient[] {
-    return parseIngredients(ingredients, scale);
+  parseIngredients(
+    ingredients: string,
+    scale: number,
+    targetSystem?: System,
+  ): ParsedIngredient[] {
+    return parseIngredients(ingredients, scale, targetSystem);
   }
 
-  parseInstructions(instructions: string, scale: number): ParsedInstruction[] {
-    return parseInstructions(instructions, scale);
+  parseInstructions(
+    instructions: string,
+    scale: number,
+    targetSystem?: System,
+  ): ParsedInstruction[] {
+    return parseInstructions(instructions, scale, targetSystem);
   }
 
   parseNotes(notes: string): ParsedNote[] {

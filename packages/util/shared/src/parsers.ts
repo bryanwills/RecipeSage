@@ -1,5 +1,6 @@
 import _FractionJS from "fraction.js";
 import FractionJSModule from "fraction.js";
+import { System } from "unitz-ts";
 import { unitNames, parseUnit } from "./units";
 
 // Fix for https://github.com/rawify/Fraction.js/issues/72
@@ -309,6 +310,50 @@ const tryUnitzSwitch = (
 };
 
 /**
+ * Convert a measurement into a specific unit system (metric or US customary).
+ * Scales first, then uses unitz-ts' normalize with a system filter to pick the
+ * best-fitting unit available in the target system.
+ *
+ * Returns the full "value unit" string, or null when:
+ *  - unitz-ts cannot parse the measurement (e.g. "3 eggs", "1 can")
+ *  - the original unit's group has no system (System.ANY / System.NONE — cans,
+ *    pinches, time, digital, angle), so there is nothing to convert to
+ *  - the original is already in the target system (caller preserves the user's
+ *    exact notation via the normal scale-only pipeline)
+ *  - unitz-ts cannot produce a valid output in the target system
+ */
+const tryUnitzSystemConvert = (
+  fullMeasurement: string,
+  scale: number,
+  targetSystem: System,
+): string | null => {
+  try {
+    const base = parseUnit(fullMeasurement);
+    if (!base.isValid || base.ranges.length === 0) return null;
+    const baseGroup = base.ranges[0].min.group;
+    if (!baseGroup) return null;
+
+    const baseSystem = baseGroup.system;
+    if (baseSystem === System.ANY || baseSystem === System.NONE) return null;
+    if (baseSystem === targetSystem) return null;
+
+    const scaled = base.scale(scale).fractions().normalize({
+      system: targetSystem,
+    });
+    if (!scaled.isValid || scaled.ranges.length === 0) return null;
+    const scaledValue = scaled.ranges[0].min;
+    if (!scaledValue.group) return null;
+
+    const scaledSystem = scaledValue.group.system;
+    if (scaledSystem !== targetSystem) return null;
+
+    return scaled.output({ unitSpacer: " ", significant: 3 });
+  } catch {
+    return null;
+  }
+};
+
+/**
  * Format a scaled-by-FractionJS value for display inside an ingredient line.
  *
  * Pipeline:
@@ -328,8 +373,25 @@ const formatScaledMeasurementPart = (
   originalNumberText: string,
   fullMeasurement: string | null,
   scale: number,
+  targetSystem?: System,
 ): { formatted: string; replacesUnit: boolean } => {
   const trimmedOriginal = originalNumberText.trim();
+
+  // When a target unit system is requested, try a cross-system conversion
+  // before any other path. This returns early only when the original unit is
+  // in a different system than the target and unitz-ts can produce output;
+  // otherwise (already in target system, or unit-less), we fall through and
+  // let the normal scale-only pipeline preserve the user's notation.
+  if (targetSystem !== undefined && fullMeasurement) {
+    const converted = tryUnitzSystemConvert(
+      fullMeasurement,
+      scale,
+      targetSystem,
+    );
+    if (converted !== null) {
+      return { formatted: converted, replacesUnit: true };
+    }
+  }
 
   // A scale of 1 is a view-only operation; preserve the user's original
   // notation rather than normalising decimals to fractions (or vice versa).
@@ -382,6 +444,7 @@ interface BracePlaceholders {
 const extractBracesForIngredientLine = (
   lineText: string,
   scale: number,
+  targetSystem?: System,
 ): { withPlaceholders: string; placeholders: BracePlaceholders } => {
   const placeholders: BracePlaceholders = { plain: [], html: [] };
   const withPlaceholders = lineText.replace(
@@ -395,12 +458,14 @@ const extractBracesForIngredientLine = (
         scale,
         false,
         "ingredientMeasurement",
+        targetSystem,
       );
       const html = scaleBraceContent(
         content,
         scale,
         true,
         "ingredientMeasurement",
+        targetSystem,
       );
       const idx = placeholders.plain.length;
       placeholders.plain.push(plain ?? match);
@@ -429,6 +494,7 @@ const restoreBracePlaceholders = (
 export const parseIngredients = (
   ingredients: string,
   scale: number,
+  targetSystem?: System,
 ): {
   content: string;
   plaintextContent: string;
@@ -446,6 +512,7 @@ export const parseIngredients = (
     const { withPlaceholders, placeholders } = extractBracesForIngredientLine(
       match,
       scale,
+      targetSystem,
     );
     return {
       content: withPlaceholders,
@@ -503,6 +570,41 @@ export const parseIngredients = (
           );
           const fullMeasurementForUnitz =
             !isRange && unitMatch ? unitMatch[0].trim() : null;
+          const unitTokenOnly =
+            unitMatch && unitMatch[1]
+              ? unitMatch[0].substring(unitMatch[1].length).trim()
+              : "";
+
+          const wrap = (text: string): string =>
+            wrapInBold ? `<b class="ingredientMeasurement">${text}</b>` : text;
+
+          // When a target unit system is requested and this is a range, try
+          // converting each endpoint independently. The endpoints share a unit
+          // token, so reconstruct "<part> <unit>" for each and combine the
+          // results with the original delimiter.
+          if (isRange && targetSystem !== undefined && unitTokenOnly) {
+            const convertedEndpoints = measurementParts.map((part) =>
+              tryUnitzSystemConvert(
+                `${part.trim()} ${unitTokenOnly}`,
+                scale,
+                targetSystem,
+              ),
+            );
+            if (convertedEndpoints.every((c): c is string => c !== null)) {
+              const wrappedEndpoints = convertedEndpoints.map(wrap);
+              const combined = measurementPartDelimiters
+                ? wrappedEndpoints.reduce(
+                    (acc, w, i) =>
+                      acc + w + (measurementPartDelimiters[i] || ""),
+                    "",
+                  )
+                : wrappedEndpoints.join(" to ");
+              return ingredientParts[idx].replace(
+                new RegExp(measurementQuantityRegExp.source, "i"),
+                combined + " ",
+              );
+            }
+          }
 
           let unitReplacement: string | null = null;
           const scaledParts = measurementParts.map((part) => {
@@ -510,13 +612,11 @@ export const parseIngredients = (
               part,
               fullMeasurementForUnitz,
               scale,
+              targetSystem,
             );
             if (replacesUnit) unitReplacement = formatted;
             return formatted;
           });
-
-          const wrap = (text: string): string =>
-            wrapInBold ? `<b class="ingredientMeasurement">${text}</b>` : text;
 
           // If unitz-ts chose a different unit, replace both measurement and
           // unit in the ingredient part in a single pass (the output already
@@ -619,6 +719,7 @@ const scaleBraceContent = (
   scale: number,
   htmlOutput: boolean,
   htmlClassName: string,
+  targetSystem?: System,
 ): string | null => {
   const trimmed = rawContent.trim();
   if (!trimmed) return null;
@@ -643,6 +744,7 @@ const scaleBraceContent = (
         part,
         fullMeasurementForUnitz,
         scale,
+        targetSystem,
       );
       if (replacesUnit) unitReplacement = formatted;
       return formatted;
@@ -681,15 +783,23 @@ const scaleBracesInText = (
   scale: number,
   htmlOutput: boolean,
   htmlClassName: string,
+  targetSystem?: System,
 ): string =>
   text.replace(/\{([^{}]+)\}/g, (match, value) => {
-    const scaled = scaleBraceContent(value, scale, htmlOutput, htmlClassName);
+    const scaled = scaleBraceContent(
+      value,
+      scale,
+      htmlOutput,
+      htmlClassName,
+      targetSystem,
+    );
     return scaled === null ? match : scaled;
   });
 
 export const parseInstructions = (
   instructions: string,
   scale: number,
+  targetSystem?: System,
 ): {
   content: string;
   plaintextContent: string;
@@ -706,12 +816,14 @@ export const parseInstructions = (
     scale,
     false,
     "instructionMeasurement",
+    targetSystem,
   );
   const htmlInstructions = scaleBracesInText(
     instructions,
     scale,
     true,
     "instructionMeasurement",
+    targetSystem,
   );
 
   // Starts with [, anything inbetween, ends with ]
