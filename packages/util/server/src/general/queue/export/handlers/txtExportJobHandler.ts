@@ -42,6 +42,25 @@ async function* process(
       CreatedAt: ${recipe.createdAt}
       UpdatedAt: ${recipe.updatedAt}
       Rating: ${recipe.rating}
+      NutritionServingSize: ${recipe.nutritionServingSize}
+      NutritionCalories: ${recipe.nutritionCalories}
+      NutritionTotalFat: ${recipe.nutritionTotalFat}
+      NutritionSaturatedFat: ${recipe.nutritionSaturatedFat}
+      NutritionTransFat: ${recipe.nutritionTransFat}
+      NutritionPolyunsaturatedFat: ${recipe.nutritionPolyunsaturatedFat}
+      NutritionMonounsaturatedFat: ${recipe.nutritionMonounsaturatedFat}
+      NutritionCholesterol: ${recipe.nutritionCholesterol}
+      NutritionSodium: ${recipe.nutritionSodium}
+      NutritionTotalCarbs: ${recipe.nutritionTotalCarbs}
+      NutritionDietaryFiber: ${recipe.nutritionDietaryFiber}
+      NutritionTotalSugars: ${recipe.nutritionTotalSugars}
+      NutritionAddedSugars: ${recipe.nutritionAddedSugars}
+      NutritionProtein: ${recipe.nutritionProtein}
+      NutritionVitaminD: ${recipe.nutritionVitaminD}
+      NutritionCalcium: ${recipe.nutritionCalcium}
+      NutritionIron: ${recipe.nutritionIron}
+      NutritionPotassium: ${recipe.nutritionPotassium}
+      NutritionOtherDetails: ${recipe.nutritionOtherDetails}
       Labels: ${recipe.recipeLabels.map((recipeLabel) => recipeLabel.label.title).join(", ")}
       Images: ${images.join(" ")}
       \r\n

@@ -34,10 +34,13 @@ export const createRecipe = publicProcedure
         .nullable()
         .optional(),
       linkedRecipeIds: z.array(z.uuid()).max(100).optional(),
+      nutritionServingSize: z.string().nullable().optional(),
       nutritionCalories: z.number().min(0).nullable().optional(),
       nutritionTotalFat: z.number().min(0).nullable().optional(),
       nutritionSaturatedFat: z.number().min(0).nullable().optional(),
       nutritionTransFat: z.number().min(0).nullable().optional(),
+      nutritionPolyunsaturatedFat: z.number().min(0).nullable().optional(),
+      nutritionMonounsaturatedFat: z.number().min(0).nullable().optional(),
       nutritionCholesterol: z.number().min(0).nullable().optional(),
       nutritionSodium: z.number().min(0).nullable().optional(),
       nutritionTotalCarbs: z.number().min(0).nullable().optional(),
@@ -49,6 +52,7 @@ export const createRecipe = publicProcedure
       nutritionCalcium: z.number().min(0).nullable().optional(),
       nutritionIron: z.number().min(0).nullable().optional(),
       nutritionPotassium: z.number().min(0).nullable().optional(),
+      nutritionOtherDetails: z.string().nullable().optional(),
     }),
   )
   .mutation(async ({ ctx, input }) => {
@@ -148,10 +152,15 @@ export const createRecipe = publicProcedure
           ingredients: input.ingredients,
           instructions: input.instructions,
           rating: input.rating,
+          nutritionServingSize: input.nutritionServingSize ?? undefined,
           nutritionCalories: input.nutritionCalories ?? undefined,
           nutritionTotalFat: input.nutritionTotalFat ?? undefined,
           nutritionSaturatedFat: input.nutritionSaturatedFat ?? undefined,
           nutritionTransFat: input.nutritionTransFat ?? undefined,
+          nutritionPolyunsaturatedFat:
+            input.nutritionPolyunsaturatedFat ?? undefined,
+          nutritionMonounsaturatedFat:
+            input.nutritionMonounsaturatedFat ?? undefined,
           nutritionCholesterol: input.nutritionCholesterol ?? undefined,
           nutritionSodium: input.nutritionSodium ?? undefined,
           nutritionTotalCarbs: input.nutritionTotalCarbs ?? undefined,
@@ -163,6 +172,7 @@ export const createRecipe = publicProcedure
           nutritionCalcium: input.nutritionCalcium ?? undefined,
           nutritionIron: input.nutritionIron ?? undefined,
           nutritionPotassium: input.nutritionPotassium ?? undefined,
+          nutritionOtherDetails: input.nutritionOtherDetails ?? undefined,
           folder: input.folder,
           lastMadeAt: input.lastMadeAt ? new Date(input.lastMadeAt) : null,
           recipeLabels: {

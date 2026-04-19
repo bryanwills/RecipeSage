@@ -13,6 +13,23 @@ type JsonLDImages =
       | string
     )[];
 
+export type NutritionInformation = {
+  "@type"?: "NutritionInformation";
+  servingSize?: string;
+  calories?: string;
+  fatContent?: string;
+  saturatedFatContent?: string;
+  transFatContent?: string;
+  unsaturatedFatContent?: string;
+  cholesterolContent?: string;
+  sodiumContent?: string;
+  carbohydrateContent?: string;
+  fiberContent?: string;
+  sugarContent?: string;
+  proteinContent?: string;
+  description?: string;
+};
+
 export type JsonLD = {
   "@context": string;
   "@type": "Recipe" | string;
@@ -61,7 +78,23 @@ export type JsonLD = {
   isBasedOn?: string;
   images?: JsonLDImages;
   image?: JsonLDImages;
+  nutrition?: string | NutritionInformation;
 };
+
+const parseSchemaOrgNumber = (
+  value: string | undefined,
+): number | undefined => {
+  if (!value) return undefined;
+  const match = value.match(/-?\d+(?:\.\d+)?/);
+  if (!match) return undefined;
+  const parsed = parseFloat(match[0]);
+  return isNaN(parsed) ? undefined : parsed;
+};
+
+const formatGrams = (value: number) => `${value} g`;
+const formatMilligrams = (value: number) => `${value} mg`;
+const formatMicrograms = (value: number) => `${value} mcg`;
+const formatCalories = (value: number) => `${value} kcal`;
 
 export const recipeToJSONLD = (recipe: RecipeSummary) =>
   ({
@@ -103,7 +136,105 @@ export const recipeToJSONLD = (recipe: RecipeSummary) =>
           bestRating: "5",
         }
       : undefined,
+    nutrition: getNutritionForExport(recipe),
   }) satisfies JsonLD;
+
+const getNutritionForExport = (
+  recipe: RecipeSummary,
+): NutritionInformation | undefined => {
+  const unsaturatedFat =
+    (recipe.nutritionPolyunsaturatedFat ?? 0) +
+    (recipe.nutritionMonounsaturatedFat ?? 0);
+  const hasUnsaturated =
+    recipe.nutritionPolyunsaturatedFat != null ||
+    recipe.nutritionMonounsaturatedFat != null;
+
+  const extraDetails: string[] = [];
+  if (recipe.nutritionAddedSugars != null) {
+    extraDetails.push(
+      `Added sugars: ${formatGrams(recipe.nutritionAddedSugars)}`,
+    );
+  }
+  if (recipe.nutritionVitaminD != null) {
+    extraDetails.push(
+      `Vitamin D: ${formatMicrograms(recipe.nutritionVitaminD)}`,
+    );
+  }
+  if (recipe.nutritionCalcium != null) {
+    extraDetails.push(`Calcium: ${formatMilligrams(recipe.nutritionCalcium)}`);
+  }
+  if (recipe.nutritionIron != null) {
+    extraDetails.push(`Iron: ${formatMilligrams(recipe.nutritionIron)}`);
+  }
+  if (recipe.nutritionPotassium != null) {
+    extraDetails.push(
+      `Potassium: ${formatMilligrams(recipe.nutritionPotassium)}`,
+    );
+  }
+
+  const descriptionParts: string[] = [];
+  if (extraDetails.length) descriptionParts.push(extraDetails.join("; "));
+  if (recipe.nutritionOtherDetails) {
+    descriptionParts.push(recipe.nutritionOtherDetails);
+  }
+  const description = descriptionParts.length
+    ? descriptionParts.join("\n")
+    : undefined;
+
+  const nutrition: NutritionInformation = {
+    "@type": "NutritionInformation",
+    servingSize: recipe.nutritionServingSize ?? undefined,
+    calories:
+      recipe.nutritionCalories != null
+        ? formatCalories(recipe.nutritionCalories)
+        : undefined,
+    fatContent:
+      recipe.nutritionTotalFat != null
+        ? formatGrams(recipe.nutritionTotalFat)
+        : undefined,
+    saturatedFatContent:
+      recipe.nutritionSaturatedFat != null
+        ? formatGrams(recipe.nutritionSaturatedFat)
+        : undefined,
+    transFatContent:
+      recipe.nutritionTransFat != null
+        ? formatGrams(recipe.nutritionTransFat)
+        : undefined,
+    unsaturatedFatContent: hasUnsaturated
+      ? formatGrams(unsaturatedFat)
+      : undefined,
+    cholesterolContent:
+      recipe.nutritionCholesterol != null
+        ? formatMilligrams(recipe.nutritionCholesterol)
+        : undefined,
+    sodiumContent:
+      recipe.nutritionSodium != null
+        ? formatMilligrams(recipe.nutritionSodium)
+        : undefined,
+    carbohydrateContent:
+      recipe.nutritionTotalCarbs != null
+        ? formatGrams(recipe.nutritionTotalCarbs)
+        : undefined,
+    fiberContent:
+      recipe.nutritionDietaryFiber != null
+        ? formatGrams(recipe.nutritionDietaryFiber)
+        : undefined,
+    sugarContent:
+      recipe.nutritionTotalSugars != null
+        ? formatGrams(recipe.nutritionTotalSugars)
+        : undefined,
+    proteinContent:
+      recipe.nutritionProtein != null
+        ? formatGrams(recipe.nutritionProtein)
+        : undefined,
+    description,
+  };
+
+  const hasAnyValue = Object.entries(nutrition).some(
+    ([key, value]) => key !== "@type" && value !== undefined,
+  );
+  return hasAnyValue ? nutrition : undefined;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getImageSrcFromSchema = (jsonLD: JsonLD): string | Buffer => {
@@ -320,6 +451,38 @@ const getAggregateRatingFromSchema = (jsonLD: JsonLD) => {
   }
 };
 
+const getNutritionFromSchema = (jsonLD: JsonLD) => {
+  const { nutrition } = jsonLD;
+  if (!nutrition || typeof nutrition === "string") return {};
+
+  const unsaturatedFat = parseSchemaOrgNumber(nutrition.unsaturatedFatContent);
+  const descriptionParts: string[] = [];
+  if (nutrition.description) descriptionParts.push(nutrition.description);
+  if (unsaturatedFat !== undefined) {
+    descriptionParts.push(
+      `Unsaturated fat: ${nutrition.unsaturatedFatContent}`,
+    );
+  }
+  const otherDetails = descriptionParts.length
+    ? descriptionParts.join("\n")
+    : undefined;
+
+  return {
+    nutritionServingSize: nutrition.servingSize ?? undefined,
+    nutritionCalories: parseSchemaOrgNumber(nutrition.calories),
+    nutritionTotalFat: parseSchemaOrgNumber(nutrition.fatContent),
+    nutritionSaturatedFat: parseSchemaOrgNumber(nutrition.saturatedFatContent),
+    nutritionTransFat: parseSchemaOrgNumber(nutrition.transFatContent),
+    nutritionCholesterol: parseSchemaOrgNumber(nutrition.cholesterolContent),
+    nutritionSodium: parseSchemaOrgNumber(nutrition.sodiumContent),
+    nutritionTotalCarbs: parseSchemaOrgNumber(nutrition.carbohydrateContent),
+    nutritionDietaryFiber: parseSchemaOrgNumber(nutrition.fiberContent),
+    nutritionTotalSugars: parseSchemaOrgNumber(nutrition.sugarContent),
+    nutritionProtein: parseSchemaOrgNumber(nutrition.proteinContent),
+    nutritionOtherDetails: otherDetails,
+  };
+};
+
 export const jsonLDToStandardizedRecipeImportEntry = (
   jsonLD: JsonLD,
 ): StandardizedRecipeImportEntry => ({
@@ -336,6 +499,7 @@ export const jsonLDToStandardizedRecipeImportEntry = (
     instructions: getInstructionsFromSchema(jsonLD),
     rating: getAggregateRatingFromSchema(jsonLD),
     folder: "main",
+    ...getNutritionFromSchema(jsonLD),
   },
   labels: getLabelsFromSchema(jsonLD),
   images: getImageSRCsFromSchema(jsonLD),

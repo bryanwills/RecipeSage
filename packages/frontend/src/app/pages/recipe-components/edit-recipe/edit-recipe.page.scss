@@ -20,6 +20,16 @@
   }
 }
 
+.miniflex-nutrition {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  column-gap: 20px;
+
+  > .full-width {
+    grid-column: 1 / -1;
+  }
+}
+
 .rating-lastMadeAt {
   display: grid;
   grid-template-columns: 1fr 1fr;

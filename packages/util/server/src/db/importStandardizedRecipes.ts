@@ -127,11 +127,16 @@ export const importStandardizedRecipes = async (
           ingredients: entry.recipe.ingredients || "",
           instructions: entry.recipe.instructions || "",
           rating: entry.recipe.rating,
+          nutritionServingSize: entry.recipe.nutritionServingSize ?? undefined,
           nutritionCalories: entry.recipe.nutritionCalories ?? undefined,
           nutritionTotalFat: entry.recipe.nutritionTotalFat ?? undefined,
           nutritionSaturatedFat:
             entry.recipe.nutritionSaturatedFat ?? undefined,
           nutritionTransFat: entry.recipe.nutritionTransFat ?? undefined,
+          nutritionPolyunsaturatedFat:
+            entry.recipe.nutritionPolyunsaturatedFat ?? undefined,
+          nutritionMonounsaturatedFat:
+            entry.recipe.nutritionMonounsaturatedFat ?? undefined,
           nutritionCholesterol: entry.recipe.nutritionCholesterol ?? undefined,
           nutritionSodium: entry.recipe.nutritionSodium ?? undefined,
           nutritionTotalCarbs: entry.recipe.nutritionTotalCarbs ?? undefined,
@@ -144,6 +149,8 @@ export const importStandardizedRecipes = async (
           nutritionCalcium: entry.recipe.nutritionCalcium ?? undefined,
           nutritionIron: entry.recipe.nutritionIron ?? undefined,
           nutritionPotassium: entry.recipe.nutritionPotassium ?? undefined,
+          nutritionOtherDetails:
+            entry.recipe.nutritionOtherDetails ?? undefined,
           folder: ["inbox", "main"].includes(entry.recipe.folder || "")
             ? entry.recipe.folder || ""
             : "main",

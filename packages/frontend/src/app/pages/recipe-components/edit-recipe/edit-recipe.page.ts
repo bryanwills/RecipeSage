@@ -293,6 +293,8 @@ export class EditRecipePage {
       this.recipe.nutritionTotalFat,
       this.recipe.nutritionSaturatedFat,
       this.recipe.nutritionTransFat,
+      this.recipe.nutritionPolyunsaturatedFat,
+      this.recipe.nutritionMonounsaturatedFat,
       this.recipe.nutritionCholesterol,
       this.recipe.nutritionSodium,
       this.recipe.nutritionTotalCarbs,
@@ -307,13 +309,25 @@ export class EditRecipePage {
     ];
   }
 
+  private nutritionStringFieldValues(): (string | null | undefined)[] {
+    return [
+      this.recipe.nutritionServingSize,
+      this.recipe.nutritionOtherDetails,
+    ];
+  }
+
   hasNutrition(): boolean {
-    return this.nutritionFieldValues().some((v) => v != null && v !== "");
+    return [
+      ...this.nutritionFieldValues(),
+      ...this.nutritionStringFieldValues(),
+    ].some((v) => v != null && v !== "");
   }
 
   nutritionFieldCount(): number {
-    return this.nutritionFieldValues().filter((v) => v != null && v !== "")
-      .length;
+    return [
+      ...this.nutritionFieldValues(),
+      ...this.nutritionStringFieldValues(),
+    ].filter((v) => v != null && v !== "").length;
   }
 
   hasInvalidNutritionFields(): boolean {
@@ -328,10 +342,13 @@ export class EditRecipePage {
     );
     if (!response) return;
 
+    this.recipe.nutritionServingSize = response.servingSize;
     this.recipe.nutritionCalories = response.calories;
     this.recipe.nutritionTotalFat = response.totalFat;
     this.recipe.nutritionSaturatedFat = response.saturatedFat;
     this.recipe.nutritionTransFat = response.transFat;
+    this.recipe.nutritionPolyunsaturatedFat = response.polyunsaturatedFat;
+    this.recipe.nutritionMonounsaturatedFat = response.monounsaturatedFat;
     this.recipe.nutritionCholesterol = response.cholesterol;
     this.recipe.nutritionSodium = response.sodium;
     this.recipe.nutritionTotalCarbs = response.totalCarbs;
@@ -380,10 +397,13 @@ export class EditRecipePage {
   }
 
   clearNutrition() {
+    this.recipe.nutritionServingSize = undefined;
     this.recipe.nutritionCalories = undefined;
     this.recipe.nutritionTotalFat = undefined;
     this.recipe.nutritionSaturatedFat = undefined;
     this.recipe.nutritionTransFat = undefined;
+    this.recipe.nutritionPolyunsaturatedFat = undefined;
+    this.recipe.nutritionMonounsaturatedFat = undefined;
     this.recipe.nutritionCholesterol = undefined;
     this.recipe.nutritionSodium = undefined;
     this.recipe.nutritionTotalCarbs = undefined;
@@ -395,6 +415,7 @@ export class EditRecipePage {
     this.recipe.nutritionCalcium = undefined;
     this.recipe.nutritionIron = undefined;
     this.recipe.nutritionPotassium = undefined;
+    this.recipe.nutritionOtherDetails = undefined;
     this.markAsDirty();
   }
 
@@ -487,10 +508,13 @@ export class EditRecipePage {
     );
 
     if (response) {
+      this.recipe.nutritionServingSize = response.servingSize;
       this.recipe.nutritionCalories = response.calories;
       this.recipe.nutritionTotalFat = response.totalFat;
       this.recipe.nutritionSaturatedFat = response.saturatedFat;
       this.recipe.nutritionTransFat = response.transFat;
+      this.recipe.nutritionPolyunsaturatedFat = response.polyunsaturatedFat;
+      this.recipe.nutritionMonounsaturatedFat = response.monounsaturatedFat;
       this.recipe.nutritionCholesterol = response.cholesterol;
       this.recipe.nutritionSodium = response.sodium;
       this.recipe.nutritionTotalCarbs = response.totalCarbs;
@@ -527,6 +551,7 @@ export class EditRecipePage {
         labelIds: this.selectedLabels.map((label) => label.id),
         lastMadeAt: this.recipe.lastMadeAt || null,
         linkedRecipeIds: this.selectedLinkedRecipes.map((recipe) => recipe.id),
+        nutritionServingSize: this.recipe.nutritionServingSize || null,
         nutritionCalories: this.toNutritionNumber(
           this.recipe.nutritionCalories,
         ),
@@ -538,6 +563,12 @@ export class EditRecipePage {
         ),
         nutritionTransFat: this.toNutritionNumber(
           this.recipe.nutritionTransFat,
+        ),
+        nutritionPolyunsaturatedFat: this.toNutritionNumber(
+          this.recipe.nutritionPolyunsaturatedFat,
+        ),
+        nutritionMonounsaturatedFat: this.toNutritionNumber(
+          this.recipe.nutritionMonounsaturatedFat,
         ),
         nutritionCholesterol: this.toNutritionNumber(
           this.recipe.nutritionCholesterol,
@@ -564,6 +595,7 @@ export class EditRecipePage {
         nutritionPotassium: this.toNutritionNumber(
           this.recipe.nutritionPotassium,
         ),
+        nutritionOtherDetails: this.recipe.nutritionOtherDetails || null,
       }),
     );
 
@@ -592,6 +624,7 @@ export class EditRecipePage {
         labelIds: this.selectedLabels.map((label) => label.id),
         lastMadeAt: this.recipe.lastMadeAt || null,
         linkedRecipeIds: this.selectedLinkedRecipes.map((recipe) => recipe.id),
+        nutritionServingSize: this.recipe.nutritionServingSize || null,
         nutritionCalories: this.toNutritionNumber(
           this.recipe.nutritionCalories,
         ),
@@ -603,6 +636,12 @@ export class EditRecipePage {
         ),
         nutritionTransFat: this.toNutritionNumber(
           this.recipe.nutritionTransFat,
+        ),
+        nutritionPolyunsaturatedFat: this.toNutritionNumber(
+          this.recipe.nutritionPolyunsaturatedFat,
+        ),
+        nutritionMonounsaturatedFat: this.toNutritionNumber(
+          this.recipe.nutritionMonounsaturatedFat,
         ),
         nutritionCholesterol: this.toNutritionNumber(
           this.recipe.nutritionCholesterol,
@@ -629,6 +668,7 @@ export class EditRecipePage {
         nutritionPotassium: this.toNutritionNumber(
           this.recipe.nutritionPotassium,
         ),
+        nutritionOtherDetails: this.recipe.nutritionOtherDetails || null,
       }),
     );
 

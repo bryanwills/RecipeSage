@@ -112,10 +112,13 @@ export class RecipePage {
 
   hasNutrition(): boolean {
     return [
+      this.recipe?.nutritionServingSize,
       this.recipe?.nutritionCalories,
       this.recipe?.nutritionTotalFat,
       this.recipe?.nutritionSaturatedFat,
       this.recipe?.nutritionTransFat,
+      this.recipe?.nutritionPolyunsaturatedFat,
+      this.recipe?.nutritionMonounsaturatedFat,
       this.recipe?.nutritionCholesterol,
       this.recipe?.nutritionSodium,
       this.recipe?.nutritionTotalCarbs,
@@ -127,7 +130,8 @@ export class RecipePage {
       this.recipe?.nutritionCalcium,
       this.recipe?.nutritionIron,
       this.recipe?.nutritionPotassium,
-    ].some((v) => v != null);
+      this.recipe?.nutritionOtherDetails,
+    ].some((v) => v != null && v !== "");
   }
 
   constructor() {

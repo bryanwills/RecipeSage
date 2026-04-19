@@ -117,6 +117,34 @@ const parsedNotesToSchema = (parsedNotes: ParsedNote[]): Content[] => {
   });
 };
 
+const buildNutritionTableRows = (recipe: RecipeSummary): Content[][] => {
+  const rows: [string, number | null, string][] = [
+    ["Calories", recipe.nutritionCalories, "kcal"],
+    ["Total Fat", recipe.nutritionTotalFat, "g"],
+    ["Saturated Fat", recipe.nutritionSaturatedFat, "g"],
+    ["Trans Fat", recipe.nutritionTransFat, "g"],
+    ["Polyunsaturated Fat", recipe.nutritionPolyunsaturatedFat, "g"],
+    ["Monounsaturated Fat", recipe.nutritionMonounsaturatedFat, "g"],
+    ["Cholesterol", recipe.nutritionCholesterol, "mg"],
+    ["Sodium", recipe.nutritionSodium, "mg"],
+    ["Total Carbohydrates", recipe.nutritionTotalCarbs, "g"],
+    ["Dietary Fiber", recipe.nutritionDietaryFiber, "g"],
+    ["Total Sugars", recipe.nutritionTotalSugars, "g"],
+    ["Added Sugars", recipe.nutritionAddedSugars, "g"],
+    ["Protein", recipe.nutritionProtein, "g"],
+    ["Vitamin D", recipe.nutritionVitaminD, "mcg"],
+    ["Calcium", recipe.nutritionCalcium, "mg"],
+    ["Iron", recipe.nutritionIron, "mg"],
+    ["Potassium", recipe.nutritionPotassium, "mg"],
+  ];
+  return rows
+    .filter(([, value]) => value != null)
+    .map(([label, value, unit]) => [
+      { text: label, bold: true },
+      { text: `${value} ${unit}` },
+    ]);
+};
+
 const recipeToSchema = async (
   recipe: RecipeSummary,
   options?: ExportOptions,
@@ -246,6 +274,42 @@ const recipeToSchema = async (
     };
     schema.push(header);
     schema.push(...parsedNotesToSchema(parsedNotes));
+  }
+  const nutritionRows = buildNutritionTableRows(recipe);
+  if (nutritionRows.length > 0 || recipe.nutritionOtherDetails) {
+    schema.push({
+      text: "Nutrition (per serving):",
+      margin: [0, 10, 0, 5] satisfies Margins,
+      bold: true,
+    });
+    if (recipe.nutritionServingSize) {
+      schema.push({
+        text: [
+          { text: "Serving Size: ", bold: true },
+          { text: recipe.nutritionServingSize },
+        ],
+        margin: [0, 0, 0, 5] satisfies Margins,
+      });
+    }
+    if (nutritionRows.length > 0) {
+      schema.push({
+        table: {
+          widths: ["*", "auto"],
+          body: nutritionRows,
+        },
+        layout: "lightHorizontalLines",
+        margin: [0, 0, 0, 5] satisfies Margins,
+      });
+    }
+    if (recipe.nutritionOtherDetails) {
+      schema.push({
+        text: [
+          { text: "Other Nutrition Details: ", bold: true },
+          { text: recipe.nutritionOtherDetails },
+        ],
+        margin: [0, 5, 0, 0] satisfies Margins,
+      });
+    }
   }
   if (recipe.url) {
     schema.push({

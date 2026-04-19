@@ -106,6 +106,49 @@ export async function recipekeeperImportJobHandler(
       .filter((e): e is string => !!e)
       .map((e) => cleanLabelTitle(e));
 
+    const readNututritionProperty = (prop: string): string | undefined => {
+      const el = $item.find(`[itemprop="${prop}"]`).first();
+      if (!el.length) return undefined;
+      return (el.attr("content") || el.text()).trim() || undefined;
+    };
+    const parseNumeric = (value: string | undefined): number | undefined => {
+      if (!value) return undefined;
+      const match = value.match(/-?\d+(?:\.\d+)?/);
+      if (!match) return undefined;
+      const parsed = parseFloat(match[0]);
+      return isNaN(parsed) ? undefined : parsed;
+    };
+    const nutritionServingSize = readNututritionProperty(
+      "recipeNutServingSize",
+    );
+    const nutritionCalories = parseNumeric(
+      readNututritionProperty("recipeNutCalories"),
+    );
+    const nutritionTotalFat = parseNumeric(
+      readNututritionProperty("recipeNutTotalFat"),
+    );
+    const nutritionSaturatedFat = parseNumeric(
+      readNututritionProperty("recipeNutSaturatedFat"),
+    );
+    const nutritionCholesterol = parseNumeric(
+      readNututritionProperty("recipeNutCholesterol"),
+    );
+    const nutritionSodium = parseNumeric(
+      readNututritionProperty("recipeNutSodium"),
+    );
+    const nutritionTotalCarbs = parseNumeric(
+      readNututritionProperty("recipeNutTotalCarbohydrate"),
+    );
+    const nutritionDietaryFiber = parseNumeric(
+      readNututritionProperty("recipeNutDietaryFiber"),
+    );
+    const nutritionTotalSugars = parseNumeric(
+      readNututritionProperty("recipeNutSugars"),
+    );
+    const nutritionProtein = parseNumeric(
+      readNututritionProperty("recipeNutProtein"),
+    );
+
     const unconfirmedImagePaths = [
       ...new Set(
         $item
@@ -136,6 +179,16 @@ export async function recipekeeperImportJobHandler(
         totalTime,
         ingredients,
         instructions,
+        nutritionServingSize,
+        nutritionCalories,
+        nutritionTotalFat,
+        nutritionSaturatedFat,
+        nutritionCholesterol,
+        nutritionSodium,
+        nutritionTotalCarbs,
+        nutritionDietaryFiber,
+        nutritionTotalSugars,
+        nutritionProtein,
       },
       labels: [...labels, ...importLabels],
       images: imagePaths,

@@ -362,7 +362,19 @@
               {{ "pages.editRecipe.input.nutritionClear" | translate }}
             </ion-button>
           </div>
-          <div class="miniflex">
+          <div class="miniflex-nutrition">
+            <ion-item class="recipe-input">
+              <ion-input
+                label="{{
+                  'pages.editRecipe.input.nutritionServingSize' | translate
+                }}"
+                labelPlacement="stacked"
+                [(ngModel)]="recipe.nutritionServingSize"
+                (ngModelChange)="markAsDirty()"
+                type="text"
+              ></ion-input>
+            </ion-item>
+
             <ion-item class="recipe-input">
               <ion-input
                 label="{{
@@ -409,6 +421,34 @@
                 }}"
                 labelPlacement="stacked"
                 [(ngModel)]="recipe.nutritionTransFat"
+                (ngModelChange)="markAsDirty()"
+                type="text"
+                inputmode="decimal"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item class="recipe-input">
+              <ion-input
+                label="{{
+                  'pages.editRecipe.input.nutritionPolyunsaturatedFat'
+                    | translate
+                }}"
+                labelPlacement="stacked"
+                [(ngModel)]="recipe.nutritionPolyunsaturatedFat"
+                (ngModelChange)="markAsDirty()"
+                type="text"
+                inputmode="decimal"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item class="recipe-input">
+              <ion-input
+                label="{{
+                  'pages.editRecipe.input.nutritionMonounsaturatedFat'
+                    | translate
+                }}"
+                labelPlacement="stacked"
+                [(ngModel)]="recipe.nutritionMonounsaturatedFat"
                 (ngModelChange)="markAsDirty()"
                 type="text"
                 inputmode="decimal"
@@ -554,6 +594,19 @@
                 type="text"
                 inputmode="decimal"
               ></ion-input>
+            </ion-item>
+
+            <ion-item class="recipe-input full-width">
+              <ion-textarea
+                label="{{
+                  'pages.editRecipe.input.nutritionOtherDetails' | translate
+                }}"
+                labelPlacement="stacked"
+                [(ngModel)]="recipe.nutritionOtherDetails"
+                (ngModelChange)="markAsDirty()"
+                autoGrow="true"
+                [rows]="2"
+              ></ion-textarea>
             </ion-item>
           </div>
         </div>
