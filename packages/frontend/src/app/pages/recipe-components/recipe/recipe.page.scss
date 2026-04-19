@@ -167,6 +167,12 @@ h2.recipeTitle {
   }
 }
 
+.nutrition-fields {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 20px;
+}
+
 .label {
   font-size: 0.875rem;
 }

@@ -13,10 +13,13 @@ export interface StandardizedRecipeImportEntryForWeb {
     folder?: string;
     rating?: number;
     nutritionInfo?: string;
+    nutritionServingSize?: string | null;
     nutritionCalories?: number | null;
     nutritionTotalFat?: number | null;
     nutritionSaturatedFat?: number | null;
     nutritionTransFat?: number | null;
+    nutritionPolyunsaturatedFat?: number | null;
+    nutritionMonounsaturatedFat?: number | null;
     nutritionCholesterol?: number | null;
     nutritionSodium?: number | null;
     nutritionTotalCarbs?: number | null;
@@ -28,6 +31,7 @@ export interface StandardizedRecipeImportEntryForWeb {
     nutritionCalcium?: number | null;
     nutritionIron?: number | null;
     nutritionPotassium?: number | null;
+    nutritionOtherDetails?: string | null;
   };
   labels: string[];
   images: string[];

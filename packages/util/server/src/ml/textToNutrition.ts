@@ -4,6 +4,10 @@ import { generateText, Output } from "ai";
 import { AI_MODEL_LOW, aiProvider } from "./vercel";
 
 export const nutritionSchema = z.object({
+  servingSize: z
+    .string()
+    .nullable()
+    .describe("Serving size description, e.g. '1 cup (240g)'"),
   calories: z.number().nullable().describe("Calories per serving in kcal"),
   totalFat: z.number().nullable().describe("Total fat per serving in grams"),
   saturatedFat: z
@@ -11,6 +15,14 @@ export const nutritionSchema = z.object({
     .nullable()
     .describe("Saturated fat per serving in grams"),
   transFat: z.number().nullable().describe("Trans fat per serving in grams"),
+  polyunsaturatedFat: z
+    .number()
+    .nullable()
+    .describe("Polyunsaturated fat per serving in grams"),
+  monounsaturatedFat: z
+    .number()
+    .nullable()
+    .describe("Monounsaturated fat per serving in grams"),
   cholesterol: z
     .number()
     .nullable()

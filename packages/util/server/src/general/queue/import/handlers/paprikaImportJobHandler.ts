@@ -51,9 +51,6 @@ export async function paprikaImportJobHandler(
 
     const notes = [
       recipeData.notes,
-      recipeData.nutritional_info
-        ? `Nutritional Info: ${recipeData.difficulty}`
-        : "",
       recipeData.difficulty ? `Difficulty: ${recipeData.difficulty}` : "",
     ]
       .filter((e) => e && e.length > 0)
@@ -89,6 +86,7 @@ export async function paprikaImportJobHandler(
         source: recipeData.source,
         folder: "main",
         url: recipeData.source_url,
+        nutritionOtherDetails: recipeData.nutritional_info || undefined,
       },
 
       labels: [...labels, ...importLabels],
