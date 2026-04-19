@@ -1,5 +1,6 @@
 import { Recipe } from "@recipesage/prisma";
 import { MeiliSearch, MeiliSearchApiError } from "meilisearch";
+import { stripImageTokens } from "@recipesage/util/shared";
 import { SearchProvider } from "./";
 
 let client: MeiliSearch;
@@ -56,8 +57,8 @@ export const indexRecipes = async (recipes: Recipe[]) => {
     source: recipe.source,
     description: recipe.description,
     ingredients: recipe.ingredients,
-    instructions: recipe.instructions,
-    notes: recipe.notes,
+    instructions: stripImageTokens(recipe.instructions),
+    notes: stripImageTokens(recipe.notes),
   }));
 
   await client.index("recipes").addDocuments(indexableRecipes, {

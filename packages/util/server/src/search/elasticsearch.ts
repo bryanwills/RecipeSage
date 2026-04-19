@@ -1,6 +1,7 @@
 import { Client } from "@elastic/elasticsearch";
 import { Recipe } from "@recipesage/prisma";
 import dedent from "ts-dedent";
+import { stripImageTokens } from "@recipesage/util/shared";
 import { SearchProvider } from "./";
 
 let client: Client;
@@ -85,8 +86,8 @@ export const indexRecipes = async (recipes: Recipe[]) => {
       ${source}
       ${description}
       ${ingredients}
-      ${instructions}
-      ${notes}
+      ${stripImageTokens(instructions)}
+      ${stripImageTokens(notes)}
     `;
 
     const document = {

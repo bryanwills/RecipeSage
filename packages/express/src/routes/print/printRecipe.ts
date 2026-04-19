@@ -76,6 +76,10 @@ export const printRecipeHandler = defineHandler(
       ? sorted.recipeImages.map((ri) => ri.image)
       : [];
 
+    const inlineImageRefs = sorted.recipeImages.map((ri) => ({
+      url: ri.image.location,
+    }));
+
     const labels = isOwner ? sorted.recipeLabels.map((rl) => rl.label) : [];
 
     res.render("recipe-default", {
@@ -97,8 +101,13 @@ export const printRecipeHandler = defineHandler(
         instructions: parseInstructions(
           sanitizeRemoveHtmlFromString(sorted.instructions),
           scale,
+          undefined,
+          inlineImageRefs,
         ),
-        notes: parseNotes(sanitizeRemoveHtmlFromString(sorted.notes)),
+        notes: parseNotes(
+          sanitizeRemoveHtmlFromString(sorted.notes),
+          inlineImageRefs,
+        ),
       },
       recipeURL: `https://recipesage.com/#/recipe/${sorted.id}`,
       date: new Date().toDateString(),

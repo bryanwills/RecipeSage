@@ -8,7 +8,9 @@ import {
   parseInstructions,
   parseNotes,
   applyInlineFormatting,
+  applyInlineFormattingWithImages,
   stripInlineFormatting,
+  stripImageTokens,
   isRtlText,
 } from "./parsers";
 
@@ -1128,6 +1130,214 @@ describe("parsers", () => {
         expect(result[0].isRtl).toBe(false);
       });
     });
+
+    describe("image references", () => {
+      const images = [
+        { url: "https://cdn.example/img-one.jpg" },
+        { url: "https://cdn.example/img-two.jpg" },
+      ];
+
+      it("renders a figure for a bare token when images provided", () => {
+        const result = parseInstructions("![image:1]", 1, undefined, images);
+        expect(result[0].htmlContent).toBe(
+          '<figure class="inlineImage"><img src="https://cdn.example/img-one.jpg" alt="Image 1"></figure>',
+        );
+      });
+
+      it("renders figcaption when caption provided", () => {
+        const result = parseInstructions(
+          "![image:2|Golden brown]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].htmlContent).toBe(
+          '<figure class="inlineImage"><img src="https://cdn.example/img-two.jpg" alt="Golden brown"><figcaption>Golden brown</figcaption></figure>',
+        );
+      });
+
+      it("escapes dangerous characters in caption", () => {
+        const result = parseInstructions(
+          "![image:1|<script>alert(1)</script>]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].htmlContent).not.toContain("<script>");
+        expect(result[0].htmlContent).toContain("&lt;script&gt;");
+      });
+
+      it("matches case-insensitively and tolerates whitespace", () => {
+        const result = parseInstructions(
+          "![ IMAGE : 2 | cap ]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].htmlContent).toContain(
+          '<img src="https://cdn.example/img-two.jpg" alt="cap">',
+        );
+      });
+
+      it("renders escaped raw token when index is out of range", () => {
+        const result = parseInstructions(
+          "![image:5|missing]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].htmlContent).toBe("![image:5|missing]");
+      });
+
+      it("renders escaped raw token when no images provided", () => {
+        const result = parseInstructions("![image:1]", 1);
+        expect(result[0].htmlContent).toBe("![image:1]");
+      });
+
+      it("places figure inline within a step's text", () => {
+        const result = parseInstructions(
+          "Stir well. ![image:1|mid] Then rest.",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].htmlContent).toBe(
+          'Stir well. <figure class="inlineImage"><img src="https://cdn.example/img-one.jpg" alt="mid"><figcaption>mid</figcaption></figure> Then rest.',
+        );
+      });
+
+      it("numbers a step that contains only an image token", () => {
+        const result = parseInstructions(
+          "First step\n![image:1]\nThird step",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].count).toBe(1);
+        expect(result[1].count).toBe(2);
+        expect(result[2].count).toBe(3);
+      });
+
+      it("preserves the raw token in the content field", () => {
+        const result = parseInstructions(
+          "Do thing ![image:1|cap]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].content).toBe("Do thing ![image:1|cap]");
+      });
+
+      it("replaces the token with caption text in plaintextContent", () => {
+        const result = parseInstructions(
+          "Do thing ![image:1|cap]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].plaintextContent).toBe("Do thing cap");
+      });
+
+      it("replaces the token with empty string in plaintextContent when no caption", () => {
+        const result = parseInstructions(
+          "Do thing ![image:1]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].plaintextContent).toBe("Do thing ");
+      });
+
+      it("coexists with bold and italic markers around the token", () => {
+        const result = parseInstructions(
+          "**bold** ![image:1|cap] *italic*",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].htmlContent).toBe(
+          '<b>bold</b> <figure class="inlineImage"><img src="https://cdn.example/img-one.jpg" alt="cap"><figcaption>cap</figcaption></figure> <i>italic</i>',
+        );
+      });
+
+      it("adds small modifier class for ![image:N:small]", () => {
+        const result = parseInstructions(
+          "![image:1:small]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].htmlContent).toBe(
+          '<figure class="inlineImage inlineImage--small"><img src="https://cdn.example/img-one.jpg" alt="Image 1"></figure>',
+        );
+      });
+
+      it("supports size modifier with caption", () => {
+        const result = parseInstructions(
+          "![image:2:large|Hero shot]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].htmlContent).toBe(
+          '<figure class="inlineImage inlineImage--large"><img src="https://cdn.example/img-two.jpg" alt="Hero shot"><figcaption>Hero shot</figcaption></figure>',
+        );
+      });
+
+      it("omits modifier class for medium (the default)", () => {
+        const result = parseInstructions(
+          "![image:1:medium]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].htmlContent).toBe(
+          '<figure class="inlineImage"><img src="https://cdn.example/img-one.jpg" alt="Image 1"></figure>',
+        );
+      });
+
+      it("falls back to default size when modifier is unknown", () => {
+        const result = parseInstructions(
+          "![image:1:huge|cap]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].htmlContent).toBe(
+          '<figure class="inlineImage"><img src="https://cdn.example/img-one.jpg" alt="cap"><figcaption>cap</figcaption></figure>',
+        );
+      });
+
+      it("matches size modifier case-insensitively", () => {
+        const result = parseInstructions(
+          "![image:1:SMALL|cap]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].htmlContent).toContain("inlineImage--small");
+      });
+
+      it("supports xlarge size modifier", () => {
+        const result = parseInstructions(
+          "![image:1:xlarge|Hero]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].htmlContent).toContain("inlineImage--xlarge");
+      });
+
+      it("plaintextContent ignores the size modifier", () => {
+        const result = parseInstructions(
+          "See ![image:1:small|caption here]",
+          1,
+          undefined,
+          images,
+        );
+        expect(result[0].plaintextContent).toBe("See caption here");
+      });
+    });
   });
 
   describe("parseNotes", () => {
@@ -1318,6 +1528,89 @@ describe("parsers", () => {
         expect(result[0].htmlContent).toContain("<th></th>");
         expect(result[0].htmlContent).toContain("<td></td>");
       });
+    });
+
+    describe("image references", () => {
+      const images = [{ url: "https://cdn.example/img-one.jpg" }];
+
+      it("renders a figure inside a note", () => {
+        const result = parseNotes("See ![image:1|here]", images);
+        expect(result[0].htmlContent).toBe(
+          'See <figure class="inlineImage"><img src="https://cdn.example/img-one.jpg" alt="here"><figcaption>here</figcaption></figure>',
+        );
+      });
+
+      it("escapes raw token when images missing", () => {
+        const result = parseNotes("See ![image:1]");
+        expect(result[0].htmlContent).toBe("See ![image:1]");
+      });
+
+      it("strips tokens from plaintextContent", () => {
+        const result = parseNotes("See ![image:1|alt text]", images);
+        expect(result[0].plaintextContent).toBe("See alt text");
+      });
+
+      it("preserves raw tokens in content", () => {
+        const result = parseNotes("See ![image:1|cap]", images);
+        expect(result[0].content).toBe("See ![image:1|cap]");
+      });
+
+      it("renders tokens inside table cells", () => {
+        const result = parseNotes("| col |\n| --- |\n| ![image:1] |", images);
+        expect(result[0].isTable).toBe(true);
+        expect(result[0].htmlContent).toContain(
+          '<figure class="inlineImage"><img src="https://cdn.example/img-one.jpg" alt="Image 1"></figure>',
+        );
+      });
+    });
+  });
+
+  describe("stripImageTokens", () => {
+    it("replaces token with caption when present", () => {
+      expect(stripImageTokens("Before ![image:1|cap] after")).toBe(
+        "Before cap after",
+      );
+    });
+
+    it("replaces token with empty string when no caption", () => {
+      expect(stripImageTokens("Before ![image:2] after")).toBe("Before  after");
+    });
+
+    it("handles multiple tokens", () => {
+      expect(stripImageTokens("![image:1|one] and ![image:2|two]")).toBe(
+        "one and two",
+      );
+    });
+
+    it("leaves non-matching text alone", () => {
+      expect(stripImageTokens("Plain text with [brackets]")).toBe(
+        "Plain text with [brackets]",
+      );
+    });
+  });
+
+  describe("applyInlineFormattingWithImages", () => {
+    const images = [{ url: "https://cdn.example/a.jpg" }];
+
+    it("renders the figure and the surrounding inline formatting", () => {
+      expect(
+        applyInlineFormattingWithImages("**a** ![image:1|b]", images),
+      ).toBe(
+        '<b>a</b> <figure class="inlineImage"><img src="https://cdn.example/a.jpg" alt="b"><figcaption>b</figcaption></figure>',
+      );
+    });
+
+    it("escapes HTML-dangerous chars in image URL", () => {
+      const dangerous = [{ url: 'https://x.test/"><script>' }];
+      const out = applyInlineFormattingWithImages("![image:1]", dangerous);
+      expect(out).not.toContain("<script>");
+      expect(out).toContain("&quot;");
+    });
+
+    it("uses Image N as alt text when no caption", () => {
+      expect(applyInlineFormattingWithImages("![image:1]", images)).toBe(
+        '<figure class="inlineImage"><img src="https://cdn.example/a.jpg" alt="Image 1"></figure>',
+      );
     });
   });
 
