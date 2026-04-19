@@ -2,6 +2,7 @@ import { Component, inject } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 
 import { Recipe } from "../../../services/recipe.service";
+import { RouteMap } from "~/services/util.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectLabelComponent } from "../../../components/select-label/select-label.component";
 import { SelectRecipeLegacyComponent } from "../../../components/select-recipe-legacy/select-recipe-legacy.component";
@@ -20,6 +21,8 @@ import type { LabelSummary } from "@recipesage/prisma";
 })
 export class AddProfileItemModalPage {
   private modalCtrl = inject(ModalController);
+
+  legalHref: string = RouteMap.LegalPage.getPath();
 
   itemType = null;
 

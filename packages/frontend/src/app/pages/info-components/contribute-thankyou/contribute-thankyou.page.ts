@@ -16,6 +16,7 @@ export class ContributeThankYouPage {
   private capabilitiesService = inject(CapabilitiesService);
 
   defaultBackHref: string = RouteMap.AboutPage.getPath();
+  aboutHref: string = RouteMap.AboutPage.getPath();
   accountPath: string = RouteMap.AccountPage.getPath();
 
   constructor() {

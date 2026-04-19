@@ -9,7 +9,7 @@ import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
   imports: [...SHARED_UI_IMPORTS],
 })
 export class LogoIconComponent {
-  @Input() href: string | undefined;
+  @Input() routerLink: string | undefined;
   @Input() noBg: boolean = false;
 
   constructor() {}

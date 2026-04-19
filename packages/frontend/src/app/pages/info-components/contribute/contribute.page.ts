@@ -40,6 +40,7 @@ export class ContributePage {
 
   billingPortalUrl = BILLING_PORTAL_URL;
   defaultBackHref: string = RouteMap.AboutPage.getPath();
+  aboutHref: string = RouteMap.AboutPage.getPath();
 
   frequency?: string;
 
@@ -54,7 +55,7 @@ export class ContributePage {
       window.alert(
         "Opening the RecipeSage site, since selfhosted versions aren't linked to Stripe",
       );
-      window.location.href = "https://recipesage.com/#/contribute";
+      window.location.href = `https://recipesage.com/#${RouteMap.ContributePage.getPath()}`;
     }
 
     this.capabilitiesService.updateCapabilities();

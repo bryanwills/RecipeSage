@@ -163,7 +163,11 @@
   <ion-item class="sharing-tos">
     <ion-label>
       <p>
-        <a href="/#/legal?scrollTo=sharing" (click)="cancel()">
+        <a
+          [routerLink]="legalHref"
+          [queryParams]="{ scrollTo: 'sharing' }"
+          (click)="cancel()"
+        >
           {{ "pages.addProfileItem.tos" | translate }}
         </a>
       </p>
