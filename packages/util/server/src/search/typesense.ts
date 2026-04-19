@@ -1,5 +1,6 @@
 import { Client } from "typesense";
 import { Recipe } from "@recipesage/prisma";
+import { stripImageTokens } from "@recipesage/util/shared";
 import { SearchProvider } from "./";
 
 let client: Client;
@@ -88,8 +89,8 @@ export const indexRecipes = async (recipes: Recipe[]) => {
     source: recipe.source,
     description: recipe.description,
     ingredients: recipe.ingredients,
-    instructions: recipe.instructions,
-    notes: recipe.notes,
+    instructions: stripImageTokens(recipe.instructions),
+    notes: stripImageTokens(recipe.notes),
   }));
 
   await client.collections("recipes").documents().import(formattedRecipes, {

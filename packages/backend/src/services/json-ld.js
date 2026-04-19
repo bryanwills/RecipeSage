@@ -27,7 +27,7 @@ export const recipeToJSONLD = (recipe) => ({
     {
       "@type": "Comment",
       name: "Author Notes",
-      text: recipe.notes,
+      text: recipe.notes || "",
     },
   ],
 });

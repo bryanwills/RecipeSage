@@ -208,6 +208,56 @@ html
         background: #f4f5f8;
       }
 
+      .inlineImage {
+        display: inline-block;
+        vertical-align: top;
+        margin: 3px 6px 3px 0;
+        page-break-inside: avoid;
+      }
+
+      .inlineImage img {
+        display: block;
+        max-width: 240px;
+        max-height: 180px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+      }
+
+      .inlineImage figcaption {
+        font-size: 0.85em;
+        font-style: italic;
+        margin-top: 2px;
+        max-width: 240px;
+      }
+
+      .inlineImage--small img {
+        max-width: 140px;
+        max-height: 100px;
+      }
+
+      .inlineImage--small figcaption {
+        max-width: 140px;
+      }
+
+      .inlineImage--large img {
+        max-width: 420px;
+        max-height: 320px;
+      }
+
+      .inlineImage--large figcaption {
+        max-width: 420px;
+      }
+
+      .inlineImage--xlarge img {
+        max-width: 600px;
+        max-height: 460px;
+      }
+
+      .inlineImage--xlarge figcaption {
+        max-width: 600px;
+      }
+
       .printPreview span.recipe-source-url {
         display: block;
       }

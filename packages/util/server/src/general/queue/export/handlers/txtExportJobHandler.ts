@@ -9,6 +9,7 @@ import {
 import dedent from "ts-dedent";
 import { transformRecipeImageUrlForSelfhost } from "../../../transformRecipeImageUrlForSelfhost";
 import { pipeline } from "stream/promises";
+import { stripImageTokens } from "@recipesage/util/shared";
 
 async function* process(
   recipes: AsyncIterable<RecipeSummary>,
@@ -37,8 +38,8 @@ async function* process(
       Url: ${recipe.url}
       Folder: ${recipe.folder}
       Ingredients: ${recipe.ingredients}
-      Instructions: ${recipe.instructions}
-      Notes: ${recipe.notes}
+      Instructions: ${stripImageTokens(recipe.instructions)}
+      Notes: ${stripImageTokens(recipe.notes)}
       CreatedAt: ${recipe.createdAt}
       UpdatedAt: ${recipe.updatedAt}
       Rating: ${recipe.rating}

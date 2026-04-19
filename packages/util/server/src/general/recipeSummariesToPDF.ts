@@ -5,6 +5,7 @@ import {
   parseNotes,
   parseTableCells,
   ParsedNote,
+  stripImageTokens,
 } from "@recipesage/util/shared";
 import { sanitizeRemoveHtmlFromString } from "./sanitizeRemoveHtmlFromString";
 import { fetchURL } from "../general/fetch";
@@ -75,10 +76,25 @@ const parsedToSchema = (
   includeMargin: boolean,
 ): Content[] => {
   return parsedItems.map((item) => ({
-    text: applyInlineFormattingPdfmake(item.content),
+    text: applyInlineFormattingPdfmake(stripImageTokens(item.content)),
     bold: item.isHeader,
     margin: includeMargin ? ([0, 0, 0, 5] satisfies Margins) : undefined,
   }));
+};
+
+const parsedInstructionsToSchema = (
+  parsedItems: { content: string; isHeader: boolean; count: number }[],
+): Content[] => {
+  return parsedItems.map((item) => {
+    const body = applyInlineFormattingPdfmake(stripImageTokens(item.content));
+    return {
+      text: item.isHeader
+        ? body
+        : [{ text: `${item.count}. `, bold: true }, body],
+      bold: item.isHeader,
+      margin: [0, 0, 0, 5] satisfies Margins,
+    };
+  });
 };
 
 const parsedNotesToSchema = (parsedNotes: ParsedNote[]): Content[] => {
@@ -102,8 +118,13 @@ const parsedNotesToSchema = (parsedNotes: ParsedNote[]): Content[] => {
           body: body.map((row, rowIdx) =>
             row.map((cell) =>
               rowIdx === 0
-                ? { text: applyInlineFormattingPdfmake(cell), bold: true }
-                : { text: applyInlineFormattingPdfmake(cell) },
+                ? {
+                    text: applyInlineFormattingPdfmake(stripImageTokens(cell)),
+                    bold: true,
+                  }
+                : {
+                    text: applyInlineFormattingPdfmake(stripImageTokens(cell)),
+                  },
             ),
           ),
         },
@@ -111,7 +132,7 @@ const parsedNotesToSchema = (parsedNotes: ParsedNote[]): Content[] => {
       };
     }
     return {
-      text: applyInlineFormattingPdfmake(note.content),
+      text: applyInlineFormattingPdfmake(stripImageTokens(note.content)),
       bold: note.isHeader,
     };
   });
@@ -252,17 +273,17 @@ const recipeToSchema = async (
         },
         {
           width: "auto",
-          stack: parsedToSchema(parsedInstructions, true),
+          stack: parsedInstructionsToSchema(parsedInstructions),
         },
       ],
     });
   } else if (recipe.ingredients) {
     schema.push({
-      text: parsedToSchema(parsedIngredients, true),
+      stack: parsedToSchema(parsedIngredients, true),
     });
   } else if (recipe.instructions) {
     schema.push({
-      text: parsedToSchema(parsedInstructions, true),
+      stack: parsedInstructionsToSchema(parsedInstructions),
     });
   }
 
@@ -294,10 +315,19 @@ const recipeToSchema = async (
     if (nutritionRows.length > 0) {
       schema.push({
         table: {
+          headerRows: 0,
           widths: ["*", "auto"],
           body: nutritionRows,
         },
-        layout: "lightHorizontalLines",
+        layout: {
+          hLineWidth: (i, node) =>
+            i === 0 || i === node.table.body.length ? 0 : 1,
+          vLineWidth: () => 0,
+          hLineColor: () => "#aaa",
+          paddingLeft: (i) => (i === 0 ? 0 : 8),
+          paddingRight: (i, node) =>
+            i === (node.table.widths?.length ?? 0) - 1 ? 0 : 8,
+        },
         margin: [0, 0, 0, 5] satisfies Margins,
       });
     }

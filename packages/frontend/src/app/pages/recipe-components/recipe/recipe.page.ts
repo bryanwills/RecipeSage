@@ -219,7 +219,7 @@ export class RecipePage {
 
     if (this.recipe.notes && this.recipe.notes.length > 0) {
       this.notes = this.recipeService
-        .parseNotes(this.recipe.notes)
+        .parseNotes(this.recipe.notes, this.getInlineImageRefs())
         .map((note) => ({
           ...note,
           htmlContent: linkifyHtml(note.htmlContent),
@@ -420,7 +420,15 @@ export class RecipePage {
       this.recipe.instructions,
       this.scale,
       targetSystem,
+      this.getInlineImageRefs(),
     );
+  }
+
+  private getInlineImageRefs(): { url: string }[] {
+    if (!this.recipe) return [];
+    return [...this.recipe.recipeImages]
+      .sort((a, b) => a.order - b.order)
+      .map((ri) => ({ url: ri.image.location }));
   }
 
   editRecipe() {

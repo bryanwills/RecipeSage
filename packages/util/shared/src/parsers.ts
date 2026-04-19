@@ -76,6 +76,78 @@ export const stripInlineFormatting = (text: string): string => {
     .replace(/__(.+?)__/g, "$1");
 };
 
+export interface InlineImageRef {
+  url: string;
+}
+
+const imageTokenRegex =
+  /!\[\s*image\s*:\s*(\d+)\s*(?::\s*([a-z]+)\s*)?(?:\|([^\]]+))?\]/gi;
+
+const INLINE_IMAGE_SIZE_MODIFIERS = new Set([
+  "small",
+  "medium",
+  "large",
+  "xlarge",
+]);
+
+const escapeHtml = (text: string): string =>
+  text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+export const applyInlineFormattingWithImages = (
+  html: string,
+  images?: InlineImageRef[],
+): string => {
+  const placeholders: string[] = [];
+  const withPlaceholders = html.replace(
+    imageTokenRegex,
+    (match, indexStr, sizeStr, caption) => {
+      const index = parseInt(indexStr, 10);
+      const image = images?.[index - 1];
+      if (!image) return escapeHtml(match);
+
+      const trimmedCaption = caption?.trim();
+      const alt = trimmedCaption
+        ? escapeHtml(trimmedCaption)
+        : `Image ${index}`;
+      const src = escapeHtml(image.url);
+      const figcaption = trimmedCaption
+        ? `<figcaption>${escapeHtml(trimmedCaption)}</figcaption>`
+        : "";
+      const size = sizeStr?.trim().toLowerCase();
+      const sizeClass =
+        size && INLINE_IMAGE_SIZE_MODIFIERS.has(size) && size !== "medium"
+          ? ` inlineImage--${size}`
+          : "";
+      const rendered = `<figure class="inlineImage${sizeClass}"><img src="${src}" alt="${alt}">${figcaption}</figure>`;
+      const placeholder = `\x00IMG${placeholders.length}\x00`;
+      placeholders.push(rendered);
+      return placeholder;
+    },
+  );
+  const formatted = applyInlineFormatting(withPlaceholders);
+  if (placeholders.length === 0) return formatted;
+  return formatted.replace(
+    // eslint-disable-next-line no-control-regex
+    /\x00IMG(\d+)\x00/g,
+    (_, idx) => placeholders[parseInt(idx, 10)],
+  );
+};
+
+export const stripImageTokens = (text: string): string => {
+  return text.replace(
+    imageTokenRegex,
+    (_match, _indexStr, _sizeStr, caption) => {
+      const trimmedCaption = caption?.trim();
+      return trimmedCaption || "";
+    },
+  );
+};
+
 // Convert backslash-newline to <br> or \n based on output format
 const convertEscapedLineContinuations = (
   text: string,
@@ -800,6 +872,7 @@ export const parseInstructions = (
   instructions: string,
   scale: number,
   targetSystem?: System,
+  images?: InlineImageRef[],
 ): {
   content: string;
   plaintextContent: string;
@@ -851,9 +924,10 @@ export const parseInstructions = (
       const content = convertEscapedLineContinuations(plainHeader, false);
       return {
         content,
-        plaintextContent: stripInlineFormatting(content),
-        htmlContent: applyInlineFormatting(
+        plaintextContent: stripInlineFormatting(stripImageTokens(content)),
+        htmlContent: applyInlineFormattingWithImages(
           convertEscapedLineContinuations(htmlHeader, true),
+          images,
         ),
         isHeader: true,
         count: 0,
@@ -864,9 +938,10 @@ export const parseInstructions = (
       const content = convertEscapedLineContinuations(plainLine, false);
       return {
         content,
-        plaintextContent: stripInlineFormatting(content),
-        htmlContent: applyInlineFormatting(
+        plaintextContent: stripInlineFormatting(stripImageTokens(content)),
+        htmlContent: applyInlineFormattingWithImages(
           convertEscapedLineContinuations(htmlLine, true),
+          images,
         ),
         isHeader: false,
         count: stepCount++,
@@ -908,7 +983,10 @@ export const parseTableCells = (row: string): string[] => {
   return cells;
 };
 
-const parseTableBlock = (lines: string[]): ParsedNote | null => {
+const parseTableBlock = (
+  lines: string[],
+  images?: InlineImageRef[],
+): ParsedNote | null => {
   if (lines.length < 2) return null;
 
   const hasSeparator = tableSeparatorRegexp.test(lines[1].trim());
@@ -934,7 +1012,7 @@ const parseTableBlock = (lines: string[]): ParsedNote | null => {
   for (let i = 0; i < headerCells.length; i++) {
     const align =
       alignments[i] !== "left" ? ` style="text-align:${alignments[i]}"` : "";
-    htmlContent += `<th${align}>${applyInlineFormatting(headerCells[i])}</th>`;
+    htmlContent += `<th${align}>${applyInlineFormattingWithImages(headerCells[i], images)}</th>`;
   }
   htmlContent += "</tr></thead>";
 
@@ -948,7 +1026,7 @@ const parseTableBlock = (lines: string[]): ParsedNote | null => {
           alignments[i] !== "left"
             ? ` style="text-align:${alignments[i]}"`
             : "";
-        htmlContent += `<td${align}>${applyInlineFormatting(cells[i] ?? "")}</td>`;
+        htmlContent += `<td${align}>${applyInlineFormattingWithImages(cells[i] ?? "", images)}</td>`;
       }
       htmlContent += "</tr>";
     }
@@ -961,7 +1039,7 @@ const parseTableBlock = (lines: string[]): ParsedNote | null => {
 
   return {
     content,
-    plaintextContent: stripInlineFormatting(content),
+    plaintextContent: stripInlineFormatting(stripImageTokens(content)),
     htmlContent,
     isHeader: false,
     isTable: true,
@@ -969,7 +1047,10 @@ const parseTableBlock = (lines: string[]): ParsedNote | null => {
   };
 };
 
-export const parseNotes = (notes: string): ParsedNote[] => {
+export const parseNotes = (
+  notes: string,
+  images?: InlineImageRef[],
+): ParsedNote[] => {
   const headerRegexp = /^\[.*\]$/;
 
   const allLines = notes.split(lineSplitRegex);
@@ -991,7 +1072,7 @@ export const parseNotes = (notes: string): ParsedNote[] => {
         j++;
       }
 
-      const table = parseTableBlock(tableLines);
+      const table = parseTableBlock(tableLines, images);
       if (table) {
         result.push(table);
         i = j;
@@ -1008,12 +1089,13 @@ export const parseNotes = (notes: string): ParsedNote[] => {
       const content = convertEscapedLineContinuations(headerContent, false);
       result.push({
         content,
-        plaintextContent: stripInlineFormatting(content),
-        htmlContent: applyInlineFormatting(
+        plaintextContent: stripInlineFormatting(stripImageTokens(content)),
+        htmlContent: applyInlineFormattingWithImages(
           convertEscapedLineContinuations(
             `<b class="sectionHeader">${headerContent}</b>`,
             true,
           ),
+          images,
         ),
         isHeader: true,
         isTable: false,
@@ -1023,9 +1105,10 @@ export const parseNotes = (notes: string): ParsedNote[] => {
       const content = convertEscapedLineContinuations(plainLine, false);
       result.push({
         content,
-        plaintextContent: stripInlineFormatting(content),
-        htmlContent: applyInlineFormatting(
+        plaintextContent: stripInlineFormatting(stripImageTokens(content)),
+        htmlContent: applyInlineFormattingWithImages(
           convertEscapedLineContinuations(plainLine, true),
+          images,
         ),
         isHeader: false,
         isTable: false,
