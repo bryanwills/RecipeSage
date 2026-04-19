@@ -91,7 +91,7 @@ const stripNewlines = (text: string): string => {
 };
 
 /**
- * Section header — a line that starts with [ and ends with ].
+ * Section header: a line that starts with [ and ends with ].
  * Used to group ingredients/instructions under subsections.
  */
 const headerRegexp = /^\[.*\]$/;
@@ -316,8 +316,8 @@ const tryUnitzSwitch = (
  *
  * Returns the full "value unit" string, or null when:
  *  - unitz-ts cannot parse the measurement (e.g. "3 eggs", "1 can")
- *  - the original unit's group has no system (System.ANY / System.NONE — cans,
- *    pinches, time, digital, angle), so there is nothing to convert to
+ *  - the original unit's group has no system (System.ANY / System.NONE, like
+ *    cans, pinches, time, digital, angle), so there is nothing to convert to
  *  - the original is already in the target system (caller preserves the user's
  *    exact notation via the normal scale-only pipeline)
  *  - unitz-ts cannot produce a valid output in the target system
@@ -450,7 +450,7 @@ const extractBracesForIngredientLine = (
   const withPlaceholders = lineText.replace(
     /\{([^{}]+)\}/g,
     (match, content) => {
-      // Replace every brace — not just measurements — with a sentinel so
+      // Replace every brace (not just measurements) with a sentinel so
       // the main measurement regex cannot scale digits that happen to sit
       // inside a non-measurement brace like `{.5 cup}` or `{note}`.
       const plain = scaleBraceContent(

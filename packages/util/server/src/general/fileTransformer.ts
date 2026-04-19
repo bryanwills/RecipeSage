@@ -10,7 +10,7 @@ export class FileTransformError extends Error {
   }
 }
 
-// HEIC/HEIF ftyp brands that require HEVC decoding — Sharp's prebuilt libvips
+// HEIC/HEIF ftyp brands that require HEVC decoding. Sharp's prebuilt libvips
 // has HEVC disabled (patent licensing), so we route these through heic-decode.
 const HEIC_BRANDS = new Set([
   "heic",
