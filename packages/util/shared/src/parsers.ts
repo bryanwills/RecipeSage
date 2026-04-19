@@ -81,7 +81,7 @@ export interface InlineImageRef {
 }
 
 const imageTokenRegex =
-  /!\[\s*image\s*:\s*(\d+)\s*(?::\s*([a-z]+)\s*)?(?:\|\s*([^\]]+?))?\s*\]/gi;
+  /!\[\s*image\s*:\s*(\d+)\s*(?::\s*([a-z]+)\s*)?(?:\|([^\]]+))?\]/gi;
 
 const INLINE_IMAGE_SIZE_MODIFIERS = new Set([
   "small",
