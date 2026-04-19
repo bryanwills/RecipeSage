@@ -62,6 +62,7 @@ export class HomePage {
   private utilService = inject(UtilService);
 
   defaultBackHref: string = RouteMap.PeoplePage.getPath();
+  aboutHref: string = RouteMap.AboutPage.getPath();
   showBack: boolean = false;
 
   labels: LabelSummary[] = [];

@@ -16,6 +16,7 @@ export class ContributeCancelPage {
   private capabilitiesService = inject(CapabilitiesService);
 
   defaultBackHref: string = RouteMap.AboutPage.getPath();
+  aboutHref: string = RouteMap.AboutPage.getPath();
   contributePath: string = RouteMap.ContributePage.getPath();
 
   constructor() {

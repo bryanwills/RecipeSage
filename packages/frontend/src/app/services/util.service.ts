@@ -567,7 +567,7 @@ export class UtilService {
     event?: MouseEvent | KeyboardEvent,
   ) {
     if (event && (event.metaKey || event.ctrlKey)) {
-      window.open(`#/recipe/${recipeId}`);
+      window.open(`#${RouteMap.RecipePage.getPath(recipeId)}`);
       return;
     }
     navCtrl.navigateForward(RouteMap.RecipePage.getPath(recipeId));

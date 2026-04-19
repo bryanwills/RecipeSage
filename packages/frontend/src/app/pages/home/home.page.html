@@ -383,7 +383,10 @@
               !ratingFilter.length
             ) {
               <null-state>
-                <logo-icon href="/#/about" virtualSlot="header"></logo-icon>
+                <logo-icon
+                  [routerLink]="aboutHref"
+                  virtualSlot="header"
+                ></logo-icon>
                 <ion-label virtualSlot="body">
                   <h2>
                     {{ "pages.home.errors.emptyCollection.title" | translate }}
@@ -403,7 +406,10 @@
               !ratingFilter.length
             ) {
               <null-state>
-                <logo-icon href="/#/about" virtualSlot="header"></logo-icon>
+                <logo-icon
+                  [routerLink]="aboutHref"
+                  virtualSlot="header"
+                ></logo-icon>
                 <ion-label virtualSlot="body">
                   <h2>{{ "pages.home.errors.noRecipes.title" | translate }}</h2>
                   <br /><br />
