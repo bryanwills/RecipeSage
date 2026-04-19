@@ -74,9 +74,7 @@ export class ShareModalPage {
     setTimeout(() => {
       this.recipeURL =
         `${window.location.protocol}//${window.location.host}` +
-        `/#/recipe/${this.recipe.id}?version=${
-          (window as any).version
-        }&usp=sharing`;
+        `/api/share/recipe/${this.recipe.id}`;
 
       this.loadThreads().then(
         () => {},
