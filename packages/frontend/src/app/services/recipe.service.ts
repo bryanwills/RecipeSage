@@ -196,7 +196,12 @@ export class RecipeService {
     return parseInstructions(instructions, scale, targetSystem, images);
   }
 
-  parseNotes(notes: string, images?: { url: string }[]): ParsedNote[] {
-    return parseNotes(notes, images);
+  parseNotes(
+    notes: string,
+    scale: number,
+    targetSystem?: System,
+    images?: { url: string }[],
+  ): ParsedNote[] {
+    return parseNotes(notes, scale, targetSystem, images);
   }
 }

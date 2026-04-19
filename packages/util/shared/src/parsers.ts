@@ -984,18 +984,20 @@ export const parseTableCells = (row: string): string[] => {
 };
 
 const parseTableBlock = (
-  lines: string[],
+  plainLines: string[],
+  htmlLines: string[],
   images?: InlineImageRef[],
 ): ParsedNote | null => {
-  if (lines.length < 2) return null;
+  if (plainLines.length < 2) return null;
 
-  const hasSeparator = tableSeparatorRegexp.test(lines[1].trim());
+  const hasSeparator = tableSeparatorRegexp.test(plainLines[1].trim());
   if (!hasSeparator) return null;
 
-  const headerCells = parseTableCells(lines[0].trim());
-  const separatorCells = parseTableCells(lines[1].trim());
+  const plainHeaderCells = parseTableCells(plainLines[0].trim());
+  const htmlHeaderCells = parseTableCells(htmlLines[0].trim());
+  const separatorCells = parseTableCells(plainLines[1].trim());
 
-  if (headerCells.length !== separatorCells.length) return null;
+  if (plainHeaderCells.length !== separatorCells.length) return null;
 
   const alignments = separatorCells.map((sep) => {
     const left = sep.startsWith(":");
@@ -1005,28 +1007,29 @@ const parseTableBlock = (
     return "left";
   });
 
-  const bodyLines = lines.slice(2);
+  const plainBodyLines = plainLines.slice(2);
+  const htmlBodyLines = htmlLines.slice(2);
 
   let htmlContent = '<table class="noteTable">';
   htmlContent += "<thead><tr>";
-  for (let i = 0; i < headerCells.length; i++) {
+  for (let i = 0; i < htmlHeaderCells.length; i++) {
     const align =
       alignments[i] !== "left" ? ` style="text-align:${alignments[i]}"` : "";
-    htmlContent += `<th${align}>${applyInlineFormattingWithImages(headerCells[i], images)}</th>`;
+    htmlContent += `<th${align}>${applyInlineFormattingWithImages(htmlHeaderCells[i], images)}</th>`;
   }
   htmlContent += "</tr></thead>";
 
-  if (bodyLines.length > 0) {
+  if (plainBodyLines.length > 0) {
     htmlContent += "<tbody>";
-    for (const line of bodyLines) {
-      const cells = parseTableCells(line.trim());
+    for (let row = 0; row < plainBodyLines.length; row++) {
+      const htmlCells = parseTableCells(htmlBodyLines[row].trim());
       htmlContent += "<tr>";
-      for (let i = 0; i < headerCells.length; i++) {
+      for (let i = 0; i < plainHeaderCells.length; i++) {
         const align =
           alignments[i] !== "left"
             ? ` style="text-align:${alignments[i]}"`
             : "";
-        htmlContent += `<td${align}>${applyInlineFormattingWithImages(cells[i] ?? "", images)}</td>`;
+        htmlContent += `<td${align}>${applyInlineFormattingWithImages(htmlCells[i] ?? "", images)}</td>`;
       }
       htmlContent += "</tr>";
     }
@@ -1035,7 +1038,7 @@ const parseTableBlock = (
 
   htmlContent += "</table>";
 
-  const content = lines.join("\n");
+  const content = plainLines.join("\n");
 
   return {
     content,
@@ -1049,30 +1052,55 @@ const parseTableBlock = (
 
 export const parseNotes = (
   notes: string,
+  scale = 1,
+  targetSystem?: System,
   images?: InlineImageRef[],
 ): ParsedNote[] => {
+  notes = replaceFractionsInText(notes);
+
+  const plainNotes = scaleBracesInText(
+    notes,
+    scale,
+    false,
+    "noteMeasurement",
+    targetSystem,
+  );
+  const htmlNotes = scaleBracesInText(
+    notes,
+    scale,
+    true,
+    "noteMeasurement",
+    targetSystem,
+  );
+
   const headerRegexp = /^\[.*\]$/;
 
-  const allLines = notes.split(lineSplitRegex);
+  const plainLines = plainNotes.split(lineSplitRegex);
+  const htmlLines = htmlNotes.split(lineSplitRegex);
   const result: ParsedNote[] = [];
 
   let i = 0;
-  while (i < allLines.length) {
-    const trimmedLine = allLines[i].trim();
+  while (i < plainLines.length) {
+    const trimmedPlainLine = plainLines[i].trim();
 
     if (
-      tableRowRegexp.test(trimmedLine) &&
-      i + 1 < allLines.length &&
-      tableSeparatorRegexp.test(allLines[i + 1].trim())
+      tableRowRegexp.test(trimmedPlainLine) &&
+      i + 1 < plainLines.length &&
+      tableSeparatorRegexp.test(plainLines[i + 1].trim())
     ) {
-      const tableLines: string[] = [allLines[i]];
+      const tablePlainLines: string[] = [plainLines[i]];
+      const tableHtmlLines: string[] = [htmlLines[i]];
       let j = i + 1;
-      while (j < allLines.length && tableRowRegexp.test(allLines[j].trim())) {
-        tableLines.push(allLines[j]);
+      while (
+        j < plainLines.length &&
+        tableRowRegexp.test(plainLines[j].trim())
+      ) {
+        tablePlainLines.push(plainLines[j]);
+        tableHtmlLines.push(htmlLines[j]);
         j++;
       }
 
-      const table = parseTableBlock(tableLines, images);
+      const table = parseTableBlock(tablePlainLines, tableHtmlLines, images);
       if (table) {
         result.push(table);
         i = j;
@@ -1080,26 +1108,31 @@ export const parseNotes = (
       }
     }
 
-    const plainLine = trimmedLine;
+    const plainLine = trimmedPlainLine;
+    const htmlLine = htmlLines[i].trim();
     const headerMatches = plainLine.match(headerRegexp);
 
     if (headerMatches && headerMatches.length > 0) {
-      const headerContent = plainLine.substring(1, plainLine.length - 1);
+      const plainHeaderContent = plainLine.substring(1, plainLine.length - 1);
+      const htmlHeaderContent = htmlLine.substring(1, htmlLine.length - 1);
 
-      const content = convertEscapedLineContinuations(headerContent, false);
+      const content = convertEscapedLineContinuations(
+        plainHeaderContent,
+        false,
+      );
       result.push({
         content,
         plaintextContent: stripInlineFormatting(stripImageTokens(content)),
         htmlContent: applyInlineFormattingWithImages(
           convertEscapedLineContinuations(
-            `<b class="sectionHeader">${headerContent}</b>`,
+            `<b class="sectionHeader">${htmlHeaderContent}</b>`,
             true,
           ),
           images,
         ),
         isHeader: true,
         isTable: false,
-        isRtl: isRtlText(headerContent),
+        isRtl: isRtlText(plainHeaderContent),
       });
     } else {
       const content = convertEscapedLineContinuations(plainLine, false);
@@ -1107,7 +1140,7 @@ export const parseNotes = (
         content,
         plaintextContent: stripInlineFormatting(stripImageTokens(content)),
         htmlContent: applyInlineFormattingWithImages(
-          convertEscapedLineContinuations(plainLine, true),
+          convertEscapedLineContinuations(htmlLine, true),
           images,
         ),
         isHeader: false,
