@@ -293,8 +293,10 @@
   "pages.contact.title": "Contact Me",
   "pages.contact.subtitle": "Contact Info",
   "pages.contact.pleaseUserGuide": "For any questions, please refer to the user guide:",
-  "pages.contact.discord": "For any issues, bugs, or feature suggestions, please contact me via our Discord: ",
+  "pages.contact.discord": "For any issues, bugs, or feature suggestions, you can reach out to me via our Discord: ",
   "pages.contact.discord.link": "Discord Link",
+  "pages.contact.github": "While Discord is preferred, you can also report things directly on GitHub (slower response time): ",
+  "pages.contact.github.link": "GitHub Link",
 
   "pages.contact.socialTitle": "Social Media",
 
