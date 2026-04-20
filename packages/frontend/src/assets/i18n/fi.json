@@ -470,7 +470,6 @@
     "pages.assistant.welcome.3": "Kokkausassistentille voit lähettää enintään 5 viestiä/päivä, sillä tekoälymallin kulut ovat korkeat. Tämä rajoitus ei koske tukijoita.",
     "pages.assistant.welcome.4": "Tämä rajoitus koskettaa vain sinun lähettämiäsi viestejä, ei tekoälymallin vastauksia.",
     "pages.assistant.welcome.documentation": "Ole hyvä ja lue assistentin dokumentaatio",
-    "pages.assistant.messageLimit": "Viestien enimmäismäärä saavutettu (pahoittelut, tämä ominaisuus on kallis ylläpitää). Viestien laskuri nollautuu klo 0:00 GMT. Harkitse tukemista, mikäli haluat käyttää assistenttia rajattomasti.",
     "pages.assistant.messageSize": "Viestisi on liian pitkä. Ole hyvä ja lyhennä viestiä.",
     "pages.messageThread.tabTitle": "Keskustelu - RecipeSage",
     "pages.messageThread.title": "Keskustelu henkilön {{name}} kanssa",

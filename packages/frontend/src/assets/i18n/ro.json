@@ -428,7 +428,6 @@
     "pages.assistant.welcome.1": "Bun venit la Ajutorul în Bucătărie al RecipeSage!",
     "pages.assistant.welcome.4": "Limita se aplică doar mesajelor trimise de tine, și nu răspunsurilor AI.",
     "pages.assistant.welcome.documentation": "Citește documentația Ajutorului",
-    "pages.assistant.messageLimit": "Numărul maxim de mesaje a fost atins (ne pare rău, este costisitor!). Numărul de mesaje se resetează la 0:00 GMT. Pentru mesaje nelimitate, te invit să donezi pentru susținere.",
     "pages.assistant.messageSize": "Mesajul este prea lung. Scrie un mesaj mai scurt.",
     "pages.messageThread.title": "Conversație cu {{name}}",
     "pages.messageThread.clickToOpen": "Apasă pentru a deschide",

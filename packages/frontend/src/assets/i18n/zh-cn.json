@@ -428,7 +428,6 @@
     "pages.mealPlanPopover.actions.pinRecipesOpen": "置顶食谱",
     "pages.newMealPlanItemModal.inputType.recipe": "选择食谱",
     "pages.assistant.welcome.documentation": "请阅读烹饪助手的帮助文档",
-    "pages.assistant.messageLimit": "超过最大信息数量(实在不好意思,因为高昂的成本).限制将会被在0:00GMT时间重置.",
     "pages.messageThread.title": "与{{name}}对话",
     "pages.messageThread.clickToOpen": "点击打开",
     "pages.messageThread.recipeDeleted": "已删除食谱",
