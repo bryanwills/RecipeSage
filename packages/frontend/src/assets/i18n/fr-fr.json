@@ -394,7 +394,7 @@
     "pages.homeSearchFilterPopover.optionsHidden": "Remarque : certaines options sont masquées, car il s'agit d'une collection partagée",
     "pages.homepopover.options.showImages": "Afficher les images",
     "pages.homepopover.options.unselectAllRecipes": "Désélectionner toutes les recettes",
-    "pages.recipeDetails.scaleStatus": "Échelle de {{scale}}x (cliquez pour changer)",
+    "pages.recipeDetails.scaleStatus": "Rapport de portions {{scale}}x (cliquer pour changer)",
     "pages.recipeDetails.requiresAccountToSave": "Créez un compte ou connectez-vous pour enregistrer cette recette dans votre collection.",
     "pages.recipeDetailsPopover.addToShoppingList": "Ajouter à la liste d'achats",
     "pages.recipeDetailsPopover.delete": "Supprimer la recette",
