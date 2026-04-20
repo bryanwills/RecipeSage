@@ -1081,5 +1081,7 @@
     "generic.ok": "De acuerdo",
     "generic.submit": "Enviar",
     "generic.labeledPageTitle": "{{title}} - RecipeSage",
-    "pages.shoppingList.category.grocery": "Comestibles"
+    "pages.shoppingList.category.grocery": "Comestibles",
+    "pages.homepopover.options.sortBy.lastMadeNewest": "Última añadida (más recientes primero)",
+    "pages.homepopover.options.sortBy.lastMadeOldest": "Última añadida (más antiguas primero)"
 }
