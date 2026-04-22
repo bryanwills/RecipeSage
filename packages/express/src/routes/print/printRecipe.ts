@@ -106,6 +106,8 @@ export const printRecipeHandler = defineHandler(
         ),
         notes: parseNotes(
           sanitizeRemoveHtmlFromString(sorted.notes),
+          scale,
+          undefined,
           inlineImageRefs,
         ),
       },

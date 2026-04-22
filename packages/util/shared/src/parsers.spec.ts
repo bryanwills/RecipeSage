@@ -1530,11 +1530,85 @@ describe("parsers", () => {
       });
     });
 
+    describe("scaling with curly braces", () => {
+      it("scales numbers in curly braces", () => {
+        const result = parseNotes("Use {2} cups broth", 2);
+        expect(result[0].content).toBe("Use 4 cups broth");
+      });
+
+      it("scales fractions in curly braces", () => {
+        const result = parseNotes("Use {1/2} cup milk", 2);
+        expect(result[0].content).toBe("Use 1 cup milk");
+      });
+
+      it("wraps scaled measurements in bold tags for html", () => {
+        const result = parseNotes("Use {2} cups broth", 2);
+        expect(result[0].htmlContent).toContain(
+          '<b class="noteMeasurement">4</b>',
+        );
+      });
+
+      it("leaves non-numeric curly braces unchanged", () => {
+        const result = parseNotes("Use {variable} to mix", 1);
+        expect(result[0].content).toBe("Use {variable} to mix");
+      });
+
+      it("scales {number unit} as a measurement", () => {
+        const result = parseNotes("Use {2 cups} broth", 1 / 2);
+        expect(result[0].content).toBe("Use 1 cups broth");
+      });
+
+      it("wraps full number+unit result in bold tag for html", () => {
+        const result = parseNotes("Use {2 cups} broth", 2);
+        expect(result[0].htmlContent).toContain(
+          '<b class="noteMeasurement">4 cups</b>',
+        );
+      });
+
+      it("scales unicode fraction inside brace", () => {
+        const result = parseNotes("Use {½ cup} sugar", 2);
+        expect(result[0].content).toBe("Use 1 cup sugar");
+      });
+
+      it("defaults scale to 1 when not provided", () => {
+        const result = parseNotes("Use {2 cups} broth");
+        expect(result[0].content).toBe("Use 2 cups broth");
+      });
+
+      it("scales braces inside table cells", () => {
+        const result = parseNotes(
+          "| Name | Amount |\n| --- | --- |\n| Broth | {2 cups} |",
+          2,
+        );
+        expect(result[0].isTable).toBe(true);
+        expect(result[0].htmlContent).toContain(
+          '<td><b class="noteMeasurement">4 cups</b></td>',
+        );
+        expect(result[0].content).toContain("| Broth | 4 cups |");
+      });
+
+      it("scales braces inside header notes", () => {
+        const result = parseNotes("[Use {2 cups} broth]", 2);
+        expect(result[0].isHeader).toBe(true);
+        expect(result[0].content).toBe("Use 4 cups broth");
+        expect(result[0].htmlContent).toContain(
+          '<b class="noteMeasurement">4 cups</b>',
+        );
+      });
+
+      it("converts brace measurement to metric", () => {
+        const result = parseNotes("Use {2 cups} broth", 1, System.METRIC)[0]
+          .content;
+        expect(result).toMatch(/\b(ml|l|cl|dl)\b/);
+        expect(result).not.toContain("cup");
+      });
+    });
+
     describe("image references", () => {
       const images = [{ url: "https://cdn.example/img-one.jpg" }];
 
       it("renders a figure inside a note", () => {
-        const result = parseNotes("See ![image:1|here]", images);
+        const result = parseNotes("See ![image:1|here]", 1, undefined, images);
         expect(result[0].htmlContent).toBe(
           'See <figure class="inlineImage"><img src="https://cdn.example/img-one.jpg" alt="here"><figcaption>here</figcaption></figure>',
         );
@@ -1546,17 +1620,27 @@ describe("parsers", () => {
       });
 
       it("strips tokens from plaintextContent", () => {
-        const result = parseNotes("See ![image:1|alt text]", images);
+        const result = parseNotes(
+          "See ![image:1|alt text]",
+          1,
+          undefined,
+          images,
+        );
         expect(result[0].plaintextContent).toBe("See alt text");
       });
 
       it("preserves raw tokens in content", () => {
-        const result = parseNotes("See ![image:1|cap]", images);
+        const result = parseNotes("See ![image:1|cap]", 1, undefined, images);
         expect(result[0].content).toBe("See ![image:1|cap]");
       });
 
       it("renders tokens inside table cells", () => {
-        const result = parseNotes("| col |\n| --- |\n| ![image:1] |", images);
+        const result = parseNotes(
+          "| col |\n| --- |\n| ![image:1] |",
+          1,
+          undefined,
+          images,
+        );
         expect(result[0].isTable).toBe(true);
         expect(result[0].htmlContent).toContain(
           '<figure class="inlineImage"><img src="https://cdn.example/img-one.jpg" alt="Image 1"></figure>',

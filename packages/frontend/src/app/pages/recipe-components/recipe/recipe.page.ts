@@ -217,15 +217,6 @@ export class RecipePage {
       this.recipe.url = "http://" + this.recipe.url.trim();
     }
 
-    if (this.recipe.notes && this.recipe.notes.length > 0) {
-      this.notes = this.recipeService
-        .parseNotes(this.recipe.notes, this.getInlineImageRefs())
-        .map((note) => ({
-          ...note,
-          htmlContent: linkifyHtml(note.htmlContent),
-        }));
-    }
-
     const groupIdsSet = new Set<string>();
     for (const recipeLabel of this.recipe.recipeLabels) {
       const labelGroup = recipeLabel.label.labelGroup;
@@ -422,6 +413,19 @@ export class RecipePage {
       targetSystem,
       this.getInlineImageRefs(),
     );
+    if (this.recipe.notes && this.recipe.notes.length > 0) {
+      this.notes = this.recipeService
+        .parseNotes(
+          this.recipe.notes,
+          this.scale,
+          targetSystem,
+          this.getInlineImageRefs(),
+        )
+        .map((note) => ({
+          ...note,
+          htmlContent: linkifyHtml(note.htmlContent),
+        }));
+    }
   }
 
   private getInlineImageRefs(): { url: string }[] {
