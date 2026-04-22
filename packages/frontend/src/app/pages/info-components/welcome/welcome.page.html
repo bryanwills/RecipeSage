@@ -62,11 +62,14 @@
 
     <div class="screen">
       <video
-        width="100%"
+        width="400"
+        height="712"
         controls
         loop
         preload="none"
         muted
+        playsinline
+        aria-label="RecipeSage auto-import demo"
         poster="https://static.recipesage.com/assets/{{
           isIOS ? 'ios' : 'android'
         }}-autoimport-demo.png"
@@ -81,23 +84,17 @@
     </div>
 
     <div class="ion-padding welcomeContent">
-      <span class="sectionHeader">{{
-        "pages.welcome.description.welcome" | translate
-      }}</span
-      ><br />
+      <h2 class="sectionHeader">
+        {{ "pages.welcome.description.welcome" | translate }}
+      </h2>
 
-      <br />
+      <p>{{ "pages.welcome.description.1" | translate }}</p>
 
-      {{ "pages.welcome.description.1" | translate }}<br /><br />
+      <p>{{ "pages.welcome.description.2" | translate }}</p>
 
-      {{ "pages.welcome.description.2" | translate }}
-
-      <br /><br /><br />
-
-      <span class="sectionHeader">{{
-        "pages.welcome.description.features" | translate
-      }}</span
-      ><br />
+      <h2 class="sectionHeader">
+        {{ "pages.welcome.description.features" | translate }}
+      </h2>
 
       <ul>
         <li>
@@ -132,12 +129,23 @@
           <b>{{ "pages.welcome.description.features.8.title" | translate }}</b>
           {{ "pages.welcome.description.features.8.description" | translate }}
         </li>
+        <li>
+          <b>{{ "pages.welcome.description.features.9.title" | translate }}</b>
+          {{ "pages.welcome.description.features.9.description" | translate }}
+        </li>
+        <li>
+          <b>{{ "pages.welcome.description.features.10.title" | translate }}</b>
+          {{ "pages.welcome.description.features.10.description" | translate }}
+        </li>
+        <li>
+          <b>{{ "pages.welcome.description.features.11.title" | translate }}</b>
+          {{ "pages.welcome.description.features.11.description" | translate }}
+        </li>
       </ul>
 
-      <span class="sectionHeader">{{
-        "pages.welcome.description.cta" | translate
-      }}</span
-      ><br />
+      <h2 class="sectionHeader">
+        {{ "pages.welcome.description.cta" | translate }}
+      </h2>
 
       <ul>
         <li>{{ "pages.welcome.description.cta.1" | translate }}</li>

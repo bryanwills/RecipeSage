@@ -9,13 +9,18 @@ Share and collaborate on recipes, manage household shopping lists and meal plann
 ## :fork_and_knife: What can RecipeSage do?
 
 - **Import from any URL, Image, PDF, or Text**: Create recipes quickly and automatically from pretty much any source
+- **Nutrition tracking**: Track calories, macros, vitamins, and minerals per serving, with auto-fill by pasting a nutrition label
+- **Cooking assistant**: Ask the built-in AI cooking assistant for substitutions, techniques, conversions, and recipe ideas
+- **Works offline**: Your recipe collection stays searchable even without internet, and syncs automatically across all of your devices
+- **Drag and drop meal planning**: Schedule your meals interactively, print the plan, and collaborate with family
+- **Smart shopping lists**: Automatically categorized and intelligently grouped - add your recipes directly to a shopping list and similar items will be combined
+- **Recipe scaling and unit conversion**: Scale recipes up or down and convert between metric and imperial units, including within instructions
 - **Powerful search**: Search every field within your recipes including misspellings and similar words
 - **Labelling/categorization system**: Tag your recipes and filter by tags
-- **Drag and drop meal planning**: Schedule your meals interactively, quickly and easily
-- **Shopping lists**: Automatically categorized and intelligently grouped - add your recipes directly to a shopping list and similar items will be combined
+- **Rich text in ingredients, instructions, and notes**: Bold, italic, underline, tables, and embedded images
 - **Sharing and public profiles**: Share your recipe collection and collaborate on meal plans/shopping lists with your family or friends
-- **Import**: Supports JSON-LD, Pepperplate, Living Cookbook, Paprika, Cookmate, and Recipe Keeper as import formats
-- **Export**: Back up your recipes in multiple formats for data portability
+- **Import**: Supports JSON-LD, Pepperplate, Living Cookbook, Paprika, Cookmate, Recipe Keeper, CopyMeThat, Evernote, and CSV as import formats
+- **Export**: Back up your recipes to PDF, JSON-LD, or text for data portability
 - **Dark mode**: Never blind yourself at night again! _(or leave dark mode enabled all the time like I do)_
 
 You can access the hosted version of RecipeSage here: https://recipesage.com

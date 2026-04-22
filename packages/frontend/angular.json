@@ -63,6 +63,22 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
+              "assets": [
+                "src/manifest.json",
+                "src/service-worker.js",
+                "src/robots.txt",
+                "src/sitemap.xml",
+                {
+                  "glob": "**/*",
+                  "input": "src/assets",
+                  "output": "assets"
+                },
+                {
+                  "glob": "**/*.svg",
+                  "input": "../../node_modules/ionicons/dist/ionicons/svg",
+                  "output": "./svg"
+                }
+              ],
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": {
@@ -84,6 +100,10 @@
               ]
             },
             "selfhost": {
+              "index": {
+                "input": "src/index.selfhost.html",
+                "output": "index.html"
+              },
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
