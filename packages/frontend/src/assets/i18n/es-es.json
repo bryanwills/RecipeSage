@@ -406,7 +406,6 @@
     "pages.assistant.welcome.1": "¡Bienvenido al asistente de cocina RecipeSage!",
     "pages.assistant.welcome.2": "El asistente de cocina es un modelo de IA que puede responder a tus preguntas sobre cocina y ayudarte a crear recetas.",
     "pages.assistant.welcome.3": "El asistente de cocina tiene un límite de 5 mensajes/día dado los elevados costes de funcionamiento de la IA. Este límite es eliminado para los contribuyentes.",
-    "pages.assistant.messageLimit": "Máximo de mensajes alcanzado (¡lo siento, es costoso!). El recuento de mensajes se reinicia a las 0:00 GMT. Considere contribuir para recibir mensajes de asistente ilimitados.",
     "pages.messageThread.title": "Conversación con {{name}}",
     "pages.messageThread.clickToOpen": "Haga clic para abrir",
     "pages.messageThread.recipeDeleted": "Receta eliminada",
@@ -1081,5 +1080,7 @@
     "generic.ok": "De acuerdo",
     "generic.submit": "Enviar",
     "generic.labeledPageTitle": "{{title}} - RecipeSage",
-    "pages.shoppingList.category.grocery": "Comestibles"
+    "pages.shoppingList.category.grocery": "Comestibles",
+    "pages.homepopover.options.sortBy.lastMadeNewest": "Última añadida (más recientes primero)",
+    "pages.homepopover.options.sortBy.lastMadeOldest": "Última añadida (más antiguas primero)"
 }

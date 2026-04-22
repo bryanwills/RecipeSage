@@ -430,7 +430,6 @@
     "pages.assistant.title": "Assistent til madlavning",
     "pages.assistant.welcome.1": "Velkommen til RecipeSages madlavningsassistent!",
     "pages.assistant.welcome.2": "Madlavningsassistenten er en AI-model, der kan svare på dine spørgsmål om madlavning og hjælpe med at kreere opskrifter.",
-    "pages.assistant.messageLimit": "Maksimalt antal beskeder nået (desværre, det er dyrt!). Antallet af beskeder nulstilles kl. 00:00 GMT. Overvej at bidrage for at få ubegrænset assistentbeskeder.",
     "pages.messageThread.title": "Samtale med {{name}}",
     "pages.messageThread.clickToOpen": "Klik for at åbne",
     "pages.messageThread.recipeDeleted": "Opskrift slettet",

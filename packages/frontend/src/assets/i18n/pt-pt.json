@@ -457,7 +457,6 @@
     "pages.assistant.title": "Assistente de Cozinha",
     "pages.assistant.welcome.1": "Bem-vindo ao assistente de cozinha do RecipeSage!",
     "pages.assistant.welcome.3": "O assistente de cozinha tem um limite de 5 mensagens/dia devido aos elevados custos de funcionamento da IA. Este limite é aumentado para 50 mensagens/dia para os contribuintes.",
-    "pages.assistant.messageLimit": "Máximo de mensagens atingido (desculpe, é dispendioso!). A contagem de mensagens é reiniciada às 0:00 GMT.",
     "pages.messageThread.title": "Conversa com {{name}}",
     "pages.messageThread.clickToOpen": "Clique para abrir",
     "pages.messageThread.recipeDeleted": "Receita eliminada",

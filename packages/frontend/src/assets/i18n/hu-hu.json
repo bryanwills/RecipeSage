@@ -354,7 +354,6 @@
     "pages.assistant.title": "Főzőasszisztens",
     "pages.assistant.welcome.1": "Üdvözöljük a RecipeSage főzőasszisztensében!",
     "pages.assistant.welcome.3": "A főzőasszisztensnek napi 5 üzenetküldési korlátja van az MI futtatásának magas költségei miatt. A közreműködők esetében ez a korlátozás nem létezik.",
-    "pages.assistant.messageLimit": "Elérte az üzenetek maximális számát (elnézést, ez költséges!). Az üzenetek száma visszaáll 0:00 GMT-kor. Fontolja meg a támogatást a korlátlan asszisztensüzenetekhez.",
     "pages.messageThread.title": "Beszélgetés a következővel: {{name}}",
     "pages.messageThread.clickToOpen": "Kattintson a megnyitáshoz",
     "pages.messageThread.recipeDeleted": "Recept törölve",
