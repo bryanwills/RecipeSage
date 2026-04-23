@@ -4,6 +4,7 @@ import {
   Output,
   EventEmitter,
   type OnChanges,
+  type OnInit,
   type SimpleChanges,
   inject,
 } from "@angular/core";
@@ -24,7 +25,7 @@ const LAST_USED_MEAL_VAR = "lastUsedMeal";
   styleUrls: ["./select-meal.component.scss"],
   imports: [...SHARED_UI_IMPORTS],
 })
-export class SelectMealComponent implements OnChanges {
+export class SelectMealComponent implements OnInit, OnChanges {
   private translate = inject(TranslateService);
 
   @Input() meal = "";
@@ -33,8 +34,13 @@ export class SelectMealComponent implements OnChanges {
 
   mealOptions: { title: string; key: string }[] = [];
 
+  ngOnInit() {
+    this.buildMealOptions();
+  }
+
   ngOnChanges(changes: SimpleChanges) {
-    if (changes["customMealOptions"] || changes["meal"]) {
+    const customMealOptionsChange = changes["customMealOptions"];
+    if (customMealOptionsChange && !customMealOptionsChange.firstChange) {
       this.buildMealOptions();
     }
   }
