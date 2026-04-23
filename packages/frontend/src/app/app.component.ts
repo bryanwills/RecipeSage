@@ -38,8 +38,6 @@ import { CookingToolbarComponent } from "./components/cooking-toolbar/cooking-to
 import { VersionCheckService } from "./services/versioncheck.service";
 import { DebugStoreService } from "./services/debugStore.service";
 
-const SW_UPDATE_CHECK_INTERVAL_MINUTES = 5;
-
 interface NavPage {
   id: string;
   title: string;
@@ -196,12 +194,6 @@ export class AppComponent {
     (window as any).appLoaded = true;
 
     (window as any).swRegistration?.update();
-    setInterval(
-      () => {
-        (window as any).swRegistration?.update();
-      },
-      SW_UPDATE_CHECK_INTERVAL_MINUTES * 60 * 1000,
-    );
   }
 
   initEventListeners() {
