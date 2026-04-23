@@ -1,0 +1,20 @@
+---
+import RootLayout from "../components/RootLayout.astro";
+import PricingContent from "../components/Pricing.astro";
+import { DEFAULT_LOCALE, makeTranslator } from "../i18n/translations";
+
+const locale = DEFAULT_LOCALE;
+const t = makeTranslator(locale);
+
+const title = t("pages.pricing.tabTitle");
+const description = t("pages.pricing.subtitle");
+---
+
+<RootLayout
+  locale={locale}
+  t={t}
+  title={title}
+  description={description}
+>
+  <PricingContent t={t} />
+</RootLayout>

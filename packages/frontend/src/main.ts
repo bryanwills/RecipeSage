@@ -14,7 +14,6 @@ import {
   provideRouter,
   Router,
   TitleStrategy,
-  withHashLocation,
   withPreloading,
 } from "@angular/router";
 import { IonicRouteStrategy, IonicModule } from "@ionic/angular";
@@ -26,7 +25,6 @@ import { appRoutes } from "./app/app.routes";
 import { provideTranslate } from "./app/providers/translate.provider";
 import { provideLoadingBar } from "./app/providers/loading-bar.provider";
 
-import { DefaultPageGuardService } from "./app/services/default-page-guard.service";
 import { UnsavedChangesGuardService } from "./app/services/unsaved-changes-guard.service";
 
 import { environment } from "./environments/environment";
@@ -42,11 +40,7 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
   providers: [
     provideZoneChangeDetection(),
-    provideRouter(
-      appRoutes,
-      withHashLocation(),
-      withPreloading(PreloadAllModules),
-    ),
+    provideRouter(appRoutes, withPreloading(PreloadAllModules)),
     { provide: TitleStrategy, useClass: CustomTitleStrategy },
     importProvidersFrom(IonicModule.forRoot()),
     provideTranslate(),
@@ -66,7 +60,6 @@ bootstrapApplication(AppComponent, {
       multi: true,
     },
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    DefaultPageGuardService,
     UnsavedChangesGuardService,
   ],
 }).catch((err) => {

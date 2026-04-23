@@ -101,8 +101,11 @@ jobs:
           name: docker-login
           command: echo "$DOCKER_PAT" | docker login --username $DOCKER_USER --password-stdin
       - run:
-          name: api-hosted.sh
-          command: ./scripts/build/api-hosted.sh ${CIRCLE_TAG:=stg}
+          name: build and push api
+          command: |
+            TAG=${CIRCLE_TAG:-stg}
+            docker build --build-arg VERSION=$TAG -f production.Dockerfile -t julianpoy/recipesage:api-$TAG .
+            docker push julianpoy/recipesage:api-$TAG
   push_backend_selfhost_amd64:
     resource_class: large
     docker:
@@ -123,8 +126,7 @@ jobs:
               --platform linux/amd64 \
               -f production.Dockerfile \
               --build-arg VERSION=${CIRCLE_TAG:=stg} \
-              -t julianpoy/recipesage-selfhost:api-${CIRCLE_TAG:=stg}-amd64 \
-              -t julianpoy/recipesage-selfhost:api-latest-amd64
+              -t julianpoy/recipesage-selfhost:api-${CIRCLE_TAG:=stg}-amd64
   push_backend_selfhost_arm64:
     resource_class: arm.large
     machine:
@@ -142,8 +144,7 @@ jobs:
               --platform linux/arm64/v8 \
               -f production.Dockerfile \
               --build-arg VERSION=${CIRCLE_TAG:=stg} \
-              -t julianpoy/recipesage-selfhost:api-${CIRCLE_TAG:=stg}-arm64 \
-              -t julianpoy/recipesage-selfhost:api-latest-arm64
+              -t julianpoy/recipesage-selfhost:api-${CIRCLE_TAG:=stg}-arm64
   push_backend_selfhost_manifest:
     docker:
       - image: cimg/base:stable
@@ -157,10 +158,6 @@ jobs:
             docker buildx imagetools create -t julianpoy/recipesage-selfhost:api-${CIRCLE_TAG:=stg} \
               julianpoy/recipesage-selfhost:api-${CIRCLE_TAG:=stg}-amd64 \
               julianpoy/recipesage-selfhost:api-${CIRCLE_TAG:=stg}-arm64
-
-            docker buildx imagetools create -t julianpoy/recipesage-selfhost:api-latest \
-              julianpoy/recipesage-selfhost:api-latest-amd64 \
-              julianpoy/recipesage-selfhost:api-latest-arm64
   push_frontend:
     resource_class: large
     docker:
@@ -184,24 +181,65 @@ jobs:
           name: set-frontend-version
           command: sed -i "s/window.version = \"development\";/window.version = \"${CIRCLE_TAG:=stg}\";/" www/index.html
       - run:
-          name: webapp-hosted.sh
-          command: ./scripts/build/webapp-hosted.sh ${CIRCLE_TAG:=stg}
-  push_frontend_selfhost:
+          name: upload frontend to s3
+          command: |
+            TAG=${CIRCLE_TAG:-stg}
+            mkdir -p www-revhashed
+            find www/ -regextype egrep -regex '.+\.[a-f0-9]{20}\..+' -exec mv -t www-revhashed/ -- {} +
+
+            aws s3 sync www s3://chefbook-static/frontend/$TAG/ \
+              --exclude "*" \
+              --include "index.html" \
+              --include "service-worker.js" \
+              --acl public-read \
+              --cache-control "public, max-age=3600, must-revalidate"
+
+            aws s3 sync www s3://chefbook-static/frontend/$TAG/ \
+              --exclude "index.html" \
+              --exclude "service-worker.js" \
+              --acl public-read \
+              --cache-control "public, max-age=604800, must-revalidate"
+
+            aws s3 sync www-revhashed s3://chefbook-static/frontend/$TAG/ \
+              --acl public-read \
+              --cache-control "public, max-age=2592000, immutable"
+  push_www:
     resource_class: large
     docker:
       - image: cimg/node:24.13
     steps:
       - checkout
       - aws-cli/setup
-      - setup_remote_docker:
-          version: docker24
-          docker_layer_caching: true
+      - install-dependencies
       - run:
-          name: docker-login
-          command: echo "$DOCKER_PAT" | docker login --username $DOCKER_USER --password-stdin
+          name: build-www
+          command: (export APP_VERSION=${CIRCLE_TAG:=stg} && npx nx build www --skip-nx-cache)
+          environment:
+            ENVIRONMENT: production
       - run:
-          name: setup buildx
-          command: ./scripts/circleci_buildx.sh
+          name: move-www-build
+          command: mv packages/www/dist ./www-dist
+      - run:
+          name: upload www to s3
+          command: |
+            TAG=${CIRCLE_TAG:-stg}
+
+            aws s3 sync www-dist s3://chefbook-static/www/$TAG/ \
+              --exclude "_astro/*" \
+              --acl public-read \
+              --cache-control "public, max-age=3600, must-revalidate"
+
+            if [ -d www-dist/_astro ]; then
+              aws s3 sync www-dist/_astro s3://chefbook-static/www/$TAG/_astro/ \
+                --acl public-read \
+                --cache-control "public, max-age=2592000, immutable"
+            fi
+  build_frontend_selfhost:
+    resource_class: large
+    docker:
+      - image: cimg/node:24.13
+    steps:
+      - checkout
       - install-dependencies
       - run:
           name: build-frontend
@@ -214,9 +252,66 @@ jobs:
       - run:
           name: set-frontend-version
           command: sed -i "s/window.version = \"development\";/window.version = \"${CIRCLE_TAG:=stg}\";/" www/index.html
+      - persist_to_workspace:
+          root: .
+          paths:
+            - www
+  push_frontend_selfhost_amd64:
+    resource_class: large
+    docker:
+      - image: cimg/node:24.13
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - setup_remote_docker:
+          version: docker24
+          docker_layer_caching: true
       - run:
-          name: webapp-selfhost.sh
-          command: ./scripts/build/webapp-selfhost.sh ${CIRCLE_TAG:=stg}
+          name: docker-login
+          command: echo "$DOCKER_PAT" | docker login --username $DOCKER_USER --password-stdin
+      - run:
+          name: build and push static amd64
+          command: |
+            docker buildx build . \
+              --push \
+              --platform linux/amd64 \
+              -f packages/frontend/selfhost.Dockerfile \
+              --build-arg VERSION=${CIRCLE_TAG:=stg} \
+              -t julianpoy/recipesage-selfhost:static-${CIRCLE_TAG:=stg}-amd64
+  push_frontend_selfhost_arm64:
+    resource_class: arm.large
+    machine:
+      image: ubuntu-2404:current
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: docker-login
+          command: echo "$DOCKER_PAT" | docker login --username $DOCKER_USER --password-stdin
+      - run:
+          name: build and push static arm64
+          command: |
+            docker buildx build . \
+              --push \
+              --platform linux/arm64/v8 \
+              -f packages/frontend/selfhost.Dockerfile \
+              --build-arg VERSION=${CIRCLE_TAG:=stg} \
+              -t julianpoy/recipesage-selfhost:static-${CIRCLE_TAG:=stg}-arm64
+  push_frontend_selfhost_manifest:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: docker-login
+          command: echo "$DOCKER_PAT" | docker login --username $DOCKER_USER --password-stdin
+      - run:
+          name: create and push static manifest
+          command: |
+            docker buildx imagetools create -t julianpoy/recipesage-selfhost:static-${CIRCLE_TAG:=stg} \
+              julianpoy/recipesage-selfhost:static-${CIRCLE_TAG:=stg}-amd64 \
+              julianpoy/recipesage-selfhost:static-${CIRCLE_TAG:=stg}-arm64
 
 workflows:
   version: 2
@@ -272,9 +367,45 @@ workflows:
               only: /^v[0-9]+(\.[0-9]+)*.*/
             branches:
               ignore: /.*/
-      - push_frontend_selfhost:
+      - push_www:
           requires:
             - build_and_test
+          filters:
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*.*/
+            branches:
+              ignore: /.*/
+      - build_frontend_selfhost:
+          requires:
+            - build_and_test
+          filters:
+            tags:
+              # We do not publish -beta versions for selfhost
+              only: /^v[0-9]+(\.[0-9]+)*/
+            branches:
+              ignore: /.*/
+      - push_frontend_selfhost_amd64:
+          requires:
+            - build_frontend_selfhost
+          filters:
+            tags:
+              # We do not publish -beta versions for selfhost
+              only: /^v[0-9]+(\.[0-9]+)*/
+            branches:
+              ignore: /.*/
+      - push_frontend_selfhost_arm64:
+          requires:
+            - build_frontend_selfhost
+          filters:
+            tags:
+              # We do not publish -beta versions for selfhost
+              only: /^v[0-9]+(\.[0-9]+)*/
+            branches:
+              ignore: /.*/
+      - push_frontend_selfhost_manifest:
+          requires:
+            - push_frontend_selfhost_amd64
+            - push_frontend_selfhost_arm64
           filters:
             tags:
               # We do not publish -beta versions for selfhost

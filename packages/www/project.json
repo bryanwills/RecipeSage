@@ -1,0 +1,44 @@
+{
+  "name": "www",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/www/src",
+  "projectType": "application",
+  "implicitDependencies": ["frontend"],
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/www",
+        "command": "npx astro dev --host 0.0.0.0 --port 4321"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/www",
+        "command": "npx astro build"
+      }
+    },
+    "preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/www",
+        "command": "npx astro preview --host 0.0.0.0 --port 4321"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/www",
+        "command": "npx astro check --minimumFailingSeverity hint"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "maxWarnings": 0,
+        "lintFilePatterns": ["packages/www/src"]
+      }
+    }
+  }
+}

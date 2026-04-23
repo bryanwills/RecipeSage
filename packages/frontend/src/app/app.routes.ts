@@ -1,20 +1,34 @@
+import { inject } from "@angular/core";
 import { Routes } from "@angular/router";
+import { GlobalPreferenceKey, StartPageOptions } from "@recipesage/util/shared";
 
-import { RouteMap } from "./services/util.service";
-import { DefaultPageGuardService } from "./services/default-page-guard.service";
+import { AuthType, RouteMap, UtilService } from "./services/util.service";
+import { PreferencesService } from "./services/preferences.service";
 import { UnsavedChangesGuardService } from "./services/unsaved-changes-guard.service";
 
 export const appRoutes: Routes = [
   {
     path: "",
-    loadComponent: () =>
-      import("./pages/info-components/welcome/welcome.page").then(
-        (m) => m.WelcomePage,
-      ),
     pathMatch: "full",
-    canActivate: [DefaultPageGuardService],
-    canDeactivate: [UnsavedChangesGuardService],
-    title: "pages.welcome.tabTitle",
+    redirectTo: () => {
+      if (!inject(UtilService).isLoggedIn()) {
+        return RouteMap.AuthPage.getPath(AuthType.Register);
+      }
+
+      const startPage =
+        inject(PreferencesService).preferences[GlobalPreferenceKey.StartPage];
+      switch (startPage) {
+        case StartPageOptions.ManageLabels:
+          return RouteMap.LabelsPage.getPath();
+        case StartPageOptions.MealPlans:
+          return RouteMap.MealPlansPage.getPath();
+        case StartPageOptions.ShoppingLists:
+          return RouteMap.ShoppingListsPage.getPath();
+        case StartPageOptions.MyRecipes:
+        default:
+          return RouteMap.HomePage.getPath("main");
+      }
+    },
   },
   {
     path: RouteMap.HomePage.path,
@@ -103,15 +117,6 @@ export const appRoutes: Routes = [
       ),
     canDeactivate: [UnsavedChangesGuardService],
     title: "pages.contributeThankYou.tabTitle",
-  },
-  {
-    path: RouteMap.WelcomePage.path,
-    loadComponent: () =>
-      import("./pages/info-components/welcome/welcome.page").then(
-        (m) => m.WelcomePage,
-      ),
-    canDeactivate: [UnsavedChangesGuardService],
-    title: "pages.welcome.tabTitle",
   },
   {
     path: RouteMap.AuthPage.path,
