@@ -26,7 +26,6 @@
     "pages.auth.error.passwordLength": "Anna salasana, jossa on vähintään 6 merkkiä.",
     "pages.auth.error.incorrectEmail": "Tällä sähköpostiosoitteella ei ole tiliä.",
     "pages.app.oldBrowserAlert.header": "Selain ei ole tuettu",
-    "pages.app.nav.welcome": "Tervetuloa",
     "pages.app.nav.login": "Kirjaudu sisään",
     "pages.app.nav.contribute": "Osallistu!",
     "pages.app.nav.about": "Tietoa ja tuki",

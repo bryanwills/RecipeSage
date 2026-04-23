@@ -1,7 +1,6 @@
 {
     "pages.app.oldBrowserAlert.header": "Nicht unterstützter Browser",
     "pages.app.oldBrowserAlert.message": "Anscheinend verwendest du einen alten Browser, der nicht unterstützt wird. Einige Funktionen funktionieren möglicherweise nicht oder sind defekt. Bitte wechsele zu einem modernen Browser wie Firefox, um die volle Funktionalität zu erhalten.",
-    "pages.app.nav.welcome": "Willkommen",
     "pages.app.nav.login": "Anmelden",
     "pages.app.nav.register": "Konto erstellen",
     "pages.app.nav.download": "Herunterladen und installieren",

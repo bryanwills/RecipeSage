@@ -1,7 +1,6 @@
 {
     "pages.app.oldBrowserAlert.header": "サポートされていないブラウザー",
     "pages.app.browser.title": "RecipeSage - 個人レシピ管理",
-    "pages.app.nav.welcome": "ようこそ",
     "pages.app.nav.login": "ログイン",
     "pages.app.nav.register": "アカウント作成",
     "pages.app.nav.download": "ダウンロードしてインストール",

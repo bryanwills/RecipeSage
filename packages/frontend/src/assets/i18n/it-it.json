@@ -1,7 +1,6 @@
 {
     "pages.app.oldBrowserAlert.header": "Browser non supportato",
     "pages.app.oldBrowserAlert.message": "Sembra che tu stia usando un browser non supportato. Alcune funzionalità potrebbero essere incomplete, o non funzionare del tutto. Per una corretta visualizzazione, consigliamo di passare a un browser aggiornato, come ad esempio Firefox.",
-    "pages.app.nav.welcome": "Benvenuto",
     "pages.app.nav.login": "Accedi",
     "pages.app.nav.register": "Crea un Profilo",
     "pages.app.nav.download": "Download e Installazione",
