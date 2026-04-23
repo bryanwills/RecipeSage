@@ -152,8 +152,8 @@ export async function recipekeeperImportJobHandler(
     const unconfirmedImagePaths = [
       ...new Set(
         $item
-          .find('[itemprop="recipeImage"]')
-          .map((_, el) => $(el).attr("content"))
+          .find("img.recipe-photo, img.recipe-photos")
+          .map((_, el) => $(el).attr("src"))
           .get()
           .filter(Boolean),
       ),
