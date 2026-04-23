@@ -1,7 +1,6 @@
 {
     "pages.app.oldBrowserAlert.message": "Panašu, kad naudojate seną naršyklę, kuri nepalaikoma. Kai kurios funkcijos gali neveikti arba sugesti. Norėdami naudotis visomis funkcijomis, naudokite modernią naršyklę, pvz., Firefox.",
     "pages.app.oldBrowserAlert.header": "Nepalaikoma naršyklė",
-    "pages.app.nav.welcome": "Sveiki atvykę",
     "pages.app.nav.login": "Prisijungti",
     "pages.app.nav.register": "Sukurti paskyrą",
     "pages.app.nav.download": "Parsisiųsti ir įdiegti",

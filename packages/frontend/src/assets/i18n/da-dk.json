@@ -1,7 +1,6 @@
 {
     "pages.app.oldBrowserAlert.header": "Ikke-understøttet browser",
     "pages.app.oldBrowserAlert.message": "Det ser ud til, at du bruger en gammel browser, der ikke understøttes. Nogle funktioner virker måske ikke eller er ødelagte. Skift venligst til en moderne browser som Firefox for at få fuld funktionalitet.",
-    "pages.app.nav.welcome": "Velkommen",
     "pages.app.nav.login": "Log ind",
     "pages.app.nav.register": "Opret en konto",
     "pages.app.nav.download": "Download og installer",

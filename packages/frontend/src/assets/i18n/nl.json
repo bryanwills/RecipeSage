@@ -14,7 +14,6 @@
     "pages.home.title.sharedLabel.withProfile": "{{name}}'s Gedeelde Label\" {{label}}",
     "pages.home.recipe.selected": "Geselecteerd",
     "pages.home.errors.noRecipes.message1": "Dit is waar je recepten zullen verschijnen.",
-    "pages.app.nav.welcome": "Welkom",
     "pages.app.nav.login": "Log in",
     "pages.app.nav.register": "Maak een Account",
     "pages.app.nav.contribute": "Draag bij!",

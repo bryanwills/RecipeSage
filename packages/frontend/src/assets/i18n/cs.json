@@ -2,7 +2,6 @@
     "pages.app.oldBrowserAlert.header": "Nepodporovaný prohlížeč",
     "pages.app.oldBrowserAlert.message": "Vypadá to, že používáte starý prohlížeč, který není podporován. Některé funkce nemusí fungovat nebo mohou být rozbity. Přepněte prosím na moderní prohlížeč, jako je Firefox pro plnou funkčnost.",
     "pages.app.browser.title": "RecipeSage - Osobní kuchařka",
-    "pages.app.nav.welcome": "Vítejte",
     "pages.app.nav.login": "Přihlásit se",
     "pages.app.nav.register": "Vytvořit účet",
     "pages.app.nav.download": "Stáhnout a nainstalovat",

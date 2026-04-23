@@ -2,7 +2,6 @@
     "pages.app.oldBrowserAlert.header": "Navegador não suportado",
     "pages.app.browser.title": "RecipeSage - Seu Gerenciador Pessoal de Receitas",
     "pages.app.oldBrowserAlert.message": "Parece que você está usando um navegador antigo que não é compatível. Algumas funcionalidades podem não funcionar ou apresentar problemas. Por favor, utilize um navegador moderno como Firefox para aproveitar todos os recursos.",
-    "pages.app.nav.welcome": "Bem vindo",
     "pages.app.nav.login": "Entrar",
     "pages.app.nav.register": "Criar uma Conta",
     "pages.app.nav.download": "Baixar e Instalar",
