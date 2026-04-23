@@ -10,6 +10,7 @@ import {
   AlertController,
   PopoverController,
   LoadingController,
+  type AccordionGroupChangeEventDetail,
 } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import {
@@ -334,6 +335,14 @@ export class EditRecipePage {
     return this.nutritionFieldValues().some(
       (v) => !this.isValidNutritionValue(v),
     );
+  }
+
+  onNutritionAccordionChange(
+    event: CustomEvent<AccordionGroupChangeEventDetail>,
+  ) {
+    if (event.target !== event.currentTarget) return;
+    const value = event.detail.value;
+    this.nutritionAccordionValue = typeof value === "string" ? value : null;
   }
 
   async parseAndApplyNutrition(text: string) {

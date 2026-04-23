@@ -331,7 +331,7 @@
 
     <ion-accordion-group
       [value]="nutritionAccordionValue"
-      (ionChange)="nutritionAccordionValue = $event.detail.value"
+      (ionChange)="onNutritionAccordionChange($event)"
     >
       <ion-accordion value="nutrition">
         <ion-item slot="header">
