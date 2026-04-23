@@ -30,7 +30,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "packages/www",
-        "command": "npx astro check"
+        "command": "npx astro check --minimumFailingSeverity hint"
       }
     },
     "lint": {
