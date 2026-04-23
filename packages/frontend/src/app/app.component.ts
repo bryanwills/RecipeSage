@@ -266,9 +266,6 @@ export class AppComponent {
   }
 
   async generateNavList() {
-    const welcome = await this.translate
-      .get("pages.app.nav.welcome")
-      .toPromise();
     const login = await this.translate.get("pages.app.nav.login").toPromise();
     const register = await this.translate
       .get("pages.app.nav.register")
@@ -309,15 +306,6 @@ export class AppComponent {
     const enableContribution =
       this.featureFlagService.flags[FeatureFlagKeys.EnableContribution];
     const loggedOutPages = [
-      [
-        true,
-        {
-          id: "welcome",
-          title: welcome,
-          icon: "sunny",
-          url: RouteMap.WelcomePage.getPath(),
-        },
-      ],
       [
         true,
         {

@@ -108,12 +108,6 @@ export const RouteMap = {
     },
     path: "contribute/thankyou",
   },
-  WelcomePage: {
-    getPath() {
-      return `/welcome`;
-    },
-    path: "welcome",
-  },
   AuthPage: {
     getPath(authType: AuthType) {
       return `/auth/${authType}`;
@@ -549,8 +543,8 @@ export class UtilService {
     }
   }
 
-  buildPublicRoutePath(hashlessRoutePath: string) {
-    return `${window.location.origin}/#/${hashlessRoutePath}`;
+  buildPublicRoutePath(routePath: string) {
+    return `${window.location.origin}/app/${routePath}`;
   }
 
   truncate(str: String, maxLength: number) {
@@ -567,7 +561,7 @@ export class UtilService {
     event?: MouseEvent | KeyboardEvent,
   ) {
     if (event && (event.metaKey || event.ctrlKey)) {
-      window.open(`#${RouteMap.RecipePage.getPath(recipeId)}`);
+      window.open(`/app${RouteMap.RecipePage.getPath(recipeId)}`);
       return;
     }
     navCtrl.navigateForward(RouteMap.RecipePage.getPath(recipeId));

@@ -2,11 +2,9 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
-    <title>
-      RecipeSage - Free Recipe Keeper, Meal Planner, and Shopping List
-    </title>
+    <title>RecipeSage</title>
 
-    <base href="." />
+    <base href="/app/" />
 
     <meta
       name="viewport"
@@ -16,58 +14,11 @@
     <meta name="msapplication-tap-highlight" content="no" />
     <meta name="msapplication-config" content="assets/icon/browserconfig.xml" />
 
-    <meta
-      name="description"
-      content="Save, organize, and share recipes with RecipeSage. Auto-import recipes from any website, plan meals, generate smart shopping lists, and sync across Web, iOS, and Android. Free and open source."
-    />
-    <meta
-      name="keywords"
-      content="recipe keeper, recipe organizer, meal planner, shopping list, recipe import, recipe box, meal planning app, grocery list app, free recipe app"
-    />
-    <meta name="author" content="RecipeSage" />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
-
-    <link rel="canonical" href="https://recipesage.com/" />
-    <link rel="alternate" hreflang="en-us" href="https://recipesage.com/" />
-    <link rel="alternate" hreflang="x-default" href="https://recipesage.com/" />
-
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="RecipeSage" />
-    <meta
-      property="og:title"
-      content="RecipeSage - Free Recipe Keeper, Meal Planner, and Shopping List"
-    />
-    <meta
-      property="og:description"
-      content="Save, organize, and share recipes. Auto-import from any website, plan meals, generate smart shopping lists, and sync across Web, iOS, and Android. Free and open source."
-    />
-    <meta property="og:url" content="https://recipesage.com/" />
-    <meta
-      property="og:image"
-      content="https://recipesage.com/assets/recipesage-black-trimmed.png"
-    />
-    <meta property="og:image:alt" content="RecipeSage logo" />
-    <meta property="og:locale" content="en_US" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content="RecipeSage - Free Recipe Keeper, Meal Planner, and Shopping List"
-    />
-    <meta
-      name="twitter:description"
-      content="Save, organize, and share recipes. Auto-import from any website, plan meals, and generate smart shopping lists. Free and open source."
-    />
-    <meta
-      name="twitter:image"
-      content="https://recipesage.com/assets/recipesage-black-trimmed.png"
-    />
-    <meta name="twitter:image:alt" content="RecipeSage logo" />
+    <meta name="robots" content="noindex, nofollow" />
 
     <link rel="preconnect" href="https://static.recipesage.com" crossorigin />
     <link rel="dns-prefetch" href="https://static.recipesage.com" />
 
-    <!--<link rel="icon" type="image/x-icon" href="assets/icon/favicon.ico">-->
     <link
       rel="icon"
       type="image/png"
@@ -94,23 +45,13 @@
     <link rel="shortcut icon" href="assets/icon/favicon.ico" />
     <meta name="msapplication-TileColor" content="#353b48" />
 
-    <link rel="manifest" href="manifest.json" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#353b48" />
     <meta name="color-scheme" content="light dark" />
 
     <!-- add to homescreen for ios -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-
-    <script>
-      if (window.location.search) {
-        if (window.location.hash && window.location.hash.includes("#/")) {
-          window.location.href =
-            window.location.href.replace(window.location.search, "") +
-            window.location.search;
-        }
-      }
-    </script>
 
     <script>
       window.addEventListener("beforeinstallprompt", (e) => {
@@ -122,7 +63,8 @@
 
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker
-          .register("service-worker.js", {
+          .register("/service-worker.js", {
+            scope: "/",
             updateViaCache: "none",
           })
           .then((registration) => {
@@ -149,56 +91,6 @@
 
     <script>
       window.version = "development";
-    </script>
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": "Organization",
-            "@id": "https://recipesage.com/#organization",
-            "name": "RecipeSage",
-            "url": "https://recipesage.com/",
-            "logo": {
-              "@type": "ImageObject",
-              "url": "https://recipesage.com/assets/recipesage-black-trimmed.png"
-            },
-            "sameAs": ["https://github.com/julianpoy/recipesage"]
-          },
-          {
-            "@type": "WebSite",
-            "@id": "https://recipesage.com/#website",
-            "url": "https://recipesage.com/",
-            "name": "RecipeSage",
-            "publisher": { "@id": "https://recipesage.com/#organization" },
-            "inLanguage": "en-US"
-          },
-          {
-            "@type": "SoftwareApplication",
-            "name": "RecipeSage",
-            "applicationCategory": "LifestyleApplication",
-            "operatingSystem": "Web, iOS, Android",
-            "url": "https://recipesage.com/",
-            "description": "A free recipe keeper, meal planner, and shopping list organizer for Web, iOS, and Android. Auto-import recipes from any website, plan meals, and generate smart shopping lists.",
-            "offers": {
-              "@type": "Offer",
-              "price": "0",
-              "priceCurrency": "USD"
-            },
-            "featureList": [
-              "Import recipes from any URL",
-              "Powerful recipe search with typo tolerance",
-              "Labels and categorization",
-              "Drag and drop meal planning",
-              "Smart, auto-categorized shopping lists",
-              "Recipe, meal plan, and shopping list sharing",
-              "Import from Pepperplate, Living Cookbook, and Paprika",
-              "Export and data portability"
-            ]
-          }
-        ]
-      }
     </script>
   </head>
 

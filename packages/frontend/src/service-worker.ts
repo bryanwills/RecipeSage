@@ -26,7 +26,7 @@ if (process.env.ENVIRONMENT !== "selfhost") {
   });
 }
 
-import { registerRoute } from "workbox-routing";
+import { registerRoute, NavigationRoute } from "workbox-routing";
 import { precacheAndRoute, cleanupOutdatedCaches } from "workbox-precaching";
 import { clientsClaim } from "workbox-core";
 import { CacheFirst, NetworkFirst } from "workbox-strategies";
@@ -87,28 +87,75 @@ precacheAndRoute(self.__WB_MANIFEST || []);
 
 const BASE_CACHE_NAME = "base-asset-cache";
 const LANG_CACHE_NAME = "language-cache";
+const MAX_OFFLINE_APP_AGE = 30; // Days
+
+const indexNetworkFirstStrategy = new NetworkFirst({
+  cacheName: BASE_CACHE_NAME,
+  plugins: [
+    new ExpirationPlugin({
+      maxAgeSeconds: 60 * 60 * 24 * MAX_OFFLINE_APP_AGE,
+    }),
+  ],
+});
+
+registerRoute(
+  new NavigationRoute(
+    (options) =>
+      indexNetworkFirstStrategy.handle({
+        request: new Request("/app/index.html"),
+        event: options.event,
+      }),
+    { allowlist: [/^\/app(\/|$)/] },
+  ),
+);
+
+const astroNetworkFirstStrategy = new NetworkFirst({
+  cacheName: "astro-pages",
+  plugins: [
+    new ExpirationPlugin({
+      maxAgeSeconds: 60 * 60 * 24 * MAX_OFFLINE_APP_AGE,
+    }),
+  ],
+});
+
+registerRoute(
+  ({ url, request }) =>
+    url.origin === self.location.origin &&
+    request.mode === "navigate" &&
+    !url.pathname.startsWith("/app/"),
+  astroNetworkFirstStrategy,
+);
+
+registerRoute(
+  ({ url }) =>
+    url.origin === self.location.origin &&
+    (url.pathname === "/manifest.json" ||
+      url.pathname === "/robots.txt" ||
+      url.pathname === "/sitemap.xml"),
+  astroNetworkFirstStrategy,
+);
+
+registerRoute(
+  ({ url }) =>
+    url.origin === self.location.origin && url.pathname.startsWith("/_astro/"),
+  new CacheFirst({ cacheName: "astro-assets" }),
+);
 
 clientsClaim();
 
 self.addEventListener("install", async (event) => {
-  const networkFirstPrecacheUrls = ["/", "/index.html"];
+  const networkFirstPrecacheUrls = ["/app/index.html"];
   event.waitUntil(
     caches
       .open(BASE_CACHE_NAME)
       .then((cache) => cache.addAll(networkFirstPrecacheUrls)),
   );
 
-  const languagePrecacheUrls = [
-    `/assets/i18n/en-us.json?version=${process.env.APP_VERSION}`,
-  ];
+  const languagePrecacheUrls = [`/app/assets/i18n/en-us.json`];
   event.waitUntil(
     caches
-      .delete(LANG_CACHE_NAME)
-      .then(() =>
-        caches
-          .open(LANG_CACHE_NAME)
-          .then((cache) => cache.addAll(languagePrecacheUrls)),
-      ),
+      .open(LANG_CACHE_NAME)
+      .then((cache) => cache.addAll(languagePrecacheUrls)),
   );
 
   self.skipWaiting();
@@ -173,24 +220,12 @@ addEventListener("message", async (event) => {
   }
 });
 
-// Index should be cached networkFirst - this way, users will always get the newest application version
-const MAX_OFFILE_APP_AGE = 30; // Days
-registerRoute(
-  /\/index\.html/,
-  new NetworkFirst({
-    cacheName: BASE_CACHE_NAME,
-    plugins: [
-      new ExpirationPlugin({
-        maxAgeSeconds: 60 * 60 * 24 * MAX_OFFILE_APP_AGE,
-      }),
-    ],
-  }),
-);
+registerRoute(/\/app\/index\.html$/, indexNetworkFirstStrategy);
 
 // Language files should always come from network first since they change frequently
 const MAX_LANGUAGE_AGE = 30; // Days
 registerRoute(
-  /\/assets\/i18n\/.*/,
+  /\/app\/assets\/i18n\//,
   new NetworkFirst({
     cacheName: LANG_CACHE_NAME,
     plugins: [
@@ -333,14 +368,14 @@ const initializeFirebase = async () => {
           }
           if (event.notification.data?.recipeId) {
             return self.clients.openWindow(
-              `${self.registration.scope}#/recipe/${event.notification.data.recipeId}`,
+              `${self.registration.scope}app/recipe/${event.notification.data.recipeId}`,
             );
           } else if (event.notification.data?.otherUserId) {
             return self.clients.openWindow(
-              `${self.registration.scope}#/messages/${event.notification.data.otherUserId}`,
+              `${self.registration.scope}app/messages/${event.notification.data.otherUserId}`,
             );
           } else {
-            return self.clients.openWindow(self.registration.scope);
+            return self.clients.openWindow(`${self.registration.scope}app/`);
           }
         }),
     );

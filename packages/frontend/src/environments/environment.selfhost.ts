@@ -8,7 +8,7 @@ export const ENABLE_ANALYTICS = false;
 
 export const STRIPE_PK = "";
 
-export const API_BASE_URL = "api/";
+export const API_BASE_URL = "/api/";
 
 // Selfhost requires some extra sniffing to determine base url for WS since
 // ws can't be "relative" via just `grip/ws` like `api/` can.

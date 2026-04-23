@@ -389,7 +389,9 @@ export class AccountPage {
             localStorage.removeItem("token");
             await appIdbStorageManager.removeSession();
 
-            this.navCtrl.navigateRoot(RouteMap.WelcomePage.getPath());
+            this.navCtrl.navigateRoot(
+              RouteMap.AuthPage.getPath(AuthType.Login),
+            );
           },
         },
       ],

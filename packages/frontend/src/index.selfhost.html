@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>RecipeSage</title>
 
-    <base href="." />
+    <base href="/app/" />
 
     <meta
       name="viewport"
@@ -46,23 +46,13 @@
     <link rel="shortcut icon" href="assets/icon/favicon.ico" />
     <meta name="msapplication-TileColor" content="#353b48" />
 
-    <link rel="manifest" href="manifest.json" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#353b48" />
     <meta name="color-scheme" content="light dark" />
 
     <!-- add to homescreen for ios -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-
-    <script>
-      if (window.location.search) {
-        if (window.location.hash && window.location.hash.includes("#/")) {
-          window.location.href =
-            window.location.href.replace(window.location.search, "") +
-            window.location.search;
-        }
-      }
-    </script>
 
     <script>
       window.addEventListener("beforeinstallprompt", (e) => {
@@ -74,7 +64,8 @@
 
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker
-          .register("service-worker.js", {
+          .register("/service-worker.js", {
+            scope: "/",
             updateViaCache: "none",
           })
           .then((registration) => {

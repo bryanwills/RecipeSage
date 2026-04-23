@@ -6,7 +6,11 @@ import {
 } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 
-import { RouteMap, UtilService } from "../../../services/util.service";
+import {
+  AuthType,
+  RouteMap,
+  UtilService,
+} from "../../../services/util.service";
 import { PreferencesService } from "../../../services/preferences.service";
 import {
   AppTheme,
@@ -127,7 +131,7 @@ export class SettingsPage {
     localStorage.removeItem("token");
     await appIdbStorageManager.deleteAllData();
 
-    this.navCtrl.navigateRoot(RouteMap.WelcomePage.getPath());
+    this.navCtrl.navigateRoot(RouteMap.AuthPage.getPath(AuthType.Login));
   }
 
   logout() {

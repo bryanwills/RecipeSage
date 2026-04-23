@@ -282,7 +282,7 @@ export class AuthPage {
     localStorage.removeItem("token");
     await appIdbStorageManager.deleteAllData();
 
-    this.navCtrl.navigateRoot(RouteMap.WelcomePage.getPath());
+    this.navCtrl.navigateRoot(RouteMap.AuthPage.getPath(AuthType.Login));
 
     this.modalCtrl.dismiss();
   }

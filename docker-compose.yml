@@ -47,6 +47,7 @@ services:
     command: nginx -g 'daemon off;'
     depends_on:
       - frontend
+      - www
       - backend
       - pushpin
     stop_grace_period: 1s
@@ -66,6 +67,18 @@ services:
       core:
         soft: 0
         hard: 0
+    stop_grace_period: 1s
+  www:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./packages:/app/packages
+    ports:
+      - "4321:4321"
+    command: npx nx dev www
+    environment:
+      - ENVIRONMENT=development
     stop_grace_period: 1s
   backend:
     depends_on:

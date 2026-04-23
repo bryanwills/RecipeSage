@@ -1,0 +1,132 @@
+---
+import type { Translator } from "../i18n/translations";
+
+interface Props {
+  t: Translator;
+}
+
+const { t } = Astro.props;
+---
+
+<section class="about-hero">
+  <div class="about-hero-inner">
+    <h1>{t("pages.about.title")}</h1>
+    <p class="lead">{t("pages.contribute.cta.1")}</p>
+  </div>
+</section>
+
+<article class="about-content">
+  <section>
+    <h2>{t("pages.aboutDetails.1.title")}</h2>
+    <p>{t("pages.aboutDetails.1.1")}</p>
+    <p>{t("pages.aboutDetails.1.2")}</p>
+  </section>
+
+  <section>
+    <h2>{t("pages.aboutDetails.2.title")}</h2>
+    <p>{t("pages.aboutDetails.2.1")}</p>
+    <p>{t("pages.aboutDetails.2.2")}</p>
+  </section>
+
+  <section>
+    <h2>{t("pages.contact.title")}</h2>
+
+    <ul class="contact-list">
+      <li>
+        {t("pages.contact.pleaseUserGuide")}
+        <a href="https://docs.recipesage.com" target="_blank" rel="noopener"
+          >https://docs.recipesage.com</a
+        >
+      </li>
+      <li>
+        {t("pages.contact.discord")}
+        <a href="https://discord.gg/yCfzBft" target="_blank" rel="noopener"
+          >{t("pages.contact.discord.link")}</a
+        >
+      </li>
+      <li>
+        {t("pages.contact.github")}
+        <a
+          href="https://github.com/julianpoy/recipesage/issues"
+          target="_blank"
+          rel="noopener">{t("pages.contact.github.link")}</a
+        >
+      </li>
+    </ul>
+  </section>
+
+</article>
+
+<style>
+  .about-hero {
+    position: relative;
+    color: var(--hero-text);
+    background-image: url("/app/assets/stockphotos/chicken-salad-1280.jpg");
+    background-position: center;
+    background-size: cover;
+    padding: 140px 24px 60px;
+  }
+
+  .about-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, transparent 180px),
+      var(--hero-overlay);
+  }
+
+  .about-hero-inner {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .about-hero h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin: 0 0 12px;
+    font-weight: 600;
+  }
+
+  .lead {
+    font-size: 1.15rem;
+    margin: 0;
+    opacity: 0.95;
+  }
+
+  .about-content {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 24px 0;
+    line-height: 1.65;
+  }
+
+  .about-content section {
+    margin-bottom: 40px;
+  }
+
+  .about-content h2 {
+    font-size: 1.5rem;
+    margin: 0 0 12px;
+  }
+
+  .about-content p {
+    color: var(--text-muted);
+    margin: 0 0 12px;
+  }
+
+  .about-content a {
+    color: var(--btn-primary-bg);
+  }
+
+  .contact-list {
+    list-style: none;
+    padding: 0;
+    color: var(--text-muted);
+  }
+
+  .contact-list li {
+    margin-bottom: 12px;
+  }
+
+</style>
