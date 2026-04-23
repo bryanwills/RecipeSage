@@ -30,4 +30,4 @@ jobs:
           aws-region: us-east-1
 
       - name: Push
-        run: aws s3 cp --recursive s3://chefbook-static/frontend/${{ inputs.tag }}/ s3://chefbook-static/frontend/beta
+        run: aws s3 cp --recursive s3://chefbook-static/frontend/${{ inputs.tag }}/ s3://chefbook-static/frontend/beta/app
