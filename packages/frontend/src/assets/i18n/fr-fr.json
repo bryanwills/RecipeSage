@@ -1202,5 +1202,18 @@
     "pages.editRecipe.input.nutritionMonounsaturatedFat": "Acides gras monoinsaturés (g)",
     "pages.editRecipe.input.nutritionCholesterol": "Cholestérol (mg)",
     "pages.editRecipe.input.nutritionSodium": "Sodium (mg)",
-    "pages.editRecipe.input.nutritionTotalCarbs": "Glucides totaux (g)"
+    "pages.editRecipe.input.nutritionTotalCarbs": "Glucides totaux (g)",
+    "pages.pricing.support.body": "Si vous souhaitez me soutenir, il existe une option de dons. Elle déverrouille quelques petites fonctionnalités bonus en guise de remerciement.",
+    "pages.pricing.support.hosting": "Les dons sont entièrement optionnels et servent à couvrir les frais de serveur et d'hébergement d'images.",
+    "pages.pricing.support.link": "Allez à la page de contribution",
+    "pages.welcome.description.features.9.title": "Partage et collaboration :",
+    "pages.welcome.description.features.9.description": "Partagez des recettes publiquement ou avec des amis, et collaborez sur des plans de repas et des listes de courses",
+    "pages.welcome.description.features.10.title": "Importer à partir d'autres applications :",
+    "pages.welcome.description.features.10.description": "Apportez votre collection depuis Pepperplate, Living Cookbook, Paprika, Cookmate, Recipe Keeper, CopyMeThat, Evernote, ou tout export JSON-LD / CSV",
+    "pages.welcome.description.features.11.title": "Exportation et portabilité des données :",
+    "pages.welcome.description.features.11.description": "Sauvegardez vos recettes en PDF, JSON-LD ou texte à tout moment : vos données vous appartiennent",
+    "pages.welcome.languages.title": "Dans votre langue",
+    "pages.welcome.languages.description": "RecipeSage est traduit par la communauté. L'interface, l'analyse des ingrédients et la catégorisation de la liste de courses fonctionnent tous dans votre langue.",
+    "pages.about.metaDescription": "Rencontrez le développeur derrière RecipeSage et obtenez de l'aide via Discord, GitHub et le guide utilisateur.",
+    "pages.downloadAndInstall.bookmark.usage": "Cliquez sur le signet pour importer le site actuel sur lequel vous vous trouvez."
 }
