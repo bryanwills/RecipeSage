@@ -73,7 +73,10 @@
 
 <ion-footer>
   <div class="ion-padding-bottom ion-padding-horizontal">
-    <select-meal (mealChange)="meal = $event"></select-meal>
+    <select-meal
+      [customMealOptions]="selectedMealPlan?.customMealOptions ?? null"
+      (mealChange)="meal = $event"
+    ></select-meal>
     <ion-button expand="block" (click)="save()" [disabled]="!isFormValid()">
       <ion-icon name="calendar" slot="start"></ion-icon>
       <ion-label>
