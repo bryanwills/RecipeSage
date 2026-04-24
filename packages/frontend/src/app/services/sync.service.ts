@@ -1,7 +1,9 @@
 import { Injectable, inject } from "@angular/core";
-import { SyncManager } from "../utils/SyncManager";
+import { AbortedSyncError, SyncManager } from "../utils/SyncManager";
 import { getLocalDb } from "../utils/localDb";
 import { SearchService } from "./search.service";
+import { TRPCClientError } from "@trpc/client";
+import * as Sentry from "@sentry/browser";
 
 const RS_LOGO_URL = "https://recipesage.com/assets/imgs/logo_green.png";
 
@@ -51,26 +53,61 @@ export class SyncService {
 
   async syncRecipe(recipeId: string): Promise<void> {
     const manager = await this.managerP;
-    await manager.syncRecipe(recipeId);
+    await manager.syncRecipe(recipeId).catch((e) => {
+      console.error(e);
+      if (!(e instanceof TRPCClientError) && !(e instanceof AbortedSyncError)) {
+        Sentry.captureException(e);
+      }
+    });
   }
 
   async syncRecipes(): Promise<void> {
     const manager = await this.managerP;
-    await manager.syncRecipes();
+    await manager.syncRecipes().catch((e) => {
+      console.error(e);
+      if (!(e instanceof TRPCClientError) && !(e instanceof AbortedSyncError)) {
+        Sentry.captureException(e);
+      }
+    });
   }
 
   async syncLabels(): Promise<void> {
     const manager = await this.managerP;
-    await manager.syncLabels();
+    await manager.syncLabels().catch((e) => {
+      console.error(e);
+      if (!(e instanceof TRPCClientError) && !(e instanceof AbortedSyncError)) {
+        Sentry.captureException(e);
+      }
+    });
+  }
+
+  async syncLabelGroups(): Promise<void> {
+    const manager = await this.managerP;
+    await manager.syncLabelGroups().catch((e) => {
+      console.error(e);
+      if (!(e instanceof TRPCClientError) && !(e instanceof AbortedSyncError)) {
+        Sentry.captureException(e);
+      }
+    });
   }
 
   async syncShoppingLists(): Promise<void> {
     const manager = await this.managerP;
-    await manager.syncShoppingLists();
+    await manager.syncShoppingLists().catch((e) => {
+      console.error(e);
+      if (!(e instanceof TRPCClientError) && !(e instanceof AbortedSyncError)) {
+        Sentry.captureException(e);
+      }
+    });
   }
 
   async syncMealPlans(): Promise<void> {
     const manager = await this.managerP;
-    await manager.syncMealPlans();
+    await manager.syncMealPlans().catch((e) => {
+      console.error(e);
+      if (!(e instanceof TRPCClientError) && !(e instanceof AbortedSyncError)) {
+        Sentry.captureException(e);
+      }
+    });
   }
 }

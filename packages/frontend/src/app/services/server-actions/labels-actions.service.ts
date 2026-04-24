@@ -101,6 +101,7 @@ export class LabelsActionsService extends ActionsBase {
       () => this.trpc.labels.createLabel.mutate(input),
       () => {
         void this.syncService.syncLabels();
+        void this.syncService.syncLabelGroups();
       },
       errorHandlers,
     );
@@ -114,6 +115,8 @@ export class LabelsActionsService extends ActionsBase {
       () => this.trpc.labels.updateLabel.mutate(input),
       () => {
         void this.syncService.syncLabels();
+        void this.syncService.syncLabelGroups();
+        void this.syncService.syncRecipes();
       },
       errorHandlers,
     );
@@ -127,6 +130,8 @@ export class LabelsActionsService extends ActionsBase {
       () => this.trpc.labels.upsertLabel.mutate(input),
       () => {
         void this.syncService.syncLabels();
+        void this.syncService.syncLabelGroups();
+        void this.syncService.syncRecipes();
       },
       errorHandlers,
     );
@@ -140,6 +145,8 @@ export class LabelsActionsService extends ActionsBase {
       () => this.trpc.labels.deleteLabel.mutate(input),
       () => {
         void this.syncService.syncLabels();
+        void this.syncService.syncLabelGroups();
+        void this.syncService.syncRecipes();
       },
       errorHandlers,
     );
@@ -153,6 +160,7 @@ export class LabelsActionsService extends ActionsBase {
       () => this.trpc.labels.deleteLabels.mutate(input),
       () => {
         void this.syncService.syncLabels();
+        void this.syncService.syncLabelGroups();
         void this.syncService.syncRecipes();
       },
       errorHandlers,
@@ -167,6 +175,7 @@ export class LabelsActionsService extends ActionsBase {
       () => this.trpc.labels.mergeLabels.mutate(input),
       () => {
         void this.syncService.syncLabels();
+        void this.syncService.syncLabelGroups();
         void this.syncService.syncRecipes();
       },
       errorHandlers,

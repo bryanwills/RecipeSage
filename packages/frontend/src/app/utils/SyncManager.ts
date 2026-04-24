@@ -10,12 +10,21 @@ import {
 } from "./localDb";
 import { appIdbStorageManager } from "./appIdbStorageManager";
 
+export class AbortedSyncError extends Error {
+  constructor() {
+    super();
+    this.name = "AbortedSyncError";
+  }
+}
+
+const SYNC_LOCK_ABORT_TIMEOUT_MINUTES = 6;
+
 const ENABLE_VERBOSE_SYNC_LOGGING = false;
 
 const SYNC_BATCH_SIZE = 100;
 
 /**
- * We cannot exceed the rate limit of the API (is limited per-IP),
+ * We cannot exceed the rate limit of the API (this.syncLockAbortTimeout),
  * so we throttle to 4 requests/sec to allow the browser some buffer as well in case
  * the user is doing activities during a sync.
  * Due to OPTIONS requests, the number of requests that actually go through will be doubled
@@ -26,6 +35,8 @@ const throttle = pThrottle({
 });
 
 export class SyncManager {
+  private syncLockAbortTimeout = SYNC_LOCK_ABORT_TIMEOUT_MINUTES * 60 * 1000;
+
   constructor(
     private localDb: IDBPDatabase<RSLocalDB>,
     private searchManager: SearchManager,
@@ -38,6 +49,8 @@ export class SyncManager {
       return;
     }
 
+    const abortSignal = AbortSignal.timeout(this.syncLockAbortTimeout);
+
     performance.mark("startSync");
 
     console.log(`Beginning sync for ${session.email}`);
@@ -47,17 +60,21 @@ export class SyncManager {
     try {
       const syncStart = new Date();
 
-      await this.syncRecipes();
-      await this.syncLabels();
-      await this.syncShoppingLists();
-      await this.syncMealPlans();
-      await this.syncMyUserProfile();
-      await this.syncMyFriends();
-      await this.syncMyStats();
+      await this.syncRecipes(abortSignal);
+      await this.syncLabels(abortSignal);
+      await this.syncLabelGroups(abortSignal);
+      await this.syncShoppingLists(abortSignal);
+      await this.syncMealPlans(abortSignal);
+      await this.syncMyUserProfile(abortSignal);
+      await this.syncMyFriends(abortSignal);
+      await this.syncMyStats(abortSignal);
 
-      await appIdbStorageManager.setLastSync({
-        datetime: syncStart,
-      });
+      const lastSync = await appIdbStorageManager.getLastSync();
+      if (!lastSync || lastSync.datetime < syncStart) {
+        await appIdbStorageManager.setLastSync({
+          datetime: syncStart,
+        });
+      }
 
       performance.mark("endSync");
       const measure = performance.measure("syncTime", "startSync", "endSync");
@@ -65,6 +82,10 @@ export class SyncManager {
     } catch (e) {
       console.error("Sync failed", e);
     }
+  }
+
+  private syncCheckAbort(signal: AbortSignal) {
+    if (signal.aborted) throw new AbortedSyncError();
   }
 
   async syncRecipe(recipeId: string): Promise<void> {
@@ -78,9 +99,13 @@ export class SyncManager {
     await this.searchManager.indexRecipe(recipe);
   }
 
-  async syncRecipes(): Promise<void> {
+  async syncRecipes(
+    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
+  ): Promise<void> {
     const lastSync = await getKvStoreEntry(KVStoreKeys.LastSync);
     const lastSyncTime = lastSync?.datetime.getTime();
+
+    this.syncCheckAbort(abortSignal);
 
     const serverRecipeManifest = await throttle(() =>
       trpc.recipes.getSyncRecipesManifestV1.query(),
@@ -120,6 +145,8 @@ export class SyncManager {
       }
     }
     for (const recipeId of searchIndexKnownRecipeIds.keys()) {
+      this.syncCheckAbort(abortSignal);
+
       if (!serverRecipeIds.has(recipeId)) {
         // Exists in local search index but not on server
         await this.searchManager.unindexRecipe(recipeId);
@@ -131,6 +158,8 @@ export class SyncManager {
     }
 
     for (const recipeId of localRecipeIds) {
+      this.syncCheckAbort(abortSignal);
+
       if (!serverRecipeIds.has(recipeId.toString())) {
         // Exists on client, but does not exist on server
 
@@ -144,6 +173,8 @@ export class SyncManager {
 
     const remainingRecipeIdsToSync = [...recipeIdsToSync];
     while (remainingRecipeIdsToSync.length) {
+      this.syncCheckAbort(abortSignal);
+
       const ids = remainingRecipeIdsToSync.splice(0, SYNC_BATCH_SIZE);
 
       const recipes = await throttle(() =>
@@ -153,64 +184,124 @@ export class SyncManager {
       )();
 
       for (const recipe of recipes) {
+        this.syncCheckAbort(abortSignal);
+
         await this.localDb.put(ObjectStoreName.Recipes, recipe);
         await this.searchManager.indexRecipe(recipe);
       }
     }
   }
 
-  async syncLabels() {
+  async syncLabels(
+    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
+  ) {
+    this.syncCheckAbort(abortSignal);
+
     const allLabels = await throttle(() =>
       trpc.labels.getAllVisibleLabels.query(),
     )();
-    await this.localDb.clear(ObjectStoreName.Labels);
+
+    this.syncCheckAbort(abortSignal);
+
+    const labelsTx = this.localDb.transaction(
+      ObjectStoreName.Labels,
+      "readwrite",
+    );
+    await labelsTx.store.clear();
     for (const label of allLabels) {
-      await this.localDb.put(ObjectStoreName.Labels, label);
+      await labelsTx.store.put(label);
     }
+    labelsTx.commit();
+    await labelsTx.done;
+  }
+
+  async syncLabelGroups(
+    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
+  ) {
+    this.syncCheckAbort(abortSignal);
 
     const labelGroups = await throttle(() =>
       trpc.labelGroups.getLabelGroups.query(),
     )();
-    await this.localDb.clear(ObjectStoreName.LabelGroups);
+
+    this.syncCheckAbort(abortSignal);
+
+    const labelGroupsTx = this.localDb.transaction(
+      ObjectStoreName.LabelGroups,
+      "readwrite",
+    );
+    await labelGroupsTx.store.clear();
     for (const labelGroup of labelGroups) {
-      await this.localDb.put(ObjectStoreName.LabelGroups, labelGroup);
+      await labelGroupsTx.store.put(labelGroup);
     }
+    labelGroupsTx.commit();
+    await labelGroupsTx.done;
   }
 
-  async syncLabelGroups() {
-    return this.syncLabels();
-  }
+  async syncShoppingLists(
+    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
+  ) {
+    this.syncCheckAbort(abortSignal);
 
-  async syncShoppingLists() {
     const shoppingLists = await throttle(() =>
       trpc.shoppingLists.getShoppingListsWithItems.query(),
     )();
-    await this.localDb.clear(ObjectStoreName.ShoppingLists);
+
+    this.syncCheckAbort(abortSignal);
+
+    const shoppingListsTx = this.localDb.transaction(
+      ObjectStoreName.ShoppingLists,
+      "readwrite",
+    );
+    await shoppingListsTx.store.clear();
     for (const shoppingList of shoppingLists) {
-      await this.localDb.put(ObjectStoreName.ShoppingLists, shoppingList);
+      await shoppingListsTx.store.put(shoppingList);
     }
+    shoppingListsTx.commit();
+    await shoppingListsTx.done;
   }
 
-  async syncMealPlans() {
+  async syncMealPlans(
+    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
+  ) {
+    this.syncCheckAbort(abortSignal);
+
     const mealPlans = await throttle(() =>
       trpc.mealPlans.getMealPlansWithItems.query(),
     )();
-    await this.localDb.clear(ObjectStoreName.MealPlans);
+
+    this.syncCheckAbort(abortSignal);
+
+    const mealPlansTx = this.localDb.transaction(
+      ObjectStoreName.MealPlans,
+      "readwrite",
+    );
+    await mealPlansTx.store.clear();
     for (const mealPlan of mealPlans) {
-      await this.localDb.put(ObjectStoreName.MealPlans, mealPlan);
+      await mealPlansTx.store.put(mealPlan);
     }
+    mealPlansTx.commit();
+    await mealPlansTx.done;
   }
 
-  async syncMyUserProfile() {
+  async syncMyUserProfile(
+    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
+  ) {
+    this.syncCheckAbort(abortSignal);
     const myProfile = await throttle(() => trpc.users.getMe.query())();
+    this.syncCheckAbort(abortSignal);
     await this.localDb.put(ObjectStoreName.KV, {
       key: KVStoreKeys.MyUserProfile,
       value: myProfile,
     });
   }
 
-  async syncMyFriends() {
+  async syncMyFriends(
+    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
+  ) {
+    this.syncCheckAbort(abortSignal);
     const myFriends = await throttle(() => trpc.users.getMyFriends.query())();
+    this.syncCheckAbort(abortSignal);
     await this.localDb.put(ObjectStoreName.KV, {
       key: KVStoreKeys.MyFriends,
       value: myFriends,
@@ -222,13 +313,19 @@ export class SyncManager {
       myFriends.outgoingRequests,
     ].flat();
 
+    this.syncCheckAbort(abortSignal);
+
     for (const userProfile of userProfiles) {
       await this.localDb.put(ObjectStoreName.UserProfiles, userProfile);
     }
   }
 
-  async syncMyStats() {
+  async syncMyStats(
+    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
+  ) {
+    this.syncCheckAbort(abortSignal);
     const myStats = await throttle(() => trpc.users.getMyStats.query())();
+    this.syncCheckAbort(abortSignal);
     await this.localDb.put(ObjectStoreName.KV, {
       key: KVStoreKeys.MyStats,
       value: myStats,
