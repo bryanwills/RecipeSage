@@ -39,7 +39,7 @@ import type {
   RecipeSummary,
   RecipeSummaryLite,
 } from "@recipesage/prisma";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import {
   SelectableItem,
   SelectMultipleItemsComponent,
@@ -74,7 +74,7 @@ export class EditRecipePage {
   private navCtrl = inject(NavController);
   private alertCtrl = inject(AlertController);
   private popoverCtrl = inject(PopoverController);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private mlService = inject(MlService);
   private unsavedChangesService = inject(UnsavedChangesService);
   private loadingCtrl = inject(LoadingController);
@@ -175,11 +175,9 @@ export class EditRecipePage {
 
   async _loadRecipe() {
     if (this.recipeId) {
-      const response = await this.trpcService.handle(
-        this.trpcService.trpc.recipes.getRecipe.query({
-          id: this.recipeId,
-        }),
-      );
+      const response = await this.serverActionsService.recipes.getRecipe({
+        id: this.recipeId,
+      });
 
       if (response) {
         this.fullRecipe = response;
@@ -193,18 +191,15 @@ export class EditRecipePage {
   }
 
   async _loadLabels() {
-    const labels = await this.trpcService.handle(
-      this.trpcService.trpc.labels.getLabels.query(),
-    );
+    const labels = await this.serverActionsService.labels.getLabels();
     if (labels) {
       this.labels = labels.sort((a, b) => a.title.localeCompare(b.title));
     }
   }
 
   async _loadLabelGroups() {
-    const labelGroups = await this.trpcService.handle(
-      this.trpcService.trpc.labelGroups.getLabelGroups.query(),
-    );
+    const labelGroups =
+      await this.serverActionsService.labelGroups.getLabelGroups();
     if (labelGroups) {
       this.labelGroups = labelGroups.sort((a, b) =>
         a.title.localeCompare(b.title),
@@ -346,9 +341,9 @@ export class EditRecipePage {
   }
 
   async parseAndApplyNutrition(text: string) {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.ml.getNutritionFromText.mutate({ text }),
-    );
+    const response = await this.serverActionsService.ml.getNutritionFromText({
+      text,
+    });
     if (!response) return;
 
     this.recipe.nutritionServingSize = response.servingSize;
@@ -501,8 +496,8 @@ export class EditRecipePage {
     });
     await loading.present();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.ml.getNutritionFromText.mutate({ text }),
+    const response = await this.serverActionsService.ml.getNutritionFromText(
+      { text },
       {
         400: async () => {
           (
@@ -542,71 +537,61 @@ export class EditRecipePage {
   }
 
   async _create(title: string) {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.recipes.createRecipe.mutate({
-        title,
-        description: this.recipe.description || "",
-        yield: this.recipe.yield || "",
-        activeTime: this.recipe.activeTime || "",
-        totalTime: this.recipe.totalTime || "",
-        source: this.recipe.source || "",
-        url: this.recipe.url || "",
-        notes: this.recipe.notes || "",
-        ingredients: this.recipe.ingredients || "",
-        instructions: this.recipe.instructions || "",
-        rating: this.recipe.rating || null,
-        folder: "main",
-        imageIds: this.images.map((image) => image.id),
-        labelIds: this.selectedLabels.map((label) => label.id),
-        lastMadeAt: this.recipe.lastMadeAt || null,
-        linkedRecipeIds: this.selectedLinkedRecipes.map((recipe) => recipe.id),
-        nutritionServingSize: this.recipe.nutritionServingSize || null,
-        nutritionCalories: this.toNutritionNumber(
-          this.recipe.nutritionCalories,
-        ),
-        nutritionTotalFat: this.toNutritionNumber(
-          this.recipe.nutritionTotalFat,
-        ),
-        nutritionSaturatedFat: this.toNutritionNumber(
-          this.recipe.nutritionSaturatedFat,
-        ),
-        nutritionTransFat: this.toNutritionNumber(
-          this.recipe.nutritionTransFat,
-        ),
-        nutritionPolyunsaturatedFat: this.toNutritionNumber(
-          this.recipe.nutritionPolyunsaturatedFat,
-        ),
-        nutritionMonounsaturatedFat: this.toNutritionNumber(
-          this.recipe.nutritionMonounsaturatedFat,
-        ),
-        nutritionCholesterol: this.toNutritionNumber(
-          this.recipe.nutritionCholesterol,
-        ),
-        nutritionSodium: this.toNutritionNumber(this.recipe.nutritionSodium),
-        nutritionTotalCarbs: this.toNutritionNumber(
-          this.recipe.nutritionTotalCarbs,
-        ),
-        nutritionDietaryFiber: this.toNutritionNumber(
-          this.recipe.nutritionDietaryFiber,
-        ),
-        nutritionTotalSugars: this.toNutritionNumber(
-          this.recipe.nutritionTotalSugars,
-        ),
-        nutritionAddedSugars: this.toNutritionNumber(
-          this.recipe.nutritionAddedSugars,
-        ),
-        nutritionProtein: this.toNutritionNumber(this.recipe.nutritionProtein),
-        nutritionVitaminD: this.toNutritionNumber(
-          this.recipe.nutritionVitaminD,
-        ),
-        nutritionCalcium: this.toNutritionNumber(this.recipe.nutritionCalcium),
-        nutritionIron: this.toNutritionNumber(this.recipe.nutritionIron),
-        nutritionPotassium: this.toNutritionNumber(
-          this.recipe.nutritionPotassium,
-        ),
-        nutritionOtherDetails: this.recipe.nutritionOtherDetails || null,
-      }),
-    );
+    const response = await this.serverActionsService.recipes.createRecipe({
+      title,
+      description: this.recipe.description || "",
+      yield: this.recipe.yield || "",
+      activeTime: this.recipe.activeTime || "",
+      totalTime: this.recipe.totalTime || "",
+      source: this.recipe.source || "",
+      url: this.recipe.url || "",
+      notes: this.recipe.notes || "",
+      ingredients: this.recipe.ingredients || "",
+      instructions: this.recipe.instructions || "",
+      rating: this.recipe.rating || null,
+      folder: "main",
+      imageIds: this.images.map((image) => image.id),
+      labelIds: this.selectedLabels.map((label) => label.id),
+      lastMadeAt: this.recipe.lastMadeAt || null,
+      linkedRecipeIds: this.selectedLinkedRecipes.map((recipe) => recipe.id),
+      nutritionServingSize: this.recipe.nutritionServingSize || null,
+      nutritionCalories: this.toNutritionNumber(this.recipe.nutritionCalories),
+      nutritionTotalFat: this.toNutritionNumber(this.recipe.nutritionTotalFat),
+      nutritionSaturatedFat: this.toNutritionNumber(
+        this.recipe.nutritionSaturatedFat,
+      ),
+      nutritionTransFat: this.toNutritionNumber(this.recipe.nutritionTransFat),
+      nutritionPolyunsaturatedFat: this.toNutritionNumber(
+        this.recipe.nutritionPolyunsaturatedFat,
+      ),
+      nutritionMonounsaturatedFat: this.toNutritionNumber(
+        this.recipe.nutritionMonounsaturatedFat,
+      ),
+      nutritionCholesterol: this.toNutritionNumber(
+        this.recipe.nutritionCholesterol,
+      ),
+      nutritionSodium: this.toNutritionNumber(this.recipe.nutritionSodium),
+      nutritionTotalCarbs: this.toNutritionNumber(
+        this.recipe.nutritionTotalCarbs,
+      ),
+      nutritionDietaryFiber: this.toNutritionNumber(
+        this.recipe.nutritionDietaryFiber,
+      ),
+      nutritionTotalSugars: this.toNutritionNumber(
+        this.recipe.nutritionTotalSugars,
+      ),
+      nutritionAddedSugars: this.toNutritionNumber(
+        this.recipe.nutritionAddedSugars,
+      ),
+      nutritionProtein: this.toNutritionNumber(this.recipe.nutritionProtein),
+      nutritionVitaminD: this.toNutritionNumber(this.recipe.nutritionVitaminD),
+      nutritionCalcium: this.toNutritionNumber(this.recipe.nutritionCalcium),
+      nutritionIron: this.toNutritionNumber(this.recipe.nutritionIron),
+      nutritionPotassium: this.toNutritionNumber(
+        this.recipe.nutritionPotassium,
+      ),
+      nutritionOtherDetails: this.recipe.nutritionOtherDetails || null,
+    });
 
     this.events.publish(EventName.RecipeCreated);
 
@@ -614,72 +599,62 @@ export class EditRecipePage {
   }
 
   async _update(id: string, title: string) {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.recipes.updateRecipe.mutate({
-        id,
-        title,
-        description: this.recipe.description || "",
-        yield: this.recipe.yield || "",
-        activeTime: this.recipe.activeTime || "",
-        totalTime: this.recipe.totalTime || "",
-        source: this.recipe.source || "",
-        url: this.recipe.url || "",
-        notes: this.recipe.notes || "",
-        ingredients: this.recipe.ingredients || "",
-        instructions: this.recipe.instructions || "",
-        rating: this.recipe.rating || null,
-        folder: "main",
-        imageIds: this.images.map((image) => image.id),
-        labelIds: this.selectedLabels.map((label) => label.id),
-        lastMadeAt: this.recipe.lastMadeAt || null,
-        linkedRecipeIds: this.selectedLinkedRecipes.map((recipe) => recipe.id),
-        nutritionServingSize: this.recipe.nutritionServingSize || null,
-        nutritionCalories: this.toNutritionNumber(
-          this.recipe.nutritionCalories,
-        ),
-        nutritionTotalFat: this.toNutritionNumber(
-          this.recipe.nutritionTotalFat,
-        ),
-        nutritionSaturatedFat: this.toNutritionNumber(
-          this.recipe.nutritionSaturatedFat,
-        ),
-        nutritionTransFat: this.toNutritionNumber(
-          this.recipe.nutritionTransFat,
-        ),
-        nutritionPolyunsaturatedFat: this.toNutritionNumber(
-          this.recipe.nutritionPolyunsaturatedFat,
-        ),
-        nutritionMonounsaturatedFat: this.toNutritionNumber(
-          this.recipe.nutritionMonounsaturatedFat,
-        ),
-        nutritionCholesterol: this.toNutritionNumber(
-          this.recipe.nutritionCholesterol,
-        ),
-        nutritionSodium: this.toNutritionNumber(this.recipe.nutritionSodium),
-        nutritionTotalCarbs: this.toNutritionNumber(
-          this.recipe.nutritionTotalCarbs,
-        ),
-        nutritionDietaryFiber: this.toNutritionNumber(
-          this.recipe.nutritionDietaryFiber,
-        ),
-        nutritionTotalSugars: this.toNutritionNumber(
-          this.recipe.nutritionTotalSugars,
-        ),
-        nutritionAddedSugars: this.toNutritionNumber(
-          this.recipe.nutritionAddedSugars,
-        ),
-        nutritionProtein: this.toNutritionNumber(this.recipe.nutritionProtein),
-        nutritionVitaminD: this.toNutritionNumber(
-          this.recipe.nutritionVitaminD,
-        ),
-        nutritionCalcium: this.toNutritionNumber(this.recipe.nutritionCalcium),
-        nutritionIron: this.toNutritionNumber(this.recipe.nutritionIron),
-        nutritionPotassium: this.toNutritionNumber(
-          this.recipe.nutritionPotassium,
-        ),
-        nutritionOtherDetails: this.recipe.nutritionOtherDetails || null,
-      }),
-    );
+    const response = await this.serverActionsService.recipes.updateRecipe({
+      id,
+      title,
+      description: this.recipe.description || "",
+      yield: this.recipe.yield || "",
+      activeTime: this.recipe.activeTime || "",
+      totalTime: this.recipe.totalTime || "",
+      source: this.recipe.source || "",
+      url: this.recipe.url || "",
+      notes: this.recipe.notes || "",
+      ingredients: this.recipe.ingredients || "",
+      instructions: this.recipe.instructions || "",
+      rating: this.recipe.rating || null,
+      folder: "main",
+      imageIds: this.images.map((image) => image.id),
+      labelIds: this.selectedLabels.map((label) => label.id),
+      lastMadeAt: this.recipe.lastMadeAt || null,
+      linkedRecipeIds: this.selectedLinkedRecipes.map((recipe) => recipe.id),
+      nutritionServingSize: this.recipe.nutritionServingSize || null,
+      nutritionCalories: this.toNutritionNumber(this.recipe.nutritionCalories),
+      nutritionTotalFat: this.toNutritionNumber(this.recipe.nutritionTotalFat),
+      nutritionSaturatedFat: this.toNutritionNumber(
+        this.recipe.nutritionSaturatedFat,
+      ),
+      nutritionTransFat: this.toNutritionNumber(this.recipe.nutritionTransFat),
+      nutritionPolyunsaturatedFat: this.toNutritionNumber(
+        this.recipe.nutritionPolyunsaturatedFat,
+      ),
+      nutritionMonounsaturatedFat: this.toNutritionNumber(
+        this.recipe.nutritionMonounsaturatedFat,
+      ),
+      nutritionCholesterol: this.toNutritionNumber(
+        this.recipe.nutritionCholesterol,
+      ),
+      nutritionSodium: this.toNutritionNumber(this.recipe.nutritionSodium),
+      nutritionTotalCarbs: this.toNutritionNumber(
+        this.recipe.nutritionTotalCarbs,
+      ),
+      nutritionDietaryFiber: this.toNutritionNumber(
+        this.recipe.nutritionDietaryFiber,
+      ),
+      nutritionTotalSugars: this.toNutritionNumber(
+        this.recipe.nutritionTotalSugars,
+      ),
+      nutritionAddedSugars: this.toNutritionNumber(
+        this.recipe.nutritionAddedSugars,
+      ),
+      nutritionProtein: this.toNutritionNumber(this.recipe.nutritionProtein),
+      nutritionVitaminD: this.toNutritionNumber(this.recipe.nutritionVitaminD),
+      nutritionCalcium: this.toNutritionNumber(this.recipe.nutritionCalcium),
+      nutritionIron: this.toNutritionNumber(this.recipe.nutritionIron),
+      nutritionPotassium: this.toNutritionNumber(
+        this.recipe.nutritionPotassium,
+      ),
+      nutritionOtherDetails: this.recipe.nutritionOtherDetails || null,
+    });
 
     this.events.publish(EventName.RecipeUpdated);
 
@@ -713,18 +688,16 @@ export class EditRecipePage {
 
     const loading = this.loadingService.start();
 
-    const conflictingRecipes = await this.trpcService.handle(
-      this.trpcService.trpc.recipes.getRecipesByTitle.query({
+    const conflictingRecipes =
+      await this.serverActionsService.recipes.getRecipesByTitle({
         title: this.recipe.title,
-      }),
-    );
+      });
 
-    const uniqueTitle = await this.trpcService.handle(
-      this.trpcService.trpc.recipes.getUniqueRecipeTitle.query({
+    const uniqueTitle =
+      await this.serverActionsService.recipes.getUniqueRecipeTitle({
         title: this.recipe.title,
         ignoreIds: this.recipe.id ? [this.recipe.id] : undefined,
-      }),
-    );
+      });
 
     loading.dismiss();
     if (!conflictingRecipes || !uniqueTitle) return;
@@ -1190,10 +1163,10 @@ export class EditRecipePage {
       message: pleaseWait,
     });
     await loading.present();
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.ml.getRecipeFromText.mutate({
+    const response = await this.serverActionsService.ml.getRecipeFromText(
+      {
         text,
-      }),
+      },
       {
         ...this.getSelfhostErrorHandlers(),
         400: async () => {
@@ -1369,14 +1342,15 @@ export class EditRecipePage {
       await Promise.race([
         new Promise((resolve) => setTimeout(resolve, IMAGE_LOADING_TIMEOUT)),
         (async () => {
-          const imageResponse = await this.trpcService.handle(
-            this.trpcService.trpc.images.createRecipeImageFromUrl.mutate({
-              url: response.data.imageURL,
-            }),
-            {
-              "*": () => {},
-            },
-          );
+          const imageResponse =
+            await this.serverActionsService.images.createRecipeImageFromUrl(
+              {
+                url: response.data.imageURL,
+              },
+              {
+                "*": () => {},
+              },
+            );
           if (imageResponse) this.images.push(imageResponse);
         })(),
       ]);
@@ -1438,11 +1412,10 @@ export class EditRecipePage {
       });
       await loading.present();
 
-      const response = await this.trpcService.handle(
-        this.trpcService.trpc.images.createRecipeImageFromUrl.mutate({
+      const response =
+        await this.serverActionsService.images.createRecipeImageFromUrl({
           url: imageUrl,
-        }),
-      );
+        });
       if (response) this.images.push(response);
 
       loading.dismiss();
@@ -1525,12 +1498,10 @@ export class EditRecipePage {
   async addLabel(title: string, labelGroupId: string | null) {
     if (!title.trim()) return;
 
-    const label = await this.trpcService.handle(
-      this.trpcService.trpc.labels.createLabel.mutate({
-        title,
-        labelGroupId,
-      }),
-    );
+    const label = await this.serverActionsService.labels.createLabel({
+      title,
+      labelGroupId,
+    });
     if (!label) return;
 
     this.labels.push(label);

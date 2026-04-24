@@ -8,7 +8,7 @@ import {
 import { LoadingService } from "~/services/loading.service";
 import { UtilService, RouteMap } from "~/services/util.service";
 import { TranslateService } from "@ngx-translate/core";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import type {
   AssistantMessageSummary,
   RecipeSummaryLite,
@@ -31,7 +31,7 @@ export class AssistantPage {
   private alertCtrl = inject(AlertController);
   private loadingService = inject(LoadingService);
   private utilService = inject(UtilService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
 
   @ViewChild("content", { static: true }) content: any;
 
@@ -153,9 +153,8 @@ export class AssistantPage {
     scrollBehavior?: "newest" | "bottom" | "none",
     animateScroll?: boolean,
   ) {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.assistant.getAssistantMessages.query(),
-    );
+    const response =
+      await this.serverActionsService.assistant.getAssistantMessages();
     if (!response) return;
 
     let firstNewMessage: AssistantMessageSummary | undefined = undefined;
@@ -231,11 +230,10 @@ export class AssistantPage {
 
     this.processing = true;
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.assistant.sendAssistantMessage.query({
+    const response =
+      await this.serverActionsService.assistant.sendAssistantMessage({
         content: pendingMessage,
-      }),
-    );
+      });
 
     if (!response) {
       setTimeout(() => {

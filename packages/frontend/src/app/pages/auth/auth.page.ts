@@ -15,7 +15,7 @@ import { LoadingService } from "~/services/loading.service";
 import { MessagingService } from "~/services/messaging.service";
 import { RouteMap, AuthType } from "~/services/util.service";
 import { CapabilitiesService } from "~/services/capabilities.service";
-import { TRPCService } from "../../services/trpc.service";
+import { ServerActionsService } from "../../services/server-actions.service";
 import { appIdbStorageManager } from "../../utils/appIdbStorageManager";
 import type { SessionDTO } from "@recipesage/prisma";
 import { SwCommunicationService } from "../../services/sw-communication.service";
@@ -50,7 +50,7 @@ export class AuthPage {
   private websocketService = inject(WebsocketService);
   private alertCtrl = inject(AlertController);
   private route = inject(ActivatedRoute);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
 
   @Input() startWithRegister?: boolean;
 
@@ -144,11 +144,11 @@ export class AuthPage {
     this.loading = true;
 
     const response = this.showLogin
-      ? await this.trpcService.handle(
-          this.trpcService.trpc.users.login.mutate({
+      ? await this.serverActionsService.users.login(
+          {
             email: this.email,
             password: this.password,
-          }),
+          },
           {
             403: () =>
               this.presentAlert(
@@ -164,12 +164,12 @@ export class AuthPage {
               this.presentAlert("generic.error", "pages.auth.error.ssoAccount"),
           },
         )
-      : await this.trpcService.handle(
-          this.trpcService.trpc.users.register.mutate({
+      : await this.serverActionsService.users.register(
+          {
             name: this.name,
             email: this.email,
             password: this.password,
-          }),
+          },
           {
             400: () =>
               this.presentAlert(
@@ -242,10 +242,10 @@ export class AuthPage {
 
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.users.forgotPassword.mutate({
+    const response = await this.serverActionsService.users.forgotPassword(
+      {
         email: this.email,
-      }),
+      },
       {
         404: () =>
           this.presentAlert("generic.error", "pages.auth.error.incorrectEmail"),

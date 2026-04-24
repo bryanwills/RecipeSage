@@ -8,7 +8,7 @@ import {
   type AfterViewInit,
   inject,
 } from "@angular/core";
-import { TRPCService } from "../../services/trpc.service";
+import { ServerActionsService } from "../../services/server-actions.service";
 import {
   GOOGLE_GSI_CLIENT_ID,
   IS_SELFHOST,
@@ -28,7 +28,7 @@ const getGoogleRef = () => {
   imports: [...SHARED_UI_IMPORTS],
 })
 export class SignInWithGoogleComponent implements AfterViewInit {
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
 
   // Can be use to hide the button and only use for prompting
   @Input() showButton = true;
@@ -62,9 +62,8 @@ export class SignInWithGoogleComponent implements AfterViewInit {
   }
 
   async afterSignInComplete(args: any) {
-    const session = await this.trpcService.handle(
-      this.trpcService.trpc.users.signInWithGoogle.mutate(args),
-    );
+    const session =
+      await this.serverActionsService.users.signInWithGoogle(args);
 
     if (session) {
       this.signInComplete.emit(session);

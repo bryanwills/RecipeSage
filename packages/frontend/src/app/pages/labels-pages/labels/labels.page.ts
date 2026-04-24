@@ -14,7 +14,7 @@ import { LabelsPopoverPage } from "~/pages/labels-pages/labels-popover/labels-po
 import { ManageLabelModalPage } from "~/pages/labels-pages/manage-label-modal/manage-label-modal.page";
 import { PreferencesService } from "~/services/preferences.service";
 import { ManageLabelsPreferenceKey } from "@recipesage/util/shared";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import type { LabelGroupSummary, LabelSummary } from "@recipesage/prisma";
 import { NewLabelItemModalPage } from "../new-label-item-modal/new-label-item-modal.page";
 import { ManageLabelGroupModalPage } from "../manage-label-group-modal/manage-label-group-modal.page";
@@ -37,7 +37,7 @@ export class LabelsPage {
   private modalCtrl = inject(ModalController);
   private utilService = inject(UtilService);
   private preferencesService = inject(PreferencesService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
 
   preferences = this.preferencesService.preferences;
   preferenceKeys = ManageLabelsPreferenceKey;
@@ -66,10 +66,8 @@ export class LabelsPage {
     this.loading = true;
 
     const [labelsResponse, labelGroupsResponse] = await Promise.all([
-      this.trpcService.handle(this.trpcService.trpc.labels.getLabels.query()),
-      this.trpcService.handle(
-        this.trpcService.trpc.labelGroups.getLabelGroups.query(),
-      ),
+      this.serverActionsService.labels.getLabels(),
+      this.serverActionsService.labelGroups.getLabelGroups(),
     ]);
 
     this.loading = false;
@@ -201,12 +199,11 @@ export class LabelsPage {
           cssClass: "alertDanger",
           handler: async () => {
             const loading = this.loadingService.start();
-            const response = await this.trpcService.handle(
-              this.trpcService.trpc.labels.deleteLabels.mutate({
+            const response =
+              await this.serverActionsService.labels.deleteLabels({
                 ids: this.selectedLabelIds,
                 includeAttachedRecipes: false,
-              }),
-            );
+              });
             if (!response) return loading.dismiss();
 
             this.clearSelectedLabels();

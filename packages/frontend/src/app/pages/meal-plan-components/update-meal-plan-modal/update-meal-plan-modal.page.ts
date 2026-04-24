@@ -2,7 +2,7 @@ import { Component, Input, inject } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 
 import { LoadingService } from "~/services/loading.service";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectCollaboratorsComponent } from "../../../components/select-collaborators/select-collaborators.component";
 import { MealPlanMealOrderModalPage } from "../meal-plan-meal-order-modal/meal-plan-meal-order-modal.page";
@@ -17,7 +17,7 @@ import { MealPlanMealOrderModalPage } from "../meal-plan-meal-order-modal/meal-p
 export class UpdateMealPlanModalPage {
   private modalCtrl = inject(ModalController);
   private loadingService = inject(LoadingService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
 
   @Input({
     required: true,
@@ -36,11 +36,9 @@ export class UpdateMealPlanModalPage {
   async load() {
     const loading = this.loadingService.start();
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.getMealPlan.query({
-        id: this.mealPlanId,
-      }),
-    );
+    const result = await this.serverActionsService.mealPlans.getMealPlan({
+      id: this.mealPlanId,
+    });
     loading.dismiss();
     if (!result) return;
 
@@ -72,14 +70,12 @@ export class UpdateMealPlanModalPage {
   async save() {
     const loading = this.loadingService.start();
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.updateMealPlan.mutate({
-        id: this.mealPlanId,
-        title: this.mealPlanTitle,
-        collaboratorUserIds: this.selectedCollaboratorIds,
-        customMealOptions: this.customMealOptions,
-      }),
-    );
+    const result = await this.serverActionsService.mealPlans.updateMealPlan({
+      id: this.mealPlanId,
+      title: this.mealPlanTitle,
+      collaboratorUserIds: this.selectedCollaboratorIds,
+      customMealOptions: this.customMealOptions,
+    });
     loading.dismiss();
     if (!result) return;
 

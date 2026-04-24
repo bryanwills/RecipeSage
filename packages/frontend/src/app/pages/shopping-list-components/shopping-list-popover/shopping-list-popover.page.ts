@@ -20,7 +20,7 @@ import {
   ShoppingListItemSummary,
   ShoppingListSummary,
 } from "@recipesage/prisma";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import { ShoppingListCategoryOrderModalPage } from "../shopping-list-category-order-modal/shopping-list-category-order-modal.page";
 
 @Component({
@@ -36,7 +36,7 @@ export class ShoppingListPopoverPage {
   private utilService = inject(UtilService);
   private preferencesService = inject(PreferencesService);
   private loadingService = inject(LoadingService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private popoverCtrl = inject(PopoverController);
   private alertCtrl = inject(AlertController);
   private modalCtrl = inject(ModalController);
@@ -127,12 +127,10 @@ export class ShoppingListPopoverPage {
 
     const itemIds = this.shoppingListItems.map((el: any) => el.id);
 
-    await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.deleteShoppingListItems.mutate({
-        ids: itemIds,
-        shoppingListId: this.shoppingListId,
-      }),
-    );
+    await this.serverActionsService.shoppingLists.deleteShoppingListItems({
+      ids: itemIds,
+      shoppingListId: this.shoppingListId,
+    });
 
     loading.dismiss();
   }
@@ -180,11 +178,10 @@ export class ShoppingListPopoverPage {
   async _deleteList() {
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.deleteShoppingList.mutate({
+    const response =
+      await this.serverActionsService.shoppingLists.deleteShoppingList({
         id: this.shoppingListId,
-      }),
-    );
+      });
     loading.dismiss();
     if (!response) return;
 

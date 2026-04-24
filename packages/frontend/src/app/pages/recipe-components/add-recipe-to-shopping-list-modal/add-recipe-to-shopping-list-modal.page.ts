@@ -13,7 +13,7 @@ import { UtilService } from "~/services/util.service";
 import { NewShoppingListModalPage } from "~/pages/shopping-list-components/new-shopping-list-modal/new-shopping-list-modal.page";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectIngredientsComponent } from "../../../components/select-ingredients/select-ingredients.component";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import type { RecipeSummary, ShoppingListSummary } from "@recipesage/prisma";
 
 @Component({
@@ -32,7 +32,7 @@ export class AddRecipeToShoppingListModalPage {
   toastCtrl = inject(ToastController);
   alertCtrl = inject(AlertController);
   modalCtrl = inject(ModalController);
-  trpcService = inject(TRPCService);
+  serverActionsService = inject(ServerActionsService);
 
   @Input({
     required: true,
@@ -81,9 +81,8 @@ export class AddRecipeToShoppingListModalPage {
   }
 
   async loadLists() {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.getShoppingLists.query(),
-    );
+    const response =
+      await this.serverActionsService.shoppingLists.getShoppingLists();
     if (!response) return;
 
     this.shoppingLists = response.sort((a, b) =>
@@ -136,12 +135,11 @@ export class AddRecipeToShoppingListModalPage {
       return;
     }
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.createShoppingListItems.mutate({
+    const response =
+      await this.serverActionsService.shoppingLists.createShoppingListItems({
         shoppingListId: this.destinationShoppingList.id,
         items,
-      }),
-    );
+      });
 
     this.saving = false;
     loading.dismiss();

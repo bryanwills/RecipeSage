@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, inject } from "@angular/core";
 import { LoadingService } from "~/services/loading.service";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
-import { TRPCService } from "../../services/trpc.service";
+import { ServerActionsService } from "../../services/server-actions.service";
 import { LabelSummary } from "@recipesage/prisma";
 
 @Component({
@@ -13,7 +13,7 @@ import { LabelSummary } from "@recipesage/prisma";
 })
 export class SelectLabelComponent {
   private loadingService = inject(LoadingService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
 
   searchText = "";
 
@@ -39,9 +39,7 @@ export class SelectLabelComponent {
 
   async load() {
     const loading = this.loadingService.start();
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.labels.getLabels.query(),
-    );
+    const response = await this.serverActionsService.labels.getLabels();
     loading.dismiss();
     if (!response) return;
 
