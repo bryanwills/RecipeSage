@@ -13,7 +13,7 @@ import {
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { TosClickwrapAgreementComponent } from "../../../components/tos-clickwrap-agreement/tos-clickwrap-agreement.component";
 import { LogoIconComponent } from "../../../components/logo-icon/logo-icon.component";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import { appIdbStorageManager } from "../../../utils/appIdbStorageManager";
 
 const BILLING_PORTAL_URL =
@@ -32,7 +32,7 @@ const BILLING_PORTAL_URL =
 })
 export class ContributePage {
   capabilitiesService = inject(CapabilitiesService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private featureFlagService = inject(FeatureFlagService);
   private translate = inject(TranslateService);
   private utilService = inject(UtilService);
@@ -105,28 +105,29 @@ export class ContributePage {
       .get("pages.contribute.minimum", { amount: minimumAmount })
       .toPromise();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.payments.createStripeCheckoutSession.mutate({
-        amount: amount * 100,
-        frequency: this.frequency as "monthly" | "yearly" | "single",
-        successUrl: this.utilService.buildPublicRoutePath(
-          RouteMap.ContributeThankYouPage.getPath(),
-        ),
-        cancelUrl: this.utilService.buildPublicRoutePath(
-          RouteMap.ContributeCancelPage.getPath(),
-        ),
-      }),
-      {
-        412: async () => {
-          (
-            await this.toastCtrl.create({
-              message,
-              duration: 5000,
-            })
-          ).present();
+    const response =
+      await this.serverActionsService.payments.createStripeCheckoutSession(
+        {
+          amount: amount * 100,
+          frequency: this.frequency as "monthly" | "yearly" | "single",
+          successUrl: this.utilService.buildPublicRoutePath(
+            RouteMap.ContributeThankYouPage.getPath(),
+          ),
+          cancelUrl: this.utilService.buildPublicRoutePath(
+            RouteMap.ContributeCancelPage.getPath(),
+          ),
         },
-      },
-    );
+        {
+          412: async () => {
+            (
+              await this.toastCtrl.create({
+                message,
+                duration: 5000,
+              })
+            ).present();
+          },
+        },
+      );
     if (!response || !response.url) return;
 
     window.location.href = response.url;

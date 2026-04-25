@@ -5,7 +5,7 @@ import { LoadingService } from "~/services/loading.service";
 
 import { NewMealPlanModalPage } from "~/pages/meal-plan-components/new-meal-plan-modal/new-meal-plan-modal.page";
 import { TranslateService } from "@ngx-translate/core";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import type { MealPlanItemSummary, MealPlanSummary } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { MealCalendarComponent } from "../../../components/meal-calendar/meal-calendar.component";
@@ -20,7 +20,7 @@ import { SelectMealComponent } from "../../../components/select-meal/select-meal
 })
 export class AddRecipeToMealPlanModalPage {
   private translate = inject(TranslateService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private loadingService = inject(LoadingService);
   private toastCtrl = inject(ToastController);
   private modalCtrl = inject(ModalController);
@@ -73,9 +73,7 @@ export class AddRecipeToMealPlanModalPage {
   }
 
   async loadMealPlans() {
-    const mealPlans = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.getMealPlans.query(),
-    );
+    const mealPlans = await this.serverActionsService.mealPlans.getMealPlans();
     if (!mealPlans) return;
 
     this.mealPlans = mealPlans.sort((a, b) => a.title.localeCompare(b.title));
@@ -84,11 +82,10 @@ export class AddRecipeToMealPlanModalPage {
   }
 
   async loadMealPlan(id: string) {
-    const mealPlanItems = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.getMealPlanItems.query({
+    const mealPlanItems =
+      await this.serverActionsService.mealPlans.getMealPlanItems({
         mealPlanId: id,
-      }),
-    );
+      });
 
     if (!mealPlanItems) return;
 
@@ -108,15 +105,15 @@ export class AddRecipeToMealPlanModalPage {
 
     this.saveLastUsedMealPlan();
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.createMealPlanItem.mutate({
+    const result = await this.serverActionsService.mealPlans.createMealPlanItem(
+      {
         mealPlanId: this.selectedMealPlan.id,
         title: this.recipe.title,
         recipeId: this.recipe.id,
         meal: this.meal as any, // TODO: Refine this type so that it aligns with Zod
         notes: this.notes,
         scheduledDate: this.selectedDays[0],
-      }),
+      },
     );
     loading.dismiss();
 

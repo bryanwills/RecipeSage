@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, inject } from "@angular/core";
 import { LoadingService } from "~/services/loading.service";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
-import { TRPCService } from "../../services/trpc.service";
+import { ServerActionsService } from "../../services/server-actions.service";
 import type {
   RecipeSummary,
   RecipeSummaryLite,
@@ -17,7 +17,7 @@ import type {
 })
 export class SelectRecipeComponent {
   private loadingService = inject(LoadingService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
 
   myProfile?: UserPublic;
   friendsById?: {
@@ -53,24 +53,18 @@ export class SelectRecipeComponent {
   }
 
   async fetchMyProfile() {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.users.getMe.query(),
-      {
-        401: () => {},
-      },
-    );
+    const response = await this.serverActionsService.users.getMe({
+      401: () => {},
+    });
     if (!response) return;
 
     this.myProfile = response;
   }
 
   async fetchFriends() {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.users.getMyFriends.query(),
-      {
-        401: () => {},
-      },
-    );
+    const response = await this.serverActionsService.users.getMyFriends({
+      401: () => {},
+    });
     if (!response) return;
 
     this.friendsById = response.friends.reduce(
@@ -85,13 +79,11 @@ export class SelectRecipeComponent {
   async search(text: string) {
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.recipes.searchRecipes.query({
-        searchTerm: text,
-        folder: "main",
-        includeAllFriends: this.includeAllFriends,
-      }),
-    );
+    const response = await this.serverActionsService.recipes.searchRecipes({
+      searchTerm: text,
+      folder: "main",
+      includeAllFriends: this.includeAllFriends,
+    });
     loading.dismiss();
     this.searching = false;
 
@@ -117,11 +109,9 @@ export class SelectRecipeComponent {
   async selectRecipe(recipe: RecipeSummaryLite) {
     this.searchText = "";
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.recipes.getRecipe.query({
-        id: recipe.id,
-      }),
-    );
+    const response = await this.serverActionsService.recipes.getRecipe({
+      id: recipe.id,
+    });
     if (!response) return;
 
     if (this.enableSelectedState) {

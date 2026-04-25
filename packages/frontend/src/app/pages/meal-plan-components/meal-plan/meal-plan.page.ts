@@ -28,7 +28,7 @@ import { MealPlanPopoverPage } from "~/pages/meal-plan-components/meal-plan-popo
 import { MealPlanItemDetailsModalPage } from "~/pages/meal-plan-components/meal-plan-item-details-modal/meal-plan-item-details-modal.page";
 import { MealPlanBulkPinModalPage } from "@recipesage/frontend/src/app/pages/meal-plan-components/meal-plan-bulk-pin-modal/meal-plan-bulk-pin-modal.page";
 import { AddRecipeToShoppingListModalPage } from "~/pages/recipe-components/add-recipe-to-shopping-list-modal/add-recipe-to-shopping-list-modal.page";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import type {
   MealPlanItemSummary,
   MealPlanSummary,
@@ -49,7 +49,7 @@ export class MealPlanPage {
   private translate = inject(TranslateService);
   private navCtrl = inject(NavController);
   private loadingService = inject(LoadingService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private websocketService = inject(WebsocketService);
   private preferencesService = inject(PreferencesService);
   private modalCtrl = inject(ModalController);
@@ -142,9 +142,7 @@ export class MealPlanPage {
   }
 
   async loadMe() {
-    const me = await this.trpcService.handle(
-      this.trpcService.trpc.users.getMe.query(),
-    );
+    const me = await this.serverActionsService.users.getMe();
     if (!me) return;
 
     this.me = me;
@@ -152,16 +150,12 @@ export class MealPlanPage {
 
   async loadMealPlan() {
     const [mealPlan, mealPlanItems] = await Promise.all([
-      this.trpcService.handle(
-        this.trpcService.trpc.mealPlans.getMealPlan.query({
-          id: this.mealPlanId,
-        }),
-      ),
-      this.trpcService.handle(
-        this.trpcService.trpc.mealPlans.getMealPlanItems.query({
-          mealPlanId: this.mealPlanId,
-        }),
-      ),
+      this.serverActionsService.mealPlans.getMealPlan({
+        id: this.mealPlanId,
+      }),
+      this.serverActionsService.mealPlans.getMealPlanItems({
+        mealPlanId: this.mealPlanId,
+      }),
     ]);
     if (!mealPlan || !mealPlanItems) return;
     this.mealPlan = mealPlan;
@@ -192,16 +186,14 @@ export class MealPlanPage {
   }) {
     const loading = this.loadingService.start();
 
-    await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.createMealPlanItem.mutate({
-        mealPlanId: this.mealPlanId,
-        title: item.title,
-        recipeId: item.recipeId || null,
-        meal: item.meal,
-        notes: item.notes,
-        scheduledDate: item.scheduledDate,
-      }),
-    );
+    await this.serverActionsService.mealPlans.createMealPlanItem({
+      mealPlanId: this.mealPlanId,
+      title: item.title,
+      recipeId: item.recipeId || null,
+      meal: item.meal,
+      notes: item.notes,
+      scheduledDate: item.scheduledDate,
+    });
 
     await this.loadMealPlan();
 
@@ -293,16 +285,14 @@ export class MealPlanPage {
     const item = data.item;
 
     const loading = this.loadingService.start();
-    await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.updateMealPlanItem.mutate({
-        id: mealItem.id,
-        title: item.title,
-        recipeId: item.recipeId,
-        scheduledDate: item.scheduledDate,
-        meal: item.meal,
-        notes: item.notes,
-      }),
-    );
+    await this.serverActionsService.mealPlans.updateMealPlanItem({
+      id: mealItem.id,
+      title: item.title,
+      recipeId: item.recipeId,
+      scheduledDate: item.scheduledDate,
+      meal: item.meal,
+      notes: item.notes,
+    });
     loading.dismiss();
     this.loadWithProgress();
   }
@@ -658,12 +648,10 @@ export class MealPlanPage {
       .flat();
 
     const loading = this.loadingService.start();
-    await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.updateMealPlanItems.mutate({
-        mealPlanId: this.mealPlanId,
-        items: updatedItems,
-      }),
-    );
+    await this.serverActionsService.mealPlans.updateMealPlanItems({
+      mealPlanId: this.mealPlanId,
+      items: updatedItems,
+    });
     loading.dismiss();
     this.loadWithProgress();
   }
@@ -692,12 +680,10 @@ export class MealPlanPage {
       .flat();
 
     const loading = this.loadingService.start();
-    await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.createMealPlanItems.mutate({
-        mealPlanId: this.mealPlanId,
-        items: newItems,
-      }),
-    );
+    await this.serverActionsService.mealPlans.createMealPlanItems({
+      mealPlanId: this.mealPlanId,
+      items: newItems,
+    });
     loading.dismiss();
     this.loadWithProgress();
   }
@@ -708,12 +694,10 @@ export class MealPlanPage {
       .flat();
 
     const loading = this.loadingService.start();
-    await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.deleteMealPlanItems.mutate({
-        mealPlanId: this.mealPlanId,
-        ids: itemIds,
-      }),
-    );
+    await this.serverActionsService.mealPlans.deleteMealPlanItems({
+      mealPlanId: this.mealPlanId,
+      ids: itemIds,
+    });
     loading.dismiss();
     this.loadWithProgress();
   }

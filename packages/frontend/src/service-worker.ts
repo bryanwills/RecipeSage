@@ -31,56 +31,16 @@ import { precacheAndRoute, cleanupOutdatedCaches } from "workbox-precaching";
 import { clientsClaim } from "workbox-core";
 import { CacheFirst, NetworkFirst } from "workbox-strategies";
 import { ExpirationPlugin } from "workbox-expiration";
-import { getLocalDb } from "./app/utils/localDb";
-import { SearchManager } from "./app/utils/SearchManager";
-import { SyncManager } from "./app/utils/SyncManager";
 import { initializeApp } from "firebase/app";
 import {
   getMessaging,
   onBackgroundMessage,
   isSupported as isMessagingSupported,
 } from "firebase/messaging/sw";
-import {
-  registerGetRecipesRoute,
-  registerGetRecipeRoute,
-  registerSearchRecipesRoute,
-  registerUpdateRecipeRoute,
-  registerCreateRecipeRoute,
-  registerRecipeMutationWildcardRoute,
-  registerGetSimilarRecipesRoute,
-  registerGetRecipesByTitleRoute,
-  registerGetUniqueRecipeTitleRoute,
-  registerGetRecipesByIdsRoute,
-} from "./app/utils/serviceWorker/routes/recipes";
-import {
-  registerGetShoppingListsRoute,
-  registerGetShoppingListRoute,
-  registerGetShoppingListItemsRoute,
-  registerShoppingListMutationWildcardRoute,
-} from "./app/utils/serviceWorker/routes/shoppingLists";
-import {
-  registerGetMealPlansRoute,
-  registerGetMealPlanRoute,
-  registerGetMealPlanItemsRoute,
-  registerMealPlanMutationWildcardRoute,
-} from "./app/utils/serviceWorker/routes/mealPlans";
-import { SW_BROADCAST_CHANNEL_NAME } from "./app/utils/SW_BROADCAST_CHANNEL_NAME";
-import { registerGetAssistantMessagesRoute } from "./app/utils/serviceWorker/routes/assistant";
-import {
-  registerGetJobRoute,
-  registerGetJobsRoute,
-} from "./app/utils/serviceWorker/routes/jobs";
-import {
-  registerGetMeRoute,
-  registerGetMyFriendsRoute,
-  registerGetMyStatsRoute,
-} from "./app/utils/serviceWorker/routes/users";
 import { SWMessageType } from "./app/utils/localDb/sendMessageToSW";
 import { DebugStoreService } from "./app/services/debugStore.service";
 
 const RS_LOGO_URL = "https://recipesage.com/assets/imgs/logo_green.png";
-
-const broadcastChannel = new BroadcastChannel(SW_BROADCAST_CHANNEL_NAME);
 
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST || []);
@@ -162,38 +122,6 @@ self.addEventListener("install", async (event) => {
 });
 
 const debugStore = new DebugStoreService();
-const searchManagerP = getLocalDb().then(
-  (localDb) => new SearchManager(localDb),
-);
-const syncManagerP = Promise.all([getLocalDb(), searchManagerP]).then(
-  ([localDb, searchManager]) => new SyncManager(localDb, searchManager),
-);
-syncManagerP.then((syncManager) => {
-  syncManager.syncAll();
-});
-
-broadcastChannel.addEventListener("message", async (event) => {
-  if (event.data.type === "triggerFullSync") {
-    const syncManager = await syncManagerP;
-    await syncManager.syncAll();
-
-    if (event.data.notification) {
-      await self.registration.showNotification(event.data.notification.title, {
-        tag: event.data.notification.tag || "syncCompleted",
-        icon: RS_LOGO_URL,
-        body: event.data.notification.body,
-      });
-    }
-
-    return;
-  }
-
-  if (event.data.type === "triggerRecipeSyncById") {
-    syncManagerP.then((syncManager) => {
-      syncManager.syncRecipe(event.data.recipeId);
-    });
-  }
-});
 
 addEventListener("message", async (event) => {
   if (!event.data?.type) {
@@ -249,36 +177,6 @@ registerRoute(
     ],
   }),
 );
-
-registerGetRecipesRoute();
-registerGetRecipeRoute();
-registerGetSimilarRecipesRoute();
-registerGetRecipesByIdsRoute();
-registerGetRecipesByTitleRoute();
-registerGetUniqueRecipeTitleRoute();
-registerSearchRecipesRoute(searchManagerP);
-registerUpdateRecipeRoute(syncManagerP);
-registerCreateRecipeRoute(syncManagerP);
-registerRecipeMutationWildcardRoute(syncManagerP);
-
-registerGetShoppingListsRoute();
-registerGetShoppingListRoute();
-registerGetShoppingListItemsRoute();
-registerShoppingListMutationWildcardRoute(syncManagerP);
-
-registerGetMealPlansRoute();
-registerGetMealPlanRoute();
-registerGetMealPlanItemsRoute();
-registerMealPlanMutationWildcardRoute(syncManagerP);
-
-registerGetAssistantMessagesRoute();
-
-registerGetJobRoute();
-registerGetJobsRoute();
-
-registerGetMeRoute();
-registerGetMyFriendsRoute();
-registerGetMyStatsRoute();
 
 // API calls should always fetch the newest if available. Fall back on cache for offline support.
 // Limit the maxiumum age so that requests aren't too stale.

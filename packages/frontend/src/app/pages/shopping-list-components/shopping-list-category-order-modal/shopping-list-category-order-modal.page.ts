@@ -2,7 +2,7 @@ import { Component, inject, Input } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 
 @Component({
   standalone: true,
@@ -13,7 +13,7 @@ import { TRPCService } from "../../../services/trpc.service";
 })
 export class ShoppingListCategoryOrderModalPage {
   private modalCtrl = inject(ModalController);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
 
   @Input({
     required: true,
@@ -26,12 +26,10 @@ export class ShoppingListCategoryOrderModalPage {
   categoryOrder: string | undefined;
 
   async save() {
-    await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.updateShoppingList.mutate({
-        id: this.shoppingListId,
-        categoryOrder: this.categoryOrder,
-      }),
-    );
+    await this.serverActionsService.shoppingLists.updateShoppingList({
+      id: this.shoppingListId,
+      categoryOrder: this.categoryOrder,
+    });
     this.close();
   }
 

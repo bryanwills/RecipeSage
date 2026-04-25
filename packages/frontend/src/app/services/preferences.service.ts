@@ -18,7 +18,7 @@ import {
   StartPageOptions,
   SupportedFontSize,
 } from "@recipesage/util/shared";
-import { TRPCService } from "./trpc.service";
+import { ServerActionsService } from "./server-actions.service";
 import { UtilService } from "./util.service";
 import { TranslateService } from "@ngx-translate/core";
 import { EventName, EventService } from "./event.service";
@@ -29,7 +29,7 @@ const PREFERENCE_LOCALSTORAGE_KEY = "preferences";
   providedIn: "root",
 })
 export class PreferencesService {
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private injector = inject(Injector);
   private translate = inject(TranslateService);
   private events = inject(EventService);
@@ -100,7 +100,9 @@ export class PreferencesService {
 
     // Do not sync remote preferences if not logged in
     if (!localStorage.getItem("token")) return;
-    this.trpcService.trpc.users.updatePreferences.mutate(this.preferences);
+    this.serverActionsService.users.updatePreferences(this.preferences, {
+      "*": () => {},
+    });
   }
 
   /**
@@ -161,8 +163,8 @@ export class PreferencesService {
 
     // Do not sync remote preferences if not logged in
     if (!localStorage.getItem("token")) return;
-    this.trpcService
-      .handle(this.trpcService.trpc.users.getPreferences.query(), {
+    this.serverActionsService.users
+      .getPreferences({
         "*": () => {},
       })
       .then((remotePreferences) => {

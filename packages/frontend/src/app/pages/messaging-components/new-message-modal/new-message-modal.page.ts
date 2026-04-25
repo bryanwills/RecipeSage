@@ -8,7 +8,7 @@ import { TranslateService } from "@ngx-translate/core";
 
 import { MessagingService } from "~/services/messaging.service";
 import { UtilService, RouteMap } from "~/services/util.service";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import { UserPublic } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectUserComponent } from "../../../components/select-user/select-user.component";
@@ -25,7 +25,7 @@ export class NewMessageModalPage {
   translate = inject(TranslateService);
   modalCtrl = inject(ModalController);
   toastCtrl = inject(ToastController);
-  trpcService = inject(TRPCService);
+  serverActionsService = inject(ServerActionsService);
   utilService = inject(UtilService);
   messagingService = inject(MessagingService);
 
@@ -44,11 +44,9 @@ export class NewMessageModalPage {
   }
 
   async setSelectedUser(recipientId: string) {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.users.getUserProfilesById.query({
-        ids: [recipientId],
-      }),
-    );
+    const response = await this.serverActionsService.users.getUserProfilesById({
+      ids: [recipientId],
+    });
     const profile = response?.at(0);
     if (!profile) return;
 

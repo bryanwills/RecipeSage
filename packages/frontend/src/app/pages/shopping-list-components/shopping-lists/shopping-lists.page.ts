@@ -13,7 +13,7 @@ import { ShoppingListIgnoreModalPage } from "../shopping-list-ignore-modal/shopp
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { NullStateComponent } from "../../../components/null-state/null-state.component";
 import { ShoppingListSummary, UserPublic } from "@recipesage/prisma";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 
 @Component({
   standalone: true,
@@ -26,7 +26,7 @@ export class ShoppingListsPage {
   navCtrl = inject(NavController);
   modalCtrl = inject(ModalController);
   toastCtrl = inject(ToastController);
-  trpcService = inject(TRPCService);
+  serverActionsService = inject(ServerActionsService);
   websocketService = inject(WebsocketService);
   loadingService = inject(LoadingService);
   utilService = inject(UtilService);
@@ -58,18 +58,15 @@ export class ShoppingListsPage {
   }
 
   async loadMe() {
-    const me = await this.trpcService.handle(
-      this.trpcService.trpc.users.getMe.query(),
-    );
+    const me = await this.serverActionsService.users.getMe();
     if (!me) return;
 
     this.me = me;
   }
 
   loadLists = async () => {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.getShoppingLists.query(),
-    );
+    const response =
+      await this.serverActionsService.shoppingLists.getShoppingLists();
     if (!response) return;
 
     this.shoppingLists = response.sort((a, b) => {

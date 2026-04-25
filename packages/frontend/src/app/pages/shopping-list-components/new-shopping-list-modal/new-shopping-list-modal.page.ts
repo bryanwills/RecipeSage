@@ -11,7 +11,7 @@ import { UserService } from "~/services/user.service";
 import { UtilService, RouteMap } from "~/services/util.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectCollaboratorsComponent } from "../../../components/select-collaborators/select-collaborators.component";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 
 @Component({
   standalone: true,
@@ -25,7 +25,7 @@ export class NewShoppingListModalPage {
   navCtrl = inject(NavController);
   utilService = inject(UtilService);
   loadingService = inject(LoadingService);
-  trpcService = inject(TRPCService);
+  serverActionsService = inject(ServerActionsService);
   messagingService = inject(MessagingService);
   userService = inject(UserService);
   toastCtrl = inject(ToastController);
@@ -43,12 +43,11 @@ export class NewShoppingListModalPage {
     this.saving = true;
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.createShoppingList.mutate({
+    const response =
+      await this.serverActionsService.shoppingLists.createShoppingList({
         title: this.listTitle,
         collaboratorUserIds: this.selectedCollaboratorIds,
-      }),
-    );
+      });
 
     this.saving = false;
     loading.dismiss();

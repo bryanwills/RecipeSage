@@ -1,14 +1,14 @@
 import { Injectable, inject } from "@angular/core";
 import { UtilService } from "./util.service";
+import { ServerActionsService } from "./server-actions.service";
 import { GRIP_WS_URL } from "../../environments/environment";
-import { trpcClient } from "../utils/trpcClient";
-import { TRPCClientError } from "@trpc/client";
 
 @Injectable({
   providedIn: "root",
 })
 export class WebsocketService {
   utilService = inject(UtilService);
+  private serverActionsService = inject(ServerActionsService);
 
   connection: WebSocket | undefined;
   reconnectTimeout: NodeJS.Timeout | undefined;
@@ -69,17 +69,18 @@ export class WebsocketService {
   private async connect() {
     if (!this.utilService.isLoggedIn()) return this.queueReconnect();
 
-    try {
-      await trpcClient.users.validateSession.query();
-    } catch (e) {
-      if (e instanceof TRPCClientError) {
-        if (e.data?.httpStatus === 401) {
-          // We break the reconnect loop until the next auth
-          return;
-        }
-      }
-      return this.queueReconnect();
+    let unauthorized = false;
+    const session = await this.serverActionsService.users.validateSession({
+      401: () => {
+        unauthorized = true;
+      },
+      "*": () => {},
+    });
+    if (unauthorized) {
+      // We break the reconnect loop until the next auth
+      return;
     }
+    if (!session) return this.queueReconnect();
 
     let prot = "ws";
     if ((window.location.href as any).indexOf("https") > -1) prot = "wss";

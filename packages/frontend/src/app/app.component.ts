@@ -32,6 +32,8 @@ import {
 } from "./services/feature-flag.service";
 import { Title } from "@angular/platform-browser";
 import { TRPCService } from "./services/trpc.service";
+import { ServerActionsService } from "./services/server-actions.service";
+import { SyncService } from "./services/sync.service";
 import { appIdbStorageManager } from "./utils/appIdbStorageManager";
 import { SHARED_UI_IMPORTS } from "./providers/shared-ui.provider";
 import { CookingToolbarComponent } from "./components/cooking-toolbar/cooking-toolbar.component";
@@ -56,6 +58,8 @@ export class AppComponent {
   private navCtrl = inject(NavController);
   private route = inject(ActivatedRoute);
   private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
+  private syncService = inject(SyncService);
   private router = inject(Router);
   private platform = inject(Platform);
   private menuCtrl = inject(MenuController);
@@ -550,8 +554,8 @@ export class AppComponent {
       const currentIdbSession = await appIdbStorageManager.getSession();
       if (currentIdbSession) return;
 
-      const me = await this.trpcService.trpc.users.getMe.query().catch((e) => {
-        Sentry.captureException(e);
+      const me = await this.serverActionsService.users.getMe({
+        "*": () => {},
       });
 
       if (!me) return;

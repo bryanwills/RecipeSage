@@ -16,7 +16,7 @@ import {
   MealPlanViewTypeOptions,
 } from "@recipesage/util/shared";
 import { ICalMealPlanModalPage } from "../ical-meal-plan-modal/ical-meal-plan-modal.page";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import { UpdateMealPlanModalPage } from "../update-meal-plan-modal/update-meal-plan-modal.page";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import type { MealPlanSummary } from "@recipesage/prisma";
@@ -35,7 +35,7 @@ export class MealPlanPopoverPage {
   private navCtrl = inject(NavController);
   private preferencesService = inject(PreferencesService);
   private loadingService = inject(LoadingService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private alertCtrl = inject(AlertController);
   private utilService = inject(UtilService);
 
@@ -178,11 +178,9 @@ export class MealPlanPopoverPage {
   async _deleteMealPlan() {
     const loading = this.loadingService.start();
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.deleteMealPlan.mutate({
-        id: this.mealPlanId,
-      }),
-    );
+    const result = await this.serverActionsService.mealPlans.deleteMealPlan({
+      id: this.mealPlanId,
+    });
     loading.dismiss();
     if (!result) return;
 

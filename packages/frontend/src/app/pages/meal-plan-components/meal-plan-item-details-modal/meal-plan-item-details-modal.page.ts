@@ -17,7 +17,7 @@ import { AddRecipeToShoppingListModalPage } from "~/pages/recipe-components/add-
 import dayjs from "dayjs";
 import type { MealPlanItemSummary } from "@recipesage/prisma";
 import { parseNotes } from "@recipesage/util/shared";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 
 @Component({
@@ -32,7 +32,7 @@ export class MealPlanItemDetailsModalPage {
   private translate = inject(TranslateService);
   private modalCtrl = inject(ModalController);
   private alertCtrl = inject(AlertController);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   cookingToolbarService = inject(CookingToolbarService);
   private recipeService = inject(RecipeService);
   private loadingService = inject(LoadingService);
@@ -88,15 +88,15 @@ export class MealPlanItemDetailsModalPage {
 
     const loading = this.loadingService.start();
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.updateMealPlanItem.mutate({
+    const result = await this.serverActionsService.mealPlans.updateMealPlanItem(
+      {
         id: this.mealItem.id,
         title: item.title,
         recipeId: item.recipeId,
         scheduledDate: item.scheduledDate,
         meal: item.meal,
         notes: item.notes,
-      }),
+      },
     );
     loading.dismiss();
     if (!result) return;
@@ -128,15 +128,15 @@ export class MealPlanItemDetailsModalPage {
 
     const loading = this.loadingService.start();
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.createMealPlanItem.mutate({
+    const result = await this.serverActionsService.mealPlans.createMealPlanItem(
+      {
         mealPlanId: this.mealPlanId,
         title: item.title,
         recipeId: item.recipeId,
         scheduledDate: item.scheduledDate,
         meal: item.meal,
         notes: item.notes,
-      }),
+      },
     );
 
     loading.dismiss();
@@ -181,10 +181,10 @@ export class MealPlanItemDetailsModalPage {
   async _delete() {
     const loading = this.loadingService.start();
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.deleteMealPlanItem.mutate({
+    const result = await this.serverActionsService.mealPlans.deleteMealPlanItem(
+      {
         id: this.mealItem.id,
-      }),
+      },
     );
     loading.dismiss();
     if (!result) return;

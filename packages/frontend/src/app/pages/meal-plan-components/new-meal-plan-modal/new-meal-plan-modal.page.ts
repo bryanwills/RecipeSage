@@ -3,7 +3,7 @@ import { NavController, ModalController } from "@ionic/angular";
 
 import { LoadingService } from "~/services/loading.service";
 import { RouteMap } from "~/services/util.service";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectCollaboratorsComponent } from "../../../components/select-collaborators/select-collaborators.component";
 import { MealPlanMealOrderModalPage } from "../meal-plan-meal-order-modal/meal-plan-meal-order-modal.page";
@@ -19,7 +19,7 @@ export class NewMealPlanModalPage {
   private navCtrl = inject(NavController);
   private modalCtrl = inject(ModalController);
   private loadingService = inject(LoadingService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
 
   mealPlanTitle = "";
   customMealOptions: string | null = null;
@@ -44,13 +44,11 @@ export class NewMealPlanModalPage {
   async save() {
     const loading = this.loadingService.start();
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.createMealPlan.mutate({
-        title: this.mealPlanTitle,
-        collaboratorUserIds: this.selectedCollaboratorIds,
-        customMealOptions: this.customMealOptions,
-      }),
-    );
+    const result = await this.serverActionsService.mealPlans.createMealPlan({
+      title: this.mealPlanTitle,
+      collaboratorUserIds: this.selectedCollaboratorIds,
+      customMealOptions: this.customMealOptions,
+    });
     loading.dismiss();
     if (!result) return;
 

@@ -46,7 +46,7 @@ import type {
   RecipeSummaryLite,
   UserPublic,
 } from "@recipesage/prisma";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import { Title } from "@angular/platform-browser";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { RatingComponent } from "../../../components/rating/rating.component";
@@ -76,7 +76,7 @@ export class RecipePage {
   private recipeService = inject(RecipeService);
   cookingToolbarService = inject(CookingToolbarService);
   private translate = inject(TranslateService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private titleService = inject(Title);
 
   defaultBackHref: string = RouteMap.HomePage.getPath("main");
@@ -184,11 +184,9 @@ export class RecipePage {
   }
 
   async _loadRecipe() {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.recipes.getRecipe.query({
-        id: this.recipeId,
-      }),
-    );
+    const response = await this.serverActionsService.recipes.getRecipe({
+      id: this.recipeId,
+    });
     if (!response) return;
 
     this.recipe = response;
@@ -245,11 +243,9 @@ export class RecipePage {
   async _loadSimilarRecipes() {
     if (!this.isLoggedIn) return;
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.recipes.getSimilarRecipes.query({
-        recipeIds: [this.recipeId],
-      }),
-    );
+    const response = await this.serverActionsService.recipes.getSimilarRecipes({
+      recipeIds: [this.recipeId],
+    });
     if (!response) return;
 
     for (const el of response) {
@@ -263,9 +259,7 @@ export class RecipePage {
   async _loadMyUserProfile() {
     if (!this.isLoggedIn) return;
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.users.getMe.query(),
-    );
+    const response = await this.serverActionsService.users.getMe();
     if (!response) return;
 
     this.me = response;
@@ -492,26 +486,24 @@ export class RecipePage {
 
     const lastMadeAt = dayjs().format("YYYY-MM-DD");
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.recipes.updateRecipe.mutate({
-        id: this.recipe.id,
-        title: this.recipe.title,
-        description: this.recipe.description,
-        yield: this.recipe.yield,
-        activeTime: this.recipe.activeTime,
-        totalTime: this.recipe.totalTime,
-        source: this.recipe.source,
-        url: this.recipe.url,
-        notes: this.recipe.notes,
-        ingredients: this.recipe.ingredients,
-        instructions: this.recipe.instructions,
-        rating: this.recipe.rating,
-        folder: this.recipe.folder as "main" | "inbox",
-        imageIds: this.recipe.recipeImages.map((ri) => ri.image.id),
-        labelIds: this.recipe.recipeLabels.map((rl) => rl.label.id),
-        lastMadeAt,
-      }),
-    );
+    const response = await this.serverActionsService.recipes.updateRecipe({
+      id: this.recipe.id,
+      title: this.recipe.title,
+      description: this.recipe.description,
+      yield: this.recipe.yield,
+      activeTime: this.recipe.activeTime,
+      totalTime: this.recipe.totalTime,
+      source: this.recipe.source,
+      url: this.recipe.url,
+      notes: this.recipe.notes,
+      ingredients: this.recipe.ingredients,
+      instructions: this.recipe.instructions,
+      rating: this.recipe.rating,
+      folder: this.recipe.folder as "main" | "inbox",
+      imageIds: this.recipe.recipeImages.map((ri) => ri.image.id),
+      labelIds: this.recipe.recipeLabels.map((rl) => rl.label.id),
+      lastMadeAt,
+    });
 
     loading.dismiss();
 
@@ -578,29 +570,27 @@ export class RecipePage {
 
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.recipes.updateRecipe.mutate({
-        id: this.recipe.id,
-        title: this.recipe.title,
-        description: this.recipe.description,
-        yield: this.recipe.yield,
-        activeTime: this.recipe.activeTime,
-        totalTime: this.recipe.totalTime,
-        source: this.recipe.source,
-        url: this.recipe.url,
-        notes: this.recipe.notes,
-        ingredients: this.recipe.ingredients,
-        instructions: this.recipe.instructions,
-        rating: this.recipe.rating,
-        folder: folderName,
-        labelIds: this.recipe.recipeLabels.map(
-          (recipeLabel) => recipeLabel.label.id,
-        ),
-        imageIds: this.recipe.recipeImages.map(
-          (recipeImage) => recipeImage.imageId,
-        ),
-      }),
-    );
+    const response = await this.serverActionsService.recipes.updateRecipe({
+      id: this.recipe.id,
+      title: this.recipe.title,
+      description: this.recipe.description,
+      yield: this.recipe.yield,
+      activeTime: this.recipe.activeTime,
+      totalTime: this.recipe.totalTime,
+      source: this.recipe.source,
+      url: this.recipe.url,
+      notes: this.recipe.notes,
+      ingredients: this.recipe.ingredients,
+      instructions: this.recipe.instructions,
+      rating: this.recipe.rating,
+      folder: folderName,
+      labelIds: this.recipe.recipeLabels.map(
+        (recipeLabel) => recipeLabel.label.id,
+      ),
+      imageIds: this.recipe.recipeImages.map(
+        (recipeImage) => recipeImage.imageId,
+      ),
+    });
 
     loading.dismiss();
     if (!response) return;
@@ -618,26 +608,24 @@ export class RecipePage {
         ? this.recipe.recipeLabels.map((recipeLabel) => recipeLabel.label.id)
         : [];
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.recipes.createRecipe.mutate({
-        title: this.recipe.title,
-        description: this.recipe.description,
-        yield: this.recipe.yield,
-        activeTime: this.recipe.activeTime,
-        totalTime: this.recipe.totalTime,
-        source: this.recipe.source,
-        url: this.recipe.url,
-        notes: this.recipe.notes,
-        ingredients: this.recipe.ingredients,
-        instructions: this.recipe.instructions,
-        rating: this.recipe.rating,
-        folder: this.recipe.folder as "main" | "inbox",
-        labelIds,
-        imageIds: this.recipe.recipeImages.map(
-          (recipeImage) => recipeImage.imageId,
-        ),
-      }),
-    );
+    const response = await this.serverActionsService.recipes.createRecipe({
+      title: this.recipe.title,
+      description: this.recipe.description,
+      yield: this.recipe.yield,
+      activeTime: this.recipe.activeTime,
+      totalTime: this.recipe.totalTime,
+      source: this.recipe.source,
+      url: this.recipe.url,
+      notes: this.recipe.notes,
+      ingredients: this.recipe.ingredients,
+      instructions: this.recipe.instructions,
+      rating: this.recipe.rating,
+      folder: this.recipe.folder as "main" | "inbox",
+      labelIds,
+      imageIds: this.recipe.recipeImages.map(
+        (recipeImage) => recipeImage.imageId,
+      ),
+    });
 
     loading.dismiss();
     if (!response) return false;
