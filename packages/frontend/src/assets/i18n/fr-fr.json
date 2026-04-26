@@ -397,7 +397,7 @@
     "pages.recipeDetails.requiresAccountToSave": "Créez un compte ou connectez-vous pour enregistrer cette recette dans votre collection.",
     "pages.recipeDetailsPopover.addToShoppingList": "Ajouter à la liste d'achats",
     "pages.recipeDetailsPopover.delete": "Supprimer la recette",
-    "pages.about.links.legal": "Légal, accords et avis de non-responsabilité",
+    "pages.about.links.legal": "Mentions légales, accords et avis de non-responsabilité",
     "pages.contribute.purpose": "Cependant, à mesure que RecipeSage se développe, les coûts d'hébergement pour les serveurs et les images commencent à s'accumuler.",
     "pages.contributeThankYou.thanks": "Merci de faire partie de la famille RecipeSage et d'aider à la maintenir en vie !",
     "pages.downloadAndInstall.ios.instructionHeader": "Pour installer RecipeSage sur les appareils mobiles Apple (iOS) :",
@@ -1225,5 +1225,5 @@
     "pages.pricing.intro.openSource": "RecipeSage est un projet personnel auquel je travaille pendant mon temps libre, aux côtés de mes autres projets open source. Le code est open source, donc n'importe qui peut le consulter, le dupliquer ou héberger sa propre copie.",
     "pages.pricing.support.heading": "Soutenir le projet",
     "pages.app.nav.docs": "Documentation",
-    "pages.app.nav.legal": "Juridique"
+    "pages.app.nav.legal": "Mentions légales"
 }
