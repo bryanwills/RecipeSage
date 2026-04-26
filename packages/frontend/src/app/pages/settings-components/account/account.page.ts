@@ -1,5 +1,5 @@
 import { Component, inject } from "@angular/core";
-import { AlertController, NavController } from "@ionic/angular";
+import { AlertController, NavController } from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 import dayjs from "dayjs";
 
@@ -18,13 +18,41 @@ import type { AppRouter } from "@recipesage/trpc";
 type RouterOutputs = inferRouterOutputs<AppRouter>;
 import { appIdbStorageManager } from "../../../utils/appIdbStorageManager";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonIcon,
+  IonInput,
+  IonButton,
+} from "@ionic/angular/standalone";
+import { heart, key, statsChart, warning } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-account",
   templateUrl: "account.page.html",
   styleUrls: ["account.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonIcon,
+    IonInput,
+    IonButton,
+  ],
 })
 export class AccountPage {
   private navCtrl = inject(NavController);
@@ -62,6 +90,7 @@ export class AccountPage {
   > = {};
 
   constructor() {
+    addIcons({ heart, key, statsChart, warning });
     const resetToken = getQueryParam("token");
     if (resetToken) localStorage.setItem("token", resetToken);
 

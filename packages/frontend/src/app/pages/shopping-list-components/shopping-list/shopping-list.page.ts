@@ -6,7 +6,7 @@ import {
   ModalController,
   PopoverController,
   AlertController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { LoadingService } from "~/services/loading.service";
@@ -32,6 +32,34 @@ import type {
   ShoppingListSummary,
   UserPublic,
 } from "@recipesage/prisma";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+  IonList,
+  IonListHeader,
+  IonLabel,
+  IonItem,
+  IonFab,
+  IonFabButton,
+} from "@ionic/angular/standalone";
+import {
+  add,
+  arrowUndo,
+  caretDown,
+  caretUp,
+  cart,
+  options,
+  trash,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 const categoryTitlesToi18n: Record<string, string> = {
   uncategorized: "pages.shoppingList.category.uncategorized",
@@ -58,6 +86,22 @@ const categoryTitlesToi18n: Record<string, string> = {
     ShoppingListItemComponent,
     ShoppingListGroupComponent,
     NullStateComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonList,
+    IonListHeader,
+    IonLabel,
+    IonItem,
+    IonFab,
+    IonFabButton,
   ],
 })
 export class ShoppingListPage {
@@ -100,6 +144,7 @@ export class ShoppingListPage {
   reference = "0";
 
   constructor() {
+    addIcons({ add, arrowUndo, caretDown, caretUp, cart, options, trash });
     const shoppingListId = this.route.snapshot.paramMap.get("shoppingListId");
     if (shoppingListId) {
       this.shoppingListId = shoppingListId;

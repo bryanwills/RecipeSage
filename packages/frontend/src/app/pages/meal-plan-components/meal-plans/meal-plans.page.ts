@@ -1,5 +1,5 @@
 import { Component, inject } from "@angular/core";
-import { NavController, ModalController } from "@ionic/angular";
+import { NavController, ModalController } from "@ionic/angular/standalone";
 
 import { WebsocketService } from "~/services/websocket.service";
 import { LoadingService } from "~/services/loading.service";
@@ -9,15 +9,56 @@ import { ServerActionsService } from "../../../services/server-actions.service";
 import type { MealPlanSummary, UserPublic } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { NullStateComponent } from "../../../components/null-state/null-state.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
+  IonTitle,
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+  IonList,
+  IonItem,
+  IonIcon,
+  IonLabel,
+  IonBadge,
+  IonFab,
+  IonFabButton,
+} from "@ionic/angular/standalone";
+import { add, calendar } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-meal-plans",
   templateUrl: "meal-plans.page.html",
   styleUrls: ["meal-plans.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, NullStateComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    NullStateComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonTitle,
+    IonContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonList,
+    IonItem,
+    IonIcon,
+    IonLabel,
+    IonBadge,
+    IonFab,
+    IonFabButton,
+  ],
 })
 export class MealPlansPage {
+  constructor() {
+    addIcons({ add, calendar });
+  }
+
   private navCtrl = inject(NavController);
   private modalCtrl = inject(ModalController);
   private serverActionsService = inject(ServerActionsService);

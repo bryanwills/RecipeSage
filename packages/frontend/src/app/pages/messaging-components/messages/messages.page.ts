@@ -3,7 +3,7 @@ import {
   NavController,
   ToastController,
   ModalController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 
 import { MessageThread, MessagingService } from "~/services/messaging.service";
 import { LoadingService } from "~/services/loading.service";
@@ -13,13 +13,50 @@ import { UtilService, RouteMap } from "~/services/util.service";
 import { NewMessageModalPage } from "~/pages/messaging-components/new-message-modal/new-message-modal.page";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { NullStateComponent } from "../../../components/null-state/null-state.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
+  IonTitle,
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+  IonList,
+  IonItem,
+  IonIcon,
+  IonLabel,
+  IonFab,
+  IonFabButton,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import { add, chatbox } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-messages",
   templateUrl: "messages.page.html",
   styleUrls: ["messages.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, NullStateComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    NullStateComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonTitle,
+    IonContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonList,
+    IonItem,
+    IonIcon,
+    IonLabel,
+    IonFab,
+    IonFabButton,
+    IonFooter,
+  ],
 })
 export class MessagesPage {
   navCtrl = inject(NavController);
@@ -36,6 +73,7 @@ export class MessagesPage {
   threads: any = [];
 
   constructor() {
+    addIcons({ add, chatbox });
     this.messagingService.requestNotifications();
   }
 

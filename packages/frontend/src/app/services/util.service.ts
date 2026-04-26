@@ -5,7 +5,7 @@ import {
   SupportedFontSize,
   SupportedLanguages,
 } from "@recipesage/util/shared";
-import { NavController } from "@ionic/angular";
+import { NavController } from "@ionic/angular/standalone";
 import { getBase } from "../utils/getBase";
 
 export interface RecipeTemplateModifiers {

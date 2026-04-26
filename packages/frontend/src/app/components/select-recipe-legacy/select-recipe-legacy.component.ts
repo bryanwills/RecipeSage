@@ -2,17 +2,39 @@ import { Component, Input, Output, EventEmitter, inject } from "@angular/core";
 import { LoadingService } from "~/services/loading.service";
 import { UtilService } from "~/services/util.service";
 import { Recipe, RecipeService } from "~/services/recipe.service";
-import { ToastController, NavController } from "@ionic/angular";
+import { ToastController, NavController } from "@ionic/angular/standalone";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import {
+  IonItem,
+  IonAvatar,
+  IonLabel,
+  IonSearchbar,
+  IonSpinner,
+  IonIcon,
+} from "@ionic/angular/standalone";
+import { folderOpen } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "select-recipe-legacy",
   templateUrl: "select-recipe-legacy.component.html",
   styleUrls: ["./select-recipe-legacy.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonItem,
+    IonAvatar,
+    IonLabel,
+    IonSearchbar,
+    IonSpinner,
+    IonIcon,
+  ],
 })
 export class SelectRecipeLegacyComponent {
+  constructor() {
+    addIcons({ folderOpen });
+  }
+
   loadingService = inject(LoadingService);
   utilService = inject(UtilService);
   recipeService = inject(RecipeService);

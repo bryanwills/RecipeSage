@@ -4,6 +4,16 @@ import { LoadingService } from "~/services/loading.service";
 import { ServerActionsService } from "../../services/server-actions.service";
 import type { UserPublic } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import {
+  IonItem,
+  IonAvatar,
+  IonLabel,
+  IonSearchbar,
+  IonSpinner,
+  IonIcon,
+} from "@ionic/angular/standalone";
+import { folderOpen } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 const PAUSE_BEFORE_SEARCH = 500; // Ms
 
@@ -12,9 +22,21 @@ const PAUSE_BEFORE_SEARCH = 500; // Ms
   selector: "select-user",
   templateUrl: "select-user.component.html",
   styleUrls: ["./select-user.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonItem,
+    IonAvatar,
+    IonLabel,
+    IonSearchbar,
+    IonSpinner,
+    IonIcon,
+  ],
 })
 export class SelectUserComponent {
+  constructor() {
+    addIcons({ folderOpen });
+  }
+
   private serverActionsService = inject(ServerActionsService);
   private loadingService = inject(LoadingService);
 

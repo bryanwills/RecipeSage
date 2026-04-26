@@ -1,13 +1,34 @@
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { ShoppingListItemComponent } from "../shopping-list-item/shopping-list-item.component";
+import {
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonItem,
+  IonCheckbox,
+  IonButton,
+  IonIcon,
+} from "@ionic/angular/standalone";
+import { caretDown, caretUp } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "shopping-list-group",
   templateUrl: "shopping-list-group.component.html",
   styleUrls: ["./shopping-list-group.component.scss"],
-  imports: [...SHARED_UI_IMPORTS, ShoppingListItemComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    ShoppingListItemComponent,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonItem,
+    IonCheckbox,
+    IonButton,
+    IonIcon,
+  ],
 })
 export class ShoppingListGroupComponent {
   completed = false;
@@ -35,5 +56,7 @@ export class ShoppingListGroupComponent {
   @Output() completeToggle = new EventEmitter<any>();
   @Output() recategorize = new EventEmitter<[any[], string]>();
 
-  constructor() {}
+  constructor() {
+    addIcons({ caretDown, caretUp });
+  }
 }

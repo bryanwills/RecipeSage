@@ -1,5 +1,8 @@
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import { IonIcon, IonItem, IonInput } from "@ionic/angular/standalone";
+import { banOutline } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 const PRESET_COLORS = [
   "#eb445a",
@@ -21,9 +24,13 @@ const HEX_COLOR_RE = /^[0-9a-fA-F]{6}$/;
   selector: "color-picker",
   templateUrl: "color-picker.component.html",
   styleUrls: ["./color-picker.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [...SHARED_UI_IMPORTS, IonIcon, IonItem, IonInput],
 })
 export class ColorPickerComponent {
+  constructor() {
+    addIcons({ banOutline });
+  }
+
   @Input() color: string | null = null;
   @Output() colorChange = new EventEmitter<string | null>();
   @Output() presetSelected = new EventEmitter<string | null>();

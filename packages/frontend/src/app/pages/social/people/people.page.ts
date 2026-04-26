@@ -4,7 +4,7 @@ import {
   AlertController,
   NavController,
   ModalController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { IS_SELFHOST } from "../../../../environments/environment";
@@ -17,6 +17,27 @@ import { AddFriendModalPage } from "../add-friend-modal/add-friend-modal.page";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { NullStateComponent } from "../../../components/null-state/null-state.component";
 import { SelfhostWarningItemComponent } from "../../../components/selfhost-warning-item/selfhost-warning-item.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
+  IonTitle,
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+  IonIcon,
+  IonLabel,
+  IonButton,
+  IonItem,
+  IonAvatar,
+  IonList,
+  IonItemDivider,
+  IonFab,
+  IonFabButton,
+} from "@ionic/angular/standalone";
+import { add, people, personCircle, search } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
@@ -27,9 +48,30 @@ import { SelfhostWarningItemComponent } from "../../../components/selfhost-warni
     ...SHARED_UI_IMPORTS,
     NullStateComponent,
     SelfhostWarningItemComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonTitle,
+    IonContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonIcon,
+    IonLabel,
+    IonButton,
+    IonItem,
+    IonAvatar,
+    IonList,
+    IonItemDivider,
+    IonFab,
+    IonFabButton,
   ],
 })
 export class PeoplePage {
+  constructor() {
+    addIcons({ add, people, personCircle, search });
+  }
+
   navCtrl = inject(NavController);
   translate = inject(TranslateService);
   toastCtrl = inject(ToastController);

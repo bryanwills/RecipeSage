@@ -5,7 +5,7 @@ import {
   NavController,
   AlertController,
   PopoverController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { Datasource, UiScrollModule } from "ngx-ui-scroll";
 
 import { Recipe, RecipeFolderName } from "~/services/recipe.service";
@@ -31,6 +31,34 @@ import type {
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { LogoIconComponent } from "../../components/logo-icon/logo-icon.component";
 import { NullStateComponent } from "../../components/null-state/null-state.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
+  IonBackButton,
+  IonButton,
+  IonIcon,
+  IonTitle,
+  IonContent,
+  IonSearchbar,
+  IonBadge,
+  IonLabel,
+  IonFab,
+  IonFabButton,
+} from "@ionic/angular/standalone";
+import {
+  add,
+  close,
+  download,
+  funnel,
+  mailOpen,
+  options,
+  pricetag,
+  search,
+  trash,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 const TILE_WIDTH = 200;
 const TILE_PADD = 20;
@@ -45,6 +73,20 @@ const TILE_PADD = 20;
     LogoIconComponent,
     NullStateComponent,
     UiScrollModule,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonBackButton,
+    IonButton,
+    IonIcon,
+    IonTitle,
+    IonContent,
+    IonSearchbar,
+    IonBadge,
+    IonLabel,
+    IonFab,
+    IonFabButton,
   ],
 })
 export class HomePage {
@@ -138,6 +180,17 @@ export class HomePage {
   });
 
   constructor() {
+    addIcons({
+      add,
+      close,
+      download,
+      funnel,
+      mailOpen,
+      options,
+      pricetag,
+      search,
+      trash,
+    });
     this.showBack =
       !!this.router.getCurrentNavigation()?.extras.state?.showBack;
 

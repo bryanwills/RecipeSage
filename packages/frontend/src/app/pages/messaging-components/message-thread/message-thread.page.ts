@@ -1,6 +1,6 @@
 import { Component, ViewChild, ChangeDetectorRef, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { NavController } from "@ionic/angular";
+import { NavController } from "@ionic/angular/standalone";
 
 import { linkifyStr } from "~/utils/linkify";
 import { Message, MessagingService } from "~/services/messaging.service";
@@ -10,13 +10,49 @@ import { EventName, EventService } from "~/services/event.service";
 import { UtilService, RouteMap } from "~/services/util.service";
 import { TranslateService } from "@ngx-translate/core";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+  IonItem,
+  IonAvatar,
+  IonLabel,
+  IonFooter,
+  IonTextarea,
+} from "@ionic/angular/standalone";
+import { refresh, send } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-message-thread",
   templateUrl: "message-thread.page.html",
   styleUrls: ["message-thread.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonItem,
+    IonAvatar,
+    IonLabel,
+    IonFooter,
+    IonTextarea,
+  ],
 })
 export class MessageThreadPage {
   private changeDetector = inject(ChangeDetectorRef);
@@ -48,6 +84,7 @@ export class MessageThreadPage {
   selectedChatIdx = -1;
 
   constructor() {
+    addIcons({ refresh, send });
     const otherUserId = this.route.snapshot.paramMap.get("otherUserId");
     if (!otherUserId) {
       this.navCtrl.navigateBack(this.defaultBackHref);

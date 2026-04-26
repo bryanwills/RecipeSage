@@ -7,13 +7,33 @@ import type {
   RecipeSummaryLite,
   UserPublic,
 } from "@recipesage/prisma";
+import {
+  IonItem,
+  IonAvatar,
+  IonLabel,
+  IonSearchbar,
+  IonBadge,
+  IonSpinner,
+  IonIcon,
+} from "@ionic/angular/standalone";
+import { folderOpen } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "select-recipe",
   templateUrl: "select-recipe.component.html",
   styleUrls: ["./select-recipe.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonItem,
+    IonAvatar,
+    IonLabel,
+    IonSearchbar,
+    IonBadge,
+    IonSpinner,
+    IonIcon,
+  ],
 })
 export class SelectRecipeComponent {
   private loadingService = inject(LoadingService);
@@ -48,6 +68,7 @@ export class SelectRecipeComponent {
   recipes: RecipeSummaryLite[] = [];
 
   constructor() {
+    addIcons({ folderOpen });
     this.fetchMyProfile();
     this.fetchFriends();
   }

@@ -1,5 +1,5 @@
 import { Component, inject } from "@angular/core";
-import { ModalController } from "@ionic/angular";
+import { ModalController } from "@ionic/angular/standalone";
 
 import { Recipe } from "../../../services/recipe.service";
 import { RouteMap } from "~/services/util.service";
@@ -7,6 +7,30 @@ import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectLabelComponent } from "../../../components/select-label/select-label.component";
 import { SelectRecipeLegacyComponent } from "../../../components/select-recipe-legacy/select-recipe-legacy.component";
 import type { LabelSummary } from "@recipesage/prisma";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonRadioGroup,
+  IonRadio,
+  IonInput,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import {
+  checkmark,
+  close,
+  documentText,
+  eye,
+  folderOpen,
+  pricetag,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
@@ -17,9 +41,26 @@ import type { LabelSummary } from "@recipesage/prisma";
     ...SHARED_UI_IMPORTS,
     SelectLabelComponent,
     SelectRecipeLegacyComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonRadioGroup,
+    IonRadio,
+    IonInput,
+    IonFooter,
   ],
 })
 export class AddProfileItemModalPage {
+  constructor() {
+    addIcons({ checkmark, close, documentText, eye, folderOpen, pricetag });
+  }
+
   private modalCtrl = inject(ModalController);
 
   legalHref: string = RouteMap.LegalPage.getPath();

@@ -1,5 +1,15 @@
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import {
+  IonChip,
+  IonAvatar,
+  IonIcon,
+  IonLabel,
+  IonSearchbar,
+  IonItem,
+} from "@ionic/angular/standalone";
+import { add, ban, folderOpen, pricetag, trash } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 export interface SelectableItem {
   id: string;
@@ -13,9 +23,21 @@ export interface SelectableItem {
   selector: "select-multiple-items",
   templateUrl: "select-multiple-items.component.html",
   styleUrls: ["./select-multiple-items.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonChip,
+    IonAvatar,
+    IonIcon,
+    IonLabel,
+    IonSearchbar,
+    IonItem,
+  ],
 })
 export class SelectMultipleItemsComponent<T extends SelectableItem> {
+  constructor() {
+    addIcons({ add, ban, folderOpen, pricetag, trash });
+  }
+
   searchText = "";
 
   @Input() enableCreateNew = false;

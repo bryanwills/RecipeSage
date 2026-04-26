@@ -5,7 +5,7 @@ import {
   ModalController,
   PopoverController,
   AlertController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import dayjs from "dayjs";
 import { TranslateService } from "@ngx-translate/core";
 
@@ -36,13 +36,51 @@ import type {
 } from "@recipesage/prisma";
 import { Title } from "@angular/platform-browser";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonLabel,
+  IonList,
+  IonItemGroup,
+  IonItemDivider,
+  IonItem,
+  IonFab,
+  IonFabButton,
+} from "@ionic/angular/standalone";
+import { add, calendar, chevronDown, chevronUp, options } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-meal-plan",
   templateUrl: "meal-plan.page.html",
   styleUrls: ["meal-plan.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, MealCalendarComponent, NullStateComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    MealCalendarComponent,
+    NullStateComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonLabel,
+    IonList,
+    IonItemGroup,
+    IonItemDivider,
+    IonItem,
+    IonFab,
+    IonFabButton,
+  ],
 })
 export class MealPlanPage {
   private route = inject(ActivatedRoute);
@@ -99,6 +137,7 @@ export class MealPlanPage {
   mealPlanCalendar?: MealCalendarComponent;
 
   constructor() {
+    addIcons({ add, calendar, chevronDown, chevronUp, options });
     const mealPlanId = this.route.snapshot.paramMap.get("mealPlanId");
     if (!mealPlanId) {
       this.navCtrl.navigateBack(this.defaultBackHref);

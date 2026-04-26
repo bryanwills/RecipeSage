@@ -15,6 +15,7 @@ import {
   getOrderedMeals,
   getMealDisplayNames,
 } from "@recipesage/util/shared";
+import { IonItem, IonSelect, IonSelectOption } from "@ionic/angular/standalone";
 
 const LAST_USED_MEAL_VAR = "lastUsedMeal";
 
@@ -23,7 +24,7 @@ const LAST_USED_MEAL_VAR = "lastUsedMeal";
   selector: "select-meal",
   templateUrl: "select-meal.component.html",
   styleUrls: ["./select-meal.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [...SHARED_UI_IMPORTS, IonItem, IonSelect, IonSelectOption],
 })
 export class SelectMealComponent implements OnInit, OnChanges {
   private translate = inject(TranslateService);

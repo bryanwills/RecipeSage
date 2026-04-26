@@ -1,12 +1,15 @@
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import { IonIcon } from "@ionic/angular/standalone";
+import { star, starOutline } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "rating",
   templateUrl: "rating.component.html",
   styleUrls: ["./rating.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [...SHARED_UI_IMPORTS, IonIcon],
 })
 export class RatingComponent {
   @Output() ratingChanged = new EventEmitter<number>();
@@ -26,7 +29,9 @@ export class RatingComponent {
 
   ratingVisual = new Array<string>(5).fill("star-outline");
 
-  constructor() {}
+  constructor() {
+    addIcons({ star, starOutline });
+  }
 
   updateRatingVisual() {
     this.ratingVisual = new Array<string>(5)

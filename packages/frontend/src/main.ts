@@ -5,7 +5,6 @@ import {
   APP_INITIALIZER,
   enableProdMode,
   ErrorHandler,
-  importProvidersFrom,
   provideZoneChangeDetection,
 } from "@angular/core";
 import { bootstrapApplication } from "@angular/platform-browser";
@@ -16,7 +15,10 @@ import {
   TitleStrategy,
   withPreloading,
 } from "@angular/router";
-import { IonicRouteStrategy, IonicModule } from "@ionic/angular";
+import {
+  IonicRouteStrategy,
+  provideIonicAngular,
+} from "@ionic/angular/standalone";
 import { RouteReuseStrategy } from "@angular/router";
 
 import { AppComponent } from "./app/app.component";
@@ -42,7 +44,7 @@ bootstrapApplication(AppComponent, {
     provideZoneChangeDetection(),
     provideRouter(appRoutes, withPreloading(PreloadAllModules)),
     { provide: TitleStrategy, useClass: CustomTitleStrategy },
-    importProvidersFrom(IonicModule.forRoot()),
+    provideIonicAngular(),
     provideTranslate(),
     provideLoadingBar(),
     {

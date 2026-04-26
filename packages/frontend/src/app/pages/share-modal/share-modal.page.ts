@@ -3,7 +3,7 @@ import {
   NavController,
   ModalController,
   ToastController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 
 import { MessagingService } from "~/services/messaging.service";
 import { User, UserService } from "~/services/user.service";
@@ -18,6 +18,36 @@ import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { SelectUserKnownUserComponent } from "../../components/select-user-knownuser/select-user-knownuser.component";
 import { CopyWithWebshareComponent } from "../../components/copy-with-webshare/copy-with-webshare.component";
 import { RecipePreviewComponent } from "../../components/recipe-preview/recipe-preview.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonList,
+  IonItem,
+  IonAvatar,
+  IonLabel,
+  IonSegment,
+  IonSegmentButton,
+  IonToggle,
+  IonInput,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import {
+  close,
+  codeWorking,
+  documentText,
+  image,
+  link,
+  print,
+  resize,
+  send,
+  swapHorizontal,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
@@ -29,6 +59,22 @@ import { RecipePreviewComponent } from "../../components/recipe-preview/recipe-p
     SelectUserKnownUserComponent,
     CopyWithWebshareComponent,
     RecipePreviewComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonList,
+    IonItem,
+    IonAvatar,
+    IonLabel,
+    IonSegment,
+    IonSegmentButton,
+    IonToggle,
+    IonInput,
+    IonFooter,
   ],
 })
 export class ShareModalPage {
@@ -71,6 +117,17 @@ export class ShareModalPage {
   recipeEmbedCode?: string;
 
   constructor() {
+    addIcons({
+      close,
+      codeWorking,
+      documentText,
+      image,
+      link,
+      print,
+      resize,
+      send,
+      swapHorizontal,
+    });
     setTimeout(() => {
       this.recipeURL =
         `${window.location.protocol}//${window.location.host}` +

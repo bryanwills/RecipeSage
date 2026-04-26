@@ -3,7 +3,7 @@ import {
   ModalController,
   ToastController,
   NavController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 
 import { LoadingService } from "~/services/loading.service";
 import { MessagingService } from "~/services/messaging.service";
@@ -12,15 +12,48 @@ import { UtilService } from "~/services/util.service";
 import { ServerActionsService } from "../../../services/server-actions.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectCollaboratorsComponent } from "../../../components/select-collaborators/select-collaborators.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonInput,
+  IonFooter,
+  IonLabel,
+} from "@ionic/angular/standalone";
+import { close, list } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-update-shopping-list-modal",
   templateUrl: "update-shopping-list-modal.page.html",
   styleUrls: ["update-shopping-list-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, SelectCollaboratorsComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    SelectCollaboratorsComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonInput,
+    IonFooter,
+    IonLabel,
+  ],
 })
 export class UpdateShoppingListModalPage {
+  constructor() {
+    addIcons({ close, list });
+  }
+
   modalCtrl = inject(ModalController);
   navCtrl = inject(NavController);
   utilService = inject(UtilService);
