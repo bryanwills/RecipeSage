@@ -12,14 +12,22 @@ import {
   getAccessToShoppingList,
 } from "@recipesage/util/server/db";
 import type { Prisma } from "@recipesage/prisma";
+import {
+  SHOPPING_LIST_CATEGORY_ORDER_LENGTH_LIMIT,
+  SHOPPING_LIST_TITLE_LENGTH_LIMIT,
+} from "@recipesage/util/shared";
 
 export const updateShoppingList = publicProcedure
   .input(
     z.object({
       id: z.uuid(),
-      title: z.string().min(1).max(254).optional(),
+      title: z.string().min(1).max(SHOPPING_LIST_TITLE_LENGTH_LIMIT).optional(),
       collaboratorUserIds: z.array(z.uuid()).optional(),
-      categoryOrder: z.string().max(10000).nullable().optional(),
+      categoryOrder: z
+        .string()
+        .max(SHOPPING_LIST_CATEGORY_ORDER_LENGTH_LIMIT)
+        .nullable()
+        .optional(),
     }),
   )
   .mutation(async ({ ctx, input }) => {

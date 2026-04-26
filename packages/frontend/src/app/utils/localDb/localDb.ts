@@ -10,16 +10,19 @@ import {
   SessionDTO,
   ShoppingListSummaryWithItems,
   UserPublic,
+  type ShoppingListItemSummary,
 } from "@recipesage/prisma";
 import { trpcClient as trpc } from "../trpcClient";
 import { localDBMigration_1 } from "./migrations/localDBMigration_1";
 import { localDBMigration_2 } from "./migrations/localDBMigration_2";
+import { localDBMigration_3 } from "./migrations/localDBMigration_3";
 
 export enum ObjectStoreName {
   Recipes = "recipes",
   Labels = "labels",
   LabelGroups = "labelGroups",
   ShoppingLists = "shoppingLists",
+  PendingShoppingListItemUpdates = "pendingShoppingListItemUpdates",
   MealPlans = "mealPlans",
   UserProfiles = "userProfiles",
   AssistantMessages = "assistantMessages",
@@ -109,6 +112,15 @@ export interface RSLocalDB extends DBSchema {
       userId: string;
     };
   };
+  [ObjectStoreName.PendingShoppingListItemUpdates]: {
+    key: string;
+    value: ShoppingListItemSummary & {
+      deleted: boolean;
+    };
+    indexes: {
+      shoppingListId: string;
+    };
+  };
   [ObjectStoreName.MealPlans]: {
     key: string;
     value: MealPlanSummaryWithItems;
@@ -135,7 +147,11 @@ export interface RSLocalDB extends DBSchema {
 }
 
 const connect = () => {
-  const migrations = [localDBMigration_1, localDBMigration_2];
+  const migrations = [
+    localDBMigration_1,
+    localDBMigration_2,
+    localDBMigration_3,
+  ];
 
   const dbP = openDB<RSLocalDB>(`localDb`, migrations.length, {
     blocking: async () => {

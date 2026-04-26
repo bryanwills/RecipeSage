@@ -9,6 +9,10 @@ import {
   RSLocalDB,
 } from "./localDb";
 import { appIdbStorageManager } from "./appIdbStorageManager";
+import {
+  DELETE_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT,
+  UPSERT_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT,
+} from "@recipesage/util/shared";
 
 export class AbortedSyncError extends Error {
   constructor() {
@@ -241,6 +245,91 @@ export class SyncManager {
   async syncShoppingLists(
     abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
   ) {
+    this.syncCheckAbort(abortSignal);
+
+    const allPendingUpdates = await this.localDb.getAll(
+      ObjectStoreName.PendingShoppingListItemUpdates,
+    );
+
+    const pendingByShoppingListId = new Map<string, typeof allPendingUpdates>();
+    for (const pendingUpdate of allPendingUpdates) {
+      const group = pendingByShoppingListId.get(pendingUpdate.shoppingListId);
+      if (group) {
+        group.push(pendingUpdate);
+      } else {
+        pendingByShoppingListId.set(pendingUpdate.shoppingListId, [
+          pendingUpdate,
+        ]);
+      }
+    }
+
+    for (const [shoppingListId, pendingUpdates] of pendingByShoppingListId) {
+      this.syncCheckAbort(abortSignal);
+
+      const itemsToUpsert = pendingUpdates.filter(
+        (pendingUpdate) => !pendingUpdate.deleted,
+      );
+      const idsToDelete = pendingUpdates
+        .filter((pendingUpdate) => pendingUpdate.deleted)
+        .map((pendingUpdate) => pendingUpdate.id);
+
+      const remainingUpserts = [...itemsToUpsert];
+      while (remainingUpserts.length) {
+        const chunk = remainingUpserts.splice(
+          0,
+          UPSERT_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT,
+        );
+        await throttle(() =>
+          trpc.shoppingLists.upsertShoppingListItems.mutate({
+            shoppingListId,
+            items: chunk.map((pendingUpdate) => ({
+              id: pendingUpdate.id,
+              title: pendingUpdate.title,
+              recipeId: pendingUpdate.recipeId,
+              completed: pendingUpdate.completed,
+              categoryTitle: pendingUpdate.categoryTitle ?? undefined,
+              createdAt: pendingUpdate.createdAt,
+              updatedAt: pendingUpdate.updatedAt,
+            })),
+          }),
+        )();
+
+        const upsertCleanupTx = this.localDb.transaction(
+          ObjectStoreName.PendingShoppingListItemUpdates,
+          "readwrite",
+        );
+        for (const pendingUpdate of chunk) {
+          await upsertCleanupTx.store.delete(pendingUpdate.id);
+        }
+        upsertCleanupTx.commit();
+        await upsertCleanupTx.done;
+      }
+
+      const remainingDeletes = [...idsToDelete];
+      while (remainingDeletes.length) {
+        const ids = remainingDeletes.splice(
+          0,
+          DELETE_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT,
+        );
+        await throttle(() =>
+          trpc.shoppingLists.deleteShoppingListItems.mutate({
+            shoppingListId,
+            ids,
+          }),
+        )();
+
+        const deleteCleanupTx = this.localDb.transaction(
+          ObjectStoreName.PendingShoppingListItemUpdates,
+          "readwrite",
+        );
+        for (const id of ids) {
+          await deleteCleanupTx.store.delete(id);
+        }
+        deleteCleanupTx.commit();
+        await deleteCleanupTx.done;
+      }
+    }
+
     this.syncCheckAbort(abortSignal);
 
     const shoppingLists = await throttle(() =>

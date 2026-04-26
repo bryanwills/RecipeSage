@@ -11,6 +11,10 @@ import {
   ShoppingListAccessLevel,
   getAccessToShoppingList,
 } from "@recipesage/util/server/db";
+import {
+  SHOPPING_LIST_ITEMS_TITLE_LENGTH_LIMIT,
+  UPDATE_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT,
+} from "@recipesage/util/shared";
 
 export const updateShoppingListItems = publicProcedure
   .input(
@@ -20,14 +24,18 @@ export const updateShoppingListItems = publicProcedure
         .array(
           z.object({
             id: z.uuid(),
-            title: z.string().min(1).max(254).optional(),
+            title: z
+              .string()
+              .min(1)
+              .max(SHOPPING_LIST_ITEMS_TITLE_LENGTH_LIMIT)
+              .optional(),
             recipeId: z.uuid().nullable().optional(),
             completed: z.boolean().optional(),
             categoryTitle: z.string().optional(),
           }),
         )
         .min(1)
-        .max(100), // These will be individual DB calls, so cap number of allowed items
+        .max(UPDATE_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT),
     }),
   )
   .mutation(async ({ ctx, input }) => {

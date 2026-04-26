@@ -11,12 +11,16 @@ import {
   ShoppingListAccessLevel,
   getAccessToShoppingList,
 } from "@recipesage/util/server/db";
+import { DELETE_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT } from "@recipesage/util/shared";
 
 export const deleteShoppingListItems = publicProcedure
   .input(
     z.object({
       shoppingListId: z.uuid(),
-      ids: z.array(z.uuid()).min(1).max(10000),
+      ids: z
+        .array(z.uuid())
+        .min(1)
+        .max(DELETE_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT),
     }),
   )
   .mutation(async ({ ctx, input }) => {

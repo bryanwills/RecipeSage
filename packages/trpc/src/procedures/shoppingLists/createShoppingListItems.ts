@@ -12,6 +12,10 @@ import {
   ShoppingListAccessLevel,
   getAccessToShoppingList,
 } from "@recipesage/util/server/db";
+import {
+  CREATE_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT,
+  SHOPPING_LIST_ITEMS_TITLE_LENGTH_LIMIT,
+} from "@recipesage/util/shared";
 
 export const createShoppingListItems = publicProcedure
   .input(
@@ -20,13 +24,17 @@ export const createShoppingListItems = publicProcedure
       items: z
         .array(
           z.object({
-            title: z.string().min(1).max(254),
+            title: z
+              .string()
+              .min(1)
+              .max(SHOPPING_LIST_ITEMS_TITLE_LENGTH_LIMIT),
             recipeId: z.uuid().nullable(),
             completed: z.boolean().optional(),
             categoryTitle: z.string().optional(),
           }),
         )
-        .min(1),
+        .min(1)
+        .max(CREATE_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT),
     }),
   )
   .mutation(async ({ ctx, input }) => {

@@ -12,12 +12,13 @@ import {
   ShoppingListAccessLevel,
   getAccessToShoppingList,
 } from "@recipesage/util/server/db";
+import { SHOPPING_LIST_ITEMS_TITLE_LENGTH_LIMIT } from "@recipesage/util/shared";
 
 export const createShoppingListItem = publicProcedure
   .input(
     z.object({
       shoppingListId: z.uuid(),
-      title: z.string().min(1).max(254),
+      title: z.string().min(1).max(SHOPPING_LIST_ITEMS_TITLE_LENGTH_LIMIT),
       recipeId: z.uuid().nullable(),
       completed: z.boolean().optional(),
       categoryTitle: z.string().optional(),
