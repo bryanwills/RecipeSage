@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, inject } from "@angular/core";
-import { AlertController, ToastController } from "@ionic/angular";
+import { AlertController, ToastController } from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { ImageService } from "~/services/image.service";
@@ -7,15 +7,27 @@ import { LoadingService } from "~/services/loading.service";
 import { CapabilitiesService } from "~/services/capabilities.service";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import type { ImageSummary } from "@recipesage/prisma";
+import { IonIcon } from "@ionic/angular/standalone";
+import {
+  caretBack,
+  caretForward,
+  informationCircle,
+  removeCircle,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "multi-image-upload",
   templateUrl: "multi-image-upload.component.html",
   styleUrls: ["./multi-image-upload.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [...SHARED_UI_IMPORTS, IonIcon],
 })
 export class MultiImageUploadComponent {
+  constructor() {
+    addIcons({ caretBack, caretForward, informationCircle, removeCircle });
+  }
+
   private toastCtrl = inject(ToastController);
   private alertCtrl = inject(AlertController);
   private imageService = inject(ImageService);

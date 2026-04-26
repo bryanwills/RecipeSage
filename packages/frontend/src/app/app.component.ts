@@ -10,7 +10,7 @@ import {
   ToastController,
   AlertController,
   NavController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 
 import { ENABLE_ANALYTICS, IS_SELFHOST } from "../environments/environment";
 
@@ -39,6 +39,41 @@ import { SHARED_UI_IMPORTS } from "./providers/shared-ui.provider";
 import { CookingToolbarComponent } from "./components/cooking-toolbar/cooking-toolbar.component";
 import { VersionCheckService } from "./services/versioncheck.service";
 import { DebugStoreService } from "./services/debugStore.service";
+import {
+  IonApp,
+  IonSplitPane,
+  IonMenu,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonMenuToggle,
+  IonItem,
+  IonIcon,
+  IonLabel,
+  IonBadge,
+  IonFooter,
+  IonRouterOutlet,
+} from "@ionic/angular/standalone";
+import {
+  add,
+  book,
+  calendar,
+  cart,
+  chatboxEllipses,
+  chatbubbles,
+  cloudDownload,
+  heart,
+  helpBuoy,
+  leaf,
+  logIn,
+  mail,
+  people,
+  pricetag,
+  settings,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 interface NavPage {
   id: string;
@@ -51,7 +86,26 @@ interface NavPage {
   standalone: true,
   selector: "app-root",
   templateUrl: "app.component.html",
-  imports: [...SHARED_UI_IMPORTS, CookingToolbarComponent, NgxLoadingBar],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    CookingToolbarComponent,
+    NgxLoadingBar,
+    IonApp,
+    IonSplitPane,
+    IonMenu,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonMenuToggle,
+    IonItem,
+    IonIcon,
+    IonLabel,
+    IonBadge,
+    IonFooter,
+    IonRouterOutlet,
+  ],
 })
 export class AppComponent {
   private translate = inject(TranslateService);
@@ -103,6 +157,24 @@ export class AppComponent {
   preferenceKeys = GlobalPreferenceKey;
 
   constructor() {
+    addIcons({
+      add,
+      book,
+      calendar,
+      cart,
+      chatboxEllipses,
+      chatbubbles,
+      cloudDownload,
+      heart,
+      helpBuoy,
+      leaf,
+      logIn,
+      mail,
+      people,
+      pricetag,
+      settings,
+    });
+
     const languagePref =
       this.preferencesService.preferences[GlobalPreferenceKey.Language];
     const language = languagePref || this.utilService.getAppBrowserLang();

@@ -4,7 +4,7 @@ import {
   NavController,
   AlertController,
   ModalController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { IS_SELFHOST } from "../../../environments/environment";
@@ -24,6 +24,21 @@ import { SignInWithGoogleComponent } from "../../components/sign-in-with-google/
 import { LogoIconComponent } from "../../components/logo-icon/logo-icon.component";
 import { TosClickwrapAgreementComponent } from "../../components/tos-clickwrap-agreement/tos-clickwrap-agreement.component";
 import { WebsocketService } from "../../services/websocket.service";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonMenuButton,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonItem,
+  IonInput,
+} from "@ionic/angular/standalone";
+import { close, eye, eyeOff } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
@@ -36,6 +51,17 @@ import { WebsocketService } from "../../services/websocket.service";
     SignInWithGoogleComponent,
     LogoIconComponent,
     TosClickwrapAgreementComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonMenuButton,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonItem,
+    IonInput,
   ],
 })
 export class AuthPage {
@@ -70,6 +96,7 @@ export class AuthPage {
   loading = false;
 
   constructor() {
+    addIcons({ close, eye, eyeOff });
     if (this.route.snapshot.paramMap.get("authType") === AuthType.Register) {
       this.showLogin = false;
     } else {

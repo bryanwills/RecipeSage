@@ -13,13 +13,36 @@ import {
 import type { MealPlanItemSummary } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { MealGroupComponent } from "./meal-group/meal-group.component";
+import {
+  IonButton,
+  IonIcon,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonList,
+  IonItem,
+  IonLabel,
+} from "@ionic/angular/standalone";
+import { caretBack, caretForward } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "meal-calendar",
   templateUrl: "meal-calendar.component.html",
   styleUrls: ["./meal-calendar.component.scss"],
-  imports: [...SHARED_UI_IMPORTS, MealGroupComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    MealGroupComponent,
+    IonButton,
+    IonIcon,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonList,
+    IonItem,
+    IonLabel,
+  ],
 })
 export class MealCalendarComponent {
   private utilService = inject(UtilService);
@@ -92,6 +115,7 @@ export class MealCalendarComponent {
   }
 
   constructor() {
+    addIcons({ caretBack, caretForward });
     setTimeout(() => {
       this.mealsByDateChange.emit(this.mealsByDate);
       this.selectedDaysChange.emit(this.selectedDays);

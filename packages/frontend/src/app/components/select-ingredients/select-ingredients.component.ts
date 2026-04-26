@@ -1,18 +1,19 @@
 import { Component, Input, Output, EventEmitter, inject } from "@angular/core";
-import { ModalController } from "@ionic/angular";
+import { ModalController } from "@ionic/angular/standalone";
 import { RecipeService, ParsedIngredient } from "../../services/recipe.service";
 
 import { ScaleRecipeComponent } from "~/modals/scale-recipe/scale-recipe.component";
 import { PreferencesService } from "../../services/preferences.service";
 import { ShoppingListPreferenceKey } from "@recipesage/util/shared";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import { IonItem, IonCheckbox } from "@ionic/angular/standalone";
 
 @Component({
   standalone: true,
   selector: "select-ingredients",
   templateUrl: "select-ingredients.component.html",
   styleUrls: ["./select-ingredients.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [...SHARED_UI_IMPORTS, IonItem, IonCheckbox],
 })
 export class SelectIngredientsComponent {
   private modalCtrl = inject(ModalController);

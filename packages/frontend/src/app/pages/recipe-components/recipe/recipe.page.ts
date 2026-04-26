@@ -6,7 +6,7 @@ import {
   ToastController,
   ModalController,
   PopoverController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 import dayjs from "dayjs";
 
@@ -50,6 +50,43 @@ import { ServerActionsService } from "../../../services/server-actions.service";
 import { Title } from "@angular/platform-browser";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { RatingComponent } from "../../../components/rating/rating.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonThumbnail,
+  IonLabel,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonAvatar,
+  IonChip,
+} from "@ionic/angular/standalone";
+import {
+  book,
+  calendar,
+  cloudDownload,
+  copy,
+  create,
+  documentText,
+  fitness,
+  flashlight,
+  link,
+  list,
+  options,
+  pin,
+  pricetag,
+  print,
+  share,
+  trash,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
@@ -57,7 +94,26 @@ import { RatingComponent } from "../../../components/rating/rating.component";
   templateUrl: "recipe.page.html",
   styleUrls: ["recipe.page.scss"],
   providers: [RecipeService],
-  imports: [...SHARED_UI_IMPORTS, RatingComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    RatingComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonThumbnail,
+    IonLabel,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonAvatar,
+    IonChip,
+  ],
 })
 export class RecipePage {
   private navCtrl = inject(NavController);
@@ -135,6 +191,24 @@ export class RecipePage {
   }
 
   constructor() {
+    addIcons({
+      book,
+      calendar,
+      cloudDownload,
+      copy,
+      create,
+      documentText,
+      fitness,
+      flashlight,
+      link,
+      list,
+      options,
+      pin,
+      pricetag,
+      print,
+      share,
+      trash,
+    });
     this.updateIsLoggedIn();
 
     const recipeId = this.route.snapshot.paramMap.get("recipeId");

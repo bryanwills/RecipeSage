@@ -7,6 +7,22 @@ import type { JobSummary } from "@recipesage/prisma";
 import { ServerActionsService } from "../../../services/server-actions.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { WebsocketService } from "../../../services/websocket.service";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonIcon,
+  IonProgressBar,
+  IonButton,
+  IonList,
+} from "@ionic/angular/standalone";
+import { cloudDownload, document } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 export const getJobFailureI18n = (exportJob: JobSummary) => {
   switch (exportJob.resultCode) {
@@ -26,9 +42,27 @@ const JOB_POLL_INTERVAL_MS = 60_000;
   selector: "page-export",
   templateUrl: "export.page.html",
   styleUrls: ["export.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonIcon,
+    IonProgressBar,
+    IonButton,
+    IonList,
+  ],
 })
 export class ExportPage {
+  constructor() {
+    addIcons({ cloudDownload, document });
+  }
+
   private utilService = inject(UtilService);
   private serverActionsService = inject(ServerActionsService);
   private websocketService = inject(WebsocketService);

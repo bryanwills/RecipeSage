@@ -1,20 +1,53 @@
 import { Component, Input, inject } from "@angular/core";
-import { ModalController } from "@ionic/angular";
+import { ModalController } from "@ionic/angular/standalone";
 
 import { LoadingService } from "~/services/loading.service";
 import { ServerActionsService } from "../../../services/server-actions.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectCollaboratorsComponent } from "../../../components/select-collaborators/select-collaborators.component";
 import { MealPlanMealOrderModalPage } from "../meal-plan-meal-order-modal/meal-plan-meal-order-modal.page";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonInput,
+  IonLabel,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import { close, list, reorderThree } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-update-meal-plan-modal",
   templateUrl: "update-meal-plan-modal.page.html",
   styleUrls: ["update-meal-plan-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, SelectCollaboratorsComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    SelectCollaboratorsComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonInput,
+    IonLabel,
+    IonFooter,
+  ],
 })
 export class UpdateMealPlanModalPage {
+  constructor() {
+    addIcons({ close, list, reorderThree });
+  }
+
   private modalCtrl = inject(ModalController);
   private loadingService = inject(LoadingService);
   private serverActionsService = inject(ServerActionsService);

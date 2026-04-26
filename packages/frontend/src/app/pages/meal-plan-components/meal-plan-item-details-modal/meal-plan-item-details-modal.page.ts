@@ -3,7 +3,7 @@ import {
   NavController,
   ModalController,
   AlertController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { RecipeService } from "~/services/recipe.service";
@@ -19,15 +19,67 @@ import type { MealPlanItemSummary } from "@recipesage/prisma";
 import { parseNotes } from "@recipesage/util/shared";
 import { ServerActionsService } from "../../../services/server-actions.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonAvatar,
+  IonLabel,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import {
+  calendar,
+  cart,
+  close,
+  copy,
+  create,
+  documentText,
+  person,
+  pin,
+  trash,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-meal-plan-item-details-modal",
   templateUrl: "meal-plan-item-details-modal.page.html",
   styleUrls: ["meal-plan-item-details-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonAvatar,
+    IonLabel,
+    IonFooter,
+  ],
 })
 export class MealPlanItemDetailsModalPage {
+  constructor() {
+    addIcons({
+      calendar,
+      cart,
+      close,
+      copy,
+      create,
+      documentText,
+      person,
+      pin,
+      trash,
+    });
+  }
+
   private navCtrl = inject(NavController);
   private translate = inject(TranslateService);
   private modalCtrl = inject(ModalController);

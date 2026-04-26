@@ -10,14 +10,38 @@ import {
 import { UtilService } from "~/services/util.service";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { TranslateService } from "@ngx-translate/core";
-import { AlertController } from "@ionic/angular";
+import { AlertController } from "@ionic/angular/standalone";
+import {
+  IonItem,
+  IonCheckbox,
+  IonButton,
+  IonIcon,
+  IonPopover,
+  IonContent,
+  IonList,
+  IonListHeader,
+  IonLabel,
+} from "@ionic/angular/standalone";
+import { ellipsisVertical, trash } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "shopping-list-item",
   templateUrl: "shopping-list-item.component.html",
   styleUrls: ["./shopping-list-item.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonItem,
+    IonCheckbox,
+    IonButton,
+    IonIcon,
+    IonPopover,
+    IonContent,
+    IonList,
+    IonListHeader,
+    IonLabel,
+  ],
 })
 export class ShoppingListItemComponent {
   private utilService = inject(UtilService);
@@ -82,6 +106,7 @@ export class ShoppingListItemComponent {
   userKnownCategories = this.getUserKnownCategories();
 
   constructor() {
+    addIcons({ ellipsisVertical, trash });
     this.generateBuiltinCategories();
   }
 

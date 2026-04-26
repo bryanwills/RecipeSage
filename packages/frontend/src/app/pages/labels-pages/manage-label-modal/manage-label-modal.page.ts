@@ -4,20 +4,53 @@ import {
   ModalController,
   AlertController,
   ToastController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { UtilService, RouteMap } from "~/services/util.service";
 import { LoadingService } from "~/services/loading.service";
 import { TranslateService } from "@ngx-translate/core";
 import type { LabelSummary } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { ServerActionsService } from "../../../services/server-actions.service";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import {
+  close,
+  create,
+  folderOpen,
+  gitNetwork,
+  pricetag,
+  trash,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-manage-label-modal",
   templateUrl: "manage-label-modal.page.html",
   styleUrls: ["manage-label-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonFooter,
+  ],
 })
 export class ManageLabelModalPage {
   navCtrl = inject(NavController);
@@ -37,6 +70,7 @@ export class ManageLabelModalPage {
   createdAt?: string;
 
   constructor() {
+    addIcons({ close, create, folderOpen, gitNetwork, pricetag, trash });
     const utilService = this.utilService;
 
     setTimeout(() => {

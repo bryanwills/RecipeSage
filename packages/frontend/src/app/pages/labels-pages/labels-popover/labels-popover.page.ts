@@ -1,5 +1,5 @@
 import { Component, Input, inject } from "@angular/core";
-import { PopoverController } from "@ionic/angular";
+import { PopoverController } from "@ionic/angular/standalone";
 
 import { UtilService } from "~/services/util.service";
 import {
@@ -9,13 +9,27 @@ import {
 import { PreferencesService } from "~/services/preferences.service";
 import { ManageLabelsPreferenceKey } from "@recipesage/util/shared";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonList,
+  IonListHeader,
+  IonItem,
+  IonToggle,
+  IonButton,
+} from "@ionic/angular/standalone";
 
 @Component({
   standalone: true,
   selector: "page-labels-popover",
   templateUrl: "labels-popover.page.html",
   styleUrls: ["labels-popover.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonList,
+    IonListHeader,
+    IonItem,
+    IonToggle,
+    IonButton,
+  ],
 })
 export class LabelsPopoverPage {
   popoverCtrl = inject(PopoverController);

@@ -7,7 +7,10 @@ import {
   QueryList,
   ViewChildren,
 } from "@angular/core";
-import { type ItemReorderEventDetail, ModalController } from "@ionic/angular";
+import {
+  type ItemReorderEventDetail,
+  ModalController,
+} from "@ionic/angular/standalone";
 import {
   DEFAULT_MEALS,
   DEFAULT_MEAL_COLORS,
@@ -17,6 +20,23 @@ import {
 
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { ColorPickerComponent } from "../../../components/color-picker/color-picker.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonReorderGroup,
+  IonItem,
+  IonInput,
+  IonReorder,
+  IonFooter,
+  IonLabel,
+} from "@ionic/angular/standalone";
+import { checkmark, close, closeCircle } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 interface MealOptionEntry {
   name: string;
@@ -29,9 +49,29 @@ interface MealOptionEntry {
   selector: "page-meal-plan-meal-order-modal",
   templateUrl: "meal-plan-meal-order-modal.page.html",
   styleUrls: ["meal-plan-meal-order-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, ColorPickerComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    ColorPickerComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonReorderGroup,
+    IonItem,
+    IonInput,
+    IonReorder,
+    IonFooter,
+    IonLabel,
+  ],
 })
 export class MealPlanMealOrderModalPage implements OnInit {
+  constructor() {
+    addIcons({ checkmark, close, closeCircle });
+  }
+
   private modalCtrl = inject(ModalController);
 
   @Input()

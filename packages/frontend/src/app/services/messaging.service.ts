@@ -9,7 +9,7 @@ import {
 
 import { Injectable, inject } from "@angular/core";
 
-import { AlertController } from "@ionic/angular";
+import { AlertController } from "@ionic/angular/standalone";
 
 import { UserService } from "./user.service";
 import { HttpService } from "./http.service";

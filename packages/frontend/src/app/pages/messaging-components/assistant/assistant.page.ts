@@ -3,7 +3,7 @@ import {
   AlertController,
   NavController,
   ToastController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 
 import { LoadingService } from "~/services/loading.service";
 import { UtilService, RouteMap } from "~/services/util.service";
@@ -16,15 +16,59 @@ import type {
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { LogoIconComponent } from "../../../components/logo-icon/logo-icon.component";
 import { NullStateComponent } from "../../../components/null-state/null-state.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
+  IonTitle,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+  IonLabel,
+  IonItem,
+  IonAvatar,
+  IonFooter,
+  IonTextarea,
+  IonSpinner,
+} from "@ionic/angular/standalone";
+import { refresh, send } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-assistant",
   templateUrl: "assistant.page.html",
   styleUrls: ["assistant.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, LogoIconComponent, NullStateComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    LogoIconComponent,
+    NullStateComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonTitle,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonLabel,
+    IonItem,
+    IonAvatar,
+    IonFooter,
+    IonTextarea,
+    IonSpinner,
+  ],
 })
 export class AssistantPage {
+  constructor() {
+    addIcons({ refresh, send });
+  }
+
   private navCtrl = inject(NavController);
   private translate = inject(TranslateService);
   private toastCtrl = inject(ToastController);

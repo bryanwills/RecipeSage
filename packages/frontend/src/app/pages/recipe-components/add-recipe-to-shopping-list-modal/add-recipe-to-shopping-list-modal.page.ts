@@ -4,7 +4,7 @@ import {
   ToastController,
   ModalController,
   AlertController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { LoadingService } from "~/services/loading.service";
@@ -15,15 +15,50 @@ import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectIngredientsComponent } from "../../../components/select-ingredients/select-ingredients.component";
 import { ServerActionsService } from "../../../services/server-actions.service";
 import type { RecipeSummary, ShoppingListSummary } from "@recipesage/prisma";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonSelect,
+  IonSelectOption,
+  IonLabel,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import { close, list } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-add-recipe-to-shopping-list-modal",
   templateUrl: "add-recipe-to-shopping-list-modal.page.html",
   styleUrls: ["add-recipe-to-shopping-list-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, SelectIngredientsComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    SelectIngredientsComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonSelect,
+    IonSelectOption,
+    IonLabel,
+    IonFooter,
+  ],
 })
 export class AddRecipeToShoppingListModalPage {
+  constructor() {
+    addIcons({ close, list });
+  }
+
   navCtrl = inject(NavController);
   translate = inject(TranslateService);
   recipeService = inject(RecipeService);

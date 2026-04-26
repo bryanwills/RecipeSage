@@ -5,7 +5,7 @@ import {
   AlertController,
   NavController,
   ModalController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { IS_SELFHOST } from "../../../../environments/environment";
@@ -21,6 +21,34 @@ import { AuthPage } from "~/pages/auth/auth.page";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { NullStateComponent } from "../../../components/null-state/null-state.component";
 import { SelfhostWarningItemComponent } from "../../../components/selfhost-warning-item/selfhost-warning-item.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
+  IonBackButton,
+  IonTitle,
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+  IonThumbnail,
+  IonItem,
+  IonIcon,
+  IonLabel,
+  IonList,
+  IonAvatar,
+  IonFooter,
+  IonButton,
+} from "@ionic/angular/standalone";
+import {
+  bookmarks,
+  folder,
+  key,
+  mail,
+  pricetag,
+  shareSocial,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
@@ -31,6 +59,23 @@ import { SelfhostWarningItemComponent } from "../../../components/selfhost-warni
     ...SHARED_UI_IMPORTS,
     NullStateComponent,
     SelfhostWarningItemComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonBackButton,
+    IonTitle,
+    IonContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonThumbnail,
+    IonItem,
+    IonIcon,
+    IonLabel,
+    IonList,
+    IonAvatar,
+    IonFooter,
+    IonButton,
   ],
 })
 export class ProfilePage {
@@ -54,6 +99,7 @@ export class ProfilePage {
   myProfile?: UserProfile;
 
   constructor() {
+    addIcons({ bookmarks, folder, key, mail, pricetag, shareSocial });
     const handle = this.route.snapshot.paramMap.get("handle")?.substring(1);
 
     if (!handle) {

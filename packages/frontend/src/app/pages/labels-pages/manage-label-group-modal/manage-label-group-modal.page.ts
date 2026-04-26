@@ -3,7 +3,7 @@ import {
   ModalController,
   AlertController,
   ToggleCustomEvent,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { LoadingService } from "~/services/loading.service";
 import { TranslateService } from "@ngx-translate/core";
 import type { LabelGroupSummary, LabelSummary } from "@recipesage/prisma";
@@ -13,15 +13,50 @@ import {
   SelectMultipleItemsComponent,
 } from "../../../components/select-multiple-items/select-multiple-items.component";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonInput,
+  IonToggle,
+  IonLabel,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import { close } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-manage-label-group-modal",
   templateUrl: "manage-label-group-modal.page.html",
   styleUrls: ["manage-label-group-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, SelectMultipleItemsComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    SelectMultipleItemsComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonInput,
+    IonToggle,
+    IonLabel,
+    IonFooter,
+  ],
 })
 export class ManageLabelGroupModalPage {
+  constructor() {
+    addIcons({ close });
+  }
+
   private translate = inject(TranslateService);
   private loadingService = inject(LoadingService);
   private modalCtrl = inject(ModalController);

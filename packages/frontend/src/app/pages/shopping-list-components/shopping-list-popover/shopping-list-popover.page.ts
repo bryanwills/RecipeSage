@@ -4,7 +4,7 @@ import {
   NavController,
   PopoverController,
   ModalController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { LoadingService } from "~/services/loading.service";
@@ -22,15 +22,47 @@ import {
 } from "@recipesage/prisma";
 import { ServerActionsService } from "../../../services/server-actions.service";
 import { ShoppingListCategoryOrderModalPage } from "../shopping-list-category-order-modal/shopping-list-category-order-modal.page";
+import {
+  IonList,
+  IonListHeader,
+  IonItem,
+  IonSelect,
+  IonSelectOption,
+  IonToggle,
+  IonButton,
+  IonIcon,
+} from "@ionic/angular/standalone";
+import {
+  pencil,
+  print,
+  removeCircle,
+  reorderThree,
+  trash,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-shopping-list-popover",
   templateUrl: "shopping-list-popover.page.html",
   styleUrls: ["shopping-list-popover.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonList,
+    IonListHeader,
+    IonItem,
+    IonSelect,
+    IonSelectOption,
+    IonToggle,
+    IonButton,
+    IonIcon,
+  ],
 })
 export class ShoppingListPopoverPage {
+  constructor() {
+    addIcons({ pencil, print, removeCircle, reorderThree, trash });
+  }
+
   private navCtrl = inject(NavController);
   private translate = inject(TranslateService);
   private utilService = inject(UtilService);

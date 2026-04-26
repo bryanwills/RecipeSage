@@ -1,5 +1,5 @@
 import { Component, inject } from "@angular/core";
-import { ToastController } from "@ionic/angular";
+import { ToastController } from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { IS_SELFHOST } from "../../../../environments/environment";
@@ -15,6 +15,19 @@ import { TosClickwrapAgreementComponent } from "../../../components/tos-clickwra
 import { LogoIconComponent } from "../../../components/logo-icon/logo-icon.component";
 import { ServerActionsService } from "../../../services/server-actions.service";
 import { appIdbStorageManager } from "../../../utils/appIdbStorageManager";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonContent,
+  IonButton,
+  IonIcon,
+  IonBadge,
+} from "@ionic/angular/standalone";
+import { arrowForward } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 const BILLING_PORTAL_URL =
   "https://billing.stripe.com/p/login/dR6aFm6ex5vuauk8ww";
@@ -28,6 +41,15 @@ const BILLING_PORTAL_URL =
     ...SHARED_UI_IMPORTS,
     TosClickwrapAgreementComponent,
     LogoIconComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonContent,
+    IonButton,
+    IonIcon,
+    IonBadge,
   ],
 })
 export class ContributePage {
@@ -51,6 +73,7 @@ export class ContributePage {
     this.featureFlagService.flags[FeatureFlagKeys.EnableAssistant];
 
   constructor() {
+    addIcons({ arrowForward });
     if (IS_SELFHOST) {
       window.alert(
         "Opening the RecipeSage site, since selfhosted versions aren't linked to Stripe",

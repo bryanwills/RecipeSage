@@ -1,5 +1,5 @@
 import { Component, ViewChild, Input, inject } from "@angular/core";
-import { IonSelect, PopoverController } from "@ionic/angular";
+import { IonSelect, PopoverController } from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { PreferencesService } from "~/services/preferences.service";
@@ -12,15 +12,42 @@ import {
 import { RatingFilterPopoverComponent } from "~/components/rating-filter-popover/rating-filter-popover.component";
 import type { LabelSummary } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import {
+  IonList,
+  IonListHeader,
+  IonItem,
+  IonLabel,
+  IonBadge,
+  IonIcon,
+  IonToggle,
+  IonSelectOption,
+} from "@ionic/angular/standalone";
+import { caretDownSharp, funnel } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-home-search-filter-popover",
   templateUrl: "home-search-filter-popover.page.html",
   styleUrls: ["home-search-filter-popover.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonList,
+    IonListHeader,
+    IonItem,
+    IonLabel,
+    IonBadge,
+    IonIcon,
+    IonToggle,
+    IonSelect,
+    IonSelectOption,
+  ],
 })
 export class HomeSearchFilterPopoverPage {
+  constructor() {
+    addIcons({ caretDownSharp, funnel });
+  }
+
   private translate = inject(TranslateService);
   private popoverCtrl = inject(PopoverController);
   private preferencesService = inject(PreferencesService);

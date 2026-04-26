@@ -2,9 +2,21 @@ import { Component, inject } from "@angular/core";
 
 import { RouteMap, UtilService } from "~/services/util.service";
 import { ImportService } from "../../../services/import.service";
-import { AlertController, NavController } from "@ionic/angular";
+import { AlertController, NavController } from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonButton,
+  IonProgressBar,
+} from "@ionic/angular/standalone";
 
 const MAX_FILE_SIZE_MB = 3000;
 
@@ -13,7 +25,19 @@ const MAX_FILE_SIZE_MB = 3000;
   selector: "page-import-csv",
   templateUrl: "import-csv.page.html",
   styleUrls: ["import-csv.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonButton,
+    IonProgressBar,
+  ],
 })
 export class ImportCSVPage {
   private importService = inject(ImportService);

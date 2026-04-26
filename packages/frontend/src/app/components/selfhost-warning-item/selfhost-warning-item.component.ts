@@ -1,12 +1,13 @@
 import { Component } from "@angular/core";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import { IonItem, IonLabel } from "@ionic/angular/standalone";
 
 @Component({
   standalone: true,
   selector: "selfhost-warning-item",
   templateUrl: "selfhost-warning-item.component.html",
   styleUrls: ["./selfhost-warning-item.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [...SHARED_UI_IMPORTS, IonItem, IonLabel],
 })
 export class SelfhostWarningItemComponent {
   constructor() {}

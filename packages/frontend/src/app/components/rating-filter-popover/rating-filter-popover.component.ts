@@ -1,14 +1,39 @@
 import { Component, Input, inject } from "@angular/core";
-import { PopoverController } from "@ionic/angular";
+import { PopoverController } from "@ionic/angular/standalone";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { RatingComponent } from "../rating/rating.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonItem,
+  IonCheckbox,
+  IonFooter,
+  IonButton,
+  IonLabel,
+} from "@ionic/angular/standalone";
 
 @Component({
   standalone: true,
   selector: "rating-filter-popover",
   templateUrl: "rating-filter-popover.component.html",
   styleUrls: ["./rating-filter-popover.component.scss"],
-  imports: [...SHARED_UI_IMPORTS, RatingComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    RatingComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonItem,
+    IonCheckbox,
+    IonFooter,
+    IonButton,
+    IonLabel,
+  ],
 })
 export class RatingFilterPopoverComponent {
   private popoverCtrl = inject(PopoverController);

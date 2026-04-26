@@ -3,7 +3,7 @@ import {
   ModalController,
   AlertController,
   ToggleCustomEvent,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { LoadingService } from "~/services/loading.service";
 import { TranslateService } from "@ngx-translate/core";
 import type { LabelGroupSummary, LabelSummary } from "@recipesage/prisma";
@@ -13,15 +13,50 @@ import {
   SelectMultipleItemsComponent,
 } from "../../../components/select-multiple-items/select-multiple-items.component";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonTitle,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonToggle,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import { arrowBack, close, pricetag, pricetags } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-new-label-item-modal",
   templateUrl: "new-label-item-modal.page.html",
   styleUrls: ["new-label-item-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, SelectMultipleItemsComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    SelectMultipleItemsComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonTitle,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonToggle,
+    IonFooter,
+  ],
 })
 export class NewLabelItemModalPage {
+  constructor() {
+    addIcons({ arrowBack, close, pricetag, pricetags });
+  }
+
   private translate = inject(TranslateService);
   private loadingService = inject(LoadingService);
   private modalCtrl = inject(ModalController);

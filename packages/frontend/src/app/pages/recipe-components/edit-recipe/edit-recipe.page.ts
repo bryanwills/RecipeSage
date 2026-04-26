@@ -11,7 +11,7 @@ import {
   PopoverController,
   LoadingController,
   type AccordionGroupChangeEventDetail,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 import {
   Camera,
@@ -53,6 +53,36 @@ import { MultiImageUploadComponent } from "../../../components/multi-image-uploa
 import { MlService } from "../../../services/ml.service";
 import { Capacitor } from "@capacitor/core";
 import { SelectRecipeComponent } from "../../../components/select-recipe/select-recipe.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonPopover,
+  IonList,
+  IonItem,
+  IonModal,
+  IonInput,
+  IonTextarea,
+  IonAccordionGroup,
+  IonAccordion,
+  IonLabel,
+  IonBadge,
+  IonAvatar,
+} from "@ionic/angular/standalone";
+import {
+  camera,
+  close,
+  cutOutline,
+  documentTextOutline,
+  link,
+  options,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
@@ -66,6 +96,25 @@ import { SelectRecipeComponent } from "../../../components/select-recipe/select-
     RatingComponent,
     MultiImageUploadComponent,
     SelectRecipeComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonPopover,
+    IonList,
+    IonItem,
+    IonModal,
+    IonInput,
+    IonTextarea,
+    IonAccordionGroup,
+    IonAccordion,
+    IonLabel,
+    IonBadge,
+    IonAvatar,
   ],
 })
 export class EditRecipePage {
@@ -126,6 +175,7 @@ export class EditRecipePage {
   isAutoclipPopoverOpen = false;
 
   constructor() {
+    addIcons({ camera, close, cutOutline, documentTextOutline, link, options });
     const recipeId = this.route.snapshot.paramMap.get("recipeId") || "new";
 
     if (recipeId === "new") {

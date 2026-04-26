@@ -3,13 +3,21 @@ import { LoadingService } from "~/services/loading.service";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { ServerActionsService } from "../../services/server-actions.service";
 import { LabelSummary } from "@recipesage/prisma";
+import {
+  IonItem,
+  IonIcon,
+  IonLabel,
+  IonSearchbar,
+} from "@ionic/angular/standalone";
+import { folderOpen, pricetag } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "select-label",
   templateUrl: "select-label.component.html",
   styleUrls: ["./select-label.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [...SHARED_UI_IMPORTS, IonItem, IonIcon, IonLabel, IonSearchbar],
 })
 export class SelectLabelComponent {
   private loadingService = inject(LoadingService);
@@ -34,6 +42,7 @@ export class SelectLabelComponent {
   results: LabelSummary[] = [];
 
   constructor() {
+    addIcons({ folderOpen, pricetag });
     this.load();
   }
 

@@ -4,7 +4,7 @@ import {
   AlertController,
   ModalController,
   NavController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { isHandleValid } from "@recipesage/util/shared";
@@ -26,6 +26,37 @@ import { UnsavedChangesService } from "~/services/unsaved-changes.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { NullStateComponent } from "../../../components/null-state/null-state.component";
 import { MultiImageUploadComponent } from "../../../components/multi-image-upload/multi-image-upload.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonContent,
+  IonItem,
+  IonInput,
+  IonLabel,
+  IonIcon,
+  IonToggle,
+  IonButton,
+  IonList,
+  IonReorderGroup,
+  IonReorder,
+  IonAvatar,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import {
+  add,
+  arrowForward,
+  bookmarks,
+  folder,
+  key,
+  pencil,
+  pricetag,
+  shareSocial,
+  trash,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
@@ -36,6 +67,23 @@ import { MultiImageUploadComponent } from "../../../components/multi-image-uploa
     ...SHARED_UI_IMPORTS,
     NullStateComponent,
     MultiImageUploadComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonContent,
+    IonItem,
+    IonInput,
+    IonLabel,
+    IonIcon,
+    IonToggle,
+    IonButton,
+    IonList,
+    IonReorderGroup,
+    IonReorder,
+    IonAvatar,
+    IonFooter,
   ],
 })
 export class MyProfilePage {
@@ -67,6 +115,17 @@ export class MyProfilePage {
   updatedProfileFields: Partial<UserProfile> = {};
 
   constructor() {
+    addIcons({
+      add,
+      arrowForward,
+      bookmarks,
+      folder,
+      key,
+      pencil,
+      pricetag,
+      shareSocial,
+      trash,
+    });
     this.load().then(() => {
       this.checkProfileEnabled();
     });

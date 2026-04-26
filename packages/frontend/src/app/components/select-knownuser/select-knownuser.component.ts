@@ -3,13 +3,29 @@ import { Component, Input, Output, EventEmitter, inject } from "@angular/core";
 import { UserService } from "~/services/user.service";
 import { MessageThread, MessagingService } from "~/services/messaging.service";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import {
+  IonList,
+  IonRadioGroup,
+  IonListHeader,
+  IonItem,
+  IonAvatar,
+  IonRadio,
+} from "@ionic/angular/standalone";
 
 @Component({
   standalone: true,
   selector: "select-knownuser",
   templateUrl: "select-knownuser.component.html",
   styleUrls: ["./select-knownuser.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonList,
+    IonRadioGroup,
+    IonListHeader,
+    IonItem,
+    IonAvatar,
+    IonRadio,
+  ],
 })
 export class SelectKnownUserComponent {
   private userService = inject(UserService);

@@ -1,15 +1,45 @@
 import { Input, Component, inject } from "@angular/core";
-import { ModalController } from "@ionic/angular";
+import { ModalController } from "@ionic/angular/standalone";
 import { CookingToolbarService } from "~/services/cooking-toolbar.service";
 import type { MealPlanItemSummary } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonCheckbox,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import { close, pin } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-meal-plan-bulk-pin-modal",
   templateUrl: "meal-plan-bulk-pin-modal.page.html",
   styleUrls: ["meal-plan-bulk-pin-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonCheckbox,
+    IonFooter,
+  ],
 })
 export class MealPlanBulkPinModalPage {
   private modalCtrl = inject(ModalController);
@@ -24,6 +54,7 @@ export class MealPlanBulkPinModalPage {
   recipeIdSelectionMap: Record<string, boolean> = {};
 
   constructor() {
+    addIcons({ close, pin });
     setTimeout(() => {
       this.selectAllRecipes();
     });

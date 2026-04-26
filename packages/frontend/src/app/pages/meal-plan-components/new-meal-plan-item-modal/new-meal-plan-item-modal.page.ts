@@ -1,19 +1,59 @@
 import { Input, Component, inject } from "@angular/core";
 import dayjs from "dayjs";
-import { ModalController } from "@ionic/angular";
+import { ModalController } from "@ionic/angular/standalone";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectMealComponent } from "../../../components/select-meal/select-meal.component";
 import { SelectRecipeComponent } from "../../../components/select-recipe/select-recipe.component";
 import type { RecipeSummary } from "@recipesage/prisma";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonSegment,
+  IonSegmentButton,
+  IonItem,
+  IonInput,
+  IonLabel,
+  IonTextarea,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import { calendar, close } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-new-meal-plan-item-modal",
   templateUrl: "new-meal-plan-item-modal.page.html",
   styleUrls: ["new-meal-plan-item-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, SelectMealComponent, SelectRecipeComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    SelectMealComponent,
+    SelectRecipeComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonSegment,
+    IonSegmentButton,
+    IonItem,
+    IonInput,
+    IonLabel,
+    IonTextarea,
+    IonFooter,
+  ],
 })
 export class NewMealPlanItemModalPage {
+  constructor() {
+    addIcons({ calendar, close });
+  }
+
   private modalCtrl = inject(ModalController);
 
   @Input() isEditing = false;

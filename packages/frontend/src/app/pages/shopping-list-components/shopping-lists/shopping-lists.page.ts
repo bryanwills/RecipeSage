@@ -3,7 +3,7 @@ import {
   NavController,
   ModalController,
   ToastController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { WebsocketService } from "~/services/websocket.service";
 import { LoadingService } from "~/services/loading.service";
 import { UtilService, RouteMap } from "~/services/util.service";
@@ -14,13 +14,56 @@ import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { NullStateComponent } from "../../../components/null-state/null-state.component";
 import { ShoppingListSummary, UserPublic } from "@recipesage/prisma";
 import { ServerActionsService } from "../../../services/server-actions.service";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
+  IonTitle,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+  IonPopover,
+  IonListHeader,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonBadge,
+  IonFab,
+  IonFabButton,
+} from "@ionic/angular/standalone";
+import { add, ban, cart, list, options } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-shopping-lists",
   templateUrl: "shopping-lists.page.html",
   styleUrls: ["shopping-lists.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, NullStateComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    NullStateComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonTitle,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonPopover,
+    IonListHeader,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonBadge,
+    IonFab,
+    IonFabButton,
+  ],
 })
 export class ShoppingListsPage {
   navCtrl = inject(NavController);
@@ -34,7 +77,9 @@ export class ShoppingListsPage {
   me?: UserPublic;
   shoppingLists?: ShoppingListSummary[] = [];
 
-  constructor() {}
+  constructor() {
+    addIcons({ add, ban, cart, list, options });
+  }
 
   ionViewWillEnter() {
     const loading = this.loadingService.start();

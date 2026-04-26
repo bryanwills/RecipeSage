@@ -4,7 +4,7 @@ import {
   PopoverController,
   ModalController,
   NavController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { LoadingService } from "~/services/loading.service";
@@ -20,15 +20,76 @@ import { NewLabelItemModalPage } from "../new-label-item-modal/new-label-item-mo
 import { ManageLabelGroupModalPage } from "../manage-label-group-modal/manage-label-group-modal.page";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { NullStateComponent } from "../../../components/null-state/null-state.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
+  IonButton,
+  IonIcon,
+  IonTitle,
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonBadge,
+  IonFab,
+  IonFabButton,
+} from "@ionic/angular/standalone";
+import {
+  add,
+  close,
+  folderOpen,
+  options,
+  pencil,
+  pricetag,
+  pricetags,
+  trash,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-labels",
   templateUrl: "labels.page.html",
   styleUrls: ["labels.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, NullStateComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    NullStateComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonButton,
+    IonIcon,
+    IonTitle,
+    IonContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonBadge,
+    IonFab,
+    IonFabButton,
+  ],
 })
 export class LabelsPage {
+  constructor() {
+    addIcons({
+      add,
+      close,
+      folderOpen,
+      options,
+      pencil,
+      pricetag,
+      pricetags,
+      trash,
+    });
+  }
+
   private navCtrl = inject(NavController);
   private translate = inject(TranslateService);
   private popoverCtrl = inject(PopoverController);
