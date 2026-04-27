@@ -10,6 +10,7 @@ import {
   SessionDTO,
   ShoppingListSummaryWithItems,
   UserPublic,
+  type MealPlanItemSummary,
   type ShoppingListItemSummary,
 } from "@recipesage/prisma";
 import { trpcClient as trpc } from "../trpcClient";
@@ -24,6 +25,7 @@ export enum ObjectStoreName {
   ShoppingLists = "shoppingLists",
   PendingShoppingListItemUpdates = "pendingShoppingListItemUpdates",
   MealPlans = "mealPlans",
+  PendingMealPlanItemUpdates = "pendingMealPlanItemUpdates",
   UserProfiles = "userProfiles",
   AssistantMessages = "assistantMessages",
   Jobs = "jobs",
@@ -126,6 +128,15 @@ export interface RSLocalDB extends DBSchema {
     value: MealPlanSummaryWithItems;
     indexes: {
       userId: string;
+    };
+  };
+  [ObjectStoreName.PendingMealPlanItemUpdates]: {
+    key: string;
+    value: MealPlanItemSummary & {
+      deleted: boolean;
+    };
+    indexes: {
+      mealPlanId: string;
     };
   };
   [ObjectStoreName.UserProfiles]: {

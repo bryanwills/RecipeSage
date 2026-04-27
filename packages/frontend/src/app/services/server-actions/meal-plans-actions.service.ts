@@ -1,13 +1,54 @@
 import { Injectable } from "@angular/core";
+import type { MealPlanItemSummary, RecipeSummary } from "@recipesage/prisma";
 
 import { ErrorHandlers } from "../http-error-handler.service";
 import { ActionsBase, RouterInputs, RouterOutputs } from "./actions-base";
-import { getLocalDb, ObjectStoreName } from "../../utils/localDb";
+import {
+  getKvStoreEntry,
+  getLocalDb,
+  KVStoreKeys,
+  ObjectStoreName,
+} from "../../utils/localDb";
+
+type PendingMealPlanItemUpdate = MealPlanItemSummary & {
+  deleted: boolean;
+};
 
 @Injectable({
   providedIn: "root",
 })
 export class MealPlansActionsService extends ActionsBase {
+  private mergePending(
+    items: MealPlanItemSummary[],
+    pending: PendingMealPlanItemUpdate[],
+  ): MealPlanItemSummary[] {
+    if (pending.length === 0) return items;
+
+    const pendingById = new Map(pending.map((entry) => [entry.id, entry]));
+    const merged: MealPlanItemSummary[] = [];
+    for (const item of items) {
+      const pendingEntry = pendingById.get(item.id);
+      if (!pendingEntry) {
+        merged.push(item);
+        continue;
+      }
+      pendingById.delete(item.id);
+      // We can have stale items in the item update cache that have been overwritten by another user
+      // and we treat this as LWW
+      if (pendingEntry.updatedAt <= item.updatedAt) {
+        merged.push(item);
+        continue;
+      }
+      if (pendingEntry.deleted) continue;
+      merged.push(pendingEntry);
+    }
+    for (const pendingEntry of pendingById.values()) {
+      if (pendingEntry.deleted) continue;
+      merged.push(pendingEntry);
+    }
+    return merged;
+  }
+
   getMealPlan(
     input: RouterInputs["mealPlans"]["getMealPlan"],
     errorHandlers?: ErrorHandlers,
@@ -16,7 +57,20 @@ export class MealPlansActionsService extends ActionsBase {
       () => this.trpc.mealPlans.getMealPlan.query(input),
       async () => {
         const localDb = await getLocalDb();
-        return localDb.get(ObjectStoreName.MealPlans, input.id);
+        const cachedMealPlan = await localDb.get(
+          ObjectStoreName.MealPlans,
+          input.id,
+        );
+        if (!cachedMealPlan) return undefined;
+        const pending = await localDb.getAllFromIndex(
+          ObjectStoreName.PendingMealPlanItemUpdates,
+          "mealPlanId",
+          input.id,
+        );
+        return {
+          ...cachedMealPlan,
+          items: this.mergePending(cachedMealPlan.items, pending),
+        };
       },
       errorHandlers,
     );
@@ -40,15 +94,29 @@ export class MealPlansActionsService extends ActionsBase {
     errorHandlers?: ErrorHandlers,
   ): Promise<RouterOutputs["mealPlans"]["getMealPlanItems"] | undefined> {
     return this.executeQuery(
-      () => this.trpc.mealPlans.getMealPlanItems.query(input),
+      async () => {
+        const items = await this.trpc.mealPlans.getMealPlanItems.query(input);
+        const localDb = await getLocalDb();
+        const pending = await localDb.getAllFromIndex(
+          ObjectStoreName.PendingMealPlanItemUpdates,
+          "mealPlanId",
+          input.mealPlanId,
+        );
+        return this.mergePending(items, pending);
+      },
       async () => {
         const localDb = await getLocalDb();
-        const mealPlan = await localDb.get(
+        const cachedMealPlan = await localDb.get(
           ObjectStoreName.MealPlans,
           input.mealPlanId,
         );
-        if (!mealPlan) return undefined;
-        return mealPlan.items;
+        if (!cachedMealPlan) return undefined;
+        const pending = await localDb.getAllFromIndex(
+          ObjectStoreName.PendingMealPlanItemUpdates,
+          "mealPlanId",
+          input.mealPlanId,
+        );
+        return this.mergePending(cachedMealPlan.items, pending);
       },
       errorHandlers,
     );
@@ -71,10 +139,66 @@ export class MealPlansActionsService extends ActionsBase {
     input: RouterInputs["mealPlans"]["createMealPlanItem"],
     errorHandlers?: ErrorHandlers,
   ): Promise<RouterOutputs["mealPlans"]["createMealPlanItem"] | undefined> {
-    return this.executeMutation(
+    return this.executeMutationWithFallback(
       () => this.trpc.mealPlans.createMealPlanItem.mutate(input),
       () => {
         void this.syncService.syncMealPlans();
+      },
+      async () => {
+        const profile = await getKvStoreEntry(KVStoreKeys.MyUserProfile);
+        if (!profile) {
+          throw new Error(
+            "Cannot queue offline meal plan item; user profile not cached",
+          );
+        }
+        const id = crypto.randomUUID();
+        const now = new Date();
+        const localDb = await getLocalDb();
+        const recipe = await (async () => {
+          if (input.recipeId) {
+            const recipe = await localDb.get(
+              ObjectStoreName.Recipes,
+              input.recipeId,
+            );
+            return recipe || null;
+          }
+          return null;
+        })();
+        await localDb.put(ObjectStoreName.PendingMealPlanItemUpdates, {
+          id,
+          mealPlanId: input.mealPlanId,
+          title: input.title,
+          notes: input.notes ?? "",
+          scheduled: null,
+          scheduledDate: input.scheduledDate,
+          meal: input.meal,
+          recipeId: input.recipeId,
+          recipe: recipe
+            ? {
+                id: recipe.id,
+                title: recipe.title,
+                recipeImages: recipe.recipeImages.map((ri) => ({
+                  image: ri.image,
+                })),
+                ingredients: recipe.ingredients,
+              }
+            : null,
+          user: {
+            id: profile.id,
+            name: profile.name,
+            handle: profile.handle,
+            enableProfile: profile.enableProfile,
+            profileImages: profile.profileImages,
+          },
+          shoppingListItems: [],
+          createdAt: now,
+          updatedAt: now,
+          deleted: false,
+        });
+        return {
+          reference: crypto.randomUUID(),
+          id,
+        };
       },
       errorHandlers,
     );
@@ -84,10 +208,78 @@ export class MealPlansActionsService extends ActionsBase {
     input: RouterInputs["mealPlans"]["createMealPlanItems"],
     errorHandlers?: ErrorHandlers,
   ): Promise<RouterOutputs["mealPlans"]["createMealPlanItems"] | undefined> {
-    return this.executeMutation(
+    return this.executeMutationWithFallback(
       () => this.trpc.mealPlans.createMealPlanItems.mutate(input),
       () => {
         void this.syncService.syncMealPlans();
+      },
+      async () => {
+        const profile = await getKvStoreEntry(KVStoreKeys.MyUserProfile);
+        if (!profile) {
+          throw new Error(
+            "Cannot queue offline meal plan items; user profile not cached",
+          );
+        }
+        const now = new Date();
+        const localDb = await getLocalDb();
+        const recipesById = new Map<string, RecipeSummary>();
+        for (const item of input.items) {
+          if (item.recipeId) {
+            const recipe = await localDb.get(
+              ObjectStoreName.Recipes,
+              item.recipeId,
+            );
+            if (recipe) {
+              recipesById.set(item.recipeId, recipe);
+            }
+          }
+        }
+        const transaction = localDb.transaction(
+          ObjectStoreName.PendingMealPlanItemUpdates,
+          "readwrite",
+        );
+        for (const item of input.items) {
+          const recipe = item.recipeId
+            ? recipesById.get(item.recipeId) || null
+            : null;
+
+          await transaction.store.put({
+            id: crypto.randomUUID(),
+            mealPlanId: input.mealPlanId,
+            title: item.title,
+            notes: item.notes ?? "",
+            scheduled: null,
+            scheduledDate: item.scheduledDate,
+            meal: item.meal,
+            recipeId: item.recipeId,
+            recipe: recipe
+              ? {
+                  id: recipe.id,
+                  title: recipe.title,
+                  recipeImages: recipe.recipeImages.map((ri) => ({
+                    image: ri.image,
+                  })),
+                  ingredients: recipe.ingredients,
+                }
+              : null,
+            user: {
+              id: profile.id,
+              name: profile.name,
+              handle: profile.handle,
+              enableProfile: profile.enableProfile,
+              profileImages: profile.profileImages,
+            },
+            shoppingListItems: [],
+            createdAt: now,
+            updatedAt: now,
+            deleted: false,
+          });
+        }
+        transaction.commit();
+        await transaction.done;
+        return {
+          reference: crypto.randomUUID(),
+        };
       },
       errorHandlers,
     );
@@ -123,10 +315,45 @@ export class MealPlansActionsService extends ActionsBase {
     input: RouterInputs["mealPlans"]["deleteMealPlanItems"],
     errorHandlers?: ErrorHandlers,
   ): Promise<RouterOutputs["mealPlans"]["deleteMealPlanItems"] | undefined> {
-    return this.executeMutation(
+    return this.executeMutationWithFallback(
       () => this.trpc.mealPlans.deleteMealPlanItems.mutate(input),
       () => {
         void this.syncService.syncMealPlans();
+      },
+      async () => {
+        const now = new Date();
+        const localDb = await getLocalDb();
+        const cachedMealPlan = await localDb.get(
+          ObjectStoreName.MealPlans,
+          input.mealPlanId,
+        );
+        const transaction = localDb.transaction(
+          ObjectStoreName.PendingMealPlanItemUpdates,
+          "readwrite",
+        );
+        for (const id of input.ids) {
+          const existingPending = await transaction.store.get(id);
+          const cachedItem = cachedMealPlan?.items.find(
+            (item) => item.id === id,
+          );
+          const base = existingPending ?? cachedItem;
+          if (!base) {
+            transaction.abort();
+            throw new Error(
+              "Cannot delete a meal plan item that does not exist in the local cache",
+            );
+          }
+          await transaction.store.put({
+            ...base,
+            deleted: true,
+            updatedAt: now,
+          });
+        }
+        transaction.commit();
+        await transaction.done;
+        return {
+          reference: crypto.randomUUID(),
+        };
       },
       errorHandlers,
     );
@@ -175,10 +402,57 @@ export class MealPlansActionsService extends ActionsBase {
     input: RouterInputs["mealPlans"]["updateMealPlanItems"],
     errorHandlers?: ErrorHandlers,
   ): Promise<RouterOutputs["mealPlans"]["updateMealPlanItems"] | undefined> {
-    return this.executeMutation(
+    return this.executeMutationWithFallback(
       () => this.trpc.mealPlans.updateMealPlanItems.mutate(input),
       () => {
         void this.syncService.syncMealPlans();
+      },
+      async () => {
+        const now = new Date();
+        const localDb = await getLocalDb();
+        const cachedMealPlan = await localDb.get(
+          ObjectStoreName.MealPlans,
+          input.mealPlanId,
+        );
+        const transaction = localDb.transaction(
+          ObjectStoreName.PendingMealPlanItemUpdates,
+          "readwrite",
+        );
+        for (const item of input.items) {
+          const existingPending = await transaction.store.get(item.id);
+          const cachedItem = cachedMealPlan?.items.find(
+            (cached) => cached.id === item.id,
+          );
+          const base = existingPending ?? cachedItem;
+          if (!base) {
+            transaction.abort();
+            throw new Error(
+              "Cannot update a meal plan item that does not exist in the local cache",
+            );
+          }
+          if (existingPending?.deleted) {
+            transaction.abort();
+            throw new Error(
+              "Cannot update a meal plan item that was deleted offline",
+            );
+          }
+          await transaction.store.put({
+            ...base,
+            title: item.title,
+            scheduled: null,
+            scheduledDate: item.scheduledDate,
+            meal: item.meal,
+            recipeId: item.recipeId,
+            ...(item.notes !== undefined ? { notes: item.notes } : {}),
+            deleted: false,
+            updatedAt: now,
+          });
+        }
+        transaction.commit();
+        await transaction.done;
+        return {
+          reference: crypto.randomUUID(),
+        };
       },
       errorHandlers,
     );

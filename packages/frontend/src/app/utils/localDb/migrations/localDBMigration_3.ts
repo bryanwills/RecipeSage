@@ -14,4 +14,15 @@ export const localDBMigration_3 = (db: IDBPDatabase<RSLocalDB>) => {
     "shoppingListId",
     { unique: false },
   );
+
+  const pendingMealPlanItemUpdatesDb = db.createObjectStore(
+    ObjectStoreName.PendingMealPlanItemUpdates,
+    {
+      keyPath: "id",
+    },
+  );
+
+  pendingMealPlanItemUpdatesDb.createIndex("mealPlanId", "mealPlanId", {
+    unique: false,
+  });
 };

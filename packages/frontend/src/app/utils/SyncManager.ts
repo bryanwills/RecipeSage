@@ -10,7 +10,9 @@ import {
 } from "./localDb";
 import { appIdbStorageManager } from "./appIdbStorageManager";
 import {
+  DELETE_MEAL_PLAN_ITEMS_PAGINATION_LIMIT,
   DELETE_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT,
+  UPSERT_MEAL_PLAN_ITEMS_PAGINATION_LIMIT,
   UPSERT_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT,
 } from "@recipesage/util/shared";
 
@@ -353,6 +355,90 @@ export class SyncManager {
   async syncMealPlans(
     abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
   ) {
+    this.syncCheckAbort(abortSignal);
+
+    const allPendingUpdates = await this.localDb.getAll(
+      ObjectStoreName.PendingMealPlanItemUpdates,
+    );
+
+    const pendingByMealPlanId = new Map<string, typeof allPendingUpdates>();
+    for (const pendingUpdate of allPendingUpdates) {
+      const group = pendingByMealPlanId.get(pendingUpdate.mealPlanId);
+      if (group) {
+        group.push(pendingUpdate);
+      } else {
+        pendingByMealPlanId.set(pendingUpdate.mealPlanId, [pendingUpdate]);
+      }
+    }
+
+    for (const [mealPlanId, pendingUpdates] of pendingByMealPlanId) {
+      this.syncCheckAbort(abortSignal);
+
+      const itemsToUpsert = pendingUpdates.filter(
+        (pendingUpdate) => !pendingUpdate.deleted,
+      );
+      const idsToDelete = pendingUpdates
+        .filter((pendingUpdate) => pendingUpdate.deleted)
+        .map((pendingUpdate) => pendingUpdate.id);
+
+      const remainingUpserts = [...itemsToUpsert];
+      while (remainingUpserts.length) {
+        const chunk = remainingUpserts.splice(
+          0,
+          UPSERT_MEAL_PLAN_ITEMS_PAGINATION_LIMIT,
+        );
+        await throttle(() =>
+          trpc.mealPlans.upsertMealPlanItems.mutate({
+            mealPlanId,
+            items: chunk.map((pendingUpdate) => ({
+              id: pendingUpdate.id,
+              title: pendingUpdate.title,
+              scheduledDate: pendingUpdate.scheduledDate,
+              meal: pendingUpdate.meal,
+              recipeId: pendingUpdate.recipeId,
+              notes: pendingUpdate.notes,
+              createdAt: pendingUpdate.createdAt,
+              updatedAt: pendingUpdate.updatedAt,
+            })),
+          }),
+        )();
+
+        const upsertCleanupTx = this.localDb.transaction(
+          ObjectStoreName.PendingMealPlanItemUpdates,
+          "readwrite",
+        );
+        for (const pendingUpdate of chunk) {
+          await upsertCleanupTx.store.delete(pendingUpdate.id);
+        }
+        upsertCleanupTx.commit();
+        await upsertCleanupTx.done;
+      }
+
+      const remainingDeletes = [...idsToDelete];
+      while (remainingDeletes.length) {
+        const ids = remainingDeletes.splice(
+          0,
+          DELETE_MEAL_PLAN_ITEMS_PAGINATION_LIMIT,
+        );
+        await throttle(() =>
+          trpc.mealPlans.deleteMealPlanItems.mutate({
+            mealPlanId,
+            ids,
+          }),
+        )();
+
+        const deleteCleanupTx = this.localDb.transaction(
+          ObjectStoreName.PendingMealPlanItemUpdates,
+          "readwrite",
+        );
+        for (const id of ids) {
+          await deleteCleanupTx.store.delete(id);
+        }
+        deleteCleanupTx.commit();
+        await deleteCleanupTx.done;
+      }
+    }
+
     this.syncCheckAbort(abortSignal);
 
     const mealPlans = await throttle(() =>

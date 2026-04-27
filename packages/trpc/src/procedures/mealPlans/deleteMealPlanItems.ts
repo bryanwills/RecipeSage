@@ -11,12 +11,16 @@ import {
   MealPlanAccessLevel,
   getAccessToMealPlan,
 } from "@recipesage/util/server/db";
+import { DELETE_MEAL_PLAN_ITEMS_PAGINATION_LIMIT } from "@recipesage/util/shared";
 
 export const deleteMealPlanItems = publicProcedure
   .input(
     z.object({
       mealPlanId: z.uuid(),
-      ids: z.array(z.uuid()).min(1).max(10000),
+      ids: z
+        .array(z.uuid())
+        .min(1)
+        .max(DELETE_MEAL_PLAN_ITEMS_PAGINATION_LIMIT),
     }),
   )
   .mutation(async ({ ctx, input }) => {
