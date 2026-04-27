@@ -140,16 +140,20 @@ export class MealPlanItemDetailsModalPage {
 
     const loading = this.loadingService.start();
 
-    const result = await this.serverActionsService.mealPlans.updateMealPlanItem(
-      {
-        id: this.mealItem.id,
-        title: item.title,
-        recipeId: item.recipeId,
-        scheduledDate: item.scheduledDate,
-        meal: item.meal,
-        notes: item.notes,
-      },
-    );
+    const result =
+      await this.serverActionsService.mealPlans.updateMealPlanItems({
+        mealPlanId: this.mealPlanId,
+        items: [
+          {
+            id: this.mealItem.id,
+            title: item.title,
+            recipeId: item.recipeId,
+            scheduledDate: item.scheduledDate,
+            meal: item.meal,
+            notes: item.notes,
+          },
+        ],
+      });
     loading.dismiss();
     if (!result) return;
 
@@ -180,16 +184,19 @@ export class MealPlanItemDetailsModalPage {
 
     const loading = this.loadingService.start();
 
-    const result = await this.serverActionsService.mealPlans.createMealPlanItem(
-      {
+    const result =
+      await this.serverActionsService.mealPlans.createMealPlanItems({
         mealPlanId: this.mealPlanId,
-        title: item.title,
-        recipeId: item.recipeId,
-        scheduledDate: item.scheduledDate,
-        meal: item.meal,
-        notes: item.notes,
-      },
-    );
+        items: [
+          {
+            title: item.title,
+            recipeId: item.recipeId,
+            scheduledDate: item.scheduledDate,
+            meal: item.meal,
+            notes: item.notes,
+          },
+        ],
+      });
 
     loading.dismiss();
     if (!result) return;
@@ -233,11 +240,11 @@ export class MealPlanItemDetailsModalPage {
   async _delete() {
     const loading = this.loadingService.start();
 
-    const result = await this.serverActionsService.mealPlans.deleteMealPlanItem(
-      {
-        id: this.mealItem.id,
-      },
-    );
+    const result =
+      await this.serverActionsService.mealPlans.deleteMealPlanItems({
+        mealPlanId: this.mealPlanId,
+        ids: [this.mealItem.id],
+      });
     loading.dismiss();
     if (!result) return;
 

@@ -143,16 +143,19 @@ export class AddRecipeToMealPlanModalPage {
 
     this.saveLastUsedMealPlan();
 
-    const result = await this.serverActionsService.mealPlans.createMealPlanItem(
-      {
+    const result =
+      await this.serverActionsService.mealPlans.createMealPlanItems({
         mealPlanId: this.selectedMealPlan.id,
-        title: this.recipe.title,
-        recipeId: this.recipe.id,
-        meal: this.meal as any, // TODO: Refine this type so that it aligns with Zod
-        notes: this.notes,
-        scheduledDate: this.selectedDays[0],
-      },
-    );
+        items: [
+          {
+            title: this.recipe.title,
+            recipeId: this.recipe.id,
+            meal: this.meal as any, // TODO: Refine this type so that it aligns with Zod
+            notes: this.notes,
+            scheduledDate: this.selectedDays[0],
+          },
+        ],
+      });
     loading.dismiss();
 
     if (result) this.modalCtrl.dismiss();

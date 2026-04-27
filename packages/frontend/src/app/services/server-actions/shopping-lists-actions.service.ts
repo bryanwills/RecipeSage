@@ -58,6 +58,20 @@ export class ShoppingListsActionsService extends ActionsBase {
     return merged;
   }
 
+  private async clearPendingShoppingListItems(ids: string[]): Promise<void> {
+    if (ids.length === 0) return;
+    const localDb = await getLocalDb();
+    const tx = localDb.transaction(
+      ObjectStoreName.PendingShoppingListItemUpdates,
+      "readwrite",
+    );
+    for (const id of ids) {
+      await tx.store.delete(id);
+    }
+    tx.commit();
+    await tx.done;
+  }
+
   getShoppingList(
     input: RouterInputs["shoppingLists"]["getShoppingList"],
     errorHandlers?: ErrorHandlers,
@@ -142,75 +156,6 @@ export class ShoppingListsActionsService extends ActionsBase {
       () => this.trpc.shoppingLists.createShoppingList.mutate(input),
       () => {
         void this.syncService.syncShoppingLists();
-      },
-      errorHandlers,
-    );
-  }
-
-  createShoppingListItem(
-    input: RouterInputs["shoppingLists"]["createShoppingListItem"],
-    errorHandlers?: ErrorHandlers,
-  ): Promise<
-    RouterOutputs["shoppingLists"]["createShoppingListItem"] | undefined
-  > {
-    return this.executeMutationWithFallback(
-      () => this.trpc.shoppingLists.createShoppingListItem.mutate(input),
-      () => {
-        void this.syncService.syncShoppingLists();
-      },
-      async () => {
-        const profile = await getKvStoreEntry(KVStoreKeys.MyUserProfile);
-        if (!profile) {
-          throw new Error(
-            "Cannot queue offline shopping list item; user profile not cached",
-          );
-        }
-        const id = crypto.randomUUID();
-        const now = new Date();
-        const localDb = await getLocalDb();
-        const recipe = await (async () => {
-          if (input.recipeId) {
-            const recipe = await localDb.get(
-              ObjectStoreName.Recipes,
-              input.recipeId,
-            );
-            return recipe || null;
-          }
-          return null;
-        })();
-        await localDb.put(ObjectStoreName.PendingShoppingListItemUpdates, {
-          id,
-          shoppingListId: input.shoppingListId,
-          title: input.title,
-          recipeId: input.recipeId,
-          completed: input.completed ?? false,
-          categoryTitle: input.categoryTitle ?? null,
-          createdAt: now,
-          updatedAt: now,
-          recipe: recipe
-            ? {
-                id: recipe.id,
-                title: recipe.title,
-                recipeImages: recipe.recipeImages.map((ri) => ({
-                  image: ri.image,
-                })),
-                ingredients: recipe.ingredients,
-              }
-            : null,
-          user: {
-            id: profile.id,
-            name: profile.name,
-            handle: profile.handle,
-            enableProfile: profile.enableProfile,
-            profileImages: profile.profileImages,
-          },
-          groupTitle: computeOfflineGroupTitle(input.title),
-          deleted: false,
-        });
-        return {
-          reference: crypto.randomUUID(),
-          id,
-        };
       },
       errorHandlers,
     );
@@ -310,21 +255,6 @@ export class ShoppingListsActionsService extends ActionsBase {
     );
   }
 
-  deleteShoppingListItem(
-    input: RouterInputs["shoppingLists"]["deleteShoppingListItem"],
-    errorHandlers?: ErrorHandlers,
-  ): Promise<
-    RouterOutputs["shoppingLists"]["deleteShoppingListItem"] | undefined
-  > {
-    return this.executeMutation(
-      () => this.trpc.shoppingLists.deleteShoppingListItem.mutate(input),
-      () => {
-        void this.syncService.syncShoppingLists();
-      },
-      errorHandlers,
-    );
-  }
-
   deleteShoppingListItems(
     input: RouterInputs["shoppingLists"]["deleteShoppingListItems"],
     errorHandlers?: ErrorHandlers,
@@ -334,7 +264,10 @@ export class ShoppingListsActionsService extends ActionsBase {
     return this.executeMutationWithFallback(
       () => this.trpc.shoppingLists.deleteShoppingListItems.mutate(input),
       () => {
-        void this.syncService.syncShoppingLists();
+        void (async () => {
+          await this.clearPendingShoppingListItems(input.ids);
+          void this.syncService.syncShoppingLists();
+        })();
       },
       async () => {
         const now = new Date();
@@ -394,21 +327,6 @@ export class ShoppingListsActionsService extends ActionsBase {
   ): Promise<RouterOutputs["shoppingLists"]["updateShoppingList"] | undefined> {
     return this.executeMutation(
       () => this.trpc.shoppingLists.updateShoppingList.mutate(input),
-      () => {
-        void this.syncService.syncShoppingLists();
-      },
-      errorHandlers,
-    );
-  }
-
-  updateShoppingListItem(
-    input: RouterInputs["shoppingLists"]["updateShoppingListItem"],
-    errorHandlers?: ErrorHandlers,
-  ): Promise<
-    RouterOutputs["shoppingLists"]["updateShoppingListItem"] | undefined
-  > {
-    return this.executeMutation(
-      () => this.trpc.shoppingLists.updateShoppingListItem.mutate(input),
       () => {
         void this.syncService.syncShoppingLists();
       },

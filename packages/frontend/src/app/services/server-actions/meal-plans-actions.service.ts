@@ -49,6 +49,20 @@ export class MealPlansActionsService extends ActionsBase {
     return merged;
   }
 
+  private async clearPendingMealPlanItems(ids: string[]): Promise<void> {
+    if (ids.length === 0) return;
+    const localDb = await getLocalDb();
+    const tx = localDb.transaction(
+      ObjectStoreName.PendingMealPlanItemUpdates,
+      "readwrite",
+    );
+    for (const id of ids) {
+      await tx.store.delete(id);
+    }
+    tx.commit();
+    await tx.done;
+  }
+
   getMealPlan(
     input: RouterInputs["mealPlans"]["getMealPlan"],
     errorHandlers?: ErrorHandlers,
@@ -130,75 +144,6 @@ export class MealPlansActionsService extends ActionsBase {
       () => this.trpc.mealPlans.createMealPlan.mutate(input),
       () => {
         void this.syncService.syncMealPlans();
-      },
-      errorHandlers,
-    );
-  }
-
-  createMealPlanItem(
-    input: RouterInputs["mealPlans"]["createMealPlanItem"],
-    errorHandlers?: ErrorHandlers,
-  ): Promise<RouterOutputs["mealPlans"]["createMealPlanItem"] | undefined> {
-    return this.executeMutationWithFallback(
-      () => this.trpc.mealPlans.createMealPlanItem.mutate(input),
-      () => {
-        void this.syncService.syncMealPlans();
-      },
-      async () => {
-        const profile = await getKvStoreEntry(KVStoreKeys.MyUserProfile);
-        if (!profile) {
-          throw new Error(
-            "Cannot queue offline meal plan item; user profile not cached",
-          );
-        }
-        const id = crypto.randomUUID();
-        const now = new Date();
-        const localDb = await getLocalDb();
-        const recipe = await (async () => {
-          if (input.recipeId) {
-            const recipe = await localDb.get(
-              ObjectStoreName.Recipes,
-              input.recipeId,
-            );
-            return recipe || null;
-          }
-          return null;
-        })();
-        await localDb.put(ObjectStoreName.PendingMealPlanItemUpdates, {
-          id,
-          mealPlanId: input.mealPlanId,
-          title: input.title,
-          notes: input.notes ?? "",
-          scheduled: null,
-          scheduledDate: input.scheduledDate,
-          meal: input.meal,
-          recipeId: input.recipeId,
-          recipe: recipe
-            ? {
-                id: recipe.id,
-                title: recipe.title,
-                recipeImages: recipe.recipeImages.map((ri) => ({
-                  image: ri.image,
-                })),
-                ingredients: recipe.ingredients,
-              }
-            : null,
-          user: {
-            id: profile.id,
-            name: profile.name,
-            handle: profile.handle,
-            enableProfile: profile.enableProfile,
-            profileImages: profile.profileImages,
-          },
-          shoppingListItems: [],
-          createdAt: now,
-          updatedAt: now,
-          deleted: false,
-        });
-        return {
-          reference: crypto.randomUUID(),
-          id,
-        };
       },
       errorHandlers,
     );
@@ -298,19 +243,6 @@ export class MealPlansActionsService extends ActionsBase {
     );
   }
 
-  deleteMealPlanItem(
-    input: RouterInputs["mealPlans"]["deleteMealPlanItem"],
-    errorHandlers?: ErrorHandlers,
-  ): Promise<RouterOutputs["mealPlans"]["deleteMealPlanItem"] | undefined> {
-    return this.executeMutation(
-      () => this.trpc.mealPlans.deleteMealPlanItem.mutate(input),
-      () => {
-        void this.syncService.syncMealPlans();
-      },
-      errorHandlers,
-    );
-  }
-
   deleteMealPlanItems(
     input: RouterInputs["mealPlans"]["deleteMealPlanItems"],
     errorHandlers?: ErrorHandlers,
@@ -318,7 +250,10 @@ export class MealPlansActionsService extends ActionsBase {
     return this.executeMutationWithFallback(
       () => this.trpc.mealPlans.deleteMealPlanItems.mutate(input),
       () => {
-        void this.syncService.syncMealPlans();
+        void (async () => {
+          await this.clearPendingMealPlanItems(input.ids);
+          void this.syncService.syncMealPlans();
+        })();
       },
       async () => {
         const now = new Date();
@@ -378,19 +313,6 @@ export class MealPlansActionsService extends ActionsBase {
   ): Promise<RouterOutputs["mealPlans"]["updateMealPlan"] | undefined> {
     return this.executeMutation(
       () => this.trpc.mealPlans.updateMealPlan.mutate(input),
-      () => {
-        void this.syncService.syncMealPlans();
-      },
-      errorHandlers,
-    );
-  }
-
-  updateMealPlanItem(
-    input: RouterInputs["mealPlans"]["updateMealPlanItem"],
-    errorHandlers?: ErrorHandlers,
-  ): Promise<RouterOutputs["mealPlans"]["updateMealPlanItem"] | undefined> {
-    return this.executeMutation(
-      () => this.trpc.mealPlans.updateMealPlanItem.mutate(input),
       () => {
         void this.syncService.syncMealPlans();
       },

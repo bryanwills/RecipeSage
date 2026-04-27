@@ -17,6 +17,7 @@ import {
   MEAL_PLAN_ITEMS_TITLE_LENGTH_LIMIT,
 } from "@recipesage/util/shared";
 
+/** @deprecated Use createMealPlanItems instead */
 export const createMealPlanItem = publicProcedure
   .input(
     z.object({
