@@ -196,6 +196,7 @@ export class SettingsPage {
 
   async _logout() {
     localStorage.removeItem("token");
+    this.events.publish(EventName.Auth);
     await appIdbStorageManager.deleteAllData();
 
     this.navCtrl.navigateRoot(RouteMap.AuthPage.getPath(AuthType.Login));

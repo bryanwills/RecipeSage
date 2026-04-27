@@ -29,6 +29,8 @@ const ENABLE_VERBOSE_SYNC_LOGGING = false;
 
 const SYNC_BATCH_SIZE = 100;
 
+const WEBLOCKS_NAME = "recipesagesync";
+
 /**
  * We cannot exceed the rate limit of the API (this.syncLockAbortTimeout),
  * so we throttle to 4 requests/sec to allow the browser some buffer as well in case
@@ -41,29 +43,26 @@ const throttle = pThrottle({
 });
 
 export class SyncManager {
-  private syncLockAbortTimeout = SYNC_LOCK_ABORT_TIMEOUT_MINUTES * 60 * 1000;
+  private syncLockAbortTimeoutMs = SYNC_LOCK_ABORT_TIMEOUT_MINUTES * 60 * 1000;
+
+  private activeSyncAbortControllers = new Set<AbortController>();
 
   constructor(
     private localDb: IDBPDatabase<RSLocalDB>,
     private searchManager: SearchManager,
   ) {}
 
-  async syncAll(): Promise<void> {
-    const session = await appIdbStorageManager.getSession();
-    if (!session) {
-      console.log("Not logged in, will not perform sync.");
-      return;
-    }
+  async triggerSyncAll(): Promise<void> {
+    const session = await this.checkPrereqs();
+    if (!session) return;
 
-    const abortSignal = AbortSignal.timeout(this.syncLockAbortTimeout);
+    await navigator.locks.request(WEBLOCKS_NAME, async () => {
+      const abortSignal = this.getSyncAbortSignal();
 
-    performance.mark("startSync");
+      performance.mark("startSync");
 
-    console.log(`Beginning sync for ${session.email}`);
+      console.log(`Beginning sync for ${session.email}`);
 
-    await this.searchManager.onReady();
-
-    try {
       const syncStart = new Date();
 
       await this.syncRecipes(abortSignal);
@@ -85,29 +84,103 @@ export class SyncManager {
       performance.mark("endSync");
       const measure = performance.measure("syncTime", "startSync", "endSync");
       console.log(`Syncing completed in ${measure.duration}ms`);
-    } catch (e) {
-      console.error("Sync failed", e);
+    });
+  }
+
+  public async triggerSyncRecipe(recipeId: string) {
+    await this.trigger((abortSignal) => this.syncRecipe(abortSignal, recipeId));
+  }
+  public async triggerSyncRecipes() {
+    await this.trigger(this.syncRecipes.bind(this));
+  }
+  public async triggerSyncLabels() {
+    await this.trigger(this.syncLabels.bind(this));
+  }
+  public async triggerSyncLabelGroups() {
+    await this.trigger(this.syncLabelGroups.bind(this));
+  }
+  public async triggerSyncShoppingLists() {
+    await this.trigger(this.syncShoppingLists.bind(this));
+  }
+  public async triggerSyncMealPlans() {
+    await this.trigger(this.syncMealPlans.bind(this));
+  }
+  public async triggerSyncMyUserProfile() {
+    await this.trigger(this.syncMyUserProfile.bind(this));
+  }
+  public async triggerSyncMyFriends() {
+    await this.trigger(this.syncMyFriends.bind(this));
+  }
+  public async triggerSyncMyStats() {
+    await this.trigger(this.syncMyStats.bind(this));
+  }
+
+  public abort() {
+    for (const controller of this.activeSyncAbortControllers) {
+      controller.abort();
     }
+    this.activeSyncAbortControllers.clear();
+  }
+  private getSyncAbortSignal() {
+    const controller = new AbortController();
+    this.activeSyncAbortControllers.add(controller);
+
+    setTimeout(() => {
+      controller.abort();
+      this.activeSyncAbortControllers.delete(controller);
+    }, this.syncLockAbortTimeoutMs);
+
+    return controller.signal;
+  }
+
+  private async trigger(method: (abortSignal: AbortSignal) => Promise<void>) {
+    if (!(await this.checkPrereqs())) return;
+
+    return navigator.locks.request(WEBLOCKS_NAME, async () => {
+      const abortSignal = this.getSyncAbortSignal();
+      await method(abortSignal);
+    });
+  }
+
+  private async checkPrereqs() {
+    if (!("locks" in navigator)) {
+      console.warn("Web Locks API not available, sync disabled");
+      return null;
+    }
+
+    const session = await appIdbStorageManager.getSession();
+    if (!session) {
+      console.log("Not logged in, will not perform sync.");
+      return null;
+    }
+
+    await this.searchManager.onReady();
+
+    return session;
   }
 
   private syncCheckAbort(signal: AbortSignal) {
     if (signal.aborted) throw new AbortedSyncError();
   }
 
-  async syncRecipe(recipeId: string): Promise<void> {
+  private async syncRecipe(
+    abortSignal: AbortSignal,
+    recipeId: string,
+  ): Promise<void> {
     const recipe = await throttle(() =>
       trpc.recipes.getRecipe.query({
         id: recipeId,
       }),
     )();
 
-    await this.localDb.put(ObjectStoreName.Recipes, recipe);
-    await this.searchManager.indexRecipe(recipe);
+    this.syncCheckAbort(abortSignal);
+    await Promise.all([
+      this.localDb.put(ObjectStoreName.Recipes, recipe),
+      this.searchManager.indexRecipe(recipe),
+    ]);
   }
 
-  async syncRecipes(
-    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
-  ): Promise<void> {
+  private async syncRecipes(abortSignal: AbortSignal): Promise<void> {
     const lastSync = await getKvStoreEntry(KVStoreKeys.LastSync);
     const lastSyncTime = lastSync?.datetime.getTime();
 
@@ -198,9 +271,7 @@ export class SyncManager {
     }
   }
 
-  async syncLabels(
-    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
-  ) {
+  private async syncLabels(abortSignal: AbortSignal) {
     this.syncCheckAbort(abortSignal);
 
     const allLabels = await throttle(() =>
@@ -221,9 +292,7 @@ export class SyncManager {
     await labelsTx.done;
   }
 
-  async syncLabelGroups(
-    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
-  ) {
+  private async syncLabelGroups(abortSignal: AbortSignal) {
     this.syncCheckAbort(abortSignal);
 
     const labelGroups = await throttle(() =>
@@ -244,9 +313,7 @@ export class SyncManager {
     await labelGroupsTx.done;
   }
 
-  async syncShoppingLists(
-    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
-  ) {
+  private async syncShoppingLists(abortSignal: AbortSignal) {
     this.syncCheckAbort(abortSignal);
 
     const allPendingUpdates = await this.localDb.getAll(
@@ -352,9 +419,7 @@ export class SyncManager {
     await shoppingListsTx.done;
   }
 
-  async syncMealPlans(
-    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
-  ) {
+  private async syncMealPlans(abortSignal: AbortSignal) {
     this.syncCheckAbort(abortSignal);
 
     const allPendingUpdates = await this.localDb.getAll(
@@ -459,9 +524,7 @@ export class SyncManager {
     await mealPlansTx.done;
   }
 
-  async syncMyUserProfile(
-    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
-  ) {
+  private async syncMyUserProfile(abortSignal: AbortSignal) {
     this.syncCheckAbort(abortSignal);
     const myProfile = await throttle(() => trpc.users.getMe.query())();
     this.syncCheckAbort(abortSignal);
@@ -471,9 +534,7 @@ export class SyncManager {
     });
   }
 
-  async syncMyFriends(
-    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
-  ) {
+  private async syncMyFriends(abortSignal: AbortSignal) {
     this.syncCheckAbort(abortSignal);
     const myFriends = await throttle(() => trpc.users.getMyFriends.query())();
     this.syncCheckAbort(abortSignal);
@@ -495,9 +556,7 @@ export class SyncManager {
     }
   }
 
-  async syncMyStats(
-    abortSignal: AbortSignal = AbortSignal.timeout(this.syncLockAbortTimeout),
-  ) {
+  private async syncMyStats(abortSignal: AbortSignal) {
     this.syncCheckAbort(abortSignal);
     const myStats = await throttle(() => trpc.users.getMyStats.query())();
     this.syncCheckAbort(abortSignal);
