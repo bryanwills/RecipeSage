@@ -3,7 +3,12 @@ import type {
   RecipeSummary,
   ShoppingListItemSummary,
 } from "@recipesage/prisma";
-import { stripIngredient } from "@recipesage/util/shared";
+import {
+  createShoppingListItemsInput,
+  deleteShoppingListItemsInput,
+  stripIngredient,
+  updateShoppingListItemsInput,
+} from "@recipesage/util/shared";
 
 import { ErrorHandlers } from "../http-error-handler.service";
 import { ActionsBase, RouterInputs, RouterOutputs } from "./actions-base";
@@ -173,6 +178,7 @@ export class ShoppingListsActionsService extends ActionsBase {
         void this.syncService.syncShoppingLists();
       },
       async () => {
+        createShoppingListItemsInput.parse(input);
         const profile = await getKvStoreEntry(KVStoreKeys.MyUserProfile);
         if (!profile) {
           throw new Error(
@@ -270,6 +276,7 @@ export class ShoppingListsActionsService extends ActionsBase {
         })();
       },
       async () => {
+        deleteShoppingListItemsInput.parse(input);
         const now = new Date();
         const localDb = await getLocalDb();
         const cachedShoppingList = await localDb.get(
@@ -346,6 +353,7 @@ export class ShoppingListsActionsService extends ActionsBase {
         void this.syncService.syncShoppingLists();
       },
       async () => {
+        updateShoppingListItemsInput.parse(input);
         const now = new Date();
         const localDb = await getLocalDb();
         const cachedShoppingList = await localDb.get(

@@ -1,5 +1,10 @@
 import { Injectable } from "@angular/core";
 import type { MealPlanItemSummary, RecipeSummary } from "@recipesage/prisma";
+import {
+  createMealPlanItemsInput,
+  deleteMealPlanItemsInput,
+  updateMealPlanItemsInput,
+} from "@recipesage/util/shared";
 
 import { ErrorHandlers } from "../http-error-handler.service";
 import { ActionsBase, RouterInputs, RouterOutputs } from "./actions-base";
@@ -159,6 +164,7 @@ export class MealPlansActionsService extends ActionsBase {
         void this.syncService.syncMealPlans();
       },
       async () => {
+        createMealPlanItemsInput.parse(input);
         const profile = await getKvStoreEntry(KVStoreKeys.MyUserProfile);
         if (!profile) {
           throw new Error(
@@ -256,6 +262,7 @@ export class MealPlansActionsService extends ActionsBase {
         })();
       },
       async () => {
+        deleteMealPlanItemsInput.parse(input);
         const now = new Date();
         const localDb = await getLocalDb();
         const cachedMealPlan = await localDb.get(
@@ -330,6 +337,7 @@ export class MealPlansActionsService extends ActionsBase {
         void this.syncService.syncMealPlans();
       },
       async () => {
+        updateMealPlanItemsInput.parse(input);
         const now = new Date();
         const localDb = await getLocalDb();
         const cachedMealPlan = await localDb.get(

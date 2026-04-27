@@ -5,24 +5,15 @@ import {
   validateTrpcSession,
 } from "@recipesage/util/server/general";
 import { prisma } from "@recipesage/prisma";
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import {
   ShoppingListAccessLevel,
   getAccessToShoppingList,
 } from "@recipesage/util/server/db";
-import { DELETE_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT } from "@recipesage/util/shared";
+import { deleteShoppingListItemsInput } from "@recipesage/util/shared";
 
 export const deleteShoppingListItems = publicProcedure
-  .input(
-    z.object({
-      shoppingListId: z.uuid(),
-      ids: z
-        .array(z.uuid())
-        .min(1)
-        .max(DELETE_SHOPPING_LIST_ITEMS_PAGINATION_LIMIT),
-    }),
-  )
+  .input(deleteShoppingListItemsInput)
   .mutation(async ({ ctx, input }) => {
     const session = ctx.session;
     validateTrpcSession(session);
