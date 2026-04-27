@@ -45,6 +45,7 @@
               autocomplete="on"
               autocorrect="on"
               spellcheck="true"
+              [maxlength]="titleMaxLength"
             ></ion-input>
           </ion-item>
         </div>
@@ -88,6 +89,7 @@
       [(ngModel)]="notes"
       autoGrow="true"
       rows="3"
+      [maxlength]="notesMaxLength"
     ></ion-textarea>
   </ion-item>
 </ion-content>

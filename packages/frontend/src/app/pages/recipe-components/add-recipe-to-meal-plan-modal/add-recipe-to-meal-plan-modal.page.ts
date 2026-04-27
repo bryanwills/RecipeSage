@@ -7,6 +7,7 @@ import { NewMealPlanModalPage } from "~/pages/meal-plan-components/new-meal-plan
 import { TranslateService } from "@ngx-translate/core";
 import { ServerActionsService } from "../../../services/server-actions.service";
 import type { MealPlanItemSummary, MealPlanSummary } from "@recipesage/prisma";
+import { MEAL_PLAN_ITEMS_NOTES_LENGTH_LIMIT } from "@recipesage/util/shared";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { MealCalendarComponent } from "../../../components/meal-calendar/meal-calendar.component";
 import { SelectMealComponent } from "../../../components/select-meal/select-meal.component";
@@ -71,6 +72,8 @@ export class AddRecipeToMealPlanModalPage {
   selectedMealPlanItems?: MealPlanItemSummary[];
   meal?: string;
   notes = "";
+
+  readonly notesMaxLength = MEAL_PLAN_ITEMS_NOTES_LENGTH_LIMIT;
 
   @Input() reference?: string;
 
@@ -143,16 +146,19 @@ export class AddRecipeToMealPlanModalPage {
 
     this.saveLastUsedMealPlan();
 
-    const result = await this.serverActionsService.mealPlans.createMealPlanItem(
-      {
+    const result =
+      await this.serverActionsService.mealPlans.createMealPlanItems({
         mealPlanId: this.selectedMealPlan.id,
-        title: this.recipe.title,
-        recipeId: this.recipe.id,
-        meal: this.meal as any, // TODO: Refine this type so that it aligns with Zod
-        notes: this.notes,
-        scheduledDate: this.selectedDays[0],
-      },
-    );
+        items: [
+          {
+            title: this.recipe.title,
+            recipeId: this.recipe.id,
+            meal: this.meal as any, // TODO: Refine this type so that it aligns with Zod
+            notes: this.notes,
+            scheduledDate: this.selectedDays[0],
+          },
+        ],
+      });
     loading.dismiss();
 
     if (result) this.modalCtrl.dismiss();

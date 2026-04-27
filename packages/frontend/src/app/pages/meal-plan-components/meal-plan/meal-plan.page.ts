@@ -225,13 +225,17 @@ export class MealPlanPage {
   }) {
     const loading = this.loadingService.start();
 
-    await this.serverActionsService.mealPlans.createMealPlanItem({
+    await this.serverActionsService.mealPlans.createMealPlanItems({
       mealPlanId: this.mealPlanId,
-      title: item.title,
-      recipeId: item.recipeId || null,
-      meal: item.meal,
-      notes: item.notes,
-      scheduledDate: item.scheduledDate,
+      items: [
+        {
+          title: item.title,
+          recipeId: item.recipeId || null,
+          meal: item.meal,
+          notes: item.notes,
+          scheduledDate: item.scheduledDate,
+        },
+      ],
     });
 
     await this.loadMealPlan();
@@ -324,13 +328,18 @@ export class MealPlanPage {
     const item = data.item;
 
     const loading = this.loadingService.start();
-    await this.serverActionsService.mealPlans.updateMealPlanItem({
-      id: mealItem.id,
-      title: item.title,
-      recipeId: item.recipeId,
-      scheduledDate: item.scheduledDate,
-      meal: item.meal,
-      notes: item.notes,
+    await this.serverActionsService.mealPlans.updateMealPlanItems({
+      mealPlanId: this.mealPlanId,
+      items: [
+        {
+          id: mealItem.id,
+          title: item.title,
+          recipeId: item.recipeId,
+          scheduledDate: item.scheduledDate,
+          meal: item.meal,
+          notes: item.notes,
+        },
+      ],
     });
     loading.dismiss();
     this.loadWithProgress();

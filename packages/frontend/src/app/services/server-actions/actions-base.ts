@@ -1,4 +1,5 @@
 import { inject } from "@angular/core";
+import * as Sentry from "@sentry/browser";
 import { TRPCClientError } from "@trpc/client";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@recipesage/trpc";
@@ -20,7 +21,7 @@ export abstract class ActionsBase {
     return this.trpcService.trpc;
   }
 
-  private shouldAttemptFallback(error: unknown): boolean {
+  protected shouldAttemptFallback(error: unknown): boolean {
     if (!(error instanceof TRPCClientError)) return true;
     const statusCode = error.data?.httpStatus;
     if (statusCode === undefined) return true;
@@ -59,6 +60,29 @@ export abstract class ActionsBase {
       onSuccess(result);
       return result;
     } catch (e) {
+      return this.trpcService.handle(Promise.reject(e), errorHandlers);
+    }
+  }
+
+  protected async executeMutationWithFallback<T>(
+    invoke: () => Promise<T>,
+    onSuccess: (result: T) => void,
+    fallback: () => Promise<T>,
+    errorHandlers?: ErrorHandlers,
+  ): Promise<T | undefined> {
+    try {
+      const result = await invoke();
+      onSuccess(result);
+      return result;
+    } catch (e) {
+      if (this.shouldAttemptFallback(e)) {
+        try {
+          return await fallback();
+        } catch (fe) {
+          console.warn("Mutation fallback failed", fe);
+          Sentry.captureException(fe);
+        }
+      }
       return this.trpcService.handle(Promise.reject(e), errorHandlers);
     }
   }

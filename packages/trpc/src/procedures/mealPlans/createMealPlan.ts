@@ -7,13 +7,21 @@ import {
 import { prisma } from "@recipesage/prisma";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import {
+  MEAL_PLAN_CUSTOM_MEAL_OPTIONS_LENGTH_LIMIT,
+  MEAL_PLAN_TITLE_LENGTH_LIMIT,
+} from "@recipesage/util/shared";
 
 export const createMealPlan = publicProcedure
   .input(
     z.object({
-      title: z.string().min(1).max(254),
+      title: z.string().min(1).max(MEAL_PLAN_TITLE_LENGTH_LIMIT),
       collaboratorUserIds: z.array(z.uuid()),
-      customMealOptions: z.string().max(10000).nullable().optional(),
+      customMealOptions: z
+        .string()
+        .max(MEAL_PLAN_CUSTOM_MEAL_OPTIONS_LENGTH_LIMIT)
+        .nullable()
+        .optional(),
     }),
   )
   .mutation(async ({ ctx, input }) => {

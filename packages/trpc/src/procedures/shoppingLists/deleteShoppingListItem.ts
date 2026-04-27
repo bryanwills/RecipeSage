@@ -12,6 +12,7 @@ import {
   getAccessToShoppingList,
 } from "@recipesage/util/server/db";
 
+/** @deprecated Use deleteShoppingListItems instead */
 export const deleteShoppingListItem = publicProcedure
   .input(
     z.object({

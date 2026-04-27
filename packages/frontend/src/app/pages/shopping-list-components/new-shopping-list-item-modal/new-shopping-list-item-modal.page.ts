@@ -5,6 +5,7 @@ import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectIngredientsComponent } from "../../../components/select-ingredients/select-ingredients.component";
 import { SelectRecipeComponent } from "../../../components/select-recipe/select-recipe.component";
 import type { RecipeSummary } from "@recipesage/prisma";
+import { SHOPPING_LIST_ITEMS_TITLE_LENGTH_LIMIT } from "@recipesage/util/shared";
 import {
   IonHeader,
   IonToolbar,
@@ -56,6 +57,8 @@ export class NewShoppingListItemModalPage {
 
   inputType = "items";
 
+  readonly titleMaxLength = SHOPPING_LIST_ITEMS_TITLE_LENGTH_LIMIT;
+
   itemFields: { title?: string }[] = [{}];
 
   selectedRecipe: RecipeSummary | undefined;
@@ -93,7 +96,7 @@ export class NewShoppingListItemModalPage {
       if (!this.selectedRecipe) return;
 
       items = this.selectedIngredients.map((ingredient) => ({
-        title: ingredient.plaintextContent,
+        title: ingredient.plaintextContent.slice(0, this.titleMaxLength),
         completed: false,
         recipeId: this.selectedRecipe?.id || null,
       }));

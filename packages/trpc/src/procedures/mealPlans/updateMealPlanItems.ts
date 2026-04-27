@@ -5,32 +5,15 @@ import {
   validateTrpcSession,
 } from "@recipesage/util/server/general";
 import { prisma } from "@recipesage/prisma";
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import {
   MealPlanAccessLevel,
   getAccessToMealPlan,
 } from "@recipesage/util/server/db";
+import { updateMealPlanItemsInput } from "@recipesage/util/shared";
 
 export const updateMealPlanItems = publicProcedure
-  .input(
-    z.object({
-      mealPlanId: z.uuid(),
-      items: z
-        .array(
-          z.object({
-            id: z.uuid(),
-            title: z.string().min(1).max(254),
-            scheduledDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-            meal: z.string().min(1).max(254),
-            recipeId: z.uuid().nullable(),
-            notes: z.string().max(10000).optional(),
-          }),
-        )
-        .min(1)
-        .max(100), // These will be individual DB calls, so cap number of allowed items
-    }),
-  )
+  .input(updateMealPlanItemsInput)
   .mutation(async ({ ctx, input }) => {
     const session = ctx.session;
     validateTrpcSession(session);

@@ -7,11 +7,12 @@ import {
 import { prisma } from "@recipesage/prisma";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { SHOPPING_LIST_TITLE_LENGTH_LIMIT } from "@recipesage/util/shared";
 
 export const createShoppingList = publicProcedure
   .input(
     z.object({
-      title: z.string().min(1).max(254),
+      title: z.string().min(1).max(SHOPPING_LIST_TITLE_LENGTH_LIMIT),
       collaboratorUserIds: z.array(z.uuid()),
     }),
   )

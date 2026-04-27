@@ -11,14 +11,22 @@ import {
   MealPlanAccessLevel,
   getAccessToMealPlan,
 } from "@recipesage/util/server/db";
+import {
+  MEAL_PLAN_CUSTOM_MEAL_OPTIONS_LENGTH_LIMIT,
+  MEAL_PLAN_TITLE_LENGTH_LIMIT,
+} from "@recipesage/util/shared";
 
 export const updateMealPlan = publicProcedure
   .input(
     z.object({
       id: z.uuid(),
-      title: z.string().min(1).max(254).optional(),
+      title: z.string().min(1).max(MEAL_PLAN_TITLE_LENGTH_LIMIT).optional(),
       collaboratorUserIds: z.array(z.uuid()).optional(),
-      customMealOptions: z.string().max(10000).nullable().optional(),
+      customMealOptions: z
+        .string()
+        .max(MEAL_PLAN_CUSTOM_MEAL_OPTIONS_LENGTH_LIMIT)
+        .nullable()
+        .optional(),
     }),
   )
   .mutation(async ({ ctx, input }) => {
