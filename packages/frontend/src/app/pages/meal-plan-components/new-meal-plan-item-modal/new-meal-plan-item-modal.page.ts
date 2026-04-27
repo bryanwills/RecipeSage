@@ -6,6 +6,10 @@ import { SelectMealComponent } from "../../../components/select-meal/select-meal
 import { SelectRecipeComponent } from "../../../components/select-recipe/select-recipe.component";
 import type { RecipeSummary } from "@recipesage/prisma";
 import {
+  MEAL_PLAN_ITEMS_NOTES_LENGTH_LIMIT,
+  MEAL_PLAN_ITEMS_TITLE_LENGTH_LIMIT,
+} from "@recipesage/util/shared";
+import {
   IonHeader,
   IonToolbar,
   IonTitle,
@@ -64,6 +68,9 @@ export class NewMealPlanItemModalPage {
   @Input() notes: string = "";
   @Input() customMealOptions: string | null = null;
   @Input() scheduledDate = dayjs().format("YYYY-MM-DD");
+
+  readonly titleMaxLength = MEAL_PLAN_ITEMS_TITLE_LENGTH_LIMIT;
+  readonly notesMaxLength = MEAL_PLAN_ITEMS_NOTES_LENGTH_LIMIT;
 
   scheduledDateChange(event: any) {
     this.scheduledDate = dayjs(event.target.value).format("YYYY-MM-DD");

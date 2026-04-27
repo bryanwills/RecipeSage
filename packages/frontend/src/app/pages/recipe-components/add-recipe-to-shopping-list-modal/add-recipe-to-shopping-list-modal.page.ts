@@ -15,6 +15,7 @@ import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectIngredientsComponent } from "../../../components/select-ingredients/select-ingredients.component";
 import { ServerActionsService } from "../../../services/server-actions.service";
 import type { RecipeSummary, ShoppingListSummary } from "@recipesage/prisma";
+import { SHOPPING_LIST_ITEMS_TITLE_LENGTH_LIMIT } from "@recipesage/util/shared";
 import {
   IonHeader,
   IonToolbar,
@@ -156,7 +157,9 @@ export class AddRecipeToShoppingListModalPage {
     const items = Object.entries(this.selectedIngredientsByRecipe)
       .map(([recipeId, ingredients]) =>
         (ingredients as ParsedIngredient[]).map((ingredient) => ({
-          title: ingredient.plaintextContent.trim(),
+          title: ingredient.plaintextContent
+            .trim()
+            .slice(0, SHOPPING_LIST_ITEMS_TITLE_LENGTH_LIMIT),
           recipeId,
         })),
       )
