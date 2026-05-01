@@ -55,7 +55,7 @@ export const searchRecipes = publicProcedure
         title: "desc",
       },
       offset: 0,
-      limit: 500,
+      limit: 100,
       labels: input.labels,
       labelIntersection: input.labelIntersection,
       ratings: input.ratings,

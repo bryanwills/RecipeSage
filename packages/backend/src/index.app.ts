@@ -17,7 +17,7 @@ const options = {
 };
 
 const waitFor = async (timeout: number) => {
-  new Promise((resolve) => {
+  return new Promise((resolve) => {
     setTimeout(resolve, timeout);
   });
 };
@@ -72,7 +72,44 @@ const runIndexOp = async () => {
   }
 };
 
+const runPostgresBackfill = async () => {
+  const always = true;
+  while (always) {
+    try {
+      const result = await prisma.$executeRaw`
+        UPDATE "Recipes" SET tsv =
+          setweight(to_tsvector('simple', left(coalesce(title, ''), 255)), 'A') ||
+          setweight(to_tsvector('simple', left(coalesce(description, ''), 255)), 'B') ||
+          setweight(to_tsvector('simple', left(coalesce(ingredients, ''), 3000)), 'B') ||
+          setweight(to_tsvector('simple', left(coalesce(source, ''), 255)), 'C') ||
+          setweight(to_tsvector('simple', left(coalesce(notes, ''), 3000)), 'C') ||
+          setweight(to_tsvector('simple', left(coalesce(instructions, ''), 3000)), 'C')
+        WHERE id IN (
+          SELECT id FROM "Recipes" WHERE tsv IS NULL LIMIT ${options.batchSize}
+        )
+      `;
+
+      if (result === 0) {
+        console.log("Postgres FTS backfill complete!");
+        process.exit(0);
+      }
+
+      console.log(`Backfilled ${result} recipes`);
+    } catch (e) {
+      Sentry.captureException(e);
+      console.log("Error during postgres FTS backfill", e);
+      process.exit(1);
+    }
+
+    await waitFor(options.batchInterval * 1000);
+  }
+};
+
 const run = async () => {
+  if (process.env.SEARCH_PROVIDER === "postgres") {
+    return runPostgresBackfill();
+  }
+
   const always = true;
   while (always) {
     await runIndexOp();

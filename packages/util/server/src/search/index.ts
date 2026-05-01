@@ -1,6 +1,7 @@
 import Meilisearch from "./meilisearch";
 import ElasticSearch from "./elasticsearch";
 import Typesense from "./typesense";
+import Postgres from "./postgres";
 import Stub from "./stub";
 import { Recipe } from "@recipesage/prisma";
 
@@ -16,18 +17,19 @@ const searchProviders: {
   meilisearch: Meilisearch,
   elasticsearch: ElasticSearch,
   typesense: Typesense,
+  postgres: Postgres,
   none: Stub,
 };
 
 if (!process.env.SEARCH_PROVIDER) {
   throw new Error(
-    'SEARCH_PROVIDER not set. Can be set to "elasticsearch", "meilisearch", "typesense" or "none".',
+    'SEARCH_PROVIDER not set. Can be set to "elasticsearch", "meilisearch", "typesense", "postgres" or "none".',
   );
 }
 const searchProvider = searchProviders[process.env.SEARCH_PROVIDER];
 if (!searchProvider) {
   throw new Error(
-    'SEARCH_PROVIDER must be set to "elasticsearch", "meilisearch", "typesense" or "none".',
+    'SEARCH_PROVIDER must be set to "elasticsearch", "meilisearch", "typesense", "postgres" or "none".',
   );
 }
 
