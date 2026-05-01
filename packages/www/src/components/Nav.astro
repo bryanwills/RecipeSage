@@ -254,14 +254,21 @@ const downloadHref = localePath(locale, "/download");
     }
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 800px) {
     .site-nav {
-      padding: 16px 20px;
-      gap: 8px 16px;
+      justify-content: flex-start;
+      gap: 10px 18px;
     }
 
     .site-nav .links {
-      gap: 16px;
+      display: contents;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .site-nav {
+      padding: 16px 20px;
+      gap: 8px 14px;
     }
 
     .site-nav .links > a {
