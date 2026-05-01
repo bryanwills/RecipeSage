@@ -3,7 +3,7 @@ import {
   NavController,
   AlertController,
   ModalController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import {
@@ -40,13 +40,63 @@ import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { DebugStoreService } from "../../../services/debugStore.service";
 import { DEBUG_DUMP_PUBLIC_KEY } from "../../../utils/localDb/DEBUG_DUMP_PUBLIC_KEY";
 import { downloadBlobpartsAsFile } from "../../../utils/downloadBlobpartsAsFile";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonListHeader,
+  IonItem,
+  IonIcon,
+  IonLabel,
+  IonToggle,
+  IonSelect,
+  IonSelectOption,
+} from "@ionic/angular/standalone";
+import {
+  brush,
+  bug,
+  caretDownSharp,
+  close,
+  cloudDownload,
+  cloudUpload,
+  fitness,
+  homeOutline,
+  languageOutline,
+  logOut,
+  person,
+  sync,
+  tabletLandscape,
+  textOutline,
+  trashBin,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-settings",
   templateUrl: "settings.page.html",
   styleUrls: ["settings.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonListHeader,
+    IonItem,
+    IonIcon,
+    IonLabel,
+    IonToggle,
+    IonSelect,
+    IonSelectOption,
+  ],
 })
 export class SettingsPage {
   private events = inject(EventService);
@@ -85,6 +135,23 @@ export class SettingsPage {
   isLoggedIn: boolean = false;
 
   constructor() {
+    addIcons({
+      brush,
+      bug,
+      caretDownSharp,
+      close,
+      cloudDownload,
+      cloudUpload,
+      fitness,
+      homeOutline,
+      languageOutline,
+      logOut,
+      person,
+      sync,
+      tabletLandscape,
+      textOutline,
+      trashBin,
+    });
     try {
       this.showSplitPaneOption = screen.width >= 1200;
     } catch (e) {
@@ -129,6 +196,7 @@ export class SettingsPage {
 
   async _logout() {
     localStorage.removeItem("token");
+    this.events.publish(EventName.Auth);
     await appIdbStorageManager.deleteAllData();
 
     this.navCtrl.navigateRoot(RouteMap.AuthPage.getPath(AuthType.Login));

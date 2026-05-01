@@ -1,18 +1,51 @@
 import { Component, Input, type OnInit, inject } from "@angular/core";
-import { ModalController } from "@ionic/angular";
+import { ModalController } from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { UserService } from "~/services/user.service";
 import { RouteMap } from "~/services/util.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { CopyWithWebshareComponent } from "../../../components/copy-with-webshare/copy-with-webshare.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonFooter,
+  IonLabel,
+} from "@ionic/angular/standalone";
+import {
+  close,
+  logoFacebook,
+  logoPinterest,
+  logoTwitter,
+  mail,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-share-profile-modal",
   templateUrl: "share-profile-modal.page.html",
   styleUrls: ["share-profile-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, CopyWithWebshareComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    CopyWithWebshareComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonFooter,
+    IonLabel,
+  ],
 })
 export class ShareProfileModalPage implements OnInit {
   private translate = inject(TranslateService);
@@ -26,6 +59,7 @@ export class ShareProfileModalPage implements OnInit {
   profileUrl?: string;
 
   constructor() {
+    addIcons({ close, logoFacebook, logoPinterest, logoTwitter, mail });
     setTimeout(() => {
       if (this.handle) this.loadFromHandle(this.handle);
       if (this.userId) this.loadFromUserId(this.userId);

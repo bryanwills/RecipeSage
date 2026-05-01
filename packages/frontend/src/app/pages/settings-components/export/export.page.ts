@@ -4,9 +4,25 @@ import * as Sentry from "@sentry/browser";
 import { ExportFormat } from "~/services/recipe.service";
 import { RouteMap, UtilService } from "~/services/util.service";
 import type { JobSummary } from "@recipesage/prisma";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { WebsocketService } from "../../../services/websocket.service";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonIcon,
+  IonProgressBar,
+  IonButton,
+  IonList,
+} from "@ionic/angular/standalone";
+import { cloudDownload, document } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 export const getJobFailureI18n = (exportJob: JobSummary) => {
   switch (exportJob.resultCode) {
@@ -26,11 +42,29 @@ const JOB_POLL_INTERVAL_MS = 60_000;
   selector: "page-export",
   templateUrl: "export.page.html",
   styleUrls: ["export.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonIcon,
+    IonProgressBar,
+    IonButton,
+    IonList,
+  ],
 })
 export class ExportPage {
+  constructor() {
+    addIcons({ cloudDownload, document });
+  }
+
   private utilService = inject(UtilService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private websocketService = inject(WebsocketService);
 
   defaultBackHref: string = RouteMap.SettingsPage.getPath();
@@ -66,14 +100,11 @@ export class ExportPage {
   };
 
   async load() {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.jobs.getJobs.query(),
-      {
-        "0": () => {
-          // Do nothing
-        },
+    const response = await this.serverActionsService.jobs.getJobs({
+      "0": () => {
+        // Do nothing
       },
-    );
+    });
     if (response) {
       this.exportJobs = response
         .sort((a, b) => {
@@ -103,11 +134,9 @@ export class ExportPage {
   }
 
   async export(format: ExportFormat) {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.jobs.startExportJob.mutate({
-        format,
-      }),
-    );
+    const response = await this.serverActionsService.jobs.startExportJob({
+      format,
+    });
 
     if (response) {
       this.setupJobStatusPoll();
@@ -129,11 +158,10 @@ export class ExportPage {
   async downloadJob(job: JobSummary) {
     if (job.status !== "SUCCESS") return;
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.jobs.getExportJobDownloadUrlById.query({
+    const response =
+      await this.serverActionsService.jobs.getExportJobDownloadUrlById({
         id: job.id,
-      }),
-    );
+      });
     if (!response) return;
     window.open(response.signedUrl, "_blank", 'rel="noopener"');
   }

@@ -5,31 +5,15 @@ import {
   validateTrpcSession,
 } from "@recipesage/util/server/general";
 import { prisma } from "@recipesage/prisma";
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import {
   ShoppingListAccessLevel,
   getAccessToShoppingList,
 } from "@recipesage/util/server/db";
+import { updateShoppingListItemsInput } from "@recipesage/util/shared";
 
 export const updateShoppingListItems = publicProcedure
-  .input(
-    z.object({
-      shoppingListId: z.uuid(),
-      items: z
-        .array(
-          z.object({
-            id: z.uuid(),
-            title: z.string().min(1).max(254).optional(),
-            recipeId: z.uuid().nullable().optional(),
-            completed: z.boolean().optional(),
-            categoryTitle: z.string().optional(),
-          }),
-        )
-        .min(1)
-        .max(100), // These will be individual DB calls, so cap number of allowed items
-    }),
-  )
+  .input(updateShoppingListItemsInput)
   .mutation(async ({ ctx, input }) => {
     const session = ctx.session;
     validateTrpcSession(session);

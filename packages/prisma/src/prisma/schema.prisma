@@ -298,6 +298,7 @@ model Recipe {
   fromUser          User?              @relation("Recipes_fromUserIdToUsers", fields: [fromUserId], references: [id])
   user              User               @relation("Recipes_userIdToUsers", fields: [userId], references: [id], onDelete: Cascade)
   shoppingListItems ShoppingListItem[]
+  tsv               Unsupported("tsvector")?
 
   @@index([userId], map: "recipes_user_id")
   @@index([fromUserId], map: "recipes_from_user_id")

@@ -30,4 +30,4 @@ jobs:
           aws-region: us-east-1
 
       - name: Push
-        run: ./scripts/deploy/deploy_tag.sh www-beta ${{ inputs.tag }}
+        run: aws s3 cp --recursive s3://chefbook-static/www/${{ inputs.tag }}/ s3://chefbook-static/www/beta

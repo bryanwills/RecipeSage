@@ -3,7 +3,7 @@ import {
   NavController,
   ModalController,
   AlertController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { RecipeService } from "~/services/recipe.service";
@@ -17,22 +17,74 @@ import { AddRecipeToShoppingListModalPage } from "~/pages/recipe-components/add-
 import dayjs from "dayjs";
 import type { MealPlanItemSummary } from "@recipesage/prisma";
 import { parseNotes } from "@recipesage/util/shared";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonAvatar,
+  IonLabel,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import {
+  calendar,
+  cart,
+  close,
+  copy,
+  create,
+  documentText,
+  person,
+  pin,
+  trash,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-meal-plan-item-details-modal",
   templateUrl: "meal-plan-item-details-modal.page.html",
   styleUrls: ["meal-plan-item-details-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonAvatar,
+    IonLabel,
+    IonFooter,
+  ],
 })
 export class MealPlanItemDetailsModalPage {
+  constructor() {
+    addIcons({
+      calendar,
+      cart,
+      close,
+      copy,
+      create,
+      documentText,
+      person,
+      pin,
+      trash,
+    });
+  }
+
   private navCtrl = inject(NavController);
   private translate = inject(TranslateService);
   private modalCtrl = inject(ModalController);
   private alertCtrl = inject(AlertController);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   cookingToolbarService = inject(CookingToolbarService);
   private recipeService = inject(RecipeService);
   private loadingService = inject(LoadingService);
@@ -88,16 +140,20 @@ export class MealPlanItemDetailsModalPage {
 
     const loading = this.loadingService.start();
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.updateMealPlanItem.mutate({
-        id: this.mealItem.id,
-        title: item.title,
-        recipeId: item.recipeId,
-        scheduledDate: item.scheduledDate,
-        meal: item.meal,
-        notes: item.notes,
-      }),
-    );
+    const result =
+      await this.serverActionsService.mealPlans.updateMealPlanItems({
+        mealPlanId: this.mealPlanId,
+        items: [
+          {
+            id: this.mealItem.id,
+            title: item.title,
+            recipeId: item.recipeId,
+            scheduledDate: item.scheduledDate,
+            meal: item.meal,
+            notes: item.notes,
+          },
+        ],
+      });
     loading.dismiss();
     if (!result) return;
 
@@ -128,16 +184,19 @@ export class MealPlanItemDetailsModalPage {
 
     const loading = this.loadingService.start();
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.createMealPlanItem.mutate({
+    const result =
+      await this.serverActionsService.mealPlans.createMealPlanItems({
         mealPlanId: this.mealPlanId,
-        title: item.title,
-        recipeId: item.recipeId,
-        scheduledDate: item.scheduledDate,
-        meal: item.meal,
-        notes: item.notes,
-      }),
-    );
+        items: [
+          {
+            title: item.title,
+            recipeId: item.recipeId,
+            scheduledDate: item.scheduledDate,
+            meal: item.meal,
+            notes: item.notes,
+          },
+        ],
+      });
 
     loading.dismiss();
     if (!result) return;
@@ -181,11 +240,11 @@ export class MealPlanItemDetailsModalPage {
   async _delete() {
     const loading = this.loadingService.start();
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.deleteMealPlanItem.mutate({
-        id: this.mealItem.id,
-      }),
-    );
+    const result =
+      await this.serverActionsService.mealPlans.deleteMealPlanItems({
+        mealPlanId: this.mealPlanId,
+        ids: [this.mealItem.id],
+      });
     loading.dismiss();
     if (!result) return;
 

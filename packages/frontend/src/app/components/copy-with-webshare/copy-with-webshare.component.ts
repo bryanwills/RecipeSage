@@ -1,12 +1,20 @@
 import { AfterViewInit, Component, Input } from "@angular/core";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import {
+  IonItem,
+  IonLabel,
+  IonButton,
+  IonIcon,
+} from "@ionic/angular/standalone";
+import { copy, share } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "copy-with-webshare",
   templateUrl: "copy-with-webshare.component.html",
   styleUrls: ["./copy-with-webshare.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [...SHARED_UI_IMPORTS, IonItem, IonLabel, IonButton, IonIcon],
 })
 export class CopyWithWebshareComponent implements AfterViewInit {
   @Input() webshareTitle?: string;
@@ -22,7 +30,9 @@ export class CopyWithWebshareComponent implements AfterViewInit {
   hasCopyAPI: boolean = !!document.execCommand;
   hasWebShareAPI: boolean = !!(navigator as any).share;
 
-  constructor() {}
+  constructor() {
+    addIcons({ copy, share });
+  }
 
   ngAfterViewInit(): void {
     this.hasWebShareAPI = this.hasWebShareAPI && !this.disableWebshare;

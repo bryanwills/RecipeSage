@@ -1,5 +1,5 @@
 import { Component, inject } from "@angular/core";
-import { AlertController, NavController } from "@ionic/angular";
+import { AlertController, NavController } from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 import dayjs from "dayjs";
 
@@ -11,16 +11,48 @@ import {
 } from "../../../services/util.service";
 import { CapabilitiesService } from "../../../services/capabilities.service";
 import { getQueryParam } from "../../../utils/queryParams";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
+import type { inferRouterOutputs } from "@trpc/server";
+import type { AppRouter } from "@recipesage/trpc";
+
+type RouterOutputs = inferRouterOutputs<AppRouter>;
 import { appIdbStorageManager } from "../../../utils/appIdbStorageManager";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonIcon,
+  IonInput,
+  IonButton,
+} from "@ionic/angular/standalone";
+import { heart, key, statsChart, warning } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-account",
   templateUrl: "account.page.html",
   styleUrls: ["account.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonIcon,
+    IonInput,
+    IonButton,
+  ],
 })
 export class AccountPage {
   private navCtrl = inject(NavController);
@@ -28,23 +60,17 @@ export class AccountPage {
   private alertCtrl = inject(AlertController);
   private utilService = inject(UtilService);
   private loadingService = inject(LoadingService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private capabilitiesService = inject(CapabilitiesService);
 
   defaultBackHref: string = RouteMap.SettingsPage.getPath();
   contributePath: string = RouteMap.ContributePage.getPath();
 
-  me: Awaited<
-    ReturnType<typeof this.trpcService.trpc.users.getMe.query>
-  > | null = null;
+  me: RouterOutputs["users"]["getMe"] | null = null;
 
-  myStats: Awaited<
-    ReturnType<typeof this.trpcService.trpc.users.getMyStats.query>
-  > | null = null;
+  myStats: RouterOutputs["users"]["getMyStats"] | null = null;
 
-  myCreditUsage: Awaited<
-    ReturnType<typeof this.trpcService.trpc.users.getMyCreditUsage.query>
-  > | null = null;
+  myCreditUsage: RouterOutputs["users"]["getMyCreditUsage"] | null = null;
 
   name = "";
   nameChanged = false;
@@ -64,17 +90,16 @@ export class AccountPage {
   > = {};
 
   constructor() {
+    addIcons({ heart, key, statsChart, warning });
     const resetToken = getQueryParam("token");
     if (resetToken) localStorage.setItem("token", resetToken);
 
     const loading = this.loadingService.start();
 
     Promise.all([
-      this.trpcService.handle(this.trpcService.trpc.users.getMe.query()),
-      this.trpcService.handle(this.trpcService.trpc.users.getMyStats.query()),
-      this.trpcService.handle(
-        this.trpcService.trpc.users.getMyCreditUsage.query(),
-      ),
+      this.serverActionsService.users.getMe(),
+      this.serverActionsService.users.getMyStats(),
+      this.serverActionsService.users.getMyCreditUsage(),
       this.capabilitiesService.updateCapabilities(),
     ]).then(async ([me, myStats, myCreditUsage]) => {
       loading.dismiss();
@@ -178,11 +203,9 @@ export class AccountPage {
 
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.users.updateUser.mutate({
-        name: this.name,
-      }),
-    );
+    const response = await this.serverActionsService.users.updateUser({
+      name: this.name,
+    });
 
     loading.dismiss();
     if (!response) return;
@@ -227,10 +250,10 @@ export class AccountPage {
 
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.users.updateUser.mutate({
+    const response = await this.serverActionsService.users.updateUser(
+      {
         email: this.email,
-      }),
+      },
       {
         400: async () => {
           const message = await this.translate
@@ -316,11 +339,9 @@ export class AccountPage {
 
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.users.updateUser.mutate({
-        password: this.password,
-      }),
-    );
+    const response = await this.serverActionsService.users.updateUser({
+      password: this.password,
+    });
     loading.dismiss();
     if (!response) return;
 
@@ -379,9 +400,7 @@ export class AccountPage {
           handler: async () => {
             const loading = this.loadingService.start();
 
-            const response = await this.trpcService.handle(
-              this.trpcService.trpc.users.deleteUser.mutate(),
-            );
+            const response = await this.serverActionsService.users.deleteUser();
 
             loading.dismiss();
             if (!response) return;
@@ -432,9 +451,8 @@ export class AccountPage {
           handler: async () => {
             const loading = this.loadingService.start();
 
-            const response = await this.trpcService.handle(
-              this.trpcService.trpc.recipes.deleteAllRecipes.mutate(),
-            );
+            const response =
+              await this.serverActionsService.recipes.deleteAllRecipes();
 
             loading.dismiss();
             if (!response) return;

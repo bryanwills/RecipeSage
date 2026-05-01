@@ -3,7 +3,7 @@ import {
   ModalController,
   ToastController,
   NavController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 
 import { LoadingService } from "~/services/loading.service";
 import { MessagingService } from "~/services/messaging.service";
@@ -11,21 +11,54 @@ import { UserService } from "~/services/user.service";
 import { UtilService, RouteMap } from "~/services/util.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectCollaboratorsComponent } from "../../../components/select-collaborators/select-collaborators.component";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonInput,
+  IonFooter,
+  IonLabel,
+} from "@ionic/angular/standalone";
+import { close, list } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-new-shopping-list-modal",
   templateUrl: "new-shopping-list-modal.page.html",
   styleUrls: ["new-shopping-list-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, SelectCollaboratorsComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    SelectCollaboratorsComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonInput,
+    IonFooter,
+    IonLabel,
+  ],
 })
 export class NewShoppingListModalPage {
+  constructor() {
+    addIcons({ close, list });
+  }
+
   modalCtrl = inject(ModalController);
   navCtrl = inject(NavController);
   utilService = inject(UtilService);
   loadingService = inject(LoadingService);
-  trpcService = inject(TRPCService);
+  serverActionsService = inject(ServerActionsService);
   messagingService = inject(MessagingService);
   userService = inject(UserService);
   toastCtrl = inject(ToastController);
@@ -43,12 +76,11 @@ export class NewShoppingListModalPage {
     this.saving = true;
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.createShoppingList.mutate({
+    const response =
+      await this.serverActionsService.shoppingLists.createShoppingList({
         title: this.listTitle,
         collaboratorUserIds: this.selectedCollaboratorIds,
-      }),
-    );
+      });
 
     this.saving = false;
     loading.dismiss();

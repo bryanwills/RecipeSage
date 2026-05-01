@@ -1,12 +1,44 @@
 import { Component } from "@angular/core";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonItem,
+  IonIcon,
+  IonLabel,
+} from "@ionic/angular/standalone";
+import {
+  cloudDownload,
+  ellipsisVertical,
+  laptop,
+  phonePortrait,
+  shareOutline,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-download-and-install",
   templateUrl: "download-and-install.page.html",
   styleUrls: ["download-and-install.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonItem,
+    IonIcon,
+    IonLabel,
+  ],
 })
 export class DownloadAndInstallPage {
   showAndroid = false;
@@ -14,6 +46,13 @@ export class DownloadAndInstallPage {
   showDesktop = false;
 
   constructor() {
+    addIcons({
+      cloudDownload,
+      ellipsisVertical,
+      laptop,
+      phonePortrait,
+      shareOutline,
+    });
     const wind = window as any;
     if (wind.pwaPromptInterval) clearInterval(wind.pwaPromptInterval);
     wind.pwaPromptInterval = setInterval(() => {

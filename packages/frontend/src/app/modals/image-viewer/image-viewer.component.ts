@@ -6,20 +6,42 @@ import {
   ViewChild,
   inject,
 } from "@angular/core";
-import { IonicSlides, ModalController } from "@ionic/angular";
+import { IonicSlides, ModalController } from "@ionic/angular/standalone";
 import { SwiperContainer } from "swiper/element";
 import { Swiper } from "swiper/types";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+} from "@ionic/angular/standalone";
+import { arrowBack, arrowForward, close } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "image-viewer",
   templateUrl: "image-viewer.component.html",
   styleUrls: ["./image-viewer.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ImageViewerComponent {
+  constructor() {
+    addIcons({ arrowBack, arrowForward, close });
+  }
+
   private modalCtrl = inject(ModalController);
 
   @Input({

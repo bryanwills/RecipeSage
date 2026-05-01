@@ -4,7 +4,7 @@ import {
   ToastController,
   ModalController,
   AlertController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { LoadingService } from "~/services/loading.service";
@@ -13,17 +13,53 @@ import { UtilService } from "~/services/util.service";
 import { NewShoppingListModalPage } from "~/pages/shopping-list-components/new-shopping-list-modal/new-shopping-list-modal.page";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectIngredientsComponent } from "../../../components/select-ingredients/select-ingredients.component";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import type { RecipeSummary, ShoppingListSummary } from "@recipesage/prisma";
+import { SHOPPING_LIST_ITEMS_TITLE_LENGTH_LIMIT } from "@recipesage/util/shared";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonSelect,
+  IonSelectOption,
+  IonLabel,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import { close, list } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-add-recipe-to-shopping-list-modal",
   templateUrl: "add-recipe-to-shopping-list-modal.page.html",
   styleUrls: ["add-recipe-to-shopping-list-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, SelectIngredientsComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    SelectIngredientsComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonSelect,
+    IonSelectOption,
+    IonLabel,
+    IonFooter,
+  ],
 })
 export class AddRecipeToShoppingListModalPage {
+  constructor() {
+    addIcons({ close, list });
+  }
+
   navCtrl = inject(NavController);
   translate = inject(TranslateService);
   recipeService = inject(RecipeService);
@@ -32,7 +68,7 @@ export class AddRecipeToShoppingListModalPage {
   toastCtrl = inject(ToastController);
   alertCtrl = inject(AlertController);
   modalCtrl = inject(ModalController);
-  trpcService = inject(TRPCService);
+  serverActionsService = inject(ServerActionsService);
 
   @Input({
     required: true,
@@ -81,9 +117,8 @@ export class AddRecipeToShoppingListModalPage {
   }
 
   async loadLists() {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.getShoppingLists.query(),
-    );
+    const response =
+      await this.serverActionsService.shoppingLists.getShoppingLists();
     if (!response) return;
 
     this.shoppingLists = response.sort((a, b) =>
@@ -122,7 +157,9 @@ export class AddRecipeToShoppingListModalPage {
     const items = Object.entries(this.selectedIngredientsByRecipe)
       .map(([recipeId, ingredients]) =>
         (ingredients as ParsedIngredient[]).map((ingredient) => ({
-          title: ingredient.plaintextContent.trim(),
+          title: ingredient.plaintextContent
+            .trim()
+            .slice(0, SHOPPING_LIST_ITEMS_TITLE_LENGTH_LIMIT),
           recipeId,
         })),
       )
@@ -136,12 +173,11 @@ export class AddRecipeToShoppingListModalPage {
       return;
     }
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.createShoppingListItems.mutate({
+    const response =
+      await this.serverActionsService.shoppingLists.createShoppingListItems({
         shoppingListId: this.destinationShoppingList.id,
         items,
-      }),
-    );
+      });
 
     this.saving = false;
     loading.dismiss();

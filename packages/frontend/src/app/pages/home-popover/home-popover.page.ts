@@ -1,5 +1,5 @@
 import { Component, Input, inject } from "@angular/core";
-import { ToastController, PopoverController } from "@ionic/angular";
+import { ToastController, PopoverController } from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { UtilService } from "~/services/util.service";
@@ -10,15 +10,41 @@ import {
 import { PreferencesService } from "~/services/preferences.service";
 import { MyRecipesPreferenceKey } from "@recipesage/util/shared";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import {
+  IonList,
+  IonListHeader,
+  IonItem,
+  IonSelect,
+  IonSelectOption,
+  IonToggle,
+  IonButton,
+  IonIcon,
+} from "@ionic/angular/standalone";
+import { checkmark, close } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-home-popover",
   templateUrl: "home-popover.page.html",
   styleUrls: ["home-popover.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonList,
+    IonListHeader,
+    IonItem,
+    IonSelect,
+    IonSelectOption,
+    IonToggle,
+    IonButton,
+    IonIcon,
+  ],
 })
 export class HomePopoverPage {
+  constructor() {
+    addIcons({ checkmark, close });
+  }
+
   translate = inject(TranslateService);
   popoverCtrl = inject(PopoverController);
   toastCtrl = inject(ToastController);

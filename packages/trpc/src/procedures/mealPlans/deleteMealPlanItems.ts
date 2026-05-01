@@ -5,20 +5,15 @@ import {
   validateTrpcSession,
 } from "@recipesage/util/server/general";
 import { prisma } from "@recipesage/prisma";
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import {
   MealPlanAccessLevel,
   getAccessToMealPlan,
 } from "@recipesage/util/server/db";
+import { deleteMealPlanItemsInput } from "@recipesage/util/shared";
 
 export const deleteMealPlanItems = publicProcedure
-  .input(
-    z.object({
-      mealPlanId: z.uuid(),
-      ids: z.array(z.uuid()).min(1).max(10000),
-    }),
-  )
+  .input(deleteMealPlanItemsInput)
   .mutation(async ({ ctx, input }) => {
     const session = ctx.session;
     validateTrpcSession(session);

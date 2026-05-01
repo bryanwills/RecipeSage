@@ -1,19 +1,26 @@
 import { Component, inject } from "@angular/core";
-import { AlertController, NavController } from "@ionic/angular";
+import { AlertController, NavController } from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { RouteMap } from "~/services/util.service";
 import { CookingToolbarService } from "~/services/cooking-toolbar.service";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import { IonIcon, IonRippleEffect } from "@ionic/angular/standalone";
+import { close, pin } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "cooking-toolbar",
   templateUrl: "cooking-toolbar.component.html",
   styleUrls: ["./cooking-toolbar.component.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [...SHARED_UI_IMPORTS, IonIcon, IonRippleEffect],
 })
 export class CookingToolbarComponent {
+  constructor() {
+    addIcons({ close, pin });
+  }
+
   private navCtrl = inject(NavController);
   private alertCtrl = inject(AlertController);
   private translate = inject(TranslateService);

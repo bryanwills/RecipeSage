@@ -4,7 +4,7 @@ import {
   ModalController,
   AlertController,
   PopoverController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { LoadingService } from "~/services/loading.service";
@@ -16,26 +16,59 @@ import {
   MealPlanViewTypeOptions,
 } from "@recipesage/util/shared";
 import { ICalMealPlanModalPage } from "../ical-meal-plan-modal/ical-meal-plan-modal.page";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import { UpdateMealPlanModalPage } from "../update-meal-plan-modal/update-meal-plan-modal.page";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import type { MealPlanSummary } from "@recipesage/prisma";
+import {
+  IonList,
+  IonListHeader,
+  IonItem,
+  IonSelect,
+  IonSelectOption,
+  IonButton,
+  IonIcon,
+} from "@ionic/angular/standalone";
+import {
+  cart,
+  copy,
+  cut,
+  pencil,
+  pin,
+  print,
+  share,
+  trash,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-meal-plan-popover",
   templateUrl: "meal-plan-popover.page.html",
   styleUrls: ["meal-plan-popover.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonList,
+    IonListHeader,
+    IonItem,
+    IonSelect,
+    IonSelectOption,
+    IonButton,
+    IonIcon,
+  ],
 })
 export class MealPlanPopoverPage {
+  constructor() {
+    addIcons({ cart, copy, cut, pencil, pin, print, share, trash });
+  }
+
   private popoverCtrl = inject(PopoverController);
   private modalCtrl = inject(ModalController);
   private translate = inject(TranslateService);
   private navCtrl = inject(NavController);
   private preferencesService = inject(PreferencesService);
   private loadingService = inject(LoadingService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private alertCtrl = inject(AlertController);
   private utilService = inject(UtilService);
 
@@ -178,11 +211,9 @@ export class MealPlanPopoverPage {
   async _deleteMealPlan() {
     const loading = this.loadingService.start();
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.deleteMealPlan.mutate({
-        id: this.mealPlanId,
-      }),
-    );
+    const result = await this.serverActionsService.mealPlans.deleteMealPlan({
+      id: this.mealPlanId,
+    });
     loading.dismiss();
     if (!result) return;
 

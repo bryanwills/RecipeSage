@@ -1,26 +1,65 @@
 import { Component, Input, inject } from "@angular/core";
-import { ToastController, ModalController } from "@ionic/angular";
+import { ToastController, ModalController } from "@ionic/angular/standalone";
 
 import { LoadingService } from "~/services/loading.service";
 
 import { NewMealPlanModalPage } from "~/pages/meal-plan-components/new-meal-plan-modal/new-meal-plan-modal.page";
 import { TranslateService } from "@ngx-translate/core";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import type { MealPlanItemSummary, MealPlanSummary } from "@recipesage/prisma";
+import { MEAL_PLAN_ITEMS_NOTES_LENGTH_LIMIT } from "@recipesage/util/shared";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { MealCalendarComponent } from "../../../components/meal-calendar/meal-calendar.component";
 import { SelectMealComponent } from "../../../components/select-meal/select-meal.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonSelect,
+  IonSelectOption,
+  IonLabel,
+  IonTextarea,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import { calendar, close } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-add-recipe-to-meal-plan-modal",
   templateUrl: "add-recipe-to-meal-plan-modal.page.html",
   styleUrls: ["add-recipe-to-meal-plan-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, MealCalendarComponent, SelectMealComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    MealCalendarComponent,
+    SelectMealComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonSelect,
+    IonSelectOption,
+    IonLabel,
+    IonTextarea,
+    IonFooter,
+  ],
 })
 export class AddRecipeToMealPlanModalPage {
+  constructor() {
+    addIcons({ calendar, close });
+  }
+
   private translate = inject(TranslateService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private loadingService = inject(LoadingService);
   private toastCtrl = inject(ToastController);
   private modalCtrl = inject(ModalController);
@@ -33,6 +72,8 @@ export class AddRecipeToMealPlanModalPage {
   selectedMealPlanItems?: MealPlanItemSummary[];
   meal?: string;
   notes = "";
+
+  readonly notesMaxLength = MEAL_PLAN_ITEMS_NOTES_LENGTH_LIMIT;
 
   @Input() reference?: string;
 
@@ -73,9 +114,7 @@ export class AddRecipeToMealPlanModalPage {
   }
 
   async loadMealPlans() {
-    const mealPlans = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.getMealPlans.query(),
-    );
+    const mealPlans = await this.serverActionsService.mealPlans.getMealPlans();
     if (!mealPlans) return;
 
     this.mealPlans = mealPlans.sort((a, b) => a.title.localeCompare(b.title));
@@ -84,11 +123,10 @@ export class AddRecipeToMealPlanModalPage {
   }
 
   async loadMealPlan(id: string) {
-    const mealPlanItems = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.getMealPlanItems.query({
+    const mealPlanItems =
+      await this.serverActionsService.mealPlans.getMealPlanItems({
         mealPlanId: id,
-      }),
-    );
+      });
 
     if (!mealPlanItems) return;
 
@@ -108,16 +146,19 @@ export class AddRecipeToMealPlanModalPage {
 
     this.saveLastUsedMealPlan();
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.createMealPlanItem.mutate({
+    const result =
+      await this.serverActionsService.mealPlans.createMealPlanItems({
         mealPlanId: this.selectedMealPlan.id,
-        title: this.recipe.title,
-        recipeId: this.recipe.id,
-        meal: this.meal as any, // TODO: Refine this type so that it aligns with Zod
-        notes: this.notes,
-        scheduledDate: this.selectedDays[0],
-      }),
-    );
+        items: [
+          {
+            title: this.recipe.title,
+            recipeId: this.recipe.id,
+            meal: this.meal as any, // TODO: Refine this type so that it aligns with Zod
+            notes: this.notes,
+            scheduledDate: this.selectedDays[0],
+          },
+        ],
+      });
     loading.dismiss();
 
     if (result) this.modalCtrl.dismiss();

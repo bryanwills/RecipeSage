@@ -10,7 +10,7 @@ import {
   ToastController,
   AlertController,
   NavController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 
 import { ENABLE_ANALYTICS, IS_SELFHOST } from "../environments/environment";
 
@@ -32,13 +32,48 @@ import {
 } from "./services/feature-flag.service";
 import { Title } from "@angular/platform-browser";
 import { TRPCService } from "./services/trpc.service";
+import { ServerActionsService } from "./services/server-actions.service";
+import { SyncService } from "./services/sync.service";
 import { appIdbStorageManager } from "./utils/appIdbStorageManager";
 import { SHARED_UI_IMPORTS } from "./providers/shared-ui.provider";
 import { CookingToolbarComponent } from "./components/cooking-toolbar/cooking-toolbar.component";
 import { VersionCheckService } from "./services/versioncheck.service";
 import { DebugStoreService } from "./services/debugStore.service";
-
-const SW_UPDATE_CHECK_INTERVAL_MINUTES = 5;
+import {
+  IonApp,
+  IonSplitPane,
+  IonMenu,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonMenuToggle,
+  IonItem,
+  IonIcon,
+  IonLabel,
+  IonBadge,
+  IonFooter,
+  IonRouterOutlet,
+} from "@ionic/angular/standalone";
+import {
+  add,
+  book,
+  calendar,
+  cart,
+  chatboxEllipses,
+  chatbubbles,
+  cloudDownload,
+  heart,
+  helpBuoy,
+  leaf,
+  logIn,
+  mail,
+  people,
+  pricetag,
+  settings,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 interface NavPage {
   id: string;
@@ -51,13 +86,34 @@ interface NavPage {
   standalone: true,
   selector: "app-root",
   templateUrl: "app.component.html",
-  imports: [...SHARED_UI_IMPORTS, CookingToolbarComponent, NgxLoadingBar],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    CookingToolbarComponent,
+    NgxLoadingBar,
+    IonApp,
+    IonSplitPane,
+    IonMenu,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonMenuToggle,
+    IonItem,
+    IonIcon,
+    IonLabel,
+    IonBadge,
+    IonFooter,
+    IonRouterOutlet,
+  ],
 })
 export class AppComponent {
   private translate = inject(TranslateService);
   private navCtrl = inject(NavController);
   private route = inject(ActivatedRoute);
   private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
+  private syncService = inject(SyncService);
   private router = inject(Router);
   private platform = inject(Platform);
   private menuCtrl = inject(MenuController);
@@ -101,6 +157,24 @@ export class AppComponent {
   preferenceKeys = GlobalPreferenceKey;
 
   constructor() {
+    addIcons({
+      add,
+      book,
+      calendar,
+      cart,
+      chatboxEllipses,
+      chatbubbles,
+      cloudDownload,
+      heart,
+      helpBuoy,
+      leaf,
+      logIn,
+      mail,
+      people,
+      pricetag,
+      settings,
+    });
+
     const languagePref =
       this.preferencesService.preferences[GlobalPreferenceKey.Language];
     const language = languagePref || this.utilService.getAppBrowserLang();
@@ -196,12 +270,6 @@ export class AppComponent {
     (window as any).appLoaded = true;
 
     (window as any).swRegistration?.update();
-    setInterval(
-      () => {
-        (window as any).swRegistration?.update();
-      },
-      SW_UPDATE_CHECK_INTERVAL_MINUTES * 60 * 1000,
-    );
   }
 
   initEventListeners() {
@@ -558,8 +626,8 @@ export class AppComponent {
       const currentIdbSession = await appIdbStorageManager.getSession();
       if (currentIdbSession) return;
 
-      const me = await this.trpcService.trpc.users.getMe.query().catch((e) => {
-        Sentry.captureException(e);
+      const me = await this.serverActionsService.users.getMe({
+        "*": () => {},
       });
 
       if (!me) return;

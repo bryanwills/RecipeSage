@@ -207,6 +207,27 @@ const finalStructuredData = structuredData ?? defaultStructuredData;
     />
 
     <script is:inline>
+      const _paq = window._paq = window._paq || [];
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        const u="https://a.recipesage.com/";
+        _paq.push(['setTrackerUrl', u+'matomo.php']);
+        _paq.push(['setSiteId', '1']);
+        const d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+      })();
+    </script>
+    <noscript>
+      <img
+        referrerpolicy="no-referrer-when-downgrade"
+        src={`https://a.recipesage.com/matomo.php?idsite=1&rec=1&action_name=${encodeURIComponent(title)}`}
+        style="border:0"
+        alt=""
+      />
+    </noscript>
+
+    <script is:inline>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
@@ -287,6 +308,13 @@ const finalStructuredData = structuredData ?? defaultStructuredData;
         left: 0;
         right: 0;
         z-index: 10;
+      }
+
+      @media (max-width: 800px) {
+        header.site-header {
+          position: static;
+          background: var(--footer-bg);
+        }
       }
     </style>
   </head>

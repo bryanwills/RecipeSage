@@ -12,6 +12,7 @@ import {
   getAccessToMealPlan,
 } from "@recipesage/util/server/db";
 
+/** @deprecated Use deleteMealPlanItems instead */
 export const deleteMealPlanItem = publicProcedure
   .input(
     z.object({

@@ -6,23 +6,16 @@ import {
   validateTrpcSession,
 } from "@recipesage/util/server/general";
 import { prisma } from "@recipesage/prisma";
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import {
   ShoppingListAccessLevel,
   getAccessToShoppingList,
 } from "@recipesage/util/server/db";
+import { createShoppingListItemInput } from "@recipesage/util/shared";
 
+/** @deprecated Use createShoppingListItems instead */
 export const createShoppingListItem = publicProcedure
-  .input(
-    z.object({
-      shoppingListId: z.uuid(),
-      title: z.string().min(1).max(254),
-      recipeId: z.uuid().nullable(),
-      completed: z.boolean().optional(),
-      categoryTitle: z.string().optional(),
-    }),
-  )
+  .input(createShoppingListItemInput)
   .mutation(async ({ ctx, input }) => {
     const session = ctx.session;
     validateTrpcSession(session);

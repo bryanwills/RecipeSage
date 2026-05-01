@@ -1,7 +1,6 @@
 {
     "pages.app.oldBrowserAlert.header": "הדפדפן אינו נתמך",
     "pages.app.oldBrowserAlert.message": "נראה שהדפדפן ישן ואינו נתמך. ייתכן שחלק מהפונקציונליות לא תפעל או שתפעל לא טוב. שימוש בדפדפן מודרני כמו Google Chrome לקבלת פונקציונליות מלאה.",
-    "pages.app.nav.welcome": "ברוכים הבאים",
     "pages.app.nav.login": "כניסה",
     "pages.app.nav.register": "הרשמה",
     "pages.app.nav.download": "הורדה והתקנה",

@@ -42,6 +42,12 @@ const { t } = Astro.props;
     padding: 140px 24px 60px;
   }
 
+  @media (max-width: 800px) {
+    .pricing-hero {
+      padding: 50px 24px 50px;
+    }
+  }
+
   .pricing-hero::before {
     content: "";
     position: absolute;

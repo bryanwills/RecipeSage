@@ -13,6 +13,7 @@ import { getMealPlansWithItems } from "./getMealPlansWithItems";
 import { updateMealPlan } from "./updateMealPlan";
 import { updateMealPlanItem } from "./updateMealPlanItem";
 import { updateMealPlanItems } from "./updateMealPlanItems";
+import { upsertMealPlanItems } from "./upsertMealPlanItems";
 
 export const mealPlansRouter = router({
   createMealPlan,
@@ -29,4 +30,5 @@ export const mealPlansRouter = router({
   updateMealPlan,
   updateMealPlanItem,
   updateMealPlanItems,
+  upsertMealPlanItems,
 });

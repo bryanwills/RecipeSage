@@ -23,9 +23,7 @@ x-common-env: &common-env
   DATABASE_URL: postgresql://recipesage_dev:recipesage_dev@postgres:5432/recipesage_dev
   GRIP_URL: http://pushpin:5561/
   GRIP_KEY: changeme
-  SEARCH_PROVIDER: typesense
-  TYPESENSE_NODES: '[{"host": "typesense", "port": 8108, "protocol": "http"}]'
-  TYPESENSE_API_KEY: recipesage_dev
+  SEARCH_PROVIDER: postgres
   BROWSERLESS_HOST: browserless
   BROWSERLESS_PORT: "3000"
   BROWSERLESS_TOKEN: recipesage_dev
@@ -114,11 +112,6 @@ services:
     env_file:
       - ./.env
     stop_grace_period: 1s
-  typesense:
-    image: typesense/typesense:0.24.1
-    volumes:
-      - typesense-data:/data
-    command: "--data-dir /data --api-key=recipesage_dev --enable-cors"
   pushpin:
     image: julianpoy/pushpin:2023-09-17
     entrypoint: /bin/sh -c
@@ -136,6 +129,8 @@ services:
       - "postgres"
       - "-c"
       - "wal_level=logical"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     ports:
       - 5432:5432
     environment:
@@ -164,4 +159,4 @@ services:
     stop_grace_period: 1s
 
 volumes:
-  typesense-data:
+  postgres-data:

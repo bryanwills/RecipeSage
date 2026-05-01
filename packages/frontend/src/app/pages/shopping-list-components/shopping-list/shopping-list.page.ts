@@ -6,7 +6,7 @@ import {
   ModalController,
   PopoverController,
   AlertController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { LoadingService } from "~/services/loading.service";
@@ -26,12 +26,40 @@ import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { ShoppingListItemComponent } from "../../../components/shopping-list-item/shopping-list-item.component";
 import { ShoppingListGroupComponent } from "../../../components/shopping-list-group/shopping-list-group.component";
 import { NullStateComponent } from "../../../components/null-state/null-state.component";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import type {
   ShoppingListItemSummary,
   ShoppingListSummary,
   UserPublic,
 } from "@recipesage/prisma";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+  IonList,
+  IonListHeader,
+  IonLabel,
+  IonItem,
+  IonFab,
+  IonFabButton,
+} from "@ionic/angular/standalone";
+import {
+  add,
+  arrowUndo,
+  caretDown,
+  caretUp,
+  cart,
+  options,
+  trash,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 const categoryTitlesToi18n: Record<string, string> = {
   uncategorized: "pages.shoppingList.category.uncategorized",
@@ -58,13 +86,29 @@ const categoryTitlesToi18n: Record<string, string> = {
     ShoppingListItemComponent,
     ShoppingListGroupComponent,
     NullStateComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonList,
+    IonListHeader,
+    IonLabel,
+    IonItem,
+    IonFab,
+    IonFabButton,
   ],
 })
 export class ShoppingListPage {
   navCtrl = inject(NavController);
   translate = inject(TranslateService);
   loadingService = inject(LoadingService);
-  trpcService = inject(TRPCService);
+  serverActionsService = inject(ServerActionsService);
   websocketService = inject(WebsocketService);
   utilService = inject(UtilService);
   preferencesService = inject(PreferencesService);
@@ -100,6 +144,7 @@ export class ShoppingListPage {
   reference = "0";
 
   constructor() {
+    addIcons({ add, arrowUndo, caretDown, caretUp, cart, options, trash });
     const shoppingListId = this.route.snapshot.paramMap.get("shoppingListId");
     if (shoppingListId) {
       this.shoppingListId = shoppingListId;
@@ -140,9 +185,7 @@ export class ShoppingListPage {
   }
 
   async loadMe() {
-    const me = await this.trpcService.handle(
-      this.trpcService.trpc.users.getMe.query(),
-    );
+    const me = await this.serverActionsService.users.getMe();
     if (!me) return;
 
     this.me = me;
@@ -218,16 +261,12 @@ export class ShoppingListPage {
 
   async loadList() {
     const [shoppingList, shoppingListItems] = await Promise.all([
-      this.trpcService.handle(
-        this.trpcService.trpc.shoppingLists.getShoppingList.query({
-          id: this.shoppingListId,
-        }),
-      ),
-      this.trpcService.handle(
-        this.trpcService.trpc.shoppingLists.getShoppingListItems.query({
-          shoppingListId: this.shoppingListId,
-        }),
-      ),
+      this.serverActionsService.shoppingLists.getShoppingList({
+        id: this.shoppingListId,
+      }),
+      this.serverActionsService.shoppingLists.getShoppingListItems({
+        shoppingListId: this.shoppingListId,
+      }),
     ]);
     if (!shoppingList || !shoppingListItems) return;
     this.shoppingList = shoppingList;
@@ -252,15 +291,14 @@ export class ShoppingListPage {
 
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.updateShoppingListItems.mutate({
+    const response =
+      await this.serverActionsService.shoppingLists.updateShoppingListItems({
         shoppingListId: this.shoppingListId,
         items: items.map((item) => ({
           id: item.id,
           completed,
         })),
-      }),
-    );
+      });
     if (!response) return;
 
     if (this.reference !== response.reference) {
@@ -279,15 +317,14 @@ export class ShoppingListPage {
 
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.updateShoppingListItems.mutate({
+    const response =
+      await this.serverActionsService.shoppingLists.updateShoppingListItems({
         shoppingListId: this.shoppingListId,
         items: items.map((item) => ({
           id: item.id,
           categoryTitle,
         })),
-      }),
-    );
+      });
     if (!response) return;
 
     if (this.reference !== response.reference) {
@@ -339,12 +376,11 @@ export class ShoppingListPage {
 
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.deleteShoppingListItems.mutate({
+    const response =
+      await this.serverActionsService.shoppingLists.deleteShoppingListItems({
         shoppingListId: this.shoppingListId,
         ids: items.map((el) => el.id),
-      }),
-    );
+      });
     if (!response) return;
 
     if (this.reference !== response.reference) {
@@ -401,12 +437,11 @@ export class ShoppingListPage {
 
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.shoppingLists.createShoppingListItems.mutate({
+    const response =
+      await this.serverActionsService.shoppingLists.createShoppingListItems({
         shoppingListId: this.shoppingListId,
         items: sanitizedItems,
-      }),
-    );
+      });
     if (!response) return;
 
     if (this.reference !== response.reference) {

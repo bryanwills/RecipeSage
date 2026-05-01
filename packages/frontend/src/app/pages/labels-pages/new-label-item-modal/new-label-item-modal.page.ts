@@ -3,30 +3,65 @@ import {
   ModalController,
   AlertController,
   ToggleCustomEvent,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { LoadingService } from "~/services/loading.service";
 import { TranslateService } from "@ngx-translate/core";
 import type { LabelGroupSummary, LabelSummary } from "@recipesage/prisma";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import {
   SelectableItem,
   SelectMultipleItemsComponent,
 } from "../../../components/select-multiple-items/select-multiple-items.component";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonTitle,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonToggle,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import { arrowBack, close, pricetag, pricetags } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-new-label-item-modal",
   templateUrl: "new-label-item-modal.page.html",
   styleUrls: ["new-label-item-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, SelectMultipleItemsComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    SelectMultipleItemsComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonTitle,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonToggle,
+    IonFooter,
+  ],
 })
 export class NewLabelItemModalPage {
+  constructor() {
+    addIcons({ arrowBack, close, pricetag, pricetags });
+  }
+
   private translate = inject(TranslateService);
   private loadingService = inject(LoadingService);
   private modalCtrl = inject(ModalController);
   private alertCtrl = inject(AlertController);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
 
   @Input({
     required: false,
@@ -47,9 +82,7 @@ export class NewLabelItemModalPage {
       this.type = "group";
       this.title = this.labelGroup.title;
     }
-    const labelsResult = await this.trpcService.handle(
-      this.trpcService.trpc.labels.getLabels.query(),
-    );
+    const labelsResult = await this.serverActionsService.labels.getLabels();
     if (labelsResult) {
       this.labels = labelsResult.sort((a, b) => a.title.localeCompare(b.title));
       this.ungroupedLabels = this.labels.filter((label) => {
@@ -112,11 +145,11 @@ export class NewLabelItemModalPage {
     if (!this.title) return;
 
     const loading = this.loadingService.start();
-    await this.trpcService.handle(
-      this.trpcService.trpc.labels.createLabel.mutate({
+    await this.serverActionsService.labels.createLabel(
+      {
         title: this.title,
         labelGroupId: null,
-      }),
+      },
       {
         400: async () => {
           const header = await this.translate.get("generic.error").toPromise();
@@ -195,12 +228,12 @@ export class NewLabelItemModalPage {
     if (!this.title) return;
 
     const loading = this.loadingService.start();
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.labelGroups.createLabelGroup.mutate({
+    const result = await this.serverActionsService.labelGroups.createLabelGroup(
+      {
         title: this.title,
         labelIds: this.selectedLabels.map((selectedLabel) => selectedLabel.id),
         warnWhenNotPresent: this.warnWhenNotPresent,
-      }),
+      },
       {
         409: async () => {
           const header = await this.translate

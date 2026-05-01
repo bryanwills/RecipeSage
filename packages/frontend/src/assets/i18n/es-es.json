@@ -1,7 +1,6 @@
 {
     "pages.app.oldBrowserAlert.header": "El navegador no es compatible",
     "pages.app.oldBrowserAlert.message": "Parece que estás utilizando un navegador antiguo que no es compatible. Es posible que algunas funciones no funcionen o estén dañadas. Por favor, cambia a un navegador moderno como Firefox para una funcionalidad completa.",
-    "pages.app.nav.welcome": "Bienvenido",
     "pages.app.nav.login": "Iniciar sesión",
     "pages.app.nav.register": "Crear una cuenta",
     "pages.app.nav.download": "Descargar e instalar",

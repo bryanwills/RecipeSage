@@ -1,5 +1,5 @@
 import { Component, inject } from "@angular/core";
-import { ToastController } from "@ionic/angular";
+import { ToastController } from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { IS_SELFHOST } from "../../../../environments/environment";
@@ -13,8 +13,21 @@ import {
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { TosClickwrapAgreementComponent } from "../../../components/tos-clickwrap-agreement/tos-clickwrap-agreement.component";
 import { LogoIconComponent } from "../../../components/logo-icon/logo-icon.component";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import { appIdbStorageManager } from "../../../utils/appIdbStorageManager";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonContent,
+  IonButton,
+  IonIcon,
+  IonBadge,
+} from "@ionic/angular/standalone";
+import { arrowForward } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 const BILLING_PORTAL_URL =
   "https://billing.stripe.com/p/login/dR6aFm6ex5vuauk8ww";
@@ -28,11 +41,20 @@ const BILLING_PORTAL_URL =
     ...SHARED_UI_IMPORTS,
     TosClickwrapAgreementComponent,
     LogoIconComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonContent,
+    IonButton,
+    IonIcon,
+    IonBadge,
   ],
 })
 export class ContributePage {
   capabilitiesService = inject(CapabilitiesService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private featureFlagService = inject(FeatureFlagService);
   private translate = inject(TranslateService);
   private utilService = inject(UtilService);
@@ -51,6 +73,7 @@ export class ContributePage {
     this.featureFlagService.flags[FeatureFlagKeys.EnableAssistant];
 
   constructor() {
+    addIcons({ arrowForward });
     if (IS_SELFHOST) {
       window.alert(
         "Opening the RecipeSage site, since selfhosted versions aren't linked to Stripe",
@@ -105,28 +128,29 @@ export class ContributePage {
       .get("pages.contribute.minimum", { amount: minimumAmount })
       .toPromise();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.payments.createStripeCheckoutSession.mutate({
-        amount: amount * 100,
-        frequency: this.frequency as "monthly" | "yearly" | "single",
-        successUrl: this.utilService.buildPublicRoutePath(
-          RouteMap.ContributeThankYouPage.getPath(),
-        ),
-        cancelUrl: this.utilService.buildPublicRoutePath(
-          RouteMap.ContributeCancelPage.getPath(),
-        ),
-      }),
-      {
-        412: async () => {
-          (
-            await this.toastCtrl.create({
-              message,
-              duration: 5000,
-            })
-          ).present();
+    const response =
+      await this.serverActionsService.payments.createStripeCheckoutSession(
+        {
+          amount: amount * 100,
+          frequency: this.frequency as "monthly" | "yearly" | "single",
+          successUrl: this.utilService.buildPublicRoutePath(
+            RouteMap.ContributeThankYouPage.getPath(),
+          ),
+          cancelUrl: this.utilService.buildPublicRoutePath(
+            RouteMap.ContributeCancelPage.getPath(),
+          ),
         },
-      },
-    );
+        {
+          412: async () => {
+            (
+              await this.toastCtrl.create({
+                message,
+                duration: 5000,
+              })
+            ).present();
+          },
+        },
+      );
     if (!response || !response.url) return;
 
     window.location.href = response.url;

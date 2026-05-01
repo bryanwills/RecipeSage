@@ -1,26 +1,67 @@
 import { Component, inject } from "@angular/core";
-import { NavController, ModalController } from "@ionic/angular";
+import { NavController, ModalController } from "@ionic/angular/standalone";
 
 import { WebsocketService } from "~/services/websocket.service";
 import { LoadingService } from "~/services/loading.service";
 import { UtilService, RouteMap } from "~/services/util.service";
 import { NewMealPlanModalPage } from "~/pages/meal-plan-components/new-meal-plan-modal/new-meal-plan-modal.page";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import type { MealPlanSummary, UserPublic } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { NullStateComponent } from "../../../components/null-state/null-state.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
+  IonTitle,
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+  IonList,
+  IonItem,
+  IonIcon,
+  IonLabel,
+  IonBadge,
+  IonFab,
+  IonFabButton,
+} from "@ionic/angular/standalone";
+import { add, calendar } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-meal-plans",
   templateUrl: "meal-plans.page.html",
   styleUrls: ["meal-plans.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, NullStateComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    NullStateComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonTitle,
+    IonContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonList,
+    IonItem,
+    IonIcon,
+    IonLabel,
+    IonBadge,
+    IonFab,
+    IonFabButton,
+  ],
 })
 export class MealPlansPage {
+  constructor() {
+    addIcons({ add, calendar });
+  }
+
   private navCtrl = inject(NavController);
   private modalCtrl = inject(ModalController);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private websocketService = inject(WebsocketService);
   private loadingService = inject(LoadingService);
   private utilService = inject(UtilService);
@@ -62,18 +103,14 @@ export class MealPlansPage {
   }
 
   async loadMe() {
-    const me = await this.trpcService.handle(
-      this.trpcService.trpc.users.getMe.query(),
-    );
+    const me = await this.serverActionsService.users.getMe();
     if (!me) return;
 
     this.me = me;
   }
 
   async loadPlans() {
-    const mealPlans = await this.trpcService.handle(
-      this.trpcService.trpc.mealPlans.getMealPlans.query(),
-    );
+    const mealPlans = await this.serverActionsService.mealPlans.getMealPlans();
     if (!mealPlans) return;
 
     this.mealPlans = mealPlans.sort((a, b) => {

@@ -4,7 +4,7 @@ import {
   ModalController,
   ToastController,
   AlertController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { UserService } from "~/services/user.service";
@@ -12,15 +12,46 @@ import { LoadingService } from "~/services/loading.service";
 import { RouteMap } from "~/services/util.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectUserComponent } from "../../../components/select-user/select-user.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import { close, open, send } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-add-friend-modal",
   templateUrl: "add-friend-modal.page.html",
   styleUrls: ["add-friend-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, SelectUserComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    SelectUserComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonFooter,
+  ],
 })
 export class AddFriendModalPage {
+  constructor() {
+    addIcons({ close, open, send });
+  }
+
   private navCtrl = inject(NavController);
   private translate = inject(TranslateService);
   private toastCtrl = inject(ToastController);

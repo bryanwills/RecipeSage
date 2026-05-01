@@ -4,20 +4,53 @@ import {
   ModalController,
   AlertController,
   ToastController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { UtilService, RouteMap } from "~/services/util.service";
 import { LoadingService } from "~/services/loading.service";
 import { TranslateService } from "@ngx-translate/core";
 import type { LabelSummary } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import {
+  close,
+  create,
+  folderOpen,
+  gitNetwork,
+  pricetag,
+  trash,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-manage-label-modal",
   templateUrl: "manage-label-modal.page.html",
   styleUrls: ["manage-label-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonFooter,
+  ],
 })
 export class ManageLabelModalPage {
   navCtrl = inject(NavController);
@@ -27,7 +60,7 @@ export class ManageLabelModalPage {
   modalCtrl = inject(ModalController);
   alertCtrl = inject(AlertController);
   utilService = inject(UtilService);
-  trpcService = inject(TRPCService);
+  serverActionsService = inject(ServerActionsService);
 
   @Input({
     required: true,
@@ -37,6 +70,7 @@ export class ManageLabelModalPage {
   createdAt?: string;
 
   constructor() {
+    addIcons({ close, create, folderOpen, gitNetwork, pricetag, trash });
     const utilService = this.utilService;
 
     setTimeout(() => {
@@ -55,11 +89,11 @@ export class ManageLabelModalPage {
       .toPromise();
     const okay = await this.translate.get("generic.okay").toPromise();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.labels.updateLabel.mutate({
+    const response = await this.serverActionsService.labels.updateLabel(
+      {
         id: this.label.id,
         title: newTitle,
-      }),
+      },
       {
         409: async () => {
           (
@@ -140,11 +174,9 @@ export class ManageLabelModalPage {
   async _delete() {
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.labels.deleteLabel.mutate({
-        id: this.label.id,
-      }),
-    );
+    const response = await this.serverActionsService.labels.deleteLabel({
+      id: this.label.id,
+    });
     loading.dismiss();
     if (!response) return;
 
@@ -154,12 +186,10 @@ export class ManageLabelModalPage {
   async _deleteWithRecipes() {
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.labels.deleteLabel.mutate({
-        id: this.label.id,
-        includeAttachedRecipes: true,
-      }),
-    );
+    const response = await this.serverActionsService.labels.deleteLabel({
+      id: this.label.id,
+      includeAttachedRecipes: true,
+    });
     loading.dismiss();
     if (!response) return;
 
@@ -233,10 +263,10 @@ export class ManageLabelModalPage {
   async _merge(targetTitle: string) {
     const loading = this.loadingService.start();
 
-    const targetLabel = await this.trpcService.handle(
-      this.trpcService.trpc.labels.getLabelByTitle.query({
+    const targetLabel = await this.serverActionsService.labels.getLabelByTitle(
+      {
         title: targetTitle,
-      }),
+      },
       {
         404: async () => {
           const header = await this.translate
@@ -301,12 +331,10 @@ export class ManageLabelModalPage {
       return;
     }
 
-    const mergeResponse = await this.trpcService.handle(
-      this.trpcService.trpc.labels.mergeLabels.mutate({
-        sourceId: this.label.id,
-        targetId: targetLabel.id,
-      }),
-    );
+    const mergeResponse = await this.serverActionsService.labels.mergeLabels({
+      sourceId: this.label.id,
+      targetId: targetLabel.id,
+    });
 
     loading.dismiss();
     if (!mergeResponse) return;

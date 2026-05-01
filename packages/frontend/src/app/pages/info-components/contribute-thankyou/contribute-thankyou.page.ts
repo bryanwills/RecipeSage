@@ -4,13 +4,30 @@ import { RouteMap } from "~/services/util.service";
 import { CapabilitiesService } from "~/services/capabilities.service";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { LogoIconComponent } from "../../../components/logo-icon/logo-icon.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonContent,
+} from "@ionic/angular/standalone";
 
 @Component({
   standalone: true,
   selector: "page-contribute-thankyou",
   templateUrl: "contribute-thankyou.page.html",
   styleUrls: ["contribute-thankyou.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, LogoIconComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    LogoIconComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonContent,
+  ],
 })
 export class ContributeThankYouPage {
   private capabilitiesService = inject(CapabilitiesService);

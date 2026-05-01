@@ -4,7 +4,7 @@ import {
   NavController,
   AlertController,
   ModalController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { IS_SELFHOST } from "../../../environments/environment";
@@ -15,7 +15,7 @@ import { LoadingService } from "~/services/loading.service";
 import { MessagingService } from "~/services/messaging.service";
 import { RouteMap, AuthType } from "~/services/util.service";
 import { CapabilitiesService } from "~/services/capabilities.service";
-import { TRPCService } from "../../services/trpc.service";
+import { ServerActionsService } from "../../services/server-actions.service";
 import { appIdbStorageManager } from "../../utils/appIdbStorageManager";
 import type { SessionDTO } from "@recipesage/prisma";
 import { SwCommunicationService } from "../../services/sw-communication.service";
@@ -24,6 +24,21 @@ import { SignInWithGoogleComponent } from "../../components/sign-in-with-google/
 import { LogoIconComponent } from "../../components/logo-icon/logo-icon.component";
 import { TosClickwrapAgreementComponent } from "../../components/tos-clickwrap-agreement/tos-clickwrap-agreement.component";
 import { WebsocketService } from "../../services/websocket.service";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonMenuButton,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonItem,
+  IonInput,
+} from "@ionic/angular/standalone";
+import { close, eye, eyeOff } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
@@ -36,6 +51,17 @@ import { WebsocketService } from "../../services/websocket.service";
     SignInWithGoogleComponent,
     LogoIconComponent,
     TosClickwrapAgreementComponent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonMenuButton,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonItem,
+    IonInput,
   ],
 })
 export class AuthPage {
@@ -50,7 +76,7 @@ export class AuthPage {
   private websocketService = inject(WebsocketService);
   private alertCtrl = inject(AlertController);
   private route = inject(ActivatedRoute);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
 
   @Input() startWithRegister?: boolean;
 
@@ -70,6 +96,7 @@ export class AuthPage {
   loading = false;
 
   constructor() {
+    addIcons({ close, eye, eyeOff });
     if (this.route.snapshot.paramMap.get("authType") === AuthType.Register) {
       this.showLogin = false;
     } else {
@@ -144,11 +171,11 @@ export class AuthPage {
     this.loading = true;
 
     const response = this.showLogin
-      ? await this.trpcService.handle(
-          this.trpcService.trpc.users.login.mutate({
+      ? await this.serverActionsService.users.login(
+          {
             email: this.email,
             password: this.password,
-          }),
+          },
           {
             403: () =>
               this.presentAlert(
@@ -164,12 +191,12 @@ export class AuthPage {
               this.presentAlert("generic.error", "pages.auth.error.ssoAccount"),
           },
         )
-      : await this.trpcService.handle(
-          this.trpcService.trpc.users.register.mutate({
+      : await this.serverActionsService.users.register(
+          {
             name: this.name,
             email: this.email,
             password: this.password,
-          }),
+          },
           {
             400: () =>
               this.presentAlert(
@@ -242,10 +269,10 @@ export class AuthPage {
 
     const loading = this.loadingService.start();
 
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.users.forgotPassword.mutate({
+    const response = await this.serverActionsService.users.forgotPassword(
+      {
         email: this.email,
-      }),
+      },
       {
         404: () =>
           this.presentAlert("generic.error", "pages.auth.error.incorrectEmail"),

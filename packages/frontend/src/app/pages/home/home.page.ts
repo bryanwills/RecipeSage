@@ -5,7 +5,7 @@ import {
   NavController,
   AlertController,
   PopoverController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { Datasource, UiScrollModule } from "ngx-ui-scroll";
 
 import { Recipe, RecipeFolderName } from "~/services/recipe.service";
@@ -22,7 +22,7 @@ import {
 } from "@recipesage/util/shared";
 import { HomePopoverPage } from "~/pages/home-popover/home-popover.page";
 import { HomeSearchFilterPopoverPage } from "~/pages/home-search-popover/home-search-filter-popover.page";
-import { TRPCService } from "~/services/trpc.service";
+import { ServerActionsService } from "~/services/server-actions.service";
 import type {
   LabelSummary,
   RecipeSummaryLite,
@@ -31,6 +31,34 @@ import type {
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { LogoIconComponent } from "../../components/logo-icon/logo-icon.component";
 import { NullStateComponent } from "../../components/null-state/null-state.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
+  IonBackButton,
+  IonButton,
+  IonIcon,
+  IonTitle,
+  IonContent,
+  IonSearchbar,
+  IonBadge,
+  IonLabel,
+  IonFab,
+  IonFabButton,
+} from "@ionic/angular/standalone";
+import {
+  add,
+  close,
+  download,
+  funnel,
+  mailOpen,
+  options,
+  pricetag,
+  search,
+  trash,
+} from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 const TILE_WIDTH = 200;
 const TILE_PADD = 20;
@@ -45,6 +73,20 @@ const TILE_PADD = 20;
     LogoIconComponent,
     NullStateComponent,
     UiScrollModule,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonMenuButton,
+    IonBackButton,
+    IonButton,
+    IonIcon,
+    IonTitle,
+    IonContent,
+    IonSearchbar,
+    IonBadge,
+    IonLabel,
+    IonFab,
+    IonFabButton,
   ],
 })
 export class HomePage {
@@ -58,7 +100,7 @@ export class HomePage {
   private alertCtrl = inject(AlertController);
   private preferencesService = inject(PreferencesService);
   private websocketService = inject(WebsocketService);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private utilService = inject(UtilService);
 
   defaultBackHref: string = RouteMap.PeoplePage.getPath();
@@ -138,6 +180,17 @@ export class HomePage {
   });
 
   constructor() {
+    addIcons({
+      add,
+      close,
+      download,
+      funnel,
+      mailOpen,
+      options,
+      pricetag,
+      search,
+      trash,
+    });
     this.showBack =
       !!this.router.getCurrentNavigation()?.extras.state?.showBack;
 
@@ -152,12 +205,10 @@ export class HomePage {
     this.userId = this.route.snapshot.queryParamMap.get("userId") || undefined;
     if (this.userId) {
       this.showBack = true;
-      this.trpcService
-        .handle(
-          this.trpcService.trpc.users.getUserProfilesById.query({
-            ids: [this.userId],
-          }),
-        )
+      this.serverActionsService.users
+        .getUserProfilesById({
+          ids: [this.userId],
+        })
         .then((profileResponse) => {
           const userProfile = profileResponse?.at(0);
           if (!userProfile) return;
@@ -232,11 +283,10 @@ export class HomePage {
 
   async setDefaultBackHref() {
     if (this.userId) {
-      const response = await this.trpcService.handle(
-        this.trpcService.trpc.users.getUserProfilesById.query({
+      const response =
+        await this.serverActionsService.users.getUserProfilesById({
           ids: [this.userId],
-        }),
-      );
+        });
       const userProfile = response?.at(0);
       if (!userProfile) return;
 
@@ -353,24 +403,22 @@ export class HomePage {
 
     const sortPreference = this.preferences[MyRecipesPreferenceKey.SortBy];
 
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.getRecipes.query({
-        folder: this.folder,
-        orderBy: sortPreference.replace("-", "") as
-          | "title"
-          | "createdAt"
-          | "updatedAt",
-        orderDirection: sortPreference.startsWith("-") ? "desc" : "asc",
-        offset,
-        limit: numToFetch,
-        labels: this.selectedLabels.length ? this.selectedLabels : undefined,
-        labelIntersection:
-          this.preferences[MyRecipesPreferenceKey.EnableLabelIntersection],
-        includeAllFriends: this.isIncludeFriendsEnabled(),
-        ratings: this.ratingFilter.length ? this.ratingFilter : undefined,
-        userIds: this.userId ? [this.userId] : undefined,
-      }),
-    );
+    const result = await this.serverActionsService.recipes.getRecipes({
+      folder: this.folder,
+      orderBy: sortPreference.replace("-", "") as
+        | "title"
+        | "createdAt"
+        | "updatedAt",
+      orderDirection: sortPreference.startsWith("-") ? "desc" : "asc",
+      offset,
+      limit: numToFetch,
+      labels: this.selectedLabels.length ? this.selectedLabels : undefined,
+      labelIntersection:
+        this.preferences[MyRecipesPreferenceKey.EnableLabelIntersection],
+      includeAllFriends: this.isIncludeFriendsEnabled(),
+      ratings: this.ratingFilter.length ? this.ratingFilter : undefined,
+      userIds: this.userId ? [this.userId] : undefined,
+    });
 
     if (!result) return;
     if (this.recipeLoadGeneration !== generation) return;
@@ -382,10 +430,10 @@ export class HomePage {
 
   async loadLabels() {
     if (this.userId) {
-      const response = await this.trpcService.handle(
-        this.trpcService.trpc.labels.getLabelsByUserId.query({
+      const response = await this.serverActionsService.labels.getLabelsByUserId(
+        {
           userIds: [this.userId],
-        }),
+        },
         {
           401: () => {},
         },
@@ -394,22 +442,17 @@ export class HomePage {
 
       this.labels = response.sort((a, b) => a.title.localeCompare(b.title));
     } else if (this.isIncludeFriendsEnabled()) {
-      const response = await this.trpcService.handle(
-        this.trpcService.trpc.labels.getAllVisibleLabels.query(),
-        {
+      const response =
+        await this.serverActionsService.labels.getAllVisibleLabels({
           401: () => {},
-        },
-      );
+        });
       if (!response) return;
 
       this.labels = response.sort((a, b) => a.title.localeCompare(b.title));
     } else {
-      const response = await this.trpcService.handle(
-        this.trpcService.trpc.labels.getLabels.query(),
-        {
-          401: () => {},
-        },
-      );
+      const response = await this.serverActionsService.labels.getLabels({
+        401: () => {},
+      });
       if (!response) return;
 
       this.labels = response.sort((a, b) => a.title.localeCompare(b.title));
@@ -417,24 +460,18 @@ export class HomePage {
   }
 
   async fetchMyProfile() {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.users.getMe.query(),
-      {
-        401: () => {},
-      },
-    );
+    const response = await this.serverActionsService.users.getMe({
+      401: () => {},
+    });
     if (!response) return;
 
     this.myProfile = response;
   }
 
   async fetchFriends() {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.users.getMyFriends.query(),
-      {
-        401: () => {},
-      },
-    );
+    const response = await this.serverActionsService.users.getMyFriends({
+      401: () => {},
+    });
     if (!response) return;
 
     this.friendsById = response.friends.reduce(
@@ -509,19 +546,17 @@ export class HomePage {
       (this.preferences[MyRecipesPreferenceKey.IncludeFriends] === "yes" ||
         this.preferences[MyRecipesPreferenceKey.IncludeFriends] === "search");
 
-    const result = await this.trpcService
-      .handle(
-        this.trpcService.trpc.recipes.searchRecipes.query({
-          searchTerm: text,
-          folder: this.folder,
-          labels: this.selectedLabels.length ? this.selectedLabels : undefined,
-          labelIntersection:
-            this.preferences[MyRecipesPreferenceKey.EnableLabelIntersection],
-          includeAllFriends,
-          ratings: this.ratingFilter.length ? this.ratingFilter : undefined,
-          userIds: this.userId ? [this.userId] : undefined,
-        }),
-      )
+    const result = await this.serverActionsService.recipes
+      .searchRecipes({
+        searchTerm: text,
+        folder: this.folder,
+        labels: this.selectedLabels.length ? this.selectedLabels : undefined,
+        labelIntersection:
+          this.preferences[MyRecipesPreferenceKey.EnableLabelIntersection],
+        includeAllFriends,
+        ratings: this.ratingFilter.length ? this.ratingFilter : undefined,
+        userIds: this.userId ? [this.userId] : undefined,
+      })
       .finally(loading.dismiss);
 
     if (!result) return;
@@ -580,11 +615,11 @@ export class HomePage {
           text: save,
           handler: async ({ labelName }) => {
             const loading = this.loadingService.start();
-            const response = await this.trpcService.handle(
-              this.trpcService.trpc.labels.upsertLabel.mutate({
+            const response = await this.serverActionsService.labels.upsertLabel(
+              {
                 title: labelName.toLowerCase(),
                 addToRecipeIds: this.selectedRecipeIds,
-              }),
+              },
             );
             if (!response) return loading.dismiss();
             await this.resetAndLoadAll();
@@ -639,12 +674,10 @@ export class HomePage {
   }
 
   async startExport(recipeIds: string[], format: "txt" | "pdf" | "jsonld") {
-    const result = await this.trpcService.handle(
-      this.trpcService.trpc.jobs.startExportJob.mutate({
-        format,
-        recipeIds,
-      }),
-    );
+    const result = await this.serverActionsService.jobs.startExportJob({
+      format,
+      recipeIds,
+    });
 
     if (!result) return;
 
@@ -709,11 +742,10 @@ export class HomePage {
           cssClass: "alertDanger",
           handler: async () => {
             const loading = this.loadingService.start();
-            const response = await this.trpcService.handle(
-              this.trpcService.trpc.recipes.deleteRecipesByIds.mutate({
+            const response =
+              await this.serverActionsService.recipes.deleteRecipesByIds({
                 ids: this.selectedRecipeIds,
-              }),
-            );
+              });
             if (!response) return loading.dismiss();
             this.clearSelectedRecipes();
 

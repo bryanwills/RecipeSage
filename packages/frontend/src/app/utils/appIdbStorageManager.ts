@@ -63,14 +63,13 @@ export class AppIdbStorageManager {
 
   async deleteAllData(): Promise<void> {
     const localDb = await getLocalDb();
-    await localDb.clear(ObjectStoreName.KV);
-    await localDb.clear(ObjectStoreName.Recipes);
-    await localDb.clear(ObjectStoreName.Labels);
-    await localDb.clear(ObjectStoreName.LabelGroups);
-    await localDb.clear(ObjectStoreName.ShoppingLists);
-    await localDb.clear(ObjectStoreName.MealPlans);
-    await localDb.clear(ObjectStoreName.AssistantMessages);
-    await localDb.clear(ObjectStoreName.Jobs);
+    await Promise.all(
+      Object.values(ObjectStoreName).map(async (objectStoreName) => {
+        await localDb.clear(objectStoreName).catch((e) => {
+          console.error(e);
+        });
+      }),
+    );
   }
 }
 

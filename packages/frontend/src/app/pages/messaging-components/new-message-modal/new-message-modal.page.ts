@@ -3,29 +3,58 @@ import {
   NavController,
   ModalController,
   ToastController,
-} from "@ionic/angular";
+} from "@ionic/angular/standalone";
 import { TranslateService } from "@ngx-translate/core";
 
 import { MessagingService } from "~/services/messaging.service";
 import { UtilService, RouteMap } from "~/services/util.service";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import { UserPublic } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { SelectUserComponent } from "../../../components/select-user/select-user.component";
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonTextarea,
+  IonFooter,
+} from "@ionic/angular/standalone";
+import { close, send } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 @Component({
   standalone: true,
   selector: "page-new-message-modal",
   templateUrl: "new-message-modal.page.html",
   styleUrls: ["new-message-modal.page.scss"],
-  imports: [...SHARED_UI_IMPORTS, SelectUserComponent],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    SelectUserComponent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonTextarea,
+    IonFooter,
+  ],
 })
 export class NewMessageModalPage {
   navCtrl = inject(NavController);
   translate = inject(TranslateService);
   modalCtrl = inject(ModalController);
   toastCtrl = inject(ToastController);
-  trpcService = inject(TRPCService);
+  serverActionsService = inject(ServerActionsService);
   utilService = inject(UtilService);
   messagingService = inject(MessagingService);
 
@@ -36,6 +65,7 @@ export class NewMessageModalPage {
   message = "";
 
   constructor() {
+    addIcons({ close, send });
     setTimeout(() => {
       if (this.initialRecipientId) {
         this.setSelectedUser(this.initialRecipientId);
@@ -44,11 +74,9 @@ export class NewMessageModalPage {
   }
 
   async setSelectedUser(recipientId: string) {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.users.getUserProfilesById.query({
-        ids: [recipientId],
-      }),
-    );
+    const response = await this.serverActionsService.users.getUserProfilesById({
+      ids: [recipientId],
+    });
     const profile = response?.at(0);
     if (!profile) return;
 

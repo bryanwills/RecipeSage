@@ -1,12 +1,28 @@
 import { Component, inject } from "@angular/core";
-import { NavController } from "@ionic/angular";
+import { NavController } from "@ionic/angular/standalone";
 import * as Sentry from "@sentry/browser";
 
 import { RouteMap, UtilService } from "~/services/util.service";
-import { TRPCService } from "../../../services/trpc.service";
+import { ServerActionsService } from "../../../services/server-actions.service";
 import type { JobSummary } from "@recipesage/prisma";
 import { JOB_RESULT_CODES } from "@recipesage/util/shared";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonContent,
+  IonItem,
+  IonLabel,
+  IonIcon,
+  IonProgressBar,
+  IonButton,
+  IonList,
+} from "@ionic/angular/standalone";
+import { cloudUpload, fileTrayFull } from "ionicons/icons";
+import { addIcons } from "ionicons";
 
 export const getJobFailureI18n = (importJob: JobSummary) => {
   switch (importJob.resultCode) {
@@ -50,11 +66,29 @@ type ImportFormat =
   selector: "page-import",
   templateUrl: "import.page.html",
   styleUrls: ["import.page.scss"],
-  imports: [...SHARED_UI_IMPORTS],
+  imports: [
+    ...SHARED_UI_IMPORTS,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonContent,
+    IonItem,
+    IonLabel,
+    IonIcon,
+    IonProgressBar,
+    IonButton,
+    IonList,
+  ],
 })
 export class ImportPage {
+  constructor() {
+    addIcons({ cloudUpload, fileTrayFull });
+  }
+
   private navCtrl = inject(NavController);
-  private trpcService = inject(TRPCService);
+  private serverActionsService = inject(ServerActionsService);
   private utilService = inject(UtilService);
 
   defaultBackHref: string = RouteMap.SettingsPage.getPath();
@@ -84,9 +118,7 @@ export class ImportPage {
   }
 
   async load() {
-    const response = await this.trpcService.handle(
-      this.trpcService.trpc.jobs.getJobs.query(),
-    );
+    const response = await this.serverActionsService.jobs.getJobs();
     if (response) {
       this.importJobs = response
         .sort((a, b) => {
