@@ -1,19 +1,15 @@
-import "./sentry-init.js";
 import * as Sentry from "@sentry/node";
-import { program } from "commander";
 
 import { prisma } from "@recipesage/prisma";
 import { getShoppingListItemCategories } from "@recipesage/util/server/general";
 
-program.parse(process.argv);
-
 const waitFor = async (timeout: number) => {
-  new Promise((resolve) => {
+  return new Promise((resolve) => {
     setTimeout(resolve, timeout);
   });
 };
 
-const run = async () => {
+export const categorizeShoppingListItems = async () => {
   try {
     while (true) {
       const items = await prisma.shoppingListItem.findMany({
@@ -29,7 +25,7 @@ const run = async () => {
 
       if (!items.length) {
         console.log("Categorization complete!");
-        process.exit(0);
+        return;
       }
 
       const categoryTitles = await getShoppingListItemCategories(
@@ -54,12 +50,6 @@ const run = async () => {
   } catch (e) {
     Sentry.captureException(e);
     console.log("Error while processing", e);
-    process.exit(1);
+    throw e;
   }
 };
-run();
-
-process.on("SIGTERM", () => {
-  console.log("RECEIVED SIGTERM - STOPPING JOB");
-  process.exit(0);
-});
