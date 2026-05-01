@@ -61,7 +61,7 @@
         "cwd": "packages/frontend",
         "commands": [
           "ng lint",
-          "npx --yes @julianpoy/ngx-translate-lint --config ./ngx-translate-lint.config.json"
+          "pnpm dlx @julianpoy/ngx-translate-lint --config ./ngx-translate-lint.config.json"
         ]
       }
     }

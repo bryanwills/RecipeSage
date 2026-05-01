@@ -14,9 +14,12 @@ RUN apk add --no-cache poppler-utils
 # dev watch script
 RUN apk add --no-cache inotify-tools
 
-COPY package-lock.json package-lock.json
+RUN corepack enable
+
+COPY .npmrc .npmrc
+COPY pnpm-lock.yaml pnpm-lock.yaml
 COPY package.json package.json
-RUN npm ci
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 
 COPY .prettierignore .prettierignore
 COPY .prettierrc.json .prettierrc.json
@@ -29,7 +32,7 @@ COPY scripts scripts
 COPY fonts fonts
 
 # Prisma must be regenerated since schema is not present during install stage
-RUN npx prisma generate
+RUN pnpm exec prisma generate
 
 ARG VERSION
 ENV VERSION=$VERSION

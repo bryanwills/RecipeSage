@@ -57,7 +57,7 @@ services:
       - ./packages:/app/packages
     ports:
       - "8100:8100"
-    command: npx nx start frontend
+    command: pnpm exec nx start frontend
     environment:
       - ENVIRONMENT=development
       - APP_VERSION=development
@@ -74,7 +74,7 @@ services:
       - ./packages:/app/packages
     ports:
       - "4321:4321"
-    command: npx nx dev www
+    command: pnpm exec nx dev www
     environment:
       - ENVIRONMENT=development
     stop_grace_period: 1s

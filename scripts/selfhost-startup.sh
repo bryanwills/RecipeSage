@@ -1,6 +1,6 @@
 #!/bin/sh
 
-npx prisma migrate deploy
-npx nx seed prisma
-npx ts-node --swc --project packages/backend/tsconfig.json packages/backend/src/main.ts
+pnpm exec prisma migrate deploy
+pnpm exec nx seed prisma
+pnpm exec ts-node --swc --project packages/backend/tsconfig.json packages/backend/src/main.ts
 
