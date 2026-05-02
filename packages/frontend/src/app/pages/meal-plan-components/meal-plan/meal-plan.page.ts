@@ -552,7 +552,7 @@ export class MealPlanPage {
       component: AddRecipeToShoppingListModalPage,
       componentProps: {
         recipes: selectedRecipes,
-        scale: 1,
+        scale: "1",
       },
     });
 

@@ -153,7 +153,7 @@ export class RecipePage {
   ingredients?: ParsedIngredient[];
   instructions?: ParsedInstruction[];
   notes?: ParsedNote[];
-  scale = 1;
+  scale: string = "1";
   unitSystem: UnitSystem = "original";
 
   labelGroupIds: string[] = [];
@@ -219,7 +219,7 @@ export class RecipePage {
     this.recipeId = recipeId;
 
     this.scale =
-      this.recipeCompletionTrackerService.getRecipeScale(this.recipeId) || 1;
+      this.recipeCompletionTrackerService.getRecipeScale(this.recipeId) || "1";
 
     this.applyScale();
   }

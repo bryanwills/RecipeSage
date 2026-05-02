@@ -74,7 +74,7 @@ export class AddRecipeToShoppingListModalPage {
     required: true,
   })
   recipes!: Pick<RecipeSummary, "id" | "title" | "ingredients">[];
-  @Input() scale = 1;
+  @Input() scale: string = "1";
   selectedIngredientsByRecipe: { [key: string]: ParsedIngredient[] } = {};
   selectedIngredients: ParsedIngredient[] = [];
 

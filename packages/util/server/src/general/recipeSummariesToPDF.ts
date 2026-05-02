@@ -255,11 +255,11 @@ const recipeToSchema = async (
 
   const parsedInstructions = parseInstructions(
     sanitizeRemoveHtmlFromString(recipe.instructions || ""),
-    1,
+    "1",
   );
   const parsedIngredients = parseIngredients(
     sanitizeRemoveHtmlFromString(recipe.ingredients || ""),
-    1,
+    "1",
   );
   const parsedNotes = parseNotes(
     sanitizeRemoveHtmlFromString(recipe.notes || ""),
