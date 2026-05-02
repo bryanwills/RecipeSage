@@ -29,8 +29,6 @@ import {
   IonBackButton,
   IonTitle,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonThumbnail,
   IonItem,
   IonIcon,
@@ -67,8 +65,6 @@ import { addIcons } from "ionicons";
     IonBackButton,
     IonTitle,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonThumbnail,
     IonItem,
     IonIcon,
@@ -307,11 +303,6 @@ export class ProfilePage {
     });
     await alert.present();
     await alert.onDidDismiss();
-  }
-
-  async refresh(refresher: any) {
-    refresher.target.complete();
-    this.load();
   }
 
   async auth() {

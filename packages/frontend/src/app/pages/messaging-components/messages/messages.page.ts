@@ -20,8 +20,6 @@ import {
   IonMenuButton,
   IonTitle,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonList,
   IonItem,
   IonIcon,
@@ -48,8 +46,6 @@ import { addIcons } from "ionicons";
     IonMenuButton,
     IonTitle,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonList,
     IonItem,
     IonIcon,
@@ -87,17 +83,6 @@ export class MessagesPage {
 
   ionViewWillLeave() {
     this.websocketService.off("messages:new", this.loadThreads);
-  }
-
-  refresh(refresher: any) {
-    this.loadThreads().then(
-      () => {
-        refresher.target.complete();
-      },
-      () => {
-        refresher.target.complete();
-      },
-    );
   }
 
   loadThreadsWithProgress = () => {

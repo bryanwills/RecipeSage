@@ -29,8 +29,6 @@ import {
   IonIcon,
   IonTitle,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonList,
   IonItem,
   IonLabel,
@@ -67,8 +65,6 @@ import { addIcons } from "ionicons";
     IonIcon,
     IonTitle,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonList,
     IonItem,
     IonLabel,
@@ -115,12 +111,6 @@ export class LabelsPage {
   ionViewWillEnter() {
     this.clearSelectedLabels();
     this.loadWithBar();
-  }
-
-  refresh(refresher: any) {
-    this.load().finally(() => {
-      refresher.target.complete();
-    });
   }
 
   async load() {

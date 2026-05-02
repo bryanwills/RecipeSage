@@ -41,8 +41,6 @@ import {
   IonButton,
   IonIcon,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonList,
   IonListHeader,
   IonLabel,
@@ -95,8 +93,6 @@ const categoryTitlesToi18n: Record<string, string> = {
     IonButton,
     IonIcon,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonList,
     IonListHeader,
     IonLabel,
@@ -179,12 +175,6 @@ export class ShoppingListPage {
       this.loadList();
     }
   };
-
-  refresh(loader: any) {
-    this.loadList().finally(() => {
-      loader.target.complete();
-    });
-  }
 
   async loadMe() {
     const me = await this.serverActionsService.users.getMe();

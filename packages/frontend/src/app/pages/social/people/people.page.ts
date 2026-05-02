@@ -24,8 +24,6 @@ import {
   IonMenuButton,
   IonTitle,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonIcon,
   IonLabel,
   IonButton,
@@ -55,8 +53,6 @@ import { addIcons } from "ionicons";
     IonMenuButton,
     IonTitle,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonIcon,
     IonLabel,
     IonButton,
@@ -172,10 +168,5 @@ export class PeoplePage {
 
   async editProfile() {
     this.navCtrl.navigateForward(RouteMap.MyProfilePage.getPath());
-  }
-
-  async refresh(refresher: any) {
-    refresher.target.complete();
-    this.load();
   }
 }

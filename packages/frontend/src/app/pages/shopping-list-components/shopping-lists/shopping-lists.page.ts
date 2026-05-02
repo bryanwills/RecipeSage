@@ -23,8 +23,6 @@ import {
   IonButton,
   IonIcon,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonPopover,
   IonListHeader,
   IonList,
@@ -54,8 +52,6 @@ import { addIcons } from "ionicons";
     IonButton,
     IonIcon,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonPopover,
     IonListHeader,
     IonList,
@@ -99,11 +95,6 @@ export class ShoppingListsPage {
   ionViewWillLeave() {
     this.websocketService.off("shoppingList:received", this.loadLists);
     this.websocketService.off("shoppingList:removed", this.loadLists);
-  }
-
-  async refresh(refresher: any) {
-    await this.loadLists();
-    refresher.target.complete();
   }
 
   async loadMe() {

@@ -16,8 +16,6 @@ import {
   IonMenuButton,
   IonTitle,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonList,
   IonItem,
   IonIcon,
@@ -44,8 +42,6 @@ import { addIcons } from "ionicons";
     IonMenuButton,
     IonTitle,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonList,
     IonItem,
     IonIcon,
@@ -92,17 +88,6 @@ export class MealPlansPage {
   onWSEvent = () => {
     this.loadPlans();
   };
-
-  refresh(refresher: any) {
-    this.loadPlans().then(
-      () => {
-        refresher.target.complete();
-      },
-      () => {
-        refresher.target.complete();
-      },
-    );
-  }
 
   async loadMe() {
     const me = await this.serverActionsService.users.getMe();
