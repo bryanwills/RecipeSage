@@ -111,10 +111,10 @@ export class HomePage {
   selectedLabels: string[] = [];
 
   recipes: RecipeSummaryLite[] = [];
-  recipeFetchBuffer = 25;
+  recipeFetchBuffer = 100;
   fetchPerPage = 50;
-  lastRecipeCount = 0;
   totalRecipeCount?: number;
+  inFlightFetches = new Map<number, Promise<void>>();
 
   loading = true;
   selectedRecipeIds: string[] = [];
@@ -152,6 +152,9 @@ export class HomePage {
       }
 
       await this.fetchMoreRecipes(index + count);
+      this.fetchMoreRecipes(index + count + this.recipeFetchBuffer).catch(
+        () => {},
+      );
 
       const recipes = this.recipes.slice(index, index + count);
 
@@ -174,8 +177,8 @@ export class HomePage {
     settings: {
       minIndex: 0,
       startIndex: 0,
-      bufferSize: 25,
-      padding: 5,
+      bufferSize: 5,
+      padding: 0.5,
     },
   });
 
@@ -316,16 +319,19 @@ export class HomePage {
     }
   };
 
-  async fetchMoreRecipes(endIndex: number) {
+  async fetchMoreRecipes(target: number) {
     if (this.searchText) return;
+    if (this.totalRecipeCount === undefined) return;
 
-    while (
-      this.totalRecipeCount &&
-      this.lastRecipeCount < this.totalRecipeCount &&
-      this.lastRecipeCount < endIndex + this.recipeFetchBuffer
-    ) {
-      await this.loadRecipes(this.lastRecipeCount, this.fetchPerPage);
+    const limit = Math.min(target, this.totalRecipeCount);
+    const promises: Promise<void>[] = [];
+    for (let offset = 0; offset < limit; offset += this.fetchPerPage) {
+      if (this.recipes[offset] === undefined) {
+        promises.push(this.loadRecipes(offset));
+      }
     }
+
+    await Promise.all(promises);
   }
 
   async resetAndLoadAll(
@@ -372,7 +378,7 @@ export class HomePage {
     if (this.searchText && this.searchText.trim().length > 0) {
       await this.search(this.searchText, this.recipeLoadGeneration);
     } else {
-      await this.loadRecipes(0, this.fetchPerPage);
+      await this.loadRecipes(0);
     }
 
     const startIndex = scrollToLastPosition
@@ -385,8 +391,8 @@ export class HomePage {
   resetRecipes() {
     this.datasource.settings!.startIndex = 0;
     this.recipes = [];
-    this.lastRecipeCount = 0;
     this.totalRecipeCount = undefined;
+    this.inFlightFetches.clear();
   }
 
   isIncludeFriendsEnabled() {
@@ -398,7 +404,20 @@ export class HomePage {
     return includeAllFriends;
   }
 
-  async loadRecipes(offset: number, numToFetch: number) {
+  loadRecipes(offset: number): Promise<void> {
+    const existing = this.inFlightFetches.get(offset);
+    if (existing) return existing;
+
+    const promise = this.doLoadRecipes(offset).finally(() => {
+      if (this.inFlightFetches.get(offset) === promise) {
+        this.inFlightFetches.delete(offset);
+      }
+    });
+    this.inFlightFetches.set(offset, promise);
+    return promise;
+  }
+
+  async doLoadRecipes(offset: number) {
     const generation = this.recipeLoadGeneration;
 
     const sortPreference = this.preferences[MyRecipesPreferenceKey.SortBy];
@@ -411,7 +430,7 @@ export class HomePage {
         | "updatedAt",
       orderDirection: sortPreference.startsWith("-") ? "desc" : "asc",
       offset,
-      limit: numToFetch,
+      limit: this.fetchPerPage,
       labels: this.selectedLabels.length ? this.selectedLabels : undefined,
       labelIntersection:
         this.preferences[MyRecipesPreferenceKey.EnableLabelIntersection],
@@ -420,12 +439,13 @@ export class HomePage {
       userIds: this.userId ? [this.userId] : undefined,
     });
 
-    if (!result) return;
     if (this.recipeLoadGeneration !== generation) return;
+    if (!result) throw new Error(`Failed to load recipes at offset ${offset}`);
 
-    this.lastRecipeCount += numToFetch;
     this.totalRecipeCount = result.totalCount;
-    this.recipes = this.recipes.concat(result.recipes);
+    for (let i = 0; i < result.recipes.length; i++) {
+      this.recipes[offset + i] = result.recipes[i];
+    }
   }
 
   async loadLabels() {

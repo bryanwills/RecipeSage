@@ -137,13 +137,22 @@
                   recipe.recipeImages.length > 0 &&
                   preferences[preferenceKeys.ShowImages]
                 ) {
-                  <img [src]="recipe.recipeImages[0].image.location" />
+                  <img
+                    loading="lazy"
+                    decoding="async"
+                    [src]="recipe.recipeImages[0].image.location"
+                  />
                 }
                 @if (
                   (!recipe.recipeImages || !recipe.recipeImages.length) &&
                   preferences[preferenceKeys.ShowImages]
                 ) {
-                  <img class="no-image" src="assets/imgs/logo_green.png" />
+                  <img
+                    loading="lazy"
+                    decoding="async"
+                    class="no-image"
+                    src="assets/imgs/logo_green.png"
+                  />
                 }
                 <div class="recipe-card-content">
                   @if (!preferences[preferenceKeys.ShowImages]) {
@@ -250,13 +259,22 @@
             recipe.recipeImages.length > 0 &&
             preferences[preferenceKeys.ShowImages]
           ) {
-            <img [src]="recipe.recipeImages[0].image.location" />
+            <img
+              loading="lazy"
+              decoding="async"
+              [src]="recipe.recipeImages[0].image.location"
+            />
           }
           @if (
             (!recipe.recipeImages || !recipe.recipeImages.length) &&
             preferences[preferenceKeys.ShowImages]
           ) {
-            <img class="no-image" src="assets/imgs/logo_green.png" />
+            <img
+              loading="lazy"
+              decoding="async"
+              class="no-image"
+              src="assets/imgs/logo_green.png"
+            />
           }
           @if (!preferences[preferenceKeys.ShowImages]) {
             <div></div>
