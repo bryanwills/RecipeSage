@@ -1,3 +1,5 @@
+import { SupportedLanguages } from '@recipesage/util/shared';
+
 export const DEFAULT_LOCALE = "en-us";
 
 export const LOCALE_NAMES: Record<string, string> = {
@@ -24,7 +26,7 @@ export const LOCALE_NAMES: Record<string, string> = {
   sv: "Svenska",
   "uk-ua": "Українська",
   "zh-cn": "中文 (简体)",
-};
+} satisfies Record<SupportedLanguages, string>;
 
 const i18nModules = import.meta.glob<Record<string, string>>(
   "../../../frontend/src/assets/i18n/*.json",
