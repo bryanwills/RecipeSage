@@ -653,7 +653,6 @@
     "pages.account.stats.recipeCount": "Contagem de receitas",
     "pages.account.stats.createdAt": "Conta criada",
     "pages.account.stats.lastLogin": "Último login",
-    "pages.credits.limitReached": "Limite diário atingido para recortes, importações e assistente de culinária (desculpe, eles são caros!). Os créditos de culinária são redefinidos às 0:00GMT. Considere contribuir para obter uma cota diária maior.",
     "pages.account.bonus.moreUsageCredits": "Cota diária maior de créditos de culinária",
     "pages.account.bonus.enabled": "Ativado",
     "pages.account.bonus.notEnabled": "Não ativado",
