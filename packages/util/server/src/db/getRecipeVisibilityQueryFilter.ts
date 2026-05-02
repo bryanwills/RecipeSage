@@ -55,6 +55,7 @@ export const getRecipeVisibilityQueryFilter = async (args: {
     {} as { [key: string]: ProfileItem[] },
   );
 
+  const allRecipesUserIds: string[] = [];
   const queryFilters: Prisma.RecipeWhereInput[] = [];
   for (const userId of userIds) {
     const isContextUser = contextUserId && userId === contextUserId;
@@ -65,36 +66,46 @@ export const getRecipeVisibilityQueryFilter = async (args: {
     );
 
     if (isContextUser || isSharingAll) {
-      queryFilters.push({
-        userId,
+      allRecipesUserIds.push(userId);
+      continue;
+    }
+
+    const sharedLabelIds = profileItemsForUser
+      .filter((profileItem) => profileItem.type === "label")
+      .map((profileItem) => profileItem.labelId)
+      .filter((labelId): labelId is string => !!labelId);
+
+    const sharedRecipeIds = profileItemsForUser
+      .filter((profileItem) => profileItem.type === "recipe")
+      .map((profileItem) => profileItem.recipeId)
+      .filter((recipeId): recipeId is string => !!recipeId);
+
+    const userOrFilters: Prisma.RecipeWhereInput[] = [];
+
+    if (sharedLabelIds.length) {
+      userOrFilters.push({
+        recipeLabels: {
+          some: {
+            labelId: { in: sharedLabelIds },
+          },
+        },
       });
     }
 
-    profileItemsForUser
-      .filter((profileItem) => profileItem.type === "label")
-      .map((profileItem) => profileItem.labelId)
-      .filter((labelId): labelId is string => !!labelId)
-      .forEach((labelId) => {
-        queryFilters.push({
-          userId,
-          recipeLabels: {
-            some: {
-              labelId,
-            },
-          },
-        });
-      });
+    if (sharedRecipeIds.length) {
+      userOrFilters.push({ id: { in: sharedRecipeIds } });
+    }
 
-    profileItemsForUser
-      .filter((profileItem) => profileItem.type === "recipe")
-      .map((profileItem) => profileItem.recipeId)
-      .filter((recipeId): recipeId is string => !!recipeId)
-      .forEach((recipeId) => {
-        queryFilters.push({
-          userId,
-          id: recipeId,
-        });
+    if (userOrFilters.length) {
+      queryFilters.push({
+        userId,
+        OR: userOrFilters,
       });
+    }
+  }
+
+  if (allRecipesUserIds.length) {
+    queryFilters.push({ userId: { in: allRecipesUserIds } });
   }
 
   return queryFilters;
