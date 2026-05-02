@@ -841,7 +841,7 @@
     "components.selectCollaborators.placeholder": "Ajouter des collaborateurs par adresse email",
     "generic.ok": "Ok",
     "services.unsavedChanges.message": "Il semble que vous ayez modifié quelque chose. Si vous quittez avant de sauvegarder, vos modifications seront perdues.",
-    "pages.manageLabelGroupModal.labels.noSelectedItems": "PAs d'étiquette sélectionnée",
+    "pages.manageLabelGroupModal.labels.noSelectedItems": "Pas d'étiquette sélectionnée",
     "components.selectMultipleItems.noSelected": "Pas d'élément sélectionné",
     "pages.editRecipe.input.labels.noSelectedItems": "Pas d'étiquette sélectionnée",
     "pages.editRecipe.input.labels.noItems": "Aucune étiquette. Tapez pour créer une étiquette",

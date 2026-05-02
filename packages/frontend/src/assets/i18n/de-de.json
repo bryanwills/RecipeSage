@@ -1202,5 +1202,9 @@
     "components.scaleRecipe.systemLabel": "Einheiten",
     "components.scaleRecipe.system.original": "Original",
     "components.scaleRecipe.system.metric": "Metrisch",
-    "components.scaleRecipe.system.imperial": "Imperial"
+    "components.scaleRecipe.system.imperial": "Imperial",
+    "pages.app.nav.docs": "Dokumentation",
+    "pages.app.nav.github": "GitHub",
+    "pages.app.nav.pricing": "Preise",
+    "pages.app.nav.legal": "Rechtliche Hinweise"
 }
