@@ -7,6 +7,8 @@ import { unitNames, parseUnit } from "./units";
 const FractionJS =
   _FractionJS || (FractionJSModule as unknown as typeof _FractionJS);
 
+type Fraction = InstanceType<typeof FractionJS>;
+
 // Feature detection for negative lookahead support (needed for older Safari/browsers)
 let supportsNegativeLookahead = true;
 try {
@@ -350,14 +352,18 @@ const nearestCleanFraction = (
 
 /**
  * Try to use unitz-ts to switch units when the scaled value is awkwardly
- * small or large in its original unit. Returns the full "value unit" string
- * only when unitz-ts chose a different unit group (e.g. cup -> tsp) and
- * produced a clean, fraction-or-integer output (no decimal point). Otherwise
- * returns null so the caller can fall back to the user's original unit.
+ * small in its original unit (e.g. 0.0625 cup -> 1 tbsp). Returns the full
+ * "value unit" string only when:
+ *  - the scaled value in the original unit is less than 1 (otherwise the
+ *    user's chosen unit can render the value just fine, and switching e.g.
+ *    80.04 g into 80040 mg is a worse experience),
+ *  - unitz-ts chose a different unit group, and
+ *  - the output is a clean integer or cooking fraction (no decimal point).
+ * Otherwise returns null so the caller can fall back to the user's unit.
  */
 const tryUnitzSwitch = (
   fullMeasurement: string,
-  scale: number,
+  scale: Fraction,
 ): string | null => {
   try {
     const base = parseUnit(fullMeasurement);
@@ -365,7 +371,12 @@ const tryUnitzSwitch = (
     const baseGroup = base.ranges[0].min.group;
     if (!baseGroup) return null;
 
-    const scaled = base.scale(scale).fractions().normalize();
+    const scaledInBaseUnit = Math.abs(
+      base.ranges[0].min.value * scale.valueOf(),
+    );
+    if (scaledInBaseUnit >= 1) return null;
+
+    const scaled = base.scale(scale.valueOf()).fractions().normalize();
     if (!scaled.isValid || scaled.ranges.length === 0) return null;
     const scaledValue = scaled.ranges[0].min;
     if (!scaledValue.group) return null;
@@ -396,7 +407,7 @@ const tryUnitzSwitch = (
  */
 const tryUnitzSystemConvert = (
   fullMeasurement: string,
-  scale: number,
+  scale: Fraction,
   targetSystem: System,
 ): string | null => {
   try {
@@ -409,7 +420,7 @@ const tryUnitzSystemConvert = (
     if (baseSystem === System.ANY || baseSystem === System.NONE) return null;
     if (baseSystem === targetSystem) return null;
 
-    const scaled = base.scale(scale).fractions().normalize({
+    const scaled = base.scale(scale.valueOf()).fractions().normalize({
       system: targetSystem,
     });
     if (!scaled.isValid || scaled.ranges.length === 0) return null;
@@ -426,15 +437,48 @@ const tryUnitzSystemConvert = (
 };
 
 /**
+ * Format `frac` as a decimal string. When the value's natural string form
+ * has 3 or fewer decimal places (e.g. 80.04, 7.5, 10.2), we emit it exactly.
+ * Otherwise (e.g. 0.21428571428571427) we round to 3 decimal places and
+ * prefix with "~" to flag the rounding. Numbers in scientific notation
+ * (very small/large) are treated as needing rounding.
+ */
+const formatAsDecimal = (frac: Fraction): string => {
+  const value = frac.valueOf();
+  const str = value.toString();
+  const decimals = str.includes("e")
+    ? Infinity
+    : (str.split(".")[1]?.length ?? 0);
+  if (decimals <= 3) return str;
+  return "~" + parseFloat(value.toFixed(3)).toString();
+};
+
+/**
+ * True when `fullMeasurement` parses to a unit whose group is in System.METRIC
+ * (g, kg, mg, ml, l, etc.). We pick decimal output for these because cooks
+ * read metric values as decimals (80.04 g, 1.5 L), not cooking fractions
+ * (80 1/16 g).
+ */
+const isMetricMeasurement = (fullMeasurement: string): boolean => {
+  try {
+    const base = parseUnit(fullMeasurement);
+    if (!base.isValid || base.ranges.length === 0) return false;
+    const group = base.ranges[0].min.group;
+    return group?.system === System.METRIC;
+  } catch {
+    return false;
+  }
+};
+
+/**
  * Format a scaled-by-FractionJS value for display inside an ingredient line.
  *
  * Pipeline:
  *  - If the user originally wrote a decimal, always emit a decimal. Decimal
  *    in -> decimal out; we never convert decimals into cooking fractions.
- *    When the value's natural string form has 3 or fewer decimal places
- *    (e.g. 1.7 * 6 = 10.2), we emit it exactly. Otherwise (e.g. 1.5 * 1/7
- *    = 0.21428571428571427), we round to 3 decimal places and prefix with
- *    "~" to flag the rounding.
+ *  - Else if the matched unit is metric (g, kg, mg, ml, l, ...), emit a
+ *    decimal too. Cooks read metric values as decimals; "80 1/16 g" or
+ *    "1 1/2 L" are awkward whereas "80.04 g" / "1.5 L" are natural.
  *  - Else if the scaled fraction has a clean cooking denominator, emit it as
  *    a mixed fraction with the user's original unit preserved upstream.
  *  - Else if unitz-ts can parse the full measurement and switch to a smaller
@@ -450,7 +494,7 @@ const tryUnitzSystemConvert = (
 const formatScaledMeasurementPart = (
   originalNumberText: string,
   fullMeasurement: string | null,
-  scale: number,
+  scale: Fraction,
   targetSystem?: System,
 ): { formatted: string; replacesUnit: boolean } => {
   const trimmedOriginal = originalNumberText.trim();
@@ -473,23 +517,17 @@ const formatScaledMeasurementPart = (
 
   // A scale of 1 is a view-only operation; preserve the user's original
   // notation rather than normalising decimals to fractions (or vice versa).
-  if (scale === 1) {
+  if (scale.equals(1)) {
     return { formatted: trimmedOriginal, replacesUnit: false };
   }
 
   const frac = new FractionJS(trimmedOriginal).mul(scale);
 
-  if (trimmedOriginal.includes(".")) {
-    const value = frac.valueOf();
-    const str = value.toString();
-    const decimals = str.includes("e")
-      ? Infinity
-      : (str.split(".")[1]?.length ?? 0);
-    if (decimals <= 3) {
-      return { formatted: str, replacesUnit: false };
-    }
-    const rounded = parseFloat(value.toFixed(3)).toString();
-    return { formatted: "~" + rounded, replacesUnit: false };
+  const wantsDecimal =
+    trimmedOriginal.includes(".") ||
+    (fullMeasurement !== null && isMetricMeasurement(fullMeasurement));
+  if (wantsDecimal) {
+    return { formatted: formatAsDecimal(frac), replacesUnit: false };
   }
 
   const denominator = Number(frac.d);
@@ -534,7 +572,7 @@ interface BracePlaceholders {
 
 const extractBracesForIngredientLine = (
   lineText: string,
-  scale: number,
+  scale: Fraction,
   targetSystem?: System,
 ): { withPlaceholders: string; placeholders: BracePlaceholders } => {
   const placeholders: BracePlaceholders = { plain: [], html: [] };
@@ -584,7 +622,7 @@ const restoreBracePlaceholders = (
 
 export const parseIngredients = (
   ingredients: string,
-  scale: number,
+  scale: string,
   targetSystem?: System,
 ): {
   content: string;
@@ -597,12 +635,14 @@ export const parseIngredients = (
 }[] => {
   if (!ingredients) return [];
 
+  const scaleFrac = new FractionJS(scale);
+
   ingredients = replaceFractionsInText(ingredients);
 
   const lines = ingredients.split(lineSplitRegex).map((match) => {
     const { withPlaceholders, placeholders } = extractBracesForIngredientLine(
       match,
-      scale,
+      scaleFrac,
       targetSystem,
     );
     return {
@@ -659,7 +699,7 @@ export const parseIngredients = (
           const unitMatch = ingredientParts[idx].match(
             new RegExp(measurementQuantityRegExp.source, "i"),
           );
-          const fullMeasurementForUnitz =
+          const fullMeasurement =
             !isRange && unitMatch ? unitMatch[0].trim() : null;
           const unitTokenOnly =
             unitMatch && unitMatch[1]
@@ -677,7 +717,7 @@ export const parseIngredients = (
             const convertedEndpoints = measurementParts.map((part) =>
               tryUnitzSystemConvert(
                 `${part.trim()} ${unitTokenOnly}`,
-                scale,
+                scaleFrac,
                 targetSystem,
               ),
             );
@@ -701,8 +741,8 @@ export const parseIngredients = (
           const scaledParts = measurementParts.map((part) => {
             const { formatted, replacesUnit } = formatScaledMeasurementPart(
               part,
-              fullMeasurementForUnitz,
-              scale,
+              fullMeasurement,
+              scaleFrac,
               targetSystem,
             );
             if (replacesUnit) unitReplacement = formatted;
@@ -807,7 +847,7 @@ const measurementBracePattern = new RegExp(
  */
 const scaleBraceContent = (
   rawContent: string,
-  scale: number,
+  scale: Fraction,
   htmlOutput: boolean,
   htmlClassName: string,
   targetSystem?: System,
@@ -826,14 +866,14 @@ const scaleBraceContent = (
   const measurementParts = numberText.split(/-|to/);
   const isRange = measurementParts.length > 1;
 
-  const fullMeasurementForUnitz = !isRange && hasUnit ? trimmed : null;
+  const fullMeasurement = !isRange && hasUnit ? trimmed : null;
 
   try {
     let unitReplacement: string | null = null;
     const scaledParts = measurementParts.map((part) => {
       const { formatted, replacesUnit } = formatScaledMeasurementPart(
         part,
-        fullMeasurementForUnitz,
+        fullMeasurement,
         scale,
         targetSystem,
       );
@@ -871,7 +911,7 @@ const scaleBraceContent = (
  */
 const scaleBracesInText = (
   text: string,
-  scale: number,
+  scale: Fraction,
   htmlOutput: boolean,
   htmlClassName: string,
   targetSystem?: System,
@@ -889,7 +929,7 @@ const scaleBracesInText = (
 
 export const parseInstructions = (
   instructions: string,
-  scale: number,
+  scale: string,
   targetSystem?: System,
   images?: InlineImageRef[],
 ): {
@@ -901,18 +941,20 @@ export const parseInstructions = (
   complete: boolean;
   isRtl: boolean;
 }[] => {
+  const scaleFrac = new FractionJS(scale);
+
   instructions = replaceFractionsInText(instructions);
 
   const plainInstructions = scaleBracesInText(
     instructions,
-    scale,
+    scaleFrac,
     false,
     "instructionMeasurement",
     targetSystem,
   );
   const htmlInstructions = scaleBracesInText(
     instructions,
-    scale,
+    scaleFrac,
     true,
     "instructionMeasurement",
     targetSystem,
@@ -1071,22 +1113,24 @@ const parseTableBlock = (
 
 export const parseNotes = (
   notes: string,
-  scale = 1,
+  scale = "1",
   targetSystem?: System,
   images?: InlineImageRef[],
 ): ParsedNote[] => {
+  const scaleFrac = new FractionJS(scale);
+
   notes = replaceFractionsInText(notes);
 
   const plainNotes = scaleBracesInText(
     notes,
-    scale,
+    scaleFrac,
     false,
     "noteMeasurement",
     targetSystem,
   );
   const htmlNotes = scaleBracesInText(
     notes,
-    scale,
+    scaleFrac,
     true,
     "noteMeasurement",
     targetSystem,

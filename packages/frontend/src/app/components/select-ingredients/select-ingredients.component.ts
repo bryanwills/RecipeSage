@@ -23,7 +23,7 @@ export class SelectIngredientsComponent {
   allSelected = true;
   ingredientBinders: { [index: number]: boolean } = {};
   scaledIngredients: ParsedIngredient[] = [];
-  scale = 1;
+  scale: string = "1";
 
   _ingredients!: string;
   @Input({
@@ -47,7 +47,7 @@ export class SelectIngredientsComponent {
   @Output() selectedIngredientsChange = new EventEmitter();
 
   @Input()
-  set initialScale(val: number) {
+  set initialScale(val: string) {
     this.scale = val;
     this.applyScale();
   }
@@ -56,7 +56,7 @@ export class SelectIngredientsComponent {
     const modal = await this.modalCtrl.create({
       component: ScaleRecipeComponent,
       componentProps: {
-        scale: this.scale.toString(),
+        scale: this.scale,
       },
       cssClass: "scaleRecipeModal",
     });

@@ -56,7 +56,10 @@ export const printRecipeHandler = defineHandler(
       ? res.locals.session.userId === recipe.userId
       : false;
 
-    const scale = parseFloat(req.query.scale || "1");
+    const scale =
+      typeof req.query.scale === "string" && req.query.scale.trim()
+        ? req.query.scale
+        : "1";
 
     const modifiers = {
       version: req.query.version,

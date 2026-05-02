@@ -44,17 +44,15 @@ export class ScaleRecipeComponent {
   @Input() scale: string = "1";
   @Input() unitSystem: UnitSystem = "original";
 
-  format(input: string) {
-    // Support fractions
-    const parsed = fractionjs(input).valueOf();
-
-    // Trim long/repeating decimals
-    let rounded = Number(parsed.toFixed(3));
-
-    // Check for falsy values
-    if (!rounded || rounded <= 0) rounded = 1;
-
-    return rounded;
+  format(input: string): string {
+    const trimmed = input.trim();
+    try {
+      const parsed = fractionjs(trimmed);
+      if (parsed.valueOf() <= 0) return "1";
+      return trimmed;
+    } catch {
+      return "1";
+    }
   }
 
   close() {

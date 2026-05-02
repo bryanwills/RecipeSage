@@ -181,7 +181,7 @@ export class RecipeService {
 
   parseIngredients(
     ingredients: string,
-    scale: number,
+    scale: string,
     targetSystem?: System,
   ): ParsedIngredient[] {
     return parseIngredients(ingredients, scale, targetSystem);
@@ -189,7 +189,7 @@ export class RecipeService {
 
   parseInstructions(
     instructions: string,
-    scale: number,
+    scale: string,
     targetSystem?: System,
     images?: { url: string }[],
   ): ParsedInstruction[] {
@@ -198,7 +198,7 @@ export class RecipeService {
 
   parseNotes(
     notes: string,
-    scale: number,
+    scale: string,
     targetSystem?: System,
     images?: { url: string }[],
   ): ParsedNote[] {

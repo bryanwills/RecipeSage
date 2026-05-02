@@ -62,7 +62,7 @@ export class PrintRecipeModalPage {
   @Input({
     required: true,
   })
-  scale!: number;
+  scale!: string;
 
   selectedTemplate = -1;
   templates: PrintOption[] = [];
