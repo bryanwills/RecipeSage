@@ -104,6 +104,7 @@ const finalStructuredData = structuredData ?? defaultStructuredData;
 <!doctype html>
 <html lang={htmlLang} dir="ltr">
   <head>
+    <slot name="head" />
     <script is:inline define:vars={{ redirectLoggedIn }}>
       (function () {
         if (location.hash.startsWith("#/")) {
