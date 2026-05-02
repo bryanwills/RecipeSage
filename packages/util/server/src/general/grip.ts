@@ -13,30 +13,30 @@ export const serveGrip = new ServeGrip({
   ],
 });
 
-export enum WSBoardcastEventType {
+export enum WSBroadcastEventType {
   MealPlanUpdated = "mealplan:updated",
   ShoppingListUpdated = "shoppinglist:updated",
   JobUpdated = "job:updated",
 }
 
-export type WSBoardcastEventData = {
-  [WSBoardcastEventType.MealPlanUpdated]: {
+export type WSBroadcastEventData = {
+  [WSBroadcastEventType.MealPlanUpdated]: {
     reference: string;
     mealPlanId: string;
   };
-  [WSBoardcastEventType.ShoppingListUpdated]: {
+  [WSBroadcastEventType.ShoppingListUpdated]: {
     reference: string;
     shoppingListId: string;
   };
-  [WSBoardcastEventType.JobUpdated]: {
+  [WSBroadcastEventType.JobUpdated]: {
     jobId: string;
   };
 };
 
-export const broadcastWSEvent = async function <T extends WSBoardcastEventType>(
+export const broadcastWSEvent = async function <T extends WSBroadcastEventType>(
   channel: string,
   type: T,
-  data: WSBoardcastEventData[T],
+  data: WSBroadcastEventData[T],
 ) {
   if (process.env.NODE_ENV === "test") return;
 
@@ -57,8 +57,8 @@ export const broadcastWSEvent = async function <T extends WSBoardcastEventType>(
 };
 
 export const broadcastWSEventIgnoringErrors = async function <
-  T extends WSBoardcastEventType,
->(channel: string, type: T, data: WSBoardcastEventData[T]) {
+  T extends WSBroadcastEventType,
+>(channel: string, type: T, data: WSBroadcastEventData[T]) {
   try {
     await broadcastWSEvent(channel, type, data);
   } catch (e) {

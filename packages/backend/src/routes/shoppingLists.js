@@ -16,7 +16,6 @@ import {
 
 // Service
 import * as MiddlewareService from "../services/middleware.js";
-import { broadcastWSEventIgnoringErrors } from "@recipesage/util/server/general";
 import * as ShoppingListCategorizerService from "../services/shopping-list-categorizer.js";
 import { joiValidator } from "../middleware/joiValidator.js";
 
@@ -52,21 +51,6 @@ router.post(
 
       return shoppingList;
     });
-
-    for (let i = 0; i < (req.body.collaborators || []).length; i++) {
-      broadcastWSEventIgnoringErrors(
-        req.body.collaborators[i],
-        "shoppingList:received",
-        {
-          shoppingListId: shoppingList.id,
-          from: {
-            id: res.locals.user.id,
-            name: res.locals.user.name,
-            handle: res.locals.user.handle,
-          },
-        },
-      );
-    }
 
     res.status(200).json(shoppingList);
   }),
@@ -185,33 +169,8 @@ router.post(
       })),
     );
 
-    const reference = Date.now();
-
-    const broadcastPayload = {
-      shoppingListId: shoppingList.id,
-      updatedBy: {
-        id: res.locals.user.id,
-        name: res.locals.user.name,
-        handle: res.locals.user.handle,
-      },
-      reference,
-    };
-
-    broadcastWSEventIgnoringErrors(
-      shoppingList.userId,
-      "shoppingList:itemsUpdated",
-      broadcastPayload,
-    );
-    for (let i = 0; i < shoppingList.collaborators.length; i++) {
-      broadcastWSEventIgnoringErrors(
-        shoppingList.collaborators[i].id,
-        "shoppingList:itemsUpdated",
-        broadcastPayload,
-      );
-    }
-
     res.status(200).json({
-      reference,
+      reference: Date.now(),
     });
   }),
 );
@@ -246,21 +205,6 @@ router.delete(
 
     if (shoppingList.userId === res.locals.session.userId) {
       await shoppingList.destroy();
-
-      for (let i = 0; i < (shoppingList.collaborators || []).length; i++) {
-        broadcastWSEventIgnoringErrors(
-          shoppingList.collaborators[i],
-          "shoppingList:removed",
-          {
-            shoppingListId: shoppingList.id,
-            updatedBy: {
-              id: res.locals.user.id,
-              name: res.locals.user.name,
-              handle: res.locals.user.handle,
-            },
-          },
-        );
-      }
     } else {
       await shoppingList.removeCollaborator(res.locals.session.userId);
     }
@@ -308,33 +252,8 @@ router.delete(
       },
     });
 
-    const reference = Date.now();
-
-    const deletedItemBroadcast = {
-      shoppingListId: shoppingList.id,
-      updatedBy: {
-        id: res.locals.user.id,
-        name: res.locals.user.name,
-        handle: res.locals.user.handle,
-      },
-      reference,
-    };
-
-    broadcastWSEventIgnoringErrors(
-      shoppingList.userId,
-      "shoppingList:itemsUpdated",
-      deletedItemBroadcast,
-    );
-    for (let i = 0; i < shoppingList.collaborators.length; i++) {
-      broadcastWSEventIgnoringErrors(
-        shoppingList.collaborators[i].id,
-        "shoppingList:itemsUpdated",
-        deletedItemBroadcast,
-      );
-    }
-
     res.status(200).json({
-      reference,
+      reference: Date.now(),
     });
   }),
 );
@@ -499,33 +418,8 @@ router.put(
       },
     );
 
-    const reference = Date.now();
-
-    const broadcast = {
-      shoppingListId: shoppingList.id,
-      updatedBy: {
-        id: res.locals.user.id,
-        name: res.locals.user.name,
-        handle: res.locals.user.handle,
-      },
-      reference,
-    };
-
-    broadcastWSEventIgnoringErrors(
-      shoppingList.userId,
-      "shoppingList:itemsUpdated",
-      broadcast,
-    );
-    for (let i = 0; i < shoppingList.collaborators.length; i++) {
-      broadcastWSEventIgnoringErrors(
-        shoppingList.collaborators[i].id,
-        "shoppingList:itemsUpdated",
-        broadcast,
-      );
-    }
-
     res.status(200).json({
-      reference,
+      reference: Date.now(),
     });
   }),
 );

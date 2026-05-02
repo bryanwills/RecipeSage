@@ -159,11 +159,11 @@ export class ShoppingListPage {
       loading.dismiss();
     });
 
-    this.websocketService.on("shoppingList:itemsUpdated", this.onWSEvent);
+    this.websocketService.on("shoppinglist:updated", this.onWSEvent);
   }
 
   ionViewWillLeave() {
-    this.websocketService.off("shoppingList:itemsUpdated", this.onWSEvent);
+    this.websocketService.off("shoppinglist:updated", this.onWSEvent);
   }
 
   onWSEvent = (data: Record<string, string>) => {

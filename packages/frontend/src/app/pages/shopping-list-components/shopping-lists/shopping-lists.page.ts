@@ -88,13 +88,11 @@ export class ShoppingListsPage {
       loading.dismiss();
     });
 
-    this.websocketService.on("shoppingList:received", this.loadLists);
-    this.websocketService.on("shoppingList:removed", this.loadLists);
+    this.websocketService.on("shoppinglist:updated", this.loadLists);
   }
 
   ionViewWillLeave() {
-    this.websocketService.off("shoppingList:received", this.loadLists);
-    this.websocketService.off("shoppingList:removed", this.loadLists);
+    this.websocketService.off("shoppinglist:updated", this.loadLists);
   }
 
   async loadMe() {

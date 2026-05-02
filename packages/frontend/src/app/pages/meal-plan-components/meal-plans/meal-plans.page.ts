@@ -76,13 +76,11 @@ export class MealPlansPage {
       loading.dismiss();
     });
 
-    this.websocketService.on("mealPlan:received", this.onWSEvent);
-    this.websocketService.on("mealPlan:removed", this.onWSEvent);
+    this.websocketService.on("mealplan:updated", this.onWSEvent);
   }
 
   ionViewWillLeave() {
-    this.websocketService.off("mealPlan:received", this.onWSEvent);
-    this.websocketService.off("mealPlan:removed", this.onWSEvent);
+    this.websocketService.off("mealplan:updated", this.onWSEvent);
   }
 
   onWSEvent = () => {

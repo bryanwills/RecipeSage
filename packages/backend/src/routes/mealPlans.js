@@ -17,7 +17,6 @@ import {
 
 // Service
 import * as MiddlewareService from "../services/middleware.js";
-import { broadcastWSEventIgnoringErrors } from "@recipesage/util/server/general";
 
 // Util
 import { wrapRequestWithErrorHandler } from "../utils/wrapRequestWithErrorHandler.js";
@@ -46,21 +45,6 @@ router.post(
 
       return mealPlan;
     });
-
-    for (let i = 0; i < (req.body.collaborators || []).length; i++) {
-      broadcastWSEventIgnoringErrors(
-        req.body.collaborators[i],
-        "mealPlan:received",
-        {
-          mealPlanId: mealPlan.id,
-          from: {
-            id: res.locals.user.id,
-            name: res.locals.user.name,
-            handle: res.locals.user.handle,
-          },
-        },
-      );
-    }
 
     res.status(200).json(mealPlan);
   }),
@@ -182,33 +166,8 @@ router.post(
       mealPlanId: mealPlan.id,
     });
 
-    const reference = Date.now();
-
-    const broadcastPayload = {
-      mealPlanId: mealPlan.id,
-      updatedBy: {
-        id: res.locals.user.id,
-        name: res.locals.user.name,
-        handle: res.locals.user.handle,
-      },
-      reference,
-    };
-
-    broadcastWSEventIgnoringErrors(
-      mealPlan.userId,
-      "mealPlan:itemsUpdated",
-      broadcastPayload,
-    );
-    for (let i = 0; i < mealPlan.collaborators.length; i++) {
-      broadcastWSEventIgnoringErrors(
-        mealPlan.collaborators[i].id,
-        "mealPlan:itemsUpdated",
-        broadcastPayload,
-      );
-    }
-
     res.status(200).json({
-      reference,
+      reference: Date.now(),
     });
   }),
 );
@@ -243,20 +202,6 @@ router.delete(
 
     if (mealPlan.userId === res.locals.session.userId) {
       await mealPlan.destroy();
-      for (let i = 0; i < (mealPlan.collaborators || []).length; i++) {
-        broadcastWSEventIgnoringErrors(
-          mealPlan.collaborators[i],
-          "mealPlan:removed",
-          {
-            mealPlanId: mealPlan.id,
-            updatedBy: {
-              id: res.locals.user.id,
-              name: res.locals.user.name,
-              handle: res.locals.user.handle,
-            },
-          },
-        );
-      }
     } else {
       await mealPlan.removeCollaborator(res.locals.session.userId);
     }
@@ -300,33 +245,8 @@ router.delete(
       },
     });
 
-    const reference = Date.now();
-
-    const deletedItemBroadcast = {
-      mealPlanId: mealPlan.id,
-      updatedBy: {
-        id: res.locals.user.id,
-        name: res.locals.user.name,
-        handle: res.locals.user.handle,
-      },
-      reference,
-    };
-
-    broadcastWSEventIgnoringErrors(
-      mealPlan.userId,
-      "mealPlan:itemsUpdated",
-      deletedItemBroadcast,
-    );
-    for (let i = 0; i < mealPlan.collaborators.length; i++) {
-      broadcastWSEventIgnoringErrors(
-        mealPlan.collaborators[i].id,
-        "mealPlan:itemsUpdated",
-        deletedItemBroadcast,
-      );
-    }
-
     res.status(200).json({
-      reference,
+      reference: Date.now(),
     });
   }),
 );
@@ -338,7 +258,7 @@ router.put(
   MiddlewareService.validateSession(["user"]),
   MiddlewareService.validateUser,
   wrapRequestWithErrorHandler(async (req, res) => {
-    const mealPlan = await sequelize.transaction(async (transaction) => {
+    await sequelize.transaction(async (transaction) => {
       const mealPlan = await MealPlan.findOne({
         where: {
           id: req.params.mealPlanId,
@@ -378,37 +298,10 @@ router.put(
           },
         );
       }
-
-      return mealPlan;
     });
 
-    const reference = Date.now();
-
-    const updateBroadcast = {
-      mealPlanId: mealPlan.id,
-      updatedBy: {
-        id: res.locals.user.id,
-        name: res.locals.user.name,
-        handle: res.locals.user.handle,
-      },
-      reference,
-    };
-
-    broadcastWSEventIgnoringErrors(
-      mealPlan.userId,
-      "mealPlan:itemsUpdated",
-      updateBroadcast,
-    );
-    for (let i = 0; i < mealPlan.collaborators.length; i++) {
-      broadcastWSEventIgnoringErrors(
-        mealPlan.collaborators[i].id,
-        "mealPlan:itemsUpdated",
-        updateBroadcast,
-      );
-    }
-
     res.status(200).json({
-      reference,
+      reference: Date.now(),
     });
   }),
 );
@@ -420,7 +313,7 @@ router.post(
   MiddlewareService.validateSession(["user"]),
   MiddlewareService.validateUser,
   wrapRequestWithErrorHandler(async (req, res) => {
-    const mealPlan = await sequelize.transaction(async (transaction) => {
+    await sequelize.transaction(async (transaction) => {
       const mealPlan = await MealPlan.findOne({
         where: {
           id: req.params.mealPlanId,
@@ -456,37 +349,10 @@ router.post(
           transaction,
         },
       );
-
-      return mealPlan;
     });
 
-    const reference = Date.now();
-
-    const updateBroadcast = {
-      mealPlanId: mealPlan.id,
-      updatedBy: {
-        id: res.locals.user.id,
-        name: res.locals.user.name,
-        handle: res.locals.user.handle,
-      },
-      reference,
-    };
-
-    broadcastWSEventIgnoringErrors(
-      mealPlan.userId,
-      "mealPlan:itemsUpdated",
-      updateBroadcast,
-    );
-    for (let i = 0; i < mealPlan.collaborators.length; i++) {
-      broadcastWSEventIgnoringErrors(
-        mealPlan.collaborators[i].id,
-        "mealPlan:itemsUpdated",
-        updateBroadcast,
-      );
-    }
-
     res.status(200).json({
-      reference,
+      reference: Date.now(),
     });
   }),
 );
@@ -497,7 +363,7 @@ router.delete(
   MiddlewareService.validateSession(["user"]),
   MiddlewareService.validateUser,
   wrapRequestWithErrorHandler(async (req, res) => {
-    const mealPlan = await sequelize.transaction(async (transaction) => {
+    await sequelize.transaction(async (transaction) => {
       const mealPlan = await MealPlan.findOne({
         where: {
           id: req.params.mealPlanId,
@@ -532,37 +398,10 @@ router.delete(
         },
         transaction,
       });
-
-      return mealPlan;
     });
 
-    const reference = Date.now();
-
-    const updateBroadcast = {
-      mealPlanId: mealPlan.id,
-      updatedBy: {
-        id: res.locals.user.id,
-        name: res.locals.user.name,
-        handle: res.locals.user.handle,
-      },
-      reference,
-    };
-
-    broadcastWSEventIgnoringErrors(
-      mealPlan.userId,
-      "mealPlan:itemsUpdated",
-      updateBroadcast,
-    );
-    for (let i = 0; i < mealPlan.collaborators.length; i++) {
-      broadcastWSEventIgnoringErrors(
-        mealPlan.collaborators[i].id,
-        "mealPlan:itemsUpdated",
-        updateBroadcast,
-      );
-    }
-
     res.status(200).json({
-      reference,
+      reference: Date.now(),
     });
   }),
 );

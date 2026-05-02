@@ -151,11 +151,11 @@ export class MealPlanPage {
   ionViewWillEnter() {
     this.loadWithProgress();
 
-    this.websocketService.on("mealPlan:itemsUpdated", this.onWSEvent);
+    this.websocketService.on("mealplan:updated", this.onWSEvent);
   }
 
   ionViewWillLeave() {
-    this.websocketService.off("mealPlan:itemsUpdated", this.onWSEvent);
+    this.websocketService.off("mealplan:updated", this.onWSEvent);
   }
 
   onWSEvent = (data: Record<string, string>) => {
