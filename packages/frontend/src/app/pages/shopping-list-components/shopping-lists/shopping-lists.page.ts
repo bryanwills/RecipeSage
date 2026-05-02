@@ -33,6 +33,7 @@ import {
   IonBadge,
   IonFab,
   IonFabButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import { add, ban, cart, list, options } from "ionicons/icons";
 import { addIcons } from "ionicons";
@@ -63,6 +64,7 @@ import { addIcons } from "ionicons";
     IonBadge,
     IonFab,
     IonFabButton,
+    IonSpinner,
   ],
 })
 export class ShoppingListsPage {
@@ -83,6 +85,8 @@ export class ShoppingListsPage {
 
   ionViewWillEnter() {
     const loading = this.loadingService.start();
+
+    this.shoppingLists = undefined;
 
     Promise.all([this.loadLists(), this.loadMe()]).finally(() => {
       loading.dismiss();

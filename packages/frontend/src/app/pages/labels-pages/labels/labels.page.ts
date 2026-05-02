@@ -37,6 +37,7 @@ import {
   IonBadge,
   IonFab,
   IonFabButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import {
   add,
@@ -74,6 +75,7 @@ import { addIcons } from "ionicons";
     IonBadge,
     IonFab,
     IonFabButton,
+    IonSpinner,
   ],
 })
 export class LabelsPage {

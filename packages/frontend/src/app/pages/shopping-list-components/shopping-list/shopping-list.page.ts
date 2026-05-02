@@ -49,6 +49,7 @@ import {
   IonItem,
   IonFab,
   IonFabButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import {
   add,
@@ -102,6 +103,7 @@ const categoryTitlesToi18n: Record<string, string> = {
     IonItem,
     IonFab,
     IonFabButton,
+    IonSpinner,
   ],
 })
 export class ShoppingListPage {

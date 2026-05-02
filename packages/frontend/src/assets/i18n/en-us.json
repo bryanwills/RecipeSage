@@ -119,6 +119,7 @@
   "pages.home.title.sharedLabel.withProfile": "{{name}}'s Shared Label: {{label}}",
   "pages.home.search.placeholder": "Search",
   "pages.home.search.filter": "Filter",
+  "pages.home.loading": "Loading your recipes...",
   "pages.home.recipe.source": "Source:",
   "pages.home.recipe.from": "From:",
   "pages.home.recipe.labels": "Labels:",
@@ -395,6 +396,7 @@
 
   "pages.labels.tabTitle": "Manage Labels & Categories - RecipeSage",
   "pages.labels.title": "Manage Labels & Categories",
+  "pages.labels.loading": "Loading your labels...",
   "pages.labels.selectionModeTitle": "{{count}} Selected",
   "pages.labels.label.sectionTitle": "Your Labels",
   "pages.labels.label.sectionDescription": "You have {{count}} total labels. Click a label to view.",
@@ -477,6 +479,7 @@
 
   "pages.mealPlan.tabTitle": "Meal Plan - RecipeSage",
   "pages.mealPlan.title": "Meal Plan - {{name}}",
+  "pages.mealPlan.loading": "Loading meal plan...",
   "pages.mealPlan.list.empty": "No meals are scheduled. Press the + button to add one.",
   "pages.mealPlan.list.noUpcoming": "No upcoming meals planned. Press + to plan your next meal.",
   "pages.mealPlan.list.pastMeals": "Past Meals",
@@ -552,6 +555,7 @@
 
   "pages.mealPlans.tabTitle": "Meal Plans - RecipeSage",
   "pages.mealPlans.title": "Meal Plans",
+  "pages.mealPlans.loading": "Loading your meal plans...",
   "pages.mealPlans.metadata.createdOn": "Created {{date}}",
   "pages.mealPlans.metadata.collaborators": "In collaboration with:",
   "pages.mealPlans.metadata.createdBy": "Created by {{name}}",
@@ -605,6 +609,7 @@
 
   "pages.messages.tabTitle": "Messages - RecipeSage",
   "pages.messages.title": "Messages",
+  "pages.messages.loading": "Loading your messages...",
   "pages.messages.history.you": "You",
   "pages.messages.history.sentRecipe": "Sent a recipe",
   "pages.messages.noMessages": "You have no message threads.",
@@ -1009,6 +1014,7 @@
 
   "pages.shoppingList.tabTitle": "Shopping List",
   "pages.shoppingList.title": "Shopping List - {{title}}",
+  "pages.shoppingList.loading": "Loading shopping list...",
   "pages.shoppingList.nullState.1": "There are no items in this shopping list.",
   "pages.shoppingList.nullState.2": "Use the menu in the upper right hand corner to enable or disable automatic grouping.",
   "pages.shoppingList.nullState.add": "Add the first item",
@@ -1058,6 +1064,7 @@
 
   "pages.shoppingLists.tabTitle": "Shopping Lists - RecipeSage",
   "pages.shoppingLists.title": "Shopping Lists",
+  "pages.shoppingLists.loading": "Loading your shopping lists...",
   "pages.shoppingLists.editIgnore": "Edit Item Ignore List",
   "pages.shoppingLists.created": "Created {{date}}",
   "pages.shoppingLists.collaboration": "In collaboration with:",
@@ -1109,6 +1116,7 @@
 
   "pages.myProfile.tabTitle": "Edit Profile - RecipeSage",
   "pages.myProfile.title": "Edit Profile",
+  "pages.myProfile.loading": "Loading your profile...",
   "pages.myProfile.welcome": "Welcome to your profile!",
   "pages.myProfile.setup1": "Before you get started, there are a few things that you'll need to set up.",
   "pages.myProfile.setup.name": "First, choose the name or nickname to be shown on your profile.",
@@ -1137,6 +1145,7 @@
 
   "pages.people.tabTitle": "People - RecipeSage",
   "pages.people.title": "People",
+  "pages.people.loading": "Loading...",
   "pages.people.nullState.1": "You haven't set up a profile.",
   "pages.people.nullState.2": "Creating a profile allows you to share collections of recipes with friends and the public.",
   "pages.people.create": "Create",
@@ -1157,6 +1166,7 @@
 
   "pages.profile.tabTitle": "Profile - RecipeSage",
   "pages.profile.title": "{{name}}'s Profile",
+  "pages.profile.loading": "Loading profile...",
   "pages.profile.pinned": "Pinned Recipes & Labels",
   "pages.profile.nullState": "{{name}} hasn't added anything to their profile yet.",
   "pages.profile.send": "Send Friend Request",

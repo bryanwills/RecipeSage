@@ -52,6 +52,7 @@ import {
   IonItem,
   IonFab,
   IonFabButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import { add, calendar, chevronDown, chevronUp, options } from "ionicons/icons";
 import { addIcons } from "ionicons";
@@ -80,6 +81,7 @@ import { addIcons } from "ionicons";
     IonItem,
     IonFab,
     IonFabButton,
+    IonSpinner,
   ],
 })
 export class MealPlanPage {

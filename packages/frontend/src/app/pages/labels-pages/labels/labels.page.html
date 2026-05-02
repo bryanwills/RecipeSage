@@ -42,6 +42,15 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
+  @if (loading) {
+    <null-state>
+      <ion-spinner virtualSlot="header"></ion-spinner>
+      <ion-label virtualSlot="body">
+        <p>{{ "pages.labels.loading" | translate }}</p>
+      </ion-label>
+    </null-state>
+  }
+
   @if (!loading) {
     <ion-list>
       <ion-item>

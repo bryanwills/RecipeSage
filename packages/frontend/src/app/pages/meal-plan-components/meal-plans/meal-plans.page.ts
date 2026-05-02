@@ -25,6 +25,7 @@ import {
   IonBadge,
   IonFab,
   IonFabButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import { add, calendar } from "ionicons/icons";
 import { addIcons } from "ionicons";
@@ -52,6 +53,7 @@ import { addIcons } from "ionicons";
     IonBadge,
     IonFab,
     IonFabButton,
+    IonSpinner,
   ],
 })
 export class MealPlansPage {

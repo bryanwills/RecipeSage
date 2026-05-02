@@ -20,6 +20,15 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
+  @if (!profile) {
+    <null-state>
+      <ion-spinner virtualSlot="header"></ion-spinner>
+      <ion-label virtualSlot="body">
+        <p>{{ "pages.profile.loading" | translate }}</p>
+      </ion-label>
+    </null-state>
+  }
+
   @if (profile) {
     <div>
       <br />

@@ -44,6 +44,7 @@ import {
   IonReorder,
   IonAvatar,
   IonFooter,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import {
   add,
@@ -84,6 +85,7 @@ import { addIcons } from "ionicons";
     IonReorder,
     IonAvatar,
     IonFooter,
+    IonSpinner,
   ],
 })
 export class MyProfilePage {

@@ -35,6 +35,7 @@ import {
   IonItemDivider,
   IonFab,
   IonFabButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import { add, people, personCircle, search } from "ionicons/icons";
 import { addIcons } from "ionicons";
@@ -65,6 +66,7 @@ import { addIcons } from "ionicons";
     IonItemDivider,
     IonFab,
     IonFabButton,
+    IonSpinner,
   ],
 })
 export class PeoplePage {

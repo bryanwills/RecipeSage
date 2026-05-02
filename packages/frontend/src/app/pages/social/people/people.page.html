@@ -19,6 +19,15 @@
 
   <br />
 
+  @if (accountInfo === undefined) {
+    <null-state>
+      <ion-spinner virtualSlot="header"></ion-spinner>
+      <ion-label virtualSlot="body">
+        <p>{{ "pages.people.loading" | translate }}</p>
+      </ion-label>
+    </null-state>
+  }
+
   @if (accountInfo && !accountInfo.enableProfile) {
     <null-state>
       <ion-icon

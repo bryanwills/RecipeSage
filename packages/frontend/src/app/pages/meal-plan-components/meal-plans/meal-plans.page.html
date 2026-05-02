@@ -70,6 +70,14 @@
         <ion-badge slot="end">{{ mealPlan._count.items }}</ion-badge>
       </ion-item>
     }
+    @if (mealPlans === undefined) {
+      <null-state>
+        <ion-spinner virtualSlot="header"></ion-spinner>
+        <ion-label virtualSlot="body">
+          <p>{{ "pages.mealPlans.loading" | translate }}</p>
+        </ion-label>
+      </null-state>
+    }
     @if (mealPlans?.length === 0) {
       <null-state>
         <ion-icon

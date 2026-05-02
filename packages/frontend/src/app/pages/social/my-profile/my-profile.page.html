@@ -9,6 +9,14 @@
 </ion-header>
 
 <ion-content>
+  @if (!myProfile) {
+    <null-state>
+      <ion-spinner virtualSlot="header"></ion-spinner>
+      <ion-label virtualSlot="body">
+        <p>{{ "pages.myProfile.loading" | translate }}</p>
+      </ion-label>
+    </null-state>
+  }
   @if (myProfile && requiresSetup) {
     <div class="setup-screen ion-padding">
       <div class="intro">

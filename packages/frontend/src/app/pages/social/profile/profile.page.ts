@@ -39,6 +39,7 @@ import {
   IonAvatar,
   IonFooter,
   IonButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import {
   bookmarks,
@@ -76,6 +77,7 @@ import { addIcons } from "ionicons";
     IonAvatar,
     IonFooter,
     IonButton,
+    IonSpinner,
   ],
 })
 export class ProfilePage {

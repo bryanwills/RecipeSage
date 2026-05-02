@@ -358,6 +358,14 @@
             }
           </div>
         }
+        @if (loading) {
+          <null-state>
+            <ion-spinner virtualSlot="header"></ion-spinner>
+            <ion-label virtualSlot="body">
+              <p>{{ "pages.home.loading" | translate }}</p>
+            </ion-label>
+          </null-state>
+        }
         @if (!loading) {
           @if (searchText.length) {
             <null-state>

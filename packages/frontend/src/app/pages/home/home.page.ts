@@ -46,6 +46,7 @@ import {
   IonLabel,
   IonFab,
   IonFabButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import {
   add,
@@ -87,6 +88,7 @@ const TILE_PADD = 20;
     IonLabel,
     IonFab,
     IonFabButton,
+    IonSpinner,
   ],
 })
 export class HomePage {

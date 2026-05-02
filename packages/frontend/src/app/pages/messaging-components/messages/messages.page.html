@@ -37,6 +37,14 @@
         </ion-label>
       </ion-item>
     }
+    @if (loading) {
+      <null-state>
+        <ion-spinner virtualSlot="header"></ion-spinner>
+        <ion-label virtualSlot="body">
+          <p>{{ "pages.messages.loading" | translate }}</p>
+        </ion-label>
+      </null-state>
+    }
     @if (threads.length === 0 && !loading) {
       <null-state>
         <ion-icon

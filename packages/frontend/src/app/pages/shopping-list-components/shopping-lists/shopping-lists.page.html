@@ -94,6 +94,14 @@
         <ion-badge slot="end">{{ shoppingList._count.items }}</ion-badge>
       </ion-item>
     }
+    @if (shoppingLists === undefined) {
+      <null-state>
+        <ion-spinner virtualSlot="header"></ion-spinner>
+        <ion-label virtualSlot="body">
+          <p>{{ "pages.shoppingLists.loading" | translate }}</p>
+        </ion-label>
+      </null-state>
+    }
     @if (shoppingLists?.length === 0) {
       <null-state>
         <ion-icon name="cart" class="big-icon" virtualSlot="header"></ion-icon>

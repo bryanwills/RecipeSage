@@ -194,6 +194,14 @@
         }
       </div>
     }
+    @if (shoppingListItems === undefined) {
+      <null-state>
+        <ion-spinner virtualSlot="header"></ion-spinner>
+        <ion-label virtualSlot="body">
+          <p>{{ "pages.shoppingList.loading" | translate }}</p>
+        </ion-label>
+      </null-state>
+    }
     @if (shoppingListItems?.length === 0) {
       <null-state>
         <ion-icon name="cart" class="big-icon" virtualSlot="header"></ion-icon>

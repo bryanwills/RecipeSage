@@ -29,6 +29,7 @@ import {
   IonFab,
   IonFabButton,
   IonFooter,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import { add, chatbox } from "ionicons/icons";
 import { addIcons } from "ionicons";
@@ -56,6 +57,7 @@ import { addIcons } from "ionicons";
     IonFab,
     IonFabButton,
     IonFooter,
+    IonSpinner,
   ],
 })
 export class MessagesPage {
