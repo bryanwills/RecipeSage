@@ -1,4 +1,4 @@
-import { SupportedLanguages } from '@recipesage/util/shared';
+import type { SupportedLanguages } from '@recipesage/util/shared';
 
 export const DEFAULT_LOCALE = "en-us";
 
@@ -41,6 +41,42 @@ for (const [path, dict] of Object.entries(i18nModules)) {
 }
 
 export const SUPPORTED_LOCALES = Object.keys(i18nByLocale).sort();
+
+const RTL_LOCALES = new Set(["he", "ar", "fa", "ur"]);
+
+export function isRtl(locale: string): boolean {
+  return RTL_LOCALES.has(locale.split("-")[0]);
+}
+
+const OG_LOCALE: Record<string, string> = {
+  "en-us": "en_US",
+  cs: "cs_CZ",
+  "da-dk": "da_DK",
+  "de-de": "de_DE",
+  el: "el_GR",
+  "es-es": "es_ES",
+  eu: "eu_ES",
+  fi: "fi_FI",
+  "fr-fr": "fr_FR",
+  he: "he_IL",
+  "hu-hu": "hu_HU",
+  "it-it": "it_IT",
+  ja: "ja_JP",
+  lt: "lt_LT",
+  nl: "nl_NL",
+  pl: "pl_PL",
+  "pt-br": "pt_BR",
+  "pt-pt": "pt_PT",
+  ro: "ro_RO",
+  "ru-ru": "ru_RU",
+  sv: "sv_SE",
+  "uk-ua": "uk_UA",
+  "zh-cn": "zh_CN",
+} satisfies Record<SupportedLanguages, string>;
+
+export function toOgLocale(locale: string): string {
+  return OG_LOCALE[locale] ?? toBcp47(locale).replace("-", "_");
+}
 
 export type Translator = (key: string) => string;
 

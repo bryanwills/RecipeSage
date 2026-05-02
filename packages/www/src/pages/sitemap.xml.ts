@@ -7,7 +7,11 @@ import {
 
 const PAGES = ["/", "/about", "/pricing", "/download"];
 
-const priorityFor = (path: string) => (path === "/" ? "1.0" : "0.8");
+const priorityFor = (path: string, loc: string) => {
+  const base = path === "/" ? 1.0 : 0.8;
+  const adjusted = loc === DEFAULT_LOCALE ? base : base - 0.1;
+  return adjusted.toFixed(1);
+};
 
 const urlForLocale = (site: URL, loc: string, path: string) => {
   const prefix = loc === DEFAULT_LOCALE ? "" : `/${loc}`;
@@ -17,6 +21,8 @@ const urlForLocale = (site: URL, loc: string, path: string) => {
 
 export const GET: APIRoute = ({ site }) => {
   if (!site) throw new Error("astro.config.mjs `site` must be set");
+
+  const lastmod = new Date().toISOString().split("T")[0];
 
   const urls: string[] = [];
   for (const path of PAGES) {
@@ -33,8 +39,9 @@ export const GET: APIRoute = ({ site }) => {
         [
           "  <url>",
           `    <loc>${urlForLocale(site, loc, path)}</loc>`,
+          `    <lastmod>${lastmod}</lastmod>`,
           `    <changefreq>weekly</changefreq>`,
-          `    <priority>${priorityFor(path)}</priority>`,
+          `    <priority>${priorityFor(path, loc)}</priority>`,
           alternates,
           "  </url>",
         ].join("\n"),

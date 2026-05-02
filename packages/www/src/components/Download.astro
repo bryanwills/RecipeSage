@@ -46,7 +46,7 @@ const bookmarklet =
       <li>{t("pages.downloadAndInstall.android.step.1")}</li>
       <li>
         {t("pages.downloadAndInstall.android.step.2")}
-        <span class="icon-hint" aria-label="three vertical dots icon">⋮</span>
+        <span class="icon-hint" aria-label={t("pages.downloadAndInstall.icon.menuDots")}>⋮</span>
       </li>
       <li>{t("pages.downloadAndInstall.android.step.3")}</li>
     </ol>
@@ -79,7 +79,7 @@ const bookmarklet =
       <li>{t("pages.downloadAndInstall.ios.step.1")}</li>
       <li>
         {t("pages.downloadAndInstall.ios.step.2")}
-        <span class="icon-hint" aria-label="share icon">
+        <span class="icon-hint" aria-label={t("pages.downloadAndInstall.icon.share")}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -129,7 +129,7 @@ const bookmarklet =
       <li>{t("pages.downloadAndInstall.desktop.step.1")}</li>
       <li>
         {t("pages.downloadAndInstall.desktop.step.2")}
-        <span class="icon-hint" aria-label="three vertical dots icon">⋮</span>
+        <span class="icon-hint" aria-label={t("pages.downloadAndInstall.icon.menuDots")}>⋮</span>
       </li>
       <li>{t("pages.downloadAndInstall.desktop.step.3")}</li>
     </ol>
@@ -146,13 +146,13 @@ const bookmarklet =
           class="store-link"
           href="https://addons.mozilla.org/en-US/firefox/addon/recipesage/"
           target="_blank"
-          rel="noopener">Install for Firefox</a
+          rel="noopener">{t("pages.downloadAndInstall.extension.installFirefox")}</a
         >
         <a
           class="store-link"
           href="https://chrome.google.com/webstore/detail/oepplnnfceidfaaacjpdpobnjkcpgcpo"
           target="_blank"
-          rel="noopener">Install for Chrome</a
+          rel="noopener">{t("pages.downloadAndInstall.extension.installChrome")}</a
         >
       </p>
     </div>

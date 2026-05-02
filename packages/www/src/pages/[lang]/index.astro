@@ -17,7 +17,7 @@ const { lang } = Astro.params;
 if (!lang) throw new Error("lang param missing");
 const t = makeTranslator(lang);
 
-const title = `RecipeSage - ${t("pages.welcome.title")}`;
+const title = `${t("pages.welcome.title")} - RecipeSage`;
 const description = t("pages.welcome.subtitle");
 ---
 

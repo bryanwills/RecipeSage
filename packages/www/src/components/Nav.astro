@@ -49,7 +49,7 @@ const downloadHref = localePath(locale, "/download");
     <details class="lang-switcher">
       <summary
         aria-haspopup="menu"
-        aria-label={`Language: ${currentName}`}
+        aria-label={`${t("pages.www.nav.language")}: ${currentName}`}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -212,7 +212,7 @@ const downloadHref = localePath(locale, "/download");
     padding: 6px 0;
     position: absolute;
     top: 100%;
-    right: 0;
+    inset-inline-end: 0;
     min-width: 220px;
     max-height: min(60vh, 480px);
     overflow: auto;
