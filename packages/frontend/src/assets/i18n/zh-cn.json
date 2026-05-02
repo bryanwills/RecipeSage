@@ -999,7 +999,6 @@
     "pages.editRecipe.input.nutritionPotassium": "钾 (mg)",
     "pages.editRecipe.input.nutritionOtherDetails": "其他营养详情",
     "pages.editRecipe.clip.emptyResult": "从此 URL 自动填充时出现问题。建议使用 RecipeSage 浏览器扩展程序，或复制网站文本并使用“从文本自动填充”选项。",
-    "pages.credits.limitReached": "剪藏、导入和烹饪助手的每日限额已达上限（抱歉，它们成本较高！）。烹饪额度将在 0:00GMT 重置。请考虑捐助，以获得更高的每日额度。",
     "pages.account.bonus.moreUsageCredits": "更高的每日烹饪额度",
     "pages.account.deleteAllRecipes.success.header": "食谱数据已删除",
     "pages.export.tabTitle": "导出 - RecipeSage",

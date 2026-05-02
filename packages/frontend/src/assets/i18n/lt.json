@@ -989,7 +989,6 @@
     "pages.editRecipe.nutritionAutofill.failed": "Nepavyko išgauti maistingumo informacijos iš pateikto teksto.",
     "pages.editRecipe.nutritionInvalid": "Viename ar keliuose maistingumo laukuose yra netinkamų reikšmių. Maistingumo laukuose galima naudoti tik skaičius ir dešimtaines trupmenas.",
     "pages.account.credits.usageValue": "Šiandien panaudota {{used}} / {{limit}} gaminimo kreditų",
-    "pages.credits.limitReached": "Pasiektas dienos limitas iškarpoms, importavimui ir maisto gaminimo asistentui (atsiprašome, tai brangu!). Gaminimo kreditai atstatomi 0:00 GMT. Apsvarstykite galimybę prisidėti, kad gautumėte didesnį dienos limitą.",
     "pages.account.bonus.highResImages": "Didelės raiškos vaizdai",
     "pages.account.bonus.moreUsageCredits": "Didesnis dienos gaminimo kreditų limitas",
     "pages.account.bonus.enabled": "Įjungta",

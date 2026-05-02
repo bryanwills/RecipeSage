@@ -218,7 +218,6 @@
     "pages.account.creds.password": "Heslo",
     "pages.account.creds.password.confirm": "Potvrdit heslo",
     "pages.account.credits.usageValue": "Dnes využito {{used}} / {{limit}} kuchařských kreditů",
-    "pages.credits.limitReached": "Byl dosažen denní limit pro ukládání výstřižků, importy a kuchařského asistenta (omlouváme se, jsou nákladné!). Kuchařské kredity se obnovují v 0:00 GMT. Zvažte možnost přispět a získat vyšší denní limit.",
     "pages.account.bonus.subscriptionExpires": "Povoleno do {{date}}",
     "pages.account.bonus.subscriptionNeverExpires": "Nikdy nevyprší",
     "pages.account.bonus.automaticRenewal": "(toto se bude automaticky aktualizovat, pokud máte měsíční předplatné)",

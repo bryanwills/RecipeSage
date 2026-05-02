@@ -1006,7 +1006,6 @@
     "pages.editRecipe.input.linkedRecipes": "Пов’язані рецепти",
     "pages.editRecipe.input.linkedRecipes.none": "Немає пов’язаних рецептів. Пов’яжіть споріднені рецепти, щоб легко переходити між ними.",
     "pages.account.credits.usageValue": "Сьогодні використано {{used}} / {{limit}} кулінарних кредитів",
-    "pages.credits.limitReached": "Досягнуто денний ліміт для збереження фрагментів, імпорту та кулінарного помічника (вибачте, це коштовно!). Кулінарні кредити скидаються о 0:00 GMT. Розгляньте можливість зробити внесок, щоб отримати більший денний ліміт.",
     "pages.account.bonus.moreUsageCredits": "Вищий денний ліміт кулінарних кредитів",
     "pages.export.tabTitle": "Експорт - RecipeSage",
     "pages.export.jobs.job": "Завдання експорту",
