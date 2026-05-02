@@ -20,8 +20,6 @@ import {
   IonMenuButton,
   IonTitle,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonList,
   IonItem,
   IonIcon,
@@ -29,6 +27,7 @@ import {
   IonFab,
   IonFabButton,
   IonFooter,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import { add, chatbox } from "ionicons/icons";
 import { addIcons } from "ionicons";
@@ -47,8 +46,6 @@ import { addIcons } from "ionicons";
     IonMenuButton,
     IonTitle,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonList,
     IonItem,
     IonIcon,
@@ -56,6 +53,7 @@ import { addIcons } from "ionicons";
     IonFab,
     IonFabButton,
     IonFooter,
+    IonSpinner,
   ],
 })
 export class MessagesPage {
@@ -85,17 +83,6 @@ export class MessagesPage {
 
   ionViewWillLeave() {
     this.websocketService.off("messages:new", this.loadThreads);
-  }
-
-  refresh(refresher: any) {
-    this.loadThreads().then(
-      () => {
-        refresher.target.complete();
-      },
-      () => {
-        refresher.target.complete();
-      },
-    );
   }
 
   loadThreadsWithProgress = () => {

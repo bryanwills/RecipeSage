@@ -1166,7 +1166,7 @@
     "pages.editRecipe.input.rating": "Balorazioa",
     "pages.editRecipe.input.labels.noItemsGroup": "Ez dago etiketarik kategoria honetan. Idatzi etiketa bat sortzeko",
     "pages.account.credits.usageValue": "{{used}} / {{limit}} sukaldaritza-kreditu erabili dira gaur",
-    "pages.credits.limitReached": "Eguneko muga iritsi da mozketei, inportazioei eta sukaldaritza-laguntzaileari dagokienez (barkatu, garestiak dira!). Sukaldaritza-kredituak 0:00etan (GMT) berrezartzen dira. Pentsatu ekarpena egitea eguneko esleipen handiagoa izateko.",
+    "errors.creditsLimitReached": "Eguneko muga iritsi da mozketei, inportazioei eta sukaldaritza-laguntzaileari dagokienez (barkatu, garestiak dira!). Sukaldaritza-kredituak 0:00etan (GMT) berrezartzen dira. Pentsatu ekarpena egitea eguneko esleipen handiagoa izateko.",
     "pages.account.bonus.moreUsageCredits": "Eguneko sukaldaritza-kredituen esleipen handiagoa",
     "pages.import.jobs.status.fail.emptyFile": "Bidalitako inportazioak ez du errezeta ezagungarririk.",
     "pages.import.jobs.status.fail.badCredentials": "Bidalitako kredentzialak okerrak dira.",

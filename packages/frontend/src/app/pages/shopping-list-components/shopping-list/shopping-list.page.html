@@ -20,9 +20,6 @@
 </ion-header>
 
 <ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
   <ion-list lines="none">
     @if (
       preferences[preferenceKeys.GroupCategories] &&
@@ -193,6 +190,14 @@
           </div>
         }
       </div>
+    }
+    @if (shoppingListItems === undefined) {
+      <null-state>
+        <ion-spinner virtualSlot="header"></ion-spinner>
+        <ion-label virtualSlot="body">
+          <p>{{ "pages.shoppingList.loading" | translate }}</p>
+        </ion-label>
+      </null-state>
     }
     @if (shoppingListItems?.length === 0) {
       <null-state>

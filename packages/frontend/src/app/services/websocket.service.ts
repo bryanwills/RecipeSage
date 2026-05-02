@@ -29,11 +29,6 @@ export class WebsocketService {
     });
   }
 
-  isConnected() {
-    if (this.connection) return true;
-    return false;
-  }
-
   on(eventName: string, cb: (msg: Record<string, any>) => void) {
     let listeners = this.listeners[eventName];
     if (!listeners) {

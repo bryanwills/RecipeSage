@@ -1,5 +1,4 @@
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { CreditLimitExceededError } from "@recipesage/util/server/general";
 import { router } from "./trpc";
 import { createContext } from "./context";
 import { getRecipes } from "./procedures/recipes/getRecipes";
@@ -38,12 +37,6 @@ const appRouter = router({
 export const trpcExpressMiddleware = createExpressMiddleware({
   router: appRouter,
   createContext,
-  responseMeta({ errors }) {
-    if (errors.some((err) => err.cause instanceof CreditLimitExceededError)) {
-      return { status: 420 };
-    }
-    return {};
-  },
 });
 
 export type AppRouter = typeof appRouter;

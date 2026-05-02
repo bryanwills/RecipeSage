@@ -1,6 +1,9 @@
 import { prisma } from "@recipesage/prisma";
 import { SearchProvider } from "./";
 
+const RESULT_LIMIT = 500;
+const FUZZY_WORD_SIMILARITY_THRESHOLD = 0.5;
+
 export const indexRecipes = async () => {
   return Promise.resolve();
 };
@@ -12,26 +15,52 @@ export const deleteRecipes = async () => {
 export const searchRecipes = async (userIds: string[], queryString: string) => {
   if (!userIds.length || !queryString.trim()) return [];
 
-  const tsquery = queryString
+  const tokens = queryString
     .trim()
     .split(/\s+/)
     .map((t) => t.replace(/[^\p{L}\p{N}]/gu, ""))
-    .filter((t) => t.length > 0)
-    .map((t) => `${t}:*`)
-    .join(" & ");
+    .filter((t) => t.length > 0);
 
-  if (!tsquery) return [];
+  if (!tokens.length) return [];
 
-  const results = await prisma.$queryRaw<{ id: string }[]>`
-    SELECT id
-    FROM "Recipes"
-    WHERE "userId" = ANY(${userIds}::uuid[])
-      AND tsv @@ to_tsquery('simple', ${tsquery})
-    ORDER BY ts_rank(tsv, to_tsquery('simple', ${tsquery})) DESC
-    LIMIT 500
-  `;
+  const tsquery = tokens.map((t) => `${t}:*`).join(" & ");
+  const fuzzyTerm = tokens.join(" ");
 
-  return results.map((r) => r.id);
+  const [ftsResults, fuzzyResults] = await Promise.all([
+    prisma.$queryRaw<{ id: string }[]>`
+      SELECT id
+      FROM "Recipes"
+      WHERE "userId" = ANY(${userIds}::uuid[])
+        AND tsv @@ to_tsquery('simple', ${tsquery})
+      ORDER BY ts_rank(tsv, to_tsquery('simple', ${tsquery})) DESC
+      LIMIT ${RESULT_LIMIT}
+    `,
+    prisma.$queryRaw<{ id: string }[]>`
+      SELECT id
+      FROM "Recipes"
+      WHERE "userId" = ANY(${userIds}::uuid[])
+        AND word_similarity(immutable_unaccent(lower(${fuzzyTerm})), immutable_unaccent(lower(title))) >= ${FUZZY_WORD_SIMILARITY_THRESHOLD}
+      ORDER BY immutable_unaccent(lower(title)) <-> immutable_unaccent(lower(${fuzzyTerm}))
+      LIMIT ${RESULT_LIMIT}
+    `,
+  ]);
+
+  const seen = new Set<string>();
+  const merged: string[] = [];
+  for (const r of ftsResults) {
+    if (!seen.has(r.id)) {
+      seen.add(r.id);
+      merged.push(r.id);
+    }
+  }
+  for (const r of fuzzyResults) {
+    if (merged.length >= RESULT_LIMIT) break;
+    if (!seen.has(r.id)) {
+      seen.add(r.id);
+      merged.push(r.id);
+    }
+  }
+  return merged;
 };
 
 export default {

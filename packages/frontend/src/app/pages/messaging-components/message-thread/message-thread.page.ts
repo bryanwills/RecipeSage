@@ -19,8 +19,6 @@ import {
   IonButton,
   IonIcon,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonItem,
   IonAvatar,
   IonLabel,
@@ -45,8 +43,6 @@ import { addIcons } from "ionicons";
     IonButton,
     IonIcon,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonItem,
     IonAvatar,
     IonLabel,
@@ -135,17 +131,6 @@ export class MessageThreadPage {
         this.reloading = false; // TODO: Replace with better delay for minimum animation time
       }, 350);
     });
-  }
-
-  refresh(refresher: any) {
-    this.loadMessages().then(
-      () => {
-        refresher.target.complete();
-      },
-      () => {
-        refresher.target.complete();
-      },
-    );
   }
 
   onWSEvent = (data: Record<string, Record<string, string>>) => {

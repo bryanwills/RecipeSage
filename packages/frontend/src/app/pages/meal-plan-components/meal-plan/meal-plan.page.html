@@ -18,6 +18,14 @@
 
 <ion-content>
   <br />
+  @if (!mealPlanItems) {
+    <null-state>
+      <ion-spinner virtualSlot="header"></ion-spinner>
+      <ion-label virtualSlot="body">
+        <p>{{ "pages.mealPlan.loading" | translate }}</p>
+      </ion-label>
+    </null-state>
+  }
   @if (mealPlanItems) {
     @if (preferences[preferenceKeys.ViewType] === viewTypeOptions.List) {
       @if (upcomingDates.length === 0 && pastDates.length === 0) {

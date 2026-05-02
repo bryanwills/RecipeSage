@@ -29,14 +29,13 @@ import {
   IonIcon,
   IonTitle,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonList,
   IonItem,
   IonLabel,
   IonBadge,
   IonFab,
   IonFabButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import {
   add,
@@ -66,14 +65,13 @@ import { addIcons } from "ionicons";
     IonIcon,
     IonTitle,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonList,
     IonItem,
     IonLabel,
     IonBadge,
     IonFab,
     IonFabButton,
+    IonSpinner,
   ],
 })
 export class LabelsPage {
@@ -113,12 +111,6 @@ export class LabelsPage {
   ionViewWillEnter() {
     this.clearSelectedLabels();
     this.loadWithBar();
-  }
-
-  refresh(refresher: any) {
-    this.load().finally(() => {
-      refresher.target.complete();
-    });
   }
 
   async load() {

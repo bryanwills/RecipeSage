@@ -29,8 +29,6 @@ import {
   IonBackButton,
   IonTitle,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonThumbnail,
   IonItem,
   IonIcon,
@@ -39,6 +37,7 @@ import {
   IonAvatar,
   IonFooter,
   IonButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import {
   bookmarks,
@@ -66,8 +65,6 @@ import { addIcons } from "ionicons";
     IonBackButton,
     IonTitle,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonThumbnail,
     IonItem,
     IonIcon,
@@ -76,6 +73,7 @@ import { addIcons } from "ionicons";
     IonAvatar,
     IonFooter,
     IonButton,
+    IonSpinner,
   ],
 })
 export class ProfilePage {
@@ -305,11 +303,6 @@ export class ProfilePage {
     });
     await alert.present();
     await alert.onDidDismiss();
-  }
-
-  async refresh(refresher: any) {
-    refresher.target.complete();
-    this.load();
   }
 
   async auth() {
