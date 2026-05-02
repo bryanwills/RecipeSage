@@ -135,6 +135,8 @@ export class MealPlanPage {
   listItemsByDate = new Map<string, MealPlanItemSummary[]>();
   listFormattedDates = new Map<string, string>();
 
+  reference = "0";
+
   @ViewChild(MealCalendarComponent, { static: true })
   mealPlanCalendar?: MealCalendarComponent;
 
@@ -159,7 +161,11 @@ export class MealPlanPage {
   }
 
   onWSEvent = (data: Record<string, string>) => {
-    if (data.mealPlanId === this.mealPlanId) {
+    if (
+      data.mealPlanId === this.mealPlanId &&
+      data.reference !== this.reference
+    ) {
+      this.reference = data.reference;
       this.loadMealPlan();
     }
   };
@@ -227,18 +233,20 @@ export class MealPlanPage {
   }) {
     const loading = this.loadingService.start();
 
-    await this.serverActionsService.mealPlans.createMealPlanItems({
-      mealPlanId: this.mealPlanId,
-      items: [
-        {
-          title: item.title,
-          recipeId: item.recipeId || null,
-          meal: item.meal,
-          notes: item.notes,
-          scheduledDate: item.scheduledDate,
-        },
-      ],
-    });
+    const response =
+      await this.serverActionsService.mealPlans.createMealPlanItems({
+        mealPlanId: this.mealPlanId,
+        items: [
+          {
+            title: item.title,
+            recipeId: item.recipeId || null,
+            meal: item.meal,
+            notes: item.notes,
+            scheduledDate: item.scheduledDate,
+          },
+        ],
+      });
+    if (response) this.reference = response.reference;
 
     await this.loadMealPlan();
 
@@ -330,19 +338,21 @@ export class MealPlanPage {
     const item = data.item;
 
     const loading = this.loadingService.start();
-    await this.serverActionsService.mealPlans.updateMealPlanItems({
-      mealPlanId: this.mealPlanId,
-      items: [
-        {
-          id: mealItem.id,
-          title: item.title,
-          recipeId: item.recipeId,
-          scheduledDate: item.scheduledDate,
-          meal: item.meal,
-          notes: item.notes,
-        },
-      ],
-    });
+    const response =
+      await this.serverActionsService.mealPlans.updateMealPlanItems({
+        mealPlanId: this.mealPlanId,
+        items: [
+          {
+            id: mealItem.id,
+            title: item.title,
+            recipeId: item.recipeId,
+            scheduledDate: item.scheduledDate,
+            meal: item.meal,
+            notes: item.notes,
+          },
+        ],
+      });
+    if (response) this.reference = response.reference;
     loading.dismiss();
     this.loadWithProgress();
   }
@@ -698,10 +708,12 @@ export class MealPlanPage {
       .flat();
 
     const loading = this.loadingService.start();
-    await this.serverActionsService.mealPlans.updateMealPlanItems({
-      mealPlanId: this.mealPlanId,
-      items: updatedItems,
-    });
+    const response =
+      await this.serverActionsService.mealPlans.updateMealPlanItems({
+        mealPlanId: this.mealPlanId,
+        items: updatedItems,
+      });
+    if (response) this.reference = response.reference;
     loading.dismiss();
     this.loadWithProgress();
   }
@@ -730,10 +742,12 @@ export class MealPlanPage {
       .flat();
 
     const loading = this.loadingService.start();
-    await this.serverActionsService.mealPlans.createMealPlanItems({
-      mealPlanId: this.mealPlanId,
-      items: newItems,
-    });
+    const response =
+      await this.serverActionsService.mealPlans.createMealPlanItems({
+        mealPlanId: this.mealPlanId,
+        items: newItems,
+      });
+    if (response) this.reference = response.reference;
     loading.dismiss();
     this.loadWithProgress();
   }
@@ -744,10 +758,12 @@ export class MealPlanPage {
       .flat();
 
     const loading = this.loadingService.start();
-    await this.serverActionsService.mealPlans.deleteMealPlanItems({
-      mealPlanId: this.mealPlanId,
-      ids: itemIds,
-    });
+    const response =
+      await this.serverActionsService.mealPlans.deleteMealPlanItems({
+        mealPlanId: this.mealPlanId,
+        ids: itemIds,
+      });
+    if (response) this.reference = response.reference;
     loading.dismiss();
     this.loadWithProgress();
   }
