@@ -989,7 +989,7 @@
     "pages.editRecipe.nutritionAutofill.failed": "Nepavyko išgauti maistinės informacijos iš pateikto teksto.",
     "pages.editRecipe.nutritionInvalid": "Viename ar keliuose maistinės informacijos laukuose yra netinkamų reikšmių. Maistinės informacijos laukai palaiko tik skaičius ir dešimtainius skaičius.",
     "pages.account.credits.usageValue": "{{used}} / {{limit}} maisto gaminimo kreditų panaudota šiandien",
-    "pages.credits.limitReached": "Pasiektas dienos limitas iškarpoms, importams ir maisto gaminimo padėjėjui (atsiprašome, jie brangiai kainuoja!). Maisto gaminimo kreditai atnaujinami 0:00 GMT. Apsvarstykite galimybę prisidėti, kad gautumėte didesnį dienos limitą.",
+    "errors.creditsLimitReached": "Pasiektas dienos limitas iškarpoms, importams ir maisto gaminimo padėjėjui (atsiprašome, jie brangiai kainuoja!). Maisto gaminimo kreditai atnaujinami 0:00 GMT. Apsvarstykite galimybę prisidėti, kad gautumėte didesnį dienos limitą.",
     "pages.account.bonus.highResImages": "Didelės raiškos vaizdai",
     "pages.account.bonus.moreUsageCredits": "Didesnis dienos maisto gaminimo kreditų limitas",
     "pages.account.bonus.enabled": "Įjungta",

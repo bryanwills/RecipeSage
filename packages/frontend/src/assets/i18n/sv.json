@@ -275,7 +275,7 @@
     "pages.editRecipe.addImage.placeholder": "Bild-URL",
     "pages.account.description": "Här kan du uppdatera och ändra aspekter av ditt konto",
     "pages.account.creds.title": "Inloggningsuppgifter och detaljer",
-    "pages.credits.limitReached": "Den dagliga gränsen för urklipp, importer och matlagningsassistenten har nåtts (tyvärr, de är kostsamma!). Matlagningskrediter återställs 0:00 GMT. Överväg att bidra för en större daglig tilldelning.",
+    "errors.creditsLimitReached": "Den dagliga gränsen för urklipp, importer och matlagningsassistenten har nåtts (tyvärr, de är kostsamma!). Matlagningskrediter återställs 0:00 GMT. Överväg att bidra för en större daglig tilldelning.",
     "pages.account.bonus.highResImages": "Högupplösta bilder",
     "pages.account.bonus.multipleImages": "Flera bilder per recept",
     "pages.account.bonus.assistantMoreMessages": "Obegränsade meddelanden i matlagningsassistenten",

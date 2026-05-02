@@ -763,7 +763,6 @@
   "pages.account.stats.createdAt": "Account Created",
   "pages.account.stats.lastLogin": "Last Login",
   "pages.account.credits.usageValue": "{{used}} / {{limit}} cooking credits used today",
-  "pages.credits.limitReached": "Daily limit reached for clipping, imports, and cooking assistant (sorry, they're costly!). Cooking credits reset at 0:00GMT. Consider contributing for a larger daily allowance.",
   "pages.account.bonus.title": "Bonus Feature Status",
   "pages.account.bonus.description": "Contributors unlock certain features that are costly to host:",
   "pages.account.bonus.highResImages": "High Resolution Images",
@@ -1312,6 +1311,7 @@
   "errors.unexpected.selfhost": "An unexpected error occurred. Please check your server logs as well as the self hosting FAQ.",
   "errors.resourceNotFound": "Resource Not Found",
   "errors.resourceNotFound.message": "It looks like we tried to fetch something that doesn't exist. If this continues to occur unexpectedly, please contact me.",
+  "errors.creditsLimitReached": "Daily limit reached for clipping, imports, and cooking assistant (sorry, it's costly!). Usage limit resets at 0:00GMT. Consider contributing for a larger daily allowance (~10x).",
 
   "generic.showMore": "Show More",
   "generic.error": "Error",

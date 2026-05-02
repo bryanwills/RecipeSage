@@ -1028,7 +1028,7 @@
     "pages.welcome.tabTitle": "RecipeSage",
     "pages.auth.tabTitle": "RecipeSage",
     "pages.editRecipe.clip.emptyResult": "このURLからの自動入力中に問題が発生しました。RecipeSageブラウザー拡張機能を使用するか、サイトのテキストをコピーして「テキストから自動入力」オプションを使用することをお勧めします",
-    "pages.credits.limitReached": "クリッピング、インポート、および料理アシスタントの1日あたりの上限に達しました（申し訳ありませんが、これらはコストがかかります！）。料理クレジットはGMTの0:00にリセットされます。1日あたりの利用枠を増やすには、ぜひご支援をご検討ください。",
+    "errors.creditsLimitReached": "クリッピング、インポート、および料理アシスタントの1日あたりの上限に達しました（申し訳ありませんが、これらはコストがかかります！）。料理クレジットはGMTの0:00にリセットされます。1日あたりの利用枠を増やすには、ぜひご支援をご検討ください。",
     "pages.account.bonus.title": "ボーナス機能のステータス",
     "pages.account.bonus.assistantMoreMessages": "無制限の料理アシスタントメッセージ",
     "pages.account.bonus.moreUsageCredits": "1日あたりの料理クレジット上限の増加",

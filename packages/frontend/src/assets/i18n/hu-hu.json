@@ -1218,7 +1218,7 @@
     "pages.editRecipe.clip.includeNutrition": "Kísérlet a tápértékinformációk kinyerésére (a pontosság változó lehet!)",
     "pages.editRecipe.clip.emptyResult": "Probléma merült fel az automatikus kitöltés során erről az URL-ről. A RecipeSage böngészőbővítményt javaslom, vagy azt, hogy másolja ki az oldal szövegét, és használja a szövegből történő automatikus kitöltés lehetőséget",
     "pages.account.credits.usageValue": "Ma felhasznált főzési kreditek: {{used}} / {{limit}}",
-    "pages.credits.limitReached": "Elérte a kivágás, az importálás és a főzési asszisztens napi korlátját (elnézést, ezek költségesek!). A főzési kreditek 0:00 GMT-kor állnak vissza. Fontolja meg a hozzájárulást a nagyobb napi keret érdekében.",
+    "errors.creditsLimitReached": "Elérte a kivágás, az importálás és a főzési asszisztens napi korlátját (elnézést, ezek költségesek!). A főzési kreditek 0:00 GMT-kor állnak vissza. Fontolja meg a hozzájárulást a nagyobb napi keret érdekében.",
     "pages.account.bonus.moreUsageCredits": "Magasabb napi főzési kreditkeret",
     "components.multiImageUpload.contributorHint.message": "A képek tárolása a RecipeSage működtetésének egyik legnagyobb költsége.\n\nAnnak érdekében, hogy az alkalmazás többi része mindenki számára ingyenes maradhasson, receptenkként több kép feltöltése és a képek nagy felbontásban való tárolása a közreműködők számára van fenntartva, köszönetképpen.\n\nHa szereted a RecipeSage-et, kérjük, fontold meg a hozzájárulást, hogy segíts életben tartani!",
     "components.scaleRecipe.systemLabel": "Mértékegységek",
