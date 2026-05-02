@@ -429,8 +429,14 @@ const tryUnitzSystemConvert = (
  * Format a scaled-by-FractionJS value for display inside an ingredient line.
  *
  * Pipeline:
- *  - If the scaled fraction has a clean cooking denominator, emit it as a
- *    mixed fraction with the user's original unit preserved upstream.
+ *  - If the user originally wrote a decimal, always emit a decimal. Decimal
+ *    in -> decimal out; we never convert decimals into cooking fractions.
+ *    When the value's natural string form has 3 or fewer decimal places
+ *    (e.g. 1.7 * 6 = 10.2), we emit it exactly. Otherwise (e.g. 1.5 * 1/7
+ *    = 0.21428571428571427), we round to 3 decimal places and prefix with
+ *    "~" to flag the rounding.
+ *  - Else if the scaled fraction has a clean cooking denominator, emit it as
+ *    a mixed fraction with the user's original unit preserved upstream.
  *  - Else if unitz-ts can parse the full measurement and switch to a smaller
  *    unit in the same class (e.g. cup -> tablespoon), emit its output. This
  *    handles cases like "1 cup" scaled by 1/16 becoming "3 tsp".
@@ -472,8 +478,21 @@ const formatScaledMeasurementPart = (
   }
 
   const frac = new FractionJS(trimmedOriginal).mul(scale);
-  const denominator = Number(frac.d);
 
+  if (trimmedOriginal.includes(".")) {
+    const value = frac.valueOf();
+    const str = value.toString();
+    const decimals = str.includes("e")
+      ? Infinity
+      : (str.split(".")[1]?.length ?? 0);
+    if (decimals <= 3) {
+      return { formatted: str, replacesUnit: false };
+    }
+    const rounded = parseFloat(value.toFixed(3)).toString();
+    return { formatted: "~" + rounded, replacesUnit: false };
+  }
+
+  const denominator = Number(frac.d);
   if (CLEAN_DENOMINATORS.includes(denominator)) {
     return { formatted: frac.toFraction(true), replacesUnit: false };
   }

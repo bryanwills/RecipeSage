@@ -308,15 +308,44 @@ describe("parsers", () => {
             "3 cups milk",
           );
         });
-        it("scales decimal by 1/3 to clean fraction", () => {
+        it("scales decimal by 1/3 to decimal, never a fraction", () => {
           expect(parseIngredients("1.5 cups milk", 1 / 3)[0].content).toBe(
-            "1/2 cups milk",
+            "0.5 cups milk",
           );
         });
         it("scales decimal to whole", () => {
           expect(parseIngredients("0.25 cup oil", 4)[0].content).toBe(
             "1 cup oil",
           );
+        });
+        it("preserves decimal when scaled result has weird denominator but terminates", () => {
+          expect(parseIngredients("1.7 L water", 6)[0].content).toBe(
+            "10.2 L water",
+          );
+        });
+        it("preserves decimal for one-tenths", () => {
+          expect(parseIngredients("0.1 cup oil", 7)[0].content).toBe(
+            "0.7 cup oil",
+          );
+        });
+        it("preserves decimal for tenths scaled to hundredths", () => {
+          expect(parseIngredients("1.5 L water", 1.7)[0].content).toBe(
+            "2.55 L water",
+          );
+        });
+        it("rounds non-terminating decimal scaling to a decimal, never a fraction", () => {
+          const result = parseIngredients("1.5 cups milk", 1 / 7)[0].content;
+          expect(result).toBe("~0.214 cups milk");
+        });
+        it("does not mark decimal-in integer-out as approximate", () => {
+          const result = parseIngredients("0.5 cups milk", 2)[0].content;
+          expect(result).toBe("1 cups milk");
+          expect(result).not.toContain("~");
+        });
+        it("rounds vanishingly small decimals to ~0 instead of leaking scientific notation", () => {
+          expect(
+            parseIngredients("0.0001 cup oil", 0.0001)[0].content,
+          ).toBe("~0 cup oil");
         });
       });
 
@@ -467,6 +496,11 @@ describe("parsers", () => {
           expect(
             parseIngredients("1-2 cups + 1 tablespoon water", 2)[0].content,
           ).toBe("2-4 cups + 2 tablespoon water");
+        });
+        it("scales decimal multipart, preserving decimal notation per part", () => {
+          expect(
+            parseIngredients("1 cup + 0.5 tablespoon butter", 2)[0].content,
+          ).toBe("2 cup + 1 tablespoon butter");
         });
       });
 
@@ -693,6 +727,12 @@ describe("parsers", () => {
         expect(result).toBe("2 cup + 4 tbsp + 6 tsp sugar");
       });
 
+      it("scales mixed decimal and fraction range per part", () => {
+        expect(parseIngredients("0.25-1/2 cup sugar", 3)[0].content).toBe(
+          "0.75-1 1/2 cup sugar",
+        );
+      });
+
       it("preserves tabs between measurement and ingredient text", () => {
         const result = parseIngredients("1 cup\t\tof flour", 2)[0].content;
         expect(result).toBe("2 cup\t\tof flour");
@@ -809,6 +849,12 @@ describe("parsers", () => {
         const result = parseIngredients("500 ml milk", 2, System.METRIC)[0]
           .content;
         expect(result).toBe("1000 ml milk");
+      });
+
+      it("preserves decimal notation when already in target system", () => {
+        const result = parseIngredients("1.7 L water", 6, System.METRIC)[0]
+          .content;
+        expect(result).toBe("10.2 L water");
       });
 
       it("leaves unit-less ingredients untouched in metric", () => {
