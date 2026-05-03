@@ -1224,5 +1224,16 @@
     "pages.contribute.bonus.reason": "Os recursos bônus estão acessíveis apenas aos colaboradores, pois esses recursos específicos têm um alto custo de hospedagem para mim.",
     "pages.contribute.minimum": "Infelizmente, o valor mínimo é ${{amount}} devido às taxas de transação — pedimos desculpas",
     "pages.assistant.messageSize": "Sua mensagem é longa demais. Envie uma mensagem mais curta.",
-    "pages.messageThread.tabTitle": "Conversa - RecipeSage"
+    "pages.messageThread.tabTitle": "Conversa - RecipeSage",
+    "pages.people.loading": "Carregando...",
+    "pages.profile.loading": "Carregando perfil...",
+    "pages.labels.loading": "Carregando seus rótulos...",
+    "pages.mealPlan.loading": "Carregando plano de refeições...",
+    "pages.mealPlans.loading": "Carregando seus planos de refeições...",
+    "pages.messages.loading": "Carregando suas mensagens...",
+    "pages.shoppingList.loading": "Carregando lista de compras...",
+    "pages.shoppingLists.loading": "Carregando suas listas de compras...",
+    "pages.myProfile.loading": "Carregando seu perfil...",
+    "pages.home.loading": "Carregando suas receitas...",
+    "errors.creditsLimitReached": "Limite diário atingido para recortes, importações e assistente de cozinha (desculpe, é caro!). O limite de uso é redefinido às 0:00 GMT. Considere contribuir para obter uma cota diária maior (~10x)."
 }
