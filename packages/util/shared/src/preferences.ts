@@ -30,6 +30,13 @@ export enum SupportedLanguages {
   SV = "sv", // Swedish
   RO = "ro", // Romanian
   CS = "cs", // Czech
+  AR_SA = "ar-sa", // Arabic, Saudi Arabia
+  HI = "hi", // Hindi
+  ES_MX = "es-mx", // Spanish, Mexico
+  KO = "ko", // Korean
+  NB_NO = "nb-no", // Norwegian Bokmål, Norway
+  TR = "tr", // Turkish
+  ZH_HANT = "zh-hant", // Chinese (Traditional)
 }
 
 export enum SupportedFontSize {

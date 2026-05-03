@@ -315,9 +315,17 @@ const defaultLocality = {
   sv: SupportedLanguages.SV,
   ro: SupportedLanguages.RO,
   cs: SupportedLanguages.CS,
+  ar: SupportedLanguages.AR_SA,
+  hi: SupportedLanguages.HI,
+  ko: SupportedLanguages.KO,
+  nb: SupportedLanguages.NB_NO,
+  tr: SupportedLanguages.TR,
+  "zh-tw": SupportedLanguages.ZH_HANT,
+  "zh-hk": SupportedLanguages.ZH_HANT,
+  "zh-mo": SupportedLanguages.ZH_HANT,
 };
 
-const rtlLanguages = [SupportedLanguages.HE];
+const rtlLanguages = [SupportedLanguages.HE, SupportedLanguages.AR_SA];
 
 @Injectable({
   providedIn: "root",
@@ -346,19 +354,24 @@ export class UtilService {
     // Navigator language can be in the form 'en', or 'en-us' for any given language
     const navLang = window.navigator.language.toLowerCase();
     const navLangNoRegion = navLang.split("-")[0];
-    const defaultLocalized =
-      navLangNoRegion in defaultLocality
-        ? defaultLocality[navLangNoRegion as keyof typeof defaultLocality]
+    const lookup = (key: string) =>
+      key in defaultLocality
+        ? defaultLocality[key as keyof typeof defaultLocality]
         : undefined;
 
     // We always prefer to return the exact language the navigator requested if we have it
     if (isSupported(navLang)) return navLang;
 
+    // Look for a region-specific default mapping (e.g. zh-tw -> zh-hant)
+    const regionDefault = lookup(navLang);
+    if (isSupported(regionDefault)) return regionDefault;
+
     // Look for a language with no locality ('en')
     if (isSupported(navLangNoRegion)) return navLangNoRegion;
 
     // Look for a language with a locality we have a 'default locality' mapping for as a last resort
-    if (isSupported(defaultLocalized)) return defaultLocalized;
+    const baseDefault = lookup(navLangNoRegion);
+    if (isSupported(baseDefault)) return baseDefault;
 
     return SupportedLanguages.EN_US;
   }

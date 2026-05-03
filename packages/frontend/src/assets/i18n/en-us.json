@@ -73,6 +73,9 @@
   "pages.welcome.description.cta.5": "Collaborate with family and friends on meals and shopping",
   "pages.welcome.languages.title": "In your language",
   "pages.welcome.languages.description": "RecipeSage is community-translated. The interface, ingredient parsing, and shopping list categorization all work in your language.",
+  "pages.welcome.demoVideo.label": "RecipeSage auto-import demo",
+
+  "pages.www.nav.language": "Language",
 
   "pages.auth.tabTitle": "RecipeSage",
   "pages.auth.title.login": "Log In",
@@ -388,6 +391,10 @@
   "pages.downloadAndInstall.bookmark.description": "Automatically grabs recipe content from webpages. The browser extension is recommended instead of this bookmark.",
   "pages.downloadAndInstall.extension": "RecipeSage Clip Tool browser extension",
   "pages.downloadAndInstall.extension.description": "Automatically grabs recipe content from webpages, and has greater compatibility across websites that might not import via the in-app importer.",
+  "pages.downloadAndInstall.extension.installFirefox": "Install for Firefox",
+  "pages.downloadAndInstall.extension.installChrome": "Install for Chrome",
+  "pages.downloadAndInstall.icon.menuDots": "three vertical dots icon",
+  "pages.downloadAndInstall.icon.share": "share icon",
 
   "pages.labelsPopover.title": "Options",
   "pages.labelsPopover.options.showCreatedAt": "Show Created At",

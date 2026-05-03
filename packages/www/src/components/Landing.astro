@@ -2,7 +2,7 @@
 import {
   DEFAULT_LOCALE,
   LOCALE_NAMES,
-  SUPPORTED_LOCALES,
+  WWW_SUPPORTED_LOCALES,
   toBcp47,
   type Translator,
 } from "../i18n/translations";
@@ -48,7 +48,7 @@ const localeHref = (loc: string) => (loc === DEFAULT_LOCALE ? "/" : `/${loc}/`);
         muted
         playsinline
         preload="metadata"
-        aria-label="RecipeSage auto-import demo"
+        aria-label={t("pages.welcome.demoVideo.label")}
         poster="https://static.recipesage.com/assets/android-autoimport-demo.png"
       >
         <source
@@ -81,9 +81,9 @@ const localeHref = (loc: string) => (loc === DEFAULT_LOCALE ? "/" : `/${loc}/`);
 
   <h2>{t("pages.welcome.languages.title")}</h2>
   <p>{t("pages.welcome.languages.description")}</p>
-  <ul class="languages" aria-label="Supported languages">
+  <ul class="languages" aria-label={t("pages.welcome.languages.title")}>
     {
-      SUPPORTED_LOCALES.map((loc) => (
+      WWW_SUPPORTED_LOCALES.map((loc) => (
         <li>
           <a
             href={localeHref(loc)}
