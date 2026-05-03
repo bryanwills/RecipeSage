@@ -4,19 +4,24 @@ export const DEFAULT_LOCALE = "en-us";
 
 export const LOCALE_NAMES: Record<string, string> = {
   "en-us": "English",
+  "ar-sa": "العربية",
   cs: "Čeština",
   "da-dk": "Dansk",
   "de-de": "Deutsch",
   el: "Ελληνικά",
-  "es-es": "Español",
+  "es-es": "Español (España)",
+  "es-mx": "Español (México)",
   eu: "Euskara",
   fi: "Suomi",
   "fr-fr": "Français",
   he: "עברית",
+  hi: "हिन्दी",
   "hu-hu": "Magyar",
   "it-it": "Italiano",
   ja: "日本語",
+  ko: "한국어",
   lt: "Lietuvių",
+  "nb-no": "Norsk bokmål",
   nl: "Nederlands",
   pl: "Polski",
   "pt-br": "Português (Brasil)",
@@ -24,8 +29,10 @@ export const LOCALE_NAMES: Record<string, string> = {
   ro: "Română",
   "ru-ru": "Русский",
   sv: "Svenska",
+  tr: "Türkçe",
   "uk-ua": "Українська",
   "zh-cn": "中文 (简体)",
+  "zh-hant": "中文 (繁體)",
 } satisfies Record<SupportedLanguages, string>;
 
 const i18nModules = import.meta.glob<Record<string, string>>(
@@ -60,34 +67,11 @@ export function isRtl(locale: string): boolean {
   return RTL_LOCALES.has(locale.split("-")[0]);
 }
 
-const OG_LOCALE: Record<string, string> = {
-  "en-us": "en_US",
-  cs: "cs_CZ",
-  "da-dk": "da_DK",
-  "de-de": "de_DE",
-  el: "el_GR",
-  "es-es": "es_ES",
-  eu: "eu_ES",
-  fi: "fi_FI",
-  "fr-fr": "fr_FR",
-  he: "he_IL",
-  "hu-hu": "hu_HU",
-  "it-it": "it_IT",
-  ja: "ja_JP",
-  lt: "lt_LT",
-  nl: "nl_NL",
-  pl: "pl_PL",
-  "pt-br": "pt_BR",
-  "pt-pt": "pt_PT",
-  ro: "ro_RO",
-  "ru-ru": "ru_RU",
-  sv: "sv_SE",
-  "uk-ua": "uk_UA",
-  "zh-cn": "zh_CN",
-} satisfies Record<SupportedLanguages, string>;
-
 export function toOgLocale(locale: string): string {
-  return OG_LOCALE[locale] ?? toBcp47(locale).replace("-", "_");
+  const parsed = new Intl.Locale(locale);
+  return parsed.region
+    ? `${parsed.language}_${parsed.region}`
+    : parsed.language;
 }
 
 export type Translator = (key: string) => string;
@@ -105,6 +89,5 @@ export function localePath(locale: string, path: string): string {
 }
 
 export function toBcp47(locale: string): string {
-  const [lang, region] = locale.split("-");
-  return region ? `${lang}-${region.toUpperCase()}` : lang;
+  return new Intl.Locale(locale).toString();
 }
