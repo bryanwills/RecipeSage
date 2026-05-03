@@ -1224,5 +1224,16 @@
     "generic.okay": "Gerai",
     "pages.downloadAndInstall.desktop.step.3": "Spustelėkite „Įdiegti RecipeSage...“",
     "pages.downloadAndInstall.other": "Kita RecipeSage programinė įranga",
-    "pages.labelsPopover.options.unselectLabels": "Panaikinti visų etikečių pasirinkimą"
+    "pages.labelsPopover.options.unselectLabels": "Panaikinti visų etikečių pasirinkimą",
+    "pages.mealPlans.loading": "Įkeliami jūsų valgiaraščiai...",
+    "pages.messages.loading": "Įkeliami jūsų pranešimai...",
+    "pages.shoppingList.loading": "Įkeliamas pirkinių sąrašas...",
+    "pages.shoppingLists.loading": "Įkeliami jūsų pirkinių sąrašai...",
+    "pages.myProfile.loading": "Įkeliamas jūsų profilis...",
+    "pages.people.loading": "Įkeliama...",
+    "pages.profile.loading": "Įkeliamas profilis...",
+    "pages.home.loading": "Įkeliami jūsų receptai...",
+    "pages.labels.loading": "Įkeliamos jūsų etiketės...",
+    "pages.mealPlan.loading": "Įkeliamas valgiaraštis...",
+    "errors.creditsLimitReached": "Pasiektas dienos limitas iškarpoms, importavimui ir gaminimo asistentui (atsiprašome, tai brangu!). Naudojimo limitas atstatomas 0:00 GMT. Apsvarstykite galimybę prisidėti, kad gautumėte didesnę dienos normą (~10 kartų)."
 }
