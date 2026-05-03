@@ -149,7 +149,7 @@ export class RecipePage {
     title: string;
     recipeImages: Array<{ image: { location: string } }>;
   }> = [];
-  recipeId: string;
+  recipeId: string = "";
   ingredients?: ParsedIngredient[];
   instructions?: ParsedInstruction[];
   notes?: ParsedNote[];
@@ -210,21 +210,27 @@ export class RecipePage {
       trash,
     });
     this.updateIsLoggedIn();
+    this.applyRouteParams();
+    this.applyScale();
+  }
 
+  private applyRouteParams() {
     const recipeId = this.route.snapshot.paramMap.get("recipeId");
     if (!recipeId) {
       this.navCtrl.navigateBack(this.defaultBackHref);
       throw new Error("No recipeId was provided");
     }
     this.recipeId = recipeId;
-
     this.scale =
       this.recipeCompletionTrackerService.getRecipeScale(this.recipeId) || "1";
-
-    this.applyScale();
   }
 
   ionViewWillEnter() {
+    const snapshotRecipeId = this.route.snapshot.paramMap.get("recipeId");
+    if (snapshotRecipeId && snapshotRecipeId !== this.recipeId) {
+      this.applyRouteParams();
+    }
+
     this.recipe = null;
     this.me = null;
     this.similarRecipes = [];

@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import {
@@ -91,7 +91,7 @@ const TILE_PADD = 20;
     IonSpinner,
   ],
 })
-export class HomePage {
+export class HomePage implements OnDestroy {
   private navCtrl = inject(NavController);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -124,7 +124,7 @@ export class HomePage {
 
   searchText = "";
 
-  folder: RecipeFolderName;
+  folder: RecipeFolderName = "main";
 
   preferences = this.preferencesService.preferences;
   preferenceKeys = MyRecipesPreferenceKey;
@@ -196,31 +196,11 @@ export class HomePage {
       search,
       trash,
     });
-    this.showBack =
-      !!this.router.getCurrentNavigation()?.extras.state?.showBack;
 
-    this.folder =
-      (this.route.snapshot.paramMap.get("folder") as RecipeFolderName) ||
-      "main";
-    this.selectedLabels = (
-      this.route.snapshot.queryParamMap.get("labels") || ""
-    )
-      .split(",")
-      .filter((e) => e);
-    this.userId = this.route.snapshot.queryParamMap.get("userId") || undefined;
-    if (this.userId) {
+    this.applyRouteParams();
+    if (this.router.getCurrentNavigation()?.extras.state?.showBack) {
       this.showBack = true;
-      this.serverActionsService.users
-        .getUserProfilesById({
-          ids: [this.userId],
-        })
-        .then((profileResponse) => {
-          const userProfile = profileResponse?.at(0);
-          if (!userProfile) return;
-          this.otherUserProfile = userProfile;
-        });
     }
-    this.setDefaultBackHref();
 
     this.websocketService.on("messages:new", this.onWSEvent);
     this.events.subscribe(
@@ -238,17 +218,57 @@ export class HomePage {
       EventName.ImportPepperplateComplete,
       this.onImportComplete,
     );
-    this.events.subscribe(
-      EventName.ApplicationSplitPaneChanged,
-      this.updateTileColCount,
+  }
+
+  ngOnDestroy() {
+    this.websocketService.off("messages:new", this.onWSEvent);
+    this.events.unsubscribe(
+      [
+        EventName.RecipeCreated,
+        EventName.RecipeUpdated,
+        EventName.RecipeDeleted,
+        EventName.LabelCreated,
+        EventName.LabelUpdated,
+        EventName.LabelDeleted,
+      ],
+      this.setReloadPending,
+    );
+    this.events.unsubscribe(
+      EventName.ImportPepperplateComplete,
+      this.onImportComplete,
     );
   }
 
   ionViewWillEnter() {
     window.addEventListener("resize", this.updateTileColCount);
+    this.events.subscribe(
+      EventName.ApplicationSplitPaneChanged,
+      this.updateTileColCount,
+    );
     this.updateTileColCount();
 
     this.clearSelectedRecipes();
+
+    const snapshotFolder =
+      (this.route.snapshot.paramMap.get("folder") as RecipeFolderName) ||
+      "main";
+    const snapshotUserId =
+      this.route.snapshot.queryParamMap.get("userId") || undefined;
+    const snapshotLabels = (
+      this.route.snapshot.queryParamMap.get("labels") || ""
+    )
+      .split(",")
+      .filter((e) => e);
+
+    const paramsChanged =
+      snapshotFolder !== this.folder ||
+      snapshotUserId !== this.userId ||
+      snapshotLabels.join(",") !== this.selectedLabels.join(",");
+
+    if (paramsChanged) {
+      this.applyRouteParams();
+      this.reloadPending = true;
+    }
 
     if (this.reloadPending) {
       const loading = this.loadingService.start();
@@ -263,6 +283,10 @@ export class HomePage {
 
   ionViewWillLeave() {
     window.removeEventListener("resize", this.updateTileColCount);
+    this.events.unsubscribe(
+      EventName.ApplicationSplitPaneChanged,
+      this.updateTileColCount,
+    );
   }
 
   onWSEvent = (data: Record<string, string>) => {
@@ -286,18 +310,38 @@ export class HomePage {
     this.reloadPending = true;
   };
 
-  async setDefaultBackHref() {
-    if (this.userId) {
-      const response =
-        await this.serverActionsService.users.getUserProfilesById({
-          ids: [this.userId],
-        });
-      const userProfile = response?.at(0);
-      if (!userProfile) return;
+  private applyRouteParams() {
+    this.folder =
+      (this.route.snapshot.paramMap.get("folder") as RecipeFolderName) ||
+      "main";
+    this.selectedLabels = (
+      this.route.snapshot.queryParamMap.get("labels") || ""
+    )
+      .split(",")
+      .filter((e) => e);
+    this.userId = this.route.snapshot.queryParamMap.get("userId") || undefined;
 
-      this.defaultBackHref = RouteMap.ProfilePage.getPath(
-        `@${userProfile.handle}`,
-      );
+    this.otherUserProfile = undefined;
+    this.showBack = !!this.userId;
+    this.defaultBackHref = RouteMap.PeoplePage.getPath();
+
+    if (this.userId) {
+      const expectedUserId = this.userId;
+      this.serverActionsService.users
+        .getUserProfilesById({
+          ids: [expectedUserId],
+        })
+        .then((profileResponse) => {
+          // Guard against stale pageload
+          if (this.userId !== expectedUserId) return;
+
+          const userProfile = profileResponse?.at(0);
+          if (!userProfile) return;
+          this.otherUserProfile = userProfile;
+          this.defaultBackHref = RouteMap.ProfilePage.getPath(
+            `@${userProfile.handle}`,
+          );
+        });
     }
   }
 

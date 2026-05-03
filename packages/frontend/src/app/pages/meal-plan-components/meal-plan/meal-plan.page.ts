@@ -105,7 +105,7 @@ export class MealPlanPage {
   selectedDaysInProgress?: string[];
 
   me?: UserPublic;
-  mealPlanId: string; // From nav params
+  mealPlanId: string = ""; // From nav params
   mealPlan?: MealPlanSummary;
   mealPlanItems?: MealPlanItemSummary[];
 
@@ -142,6 +142,10 @@ export class MealPlanPage {
 
   constructor() {
     addIcons({ add, calendar, chevronDown, chevronUp, options });
+    this.applyRouteParams();
+  }
+
+  private applyRouteParams() {
     const mealPlanId = this.route.snapshot.paramMap.get("mealPlanId");
     if (!mealPlanId) {
       this.navCtrl.navigateBack(this.defaultBackHref);
@@ -151,6 +155,14 @@ export class MealPlanPage {
   }
 
   ionViewWillEnter() {
+    const snapshotMealPlanId = this.route.snapshot.paramMap.get("mealPlanId");
+    if (snapshotMealPlanId && snapshotMealPlanId !== this.mealPlanId) {
+      this.applyRouteParams();
+      this.mealPlan = undefined;
+      this.mealPlanItems = undefined;
+      this.reference = "0";
+    }
+
     this.loadWithProgress();
 
     this.websocketService.on("mealplan:updated", this.onWSEvent);
