@@ -2,7 +2,7 @@
 import {
   DEFAULT_LOCALE,
   LOCALE_NAMES,
-  SUPPORTED_LOCALES,
+  WWW_SUPPORTED_LOCALES,
   toBcp47,
   type Translator,
 } from "../i18n/translations";
@@ -83,7 +83,7 @@ const localeHref = (loc: string) => (loc === DEFAULT_LOCALE ? "/" : `/${loc}/`);
   <p>{t("pages.welcome.languages.description")}</p>
   <ul class="languages" aria-label={t("pages.welcome.languages.title")}>
     {
-      SUPPORTED_LOCALES.map((loc) => (
+      WWW_SUPPORTED_LOCALES.map((loc) => (
         <li>
           <a
             href={localeHref(loc)}

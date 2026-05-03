@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import {
   DEFAULT_LOCALE,
-  SUPPORTED_LOCALES,
+  WWW_SUPPORTED_LOCALES,
   toBcp47,
 } from "../i18n/translations";
 
@@ -27,14 +27,14 @@ export const GET: APIRoute = ({ site }) => {
   const urls: string[] = [];
   for (const path of PAGES) {
     const alternates = [
-      ...SUPPORTED_LOCALES.map(
+      ...WWW_SUPPORTED_LOCALES.map(
         (loc) =>
           `    <xhtml:link rel="alternate" hreflang="${toBcp47(loc)}" href="${urlForLocale(site, loc, path)}" />`,
       ),
       `    <xhtml:link rel="alternate" hreflang="x-default" href="${urlForLocale(site, DEFAULT_LOCALE, path)}" />`,
     ].join("\n");
 
-    for (const loc of SUPPORTED_LOCALES) {
+    for (const loc of WWW_SUPPORTED_LOCALES) {
       urls.push(
         [
           "  <url>",

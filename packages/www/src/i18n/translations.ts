@@ -42,6 +42,18 @@ for (const [path, dict] of Object.entries(i18nModules)) {
 
 export const SUPPORTED_LOCALES = Object.keys(i18nByLocale).sort();
 
+const WWW_REQUIRED_KEYS = [
+  "pages.welcome.title",
+  "pages.welcome.subtitle",
+  "pages.welcome.description.1",
+  "pages.about.title",
+  "pages.pricing.title",
+];
+
+export const WWW_SUPPORTED_LOCALES = SUPPORTED_LOCALES.filter((loc) =>
+  WWW_REQUIRED_KEYS.every((k) => i18nByLocale[loc]?.[k] !== undefined),
+);
+
 const RTL_LOCALES = new Set(["he", "ar", "fa", "ur"]);
 
 export function isRtl(locale: string): boolean {

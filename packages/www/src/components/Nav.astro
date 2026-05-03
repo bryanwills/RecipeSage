@@ -2,7 +2,7 @@
 import {
   DEFAULT_LOCALE,
   LOCALE_NAMES,
-  SUPPORTED_LOCALES,
+  WWW_SUPPORTED_LOCALES,
   localePath,
   toBcp47,
   type Translator,
@@ -72,7 +72,7 @@ const downloadHref = localePath(locale, "/download");
       </summary>
       <ul class="lang-menu" role="menu">
         {
-          SUPPORTED_LOCALES.map((loc) => (
+          WWW_SUPPORTED_LOCALES.map((loc) => (
             <li role="none">
               <a
                 role="menuitem"

@@ -3,13 +3,13 @@ import RootLayout from "../../components/RootLayout.astro";
 import AboutContent from "../../components/About.astro";
 import {
   DEFAULT_LOCALE,
-  SUPPORTED_LOCALES,
+  WWW_SUPPORTED_LOCALES,
   localePath,
   makeTranslator,
 } from "../../i18n/translations";
 
 export function getStaticPaths() {
-  return SUPPORTED_LOCALES.filter((l) => l !== DEFAULT_LOCALE).map((l) => ({
+  return WWW_SUPPORTED_LOCALES.filter((l) => l !== DEFAULT_LOCALE).map((l) => ({
     params: { lang: l },
   }));
 }

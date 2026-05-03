@@ -2,7 +2,7 @@
 import Nav from "./Nav.astro";
 import {
   DEFAULT_LOCALE,
-  SUPPORTED_LOCALES,
+  WWW_SUPPORTED_LOCALES,
   isRtl,
   localePath,
   makeTranslator,
@@ -46,7 +46,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const homeHref = locale === DEFAULT_LOCALE ? "/" : `/${locale}/`;
 
 const stripLocalePrefix = (pathname: string): string => {
-  for (const loc of SUPPORTED_LOCALES) {
+  for (const loc of WWW_SUPPORTED_LOCALES) {
     if (loc === DEFAULT_LOCALE) continue;
     if (pathname === `/${loc}` || pathname === `/${loc}/`) return "/";
     if (pathname.startsWith(`/${loc}/`)) return pathname.slice(loc.length + 1);
@@ -67,7 +67,7 @@ const localeHomeURL = new URL(homeHref, Astro.site).toString();
 const htmlLang = toBcp47(locale);
 const htmlDir = isRtl(locale) ? "rtl" : "ltr";
 const ogLocale = toOgLocale(locale);
-const ogLocaleAlternates = SUPPORTED_LOCALES.filter((loc) => loc !== locale).map(
+const ogLocaleAlternates = WWW_SUPPORTED_LOCALES.filter((loc) => loc !== locale).map(
   (loc) => toOgLocale(loc),
 );
 const aboutHref = localePath(locale, "/about");
@@ -175,7 +175,7 @@ const finalStructuredData = structuredData ?? defaultStructuredData;
 
     <link rel="canonical" href={canonicalURL} />
     {
-      SUPPORTED_LOCALES.map((loc) => (
+      WWW_SUPPORTED_LOCALES.map((loc) => (
         <link
           rel="alternate"
           hreflang={toBcp47(loc)}
