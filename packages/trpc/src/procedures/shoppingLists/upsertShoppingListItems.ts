@@ -1,6 +1,6 @@
 import { publicProcedure } from "../../trpc";
 import {
-  WSBoardcastEventType,
+  WSBroadcastEventType,
   broadcastWSEventIgnoringErrors,
   getShoppingListItemCategories,
   validateTrpcSession,
@@ -139,7 +139,7 @@ export const upsertShoppingListItems = publicProcedure
     for (const subscriberId of access.subscriberIds) {
       broadcastWSEventIgnoringErrors(
         subscriberId,
-        WSBoardcastEventType.ShoppingListUpdated,
+        WSBroadcastEventType.ShoppingListUpdated,
         {
           reference,
           shoppingListId: input.shoppingListId,

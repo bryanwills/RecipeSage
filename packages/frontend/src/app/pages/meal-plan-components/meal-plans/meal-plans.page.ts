@@ -16,8 +16,6 @@ import {
   IonMenuButton,
   IonTitle,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonList,
   IonItem,
   IonIcon,
@@ -25,6 +23,7 @@ import {
   IonBadge,
   IonFab,
   IonFabButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import { add, calendar } from "ionicons/icons";
 import { addIcons } from "ionicons";
@@ -43,8 +42,6 @@ import { addIcons } from "ionicons";
     IonMenuButton,
     IonTitle,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonList,
     IonItem,
     IonIcon,
@@ -52,6 +49,7 @@ import { addIcons } from "ionicons";
     IonBadge,
     IonFab,
     IonFabButton,
+    IonSpinner,
   ],
 })
 export class MealPlansPage {
@@ -78,29 +76,16 @@ export class MealPlansPage {
       loading.dismiss();
     });
 
-    this.websocketService.on("mealPlan:received", this.onWSEvent);
-    this.websocketService.on("mealPlan:removed", this.onWSEvent);
+    this.websocketService.on("mealplan:updated", this.onWSEvent);
   }
 
   ionViewWillLeave() {
-    this.websocketService.off("mealPlan:received", this.onWSEvent);
-    this.websocketService.off("mealPlan:removed", this.onWSEvent);
+    this.websocketService.off("mealplan:updated", this.onWSEvent);
   }
 
   onWSEvent = () => {
     this.loadPlans();
   };
-
-  refresh(refresher: any) {
-    this.loadPlans().then(
-      () => {
-        refresher.target.complete();
-      },
-      () => {
-        refresher.target.complete();
-      },
-    );
-  }
 
   async loadMe() {
     const me = await this.serverActionsService.users.getMe();

@@ -23,8 +23,6 @@ import {
   IonButton,
   IonIcon,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonPopover,
   IonListHeader,
   IonList,
@@ -33,6 +31,7 @@ import {
   IonBadge,
   IonFab,
   IonFabButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import { add, ban, cart, list, options } from "ionicons/icons";
 import { addIcons } from "ionicons";
@@ -53,8 +52,6 @@ import { addIcons } from "ionicons";
     IonButton,
     IonIcon,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonPopover,
     IonListHeader,
     IonList,
@@ -63,6 +60,7 @@ import { addIcons } from "ionicons";
     IonBadge,
     IonFab,
     IonFabButton,
+    IonSpinner,
   ],
 })
 export class ShoppingListsPage {
@@ -84,22 +82,17 @@ export class ShoppingListsPage {
   ionViewWillEnter() {
     const loading = this.loadingService.start();
 
+    this.shoppingLists = undefined;
+
     Promise.all([this.loadLists(), this.loadMe()]).finally(() => {
       loading.dismiss();
     });
 
-    this.websocketService.on("shoppingList:received", this.loadLists);
-    this.websocketService.on("shoppingList:removed", this.loadLists);
+    this.websocketService.on("shoppinglist:updated", this.loadLists);
   }
 
   ionViewWillLeave() {
-    this.websocketService.off("shoppingList:received", this.loadLists);
-    this.websocketService.off("shoppingList:removed", this.loadLists);
-  }
-
-  async refresh(refresher: any) {
-    await this.loadLists();
-    refresher.target.complete();
+    this.websocketService.off("shoppinglist:updated", this.loadLists);
   }
 
   async loadMe() {

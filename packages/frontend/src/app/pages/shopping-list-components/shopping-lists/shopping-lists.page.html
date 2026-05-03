@@ -15,9 +15,6 @@
 </ion-header>
 
 <ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
   <ion-popover trigger="popover-trigger" triggerAction="click">
     <ng-template>
       <ion-content class="ion-padding">
@@ -93,6 +90,14 @@
         </ion-label>
         <ion-badge slot="end">{{ shoppingList._count.items }}</ion-badge>
       </ion-item>
+    }
+    @if (shoppingLists === undefined) {
+      <null-state>
+        <ion-spinner virtualSlot="header"></ion-spinner>
+        <ion-label virtualSlot="body">
+          <p>{{ "pages.shoppingLists.loading" | translate }}</p>
+        </ion-label>
+      </null-state>
     }
     @if (shoppingLists?.length === 0) {
       <null-state>

@@ -9,15 +9,20 @@
 </ion-header>
 
 <ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
-
   @if (isSelfHost) {
     <selfhost-warning-item></selfhost-warning-item>
   }
 
   <br />
+
+  @if (accountInfo === undefined) {
+    <null-state>
+      <ion-spinner virtualSlot="header"></ion-spinner>
+      <ion-label virtualSlot="body">
+        <p>{{ "pages.people.loading" | translate }}</p>
+      </ion-label>
+    </null-state>
+  }
 
   @if (accountInfo && !accountInfo.enableProfile) {
     <null-state>

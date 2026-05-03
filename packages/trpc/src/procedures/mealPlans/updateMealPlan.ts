@@ -1,6 +1,6 @@
 import { publicProcedure } from "../../trpc";
 import {
-  WSBoardcastEventType,
+  WSBroadcastEventType,
   broadcastWSEventIgnoringErrors,
   validateTrpcSession,
 } from "@recipesage/util/server/general";
@@ -97,7 +97,7 @@ export const updateMealPlan = publicProcedure
       for (const subscriberId of subscriberIds) {
         broadcastWSEventIgnoringErrors(
           subscriberId,
-          WSBoardcastEventType.MealPlanUpdated,
+          WSBroadcastEventType.MealPlanUpdated,
           {
             reference,
             mealPlanId: updatedMealPlan.id,
@@ -126,7 +126,7 @@ export const updateMealPlan = publicProcedure
     for (const subscriberId of access.subscriberIds) {
       broadcastWSEventIgnoringErrors(
         subscriberId,
-        WSBoardcastEventType.MealPlanUpdated,
+        WSBroadcastEventType.MealPlanUpdated,
         {
           reference,
           mealPlanId: updatedMealPlan.id,

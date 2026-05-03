@@ -24,8 +24,6 @@ import {
   IonMenuButton,
   IonTitle,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonIcon,
   IonLabel,
   IonButton,
@@ -35,6 +33,7 @@ import {
   IonItemDivider,
   IonFab,
   IonFabButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import { add, people, personCircle, search } from "ionicons/icons";
 import { addIcons } from "ionicons";
@@ -54,8 +53,6 @@ import { addIcons } from "ionicons";
     IonMenuButton,
     IonTitle,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonIcon,
     IonLabel,
     IonButton,
@@ -65,6 +62,7 @@ import { addIcons } from "ionicons";
     IonItemDivider,
     IonFab,
     IonFabButton,
+    IonSpinner,
   ],
 })
 export class PeoplePage {
@@ -170,10 +168,5 @@ export class PeoplePage {
 
   async editProfile() {
     this.navCtrl.navigateForward(RouteMap.MyProfilePage.getPath());
-  }
-
-  async refresh(refresher: any) {
-    refresher.target.complete();
-    this.load();
   }
 }

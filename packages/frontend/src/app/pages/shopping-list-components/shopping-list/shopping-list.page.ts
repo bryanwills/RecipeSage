@@ -41,14 +41,13 @@ import {
   IonButton,
   IonIcon,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonList,
   IonListHeader,
   IonLabel,
   IonItem,
   IonFab,
   IonFabButton,
+  IonSpinner,
 } from "@ionic/angular/standalone";
 import {
   add,
@@ -94,14 +93,13 @@ const categoryTitlesToi18n: Record<string, string> = {
     IonButton,
     IonIcon,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonList,
     IonListHeader,
     IonLabel,
     IonItem,
     IonFab,
     IonFabButton,
+    IonSpinner,
   ],
 })
 export class ShoppingListPage {
@@ -161,11 +159,11 @@ export class ShoppingListPage {
       loading.dismiss();
     });
 
-    this.websocketService.on("shoppingList:itemsUpdated", this.onWSEvent);
+    this.websocketService.on("shoppinglist:updated", this.onWSEvent);
   }
 
   ionViewWillLeave() {
-    this.websocketService.off("shoppingList:itemsUpdated", this.onWSEvent);
+    this.websocketService.off("shoppinglist:updated", this.onWSEvent);
   }
 
   onWSEvent = (data: Record<string, string>) => {
@@ -177,12 +175,6 @@ export class ShoppingListPage {
       this.loadList();
     }
   };
-
-  refresh(loader: any) {
-    this.loadList().finally(() => {
-      loader.target.complete();
-    });
-  }
 
   async loadMe() {
     const me = await this.serverActionsService.users.getMe();

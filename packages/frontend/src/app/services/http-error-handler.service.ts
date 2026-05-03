@@ -30,7 +30,15 @@ export class HttpErrorHandlerService {
         "errors.resourceNotFound",
         "errors.resourceNotFound.message",
       ),
-    420: () => this.presentSimpleAlert("pages.credits.limitReached"),
+    420: () => this.presentSimpleAlert("errors.creditsLimitReached"),
+    429: (error) => {
+      // A little brittle, but tRPC doesn't support custom error codes for 420
+      if (error.message === "Daily credit limit reached") {
+        this.presentSimpleAlert("errors.creditsLimitReached");
+      } else {
+        this.presentAlert("generic.error", "errors.unexpected");
+      }
+    },
     500: (error) => {
       Sentry.captureException(error);
       this.presentAlert(

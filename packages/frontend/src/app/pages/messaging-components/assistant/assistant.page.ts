@@ -25,8 +25,6 @@ import {
   IonButton,
   IonIcon,
   IonContent,
-  IonRefresher,
-  IonRefresherContent,
   IonLabel,
   IonItem,
   IonAvatar,
@@ -54,8 +52,6 @@ import { addIcons } from "ionicons";
     IonButton,
     IonIcon,
     IonContent,
-    IonRefresher,
-    IonRefresherContent,
     IonLabel,
     IonItem,
     IonAvatar,
@@ -130,17 +126,6 @@ export class AssistantPage {
         this.reloading = false; // TODO: Replace with better delay for minimum animation time
       }, 350);
     });
-  }
-
-  refresh(refresher: any) {
-    this.loadMessages("bottom", true).then(
-      () => {
-        refresher.target.complete();
-      },
-      () => {
-        refresher.target.complete();
-      },
-    );
   }
 
   scrollToBottom(animate?: boolean, delay?: boolean, callback?: () => any) {
