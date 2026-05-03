@@ -1225,5 +1225,15 @@
     "pages.manageLabelGroupModal.groupTitleHint": "Många börjar med \"Måltid\", \"Kost\" eller \"Kök\"",
     "pages.manageLabelGroupModal.warn": "Varna mig när jag inte lägger till",
     "pages.manageLabelGroupModal.conflictMessage": "En etikettkategori med den titeln finns redan",
-    "pages.contact.socialTitle": "Sociala medier"
+    "pages.contact.socialTitle": "Sociala medier",
+    "pages.home.loading": "Läser in dina recept...",
+    "pages.labels.loading": "Läser in dina etiketter...",
+    "pages.mealPlan.loading": "Läser in måltidsplan...",
+    "pages.mealPlans.loading": "Läser in dina måltidsplaner...",
+    "pages.messages.loading": "Läser in dina meddelanden...",
+    "pages.shoppingList.loading": "Läser in inköpslista...",
+    "pages.shoppingLists.loading": "Läser in dina inköpslistor...",
+    "pages.myProfile.loading": "Läser in din profil...",
+    "pages.people.loading": "Läser in...",
+    "pages.profile.loading": "Läser in profil..."
 }
