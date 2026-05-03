@@ -135,7 +135,7 @@ export class EditRecipePage {
   private preferencesService = inject(PreferencesService);
 
   saving = false;
-  defaultBackHref: string;
+  defaultBackHref: string = RouteMap.HomePage.getPath("main");
 
   nutritionAccordionValue: string | null = this.preferencesService.preferences[
     RecipeDetailsPreferenceKey.AutoExpandNutrition
@@ -176,21 +176,34 @@ export class EditRecipePage {
 
   constructor() {
     addIcons({ camera, close, cutOutline, documentTextOutline, link, options });
+    this.applyRouteParams();
+    this.load();
+  }
+
+  private applyRouteParams() {
     const recipeId = this.route.snapshot.paramMap.get("recipeId") || "new";
 
     if (recipeId === "new") {
+      this.recipeId = undefined;
       this.checkAutoClip();
     } else {
       this.recipeId = recipeId;
     }
-    this.load();
 
     this.defaultBackHref = this.recipeId
       ? RouteMap.RecipePage.getPath(this.recipeId)
       : RouteMap.HomePage.getPath("main");
   }
 
-  ionViewWillEnter() {}
+  ionViewWillEnter() {
+    const snapshotRecipeId =
+      this.route.snapshot.paramMap.get("recipeId") || "new";
+    const currentRecipeId = this.recipeId || "new";
+    if (snapshotRecipeId !== currentRecipeId) {
+      this.applyRouteParams();
+      this.load();
+    }
+  }
 
   async load() {
     const loading = this.loadingService.start();

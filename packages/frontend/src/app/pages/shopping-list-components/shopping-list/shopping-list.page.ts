@@ -120,7 +120,7 @@ export class ShoppingListPage {
   defaultBackHref: string = RouteMap.ShoppingListsPage.getPath();
 
   me?: UserPublic;
-  shoppingListId: string;
+  shoppingListId: string = "";
   shoppingList?: ShoppingListSummary;
   shoppingListItems?: ShoppingListItemSummary[];
 
@@ -143,6 +143,10 @@ export class ShoppingListPage {
 
   constructor() {
     addIcons({ add, arrowUndo, caretDown, caretUp, cart, options, trash });
+    this.applyRouteParams();
+  }
+
+  private applyRouteParams() {
     const shoppingListId = this.route.snapshot.paramMap.get("shoppingListId");
     if (shoppingListId) {
       this.shoppingListId = shoppingListId;
@@ -153,6 +157,18 @@ export class ShoppingListPage {
   }
 
   ionViewWillEnter() {
+    const snapshotShoppingListId =
+      this.route.snapshot.paramMap.get("shoppingListId");
+    if (
+      snapshotShoppingListId &&
+      snapshotShoppingListId !== this.shoppingListId
+    ) {
+      this.applyRouteParams();
+      this.shoppingList = undefined;
+      this.shoppingListItems = undefined;
+      this.reference = "0";
+    }
+
     const loading = this.loadingService.start();
 
     Promise.all([this.loadList(), this.loadMe()]).finally(() => {

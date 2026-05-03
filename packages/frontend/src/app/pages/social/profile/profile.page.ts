@@ -91,13 +91,17 @@ export class ProfilePage {
   defaultBackHref: string = RouteMap.PeoplePage.getPath();
   isSelfHost = IS_SELFHOST;
 
-  handle: string;
+  handle: string = "";
   profile?: UserProfile;
 
   myProfile?: UserProfile;
 
   constructor() {
     addIcons({ bookmarks, folder, key, mail, pricetag, shareSocial });
+    this.applyRouteParams();
+  }
+
+  private applyRouteParams() {
     const handle = this.route.snapshot.paramMap.get("handle")?.substring(1);
 
     if (!handle) {
@@ -133,6 +137,14 @@ export class ProfilePage {
   }
 
   ionViewWillEnter() {
+    const snapshotHandle = this.route.snapshot.paramMap
+      .get("handle")
+      ?.substring(1);
+    if (snapshotHandle && snapshotHandle !== this.handle) {
+      this.applyRouteParams();
+      this.profile = undefined;
+    }
+
     this.load();
   }
 

@@ -81,6 +81,10 @@ export class MessageThreadPage {
 
   constructor() {
     addIcons({ refresh, send });
+    this.applyRouteParams();
+  }
+
+  private applyRouteParams() {
     const otherUserId = this.route.snapshot.paramMap.get("otherUserId");
     if (!otherUserId) {
       this.navCtrl.navigateBack(this.defaultBackHref);
@@ -90,6 +94,13 @@ export class MessageThreadPage {
   }
 
   ionViewWillEnter() {
+    const snapshotOtherUserId = this.route.snapshot.paramMap.get("otherUserId");
+    if (snapshotOtherUserId && snapshotOtherUserId !== this.otherUserId) {
+      this.applyRouteParams();
+      this.messages = [];
+      this.messagesById = {};
+    }
+
     this.translate
       .get("pages.messageThread.messagePlaceholder")
       .toPromise()
