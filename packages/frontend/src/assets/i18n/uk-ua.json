@@ -1224,5 +1224,16 @@
     "pages.aboutDetails.contribute": "Сторінка внесків",
     "pages.updateMealPlanModal.updateAndShare": "Оновити й поділитися",
     "pages.welcome.tabTitle": "RecipeSage",
-    "pages.contribute.yearly": "Щорічно"
+    "pages.contribute.yearly": "Щорічно",
+    "pages.home.loading": "Завантаження ваших рецептів...",
+    "pages.labels.loading": "Завантаження ваших міток...",
+    "pages.mealPlan.loading": "Завантаження плану харчування...",
+    "pages.mealPlans.loading": "Завантаження ваших планів харчування...",
+    "pages.messages.loading": "Завантаження ваших повідомлень...",
+    "pages.shoppingList.loading": "Завантаження списку покупок...",
+    "pages.shoppingLists.loading": "Завантаження ваших списків покупок...",
+    "pages.myProfile.loading": "Завантаження вашого профілю...",
+    "pages.people.loading": "Завантаження...",
+    "pages.profile.loading": "Завантаження профілю...",
+    "errors.creditsLimitReached": "Досягнуто денного ліміту для збереження, імпорту та кулінарного помічника (перепрошуємо, це дорого!). Ліміт використання скидається о 0:00GMT. Розгляньте можливість зробити внесок, щоб отримати більший денний ліміт (~у 10 разів)."
 }
