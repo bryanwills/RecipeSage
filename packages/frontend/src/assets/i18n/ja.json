@@ -1225,5 +1225,15 @@
     "pages.mealPlanMealOrderModal.title": "食事オプションをカスタマイズ",
     "pages.mealPlanMealOrderModal.description": "色見本をタップして色を変更し、ドラッグして並べ替えるか、下の空行を使用して新しいオプションを追加してください。既定の食事タイプは名前の変更や削除はできません。",
     "pages.icalMealPlanModal.title": "食事プランのiCalリンク",
-    "pages.icalMealPlanModal.description": "以下のiCal/ICSリンクを使用すると、ほとんどのカレンダープログラムでRecipeSage外の食事プランを同期できます"
+    "pages.icalMealPlanModal.description": "以下のiCal/ICSリンクを使用すると、ほとんどのカレンダープログラムでRecipeSage外の食事プランを同期できます",
+    "pages.home.loading": "レシピを読み込んでいます...",
+    "pages.labels.loading": "ラベルを読み込んでいます...",
+    "pages.mealPlan.loading": "食事計画を読み込んでいます...",
+    "pages.mealPlans.loading": "食事計画を読み込んでいます...",
+    "pages.messages.loading": "メッセージを読み込んでいます...",
+    "pages.shoppingList.loading": "買い物リストを読み込んでいます...",
+    "pages.shoppingLists.loading": "買い物リストを読み込んでいます...",
+    "pages.myProfile.loading": "プロフィールを読み込んでいます...",
+    "pages.people.loading": "読み込んでいます...",
+    "pages.profile.loading": "プロフィールを読み込んでいます..."
 }

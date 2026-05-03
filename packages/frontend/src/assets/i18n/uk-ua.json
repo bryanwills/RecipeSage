@@ -1006,7 +1006,6 @@
     "pages.editRecipe.input.linkedRecipes": "Пов’язані рецепти",
     "pages.editRecipe.input.linkedRecipes.none": "Немає пов’язаних рецептів. Пов’яжіть споріднені рецепти, щоб легко переходити між ними.",
     "pages.account.credits.usageValue": "Сьогодні використано {{used}} / {{limit}} кулінарних кредитів",
-    "pages.credits.limitReached": "Досягнуто денний ліміт для збереження фрагментів, імпорту та кулінарного помічника (вибачте, це коштовно!). Кулінарні кредити скидаються о 0:00 GMT. Розгляньте можливість зробити внесок, щоб отримати більший денний ліміт.",
     "pages.account.bonus.moreUsageCredits": "Вищий денний ліміт кулінарних кредитів",
     "pages.export.tabTitle": "Експорт - RecipeSage",
     "pages.export.jobs.job": "Завдання експорту",
@@ -1225,5 +1224,16 @@
     "pages.aboutDetails.contribute": "Сторінка внесків",
     "pages.updateMealPlanModal.updateAndShare": "Оновити й поділитися",
     "pages.welcome.tabTitle": "RecipeSage",
-    "pages.contribute.yearly": "Щорічно"
+    "pages.contribute.yearly": "Щорічно",
+    "pages.home.loading": "Завантаження ваших рецептів...",
+    "pages.labels.loading": "Завантаження ваших міток...",
+    "pages.mealPlan.loading": "Завантаження плану харчування...",
+    "pages.mealPlans.loading": "Завантаження ваших планів харчування...",
+    "pages.messages.loading": "Завантаження ваших повідомлень...",
+    "pages.shoppingList.loading": "Завантаження списку покупок...",
+    "pages.shoppingLists.loading": "Завантаження ваших списків покупок...",
+    "pages.myProfile.loading": "Завантаження вашого профілю...",
+    "pages.people.loading": "Завантаження...",
+    "pages.profile.loading": "Завантаження профілю...",
+    "errors.creditsLimitReached": "Досягнуто денного ліміту для збереження, імпорту та кулінарного помічника (перепрошуємо, це дорого!). Ліміт використання скидається о 0:00GMT. Розгляньте можливість зробити внесок, щоб отримати більший денний ліміт (~у 10 разів)."
 }

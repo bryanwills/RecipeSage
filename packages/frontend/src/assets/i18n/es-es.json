@@ -1169,7 +1169,6 @@
     "pages.editRecipe.nutritionInvalid": "Uno o más campos de nutrición tienen valores no válidos. Los campos de nutrición solo admiten números y decimales.",
     "pages.editRecipe.clip.emptyResult": "Hubo un problema al autocompletar desde esta URL. Recomiendo la extensión de navegador RecipeSage, o copiar el texto del sitio y usar la opción de autocompletar desde texto",
     "pages.account.credits.usageValue": "{{used}} / {{limit}} créditos de cocina utilizados hoy",
-    "pages.credits.limitReached": "Se ha alcanzado el límite diario para recortes, importaciones y el asistente de cocina (lo sentimos, ¡son costosos!). Los créditos de cocina se restablecen a las 0:00 GMT. Considere contribuir para obtener una asignación diaria mayor.",
     "pages.account.bonus.moreUsageCredits": "Mayor asignación diaria de créditos de cocina",
     "pages.shoppingListPopover.removeSelfFromList.message": "Esto eliminará esta lista de compras de su cuenta. Solo el propietario de la lista puede eliminarla permanentemente por completo, pero usted dejará de ser miembro de esta lista si continúa. Solo el propietario de la lista puede revertir esta acción.",
     "components.multiImageUpload.contributorHint.message": "Alojar imágenes es uno de los mayores costes de mantener RecipeSage.\n\nPara que el resto de la aplicación siga siendo gratuita para todos, la subida de varias imágenes por receta y el almacenamiento de imágenes en alta resolución están reservados para los contribuidores como agradecimiento.\n\nSi disfruta de RecipeSage, considere contribuir para ayudar a mantenerlo activo.",
@@ -1225,5 +1224,16 @@
     "components.scaleRecipe.system.original": "Original",
     "components.scaleRecipe.system.metric": "Métrico",
     "components.scaleRecipe.system.imperial": "Imperial",
-    "generic.yes": "Sí"
+    "generic.yes": "Sí",
+    "pages.home.loading": "Cargando sus recetas...",
+    "pages.labels.loading": "Cargando sus etiquetas...",
+    "pages.mealPlan.loading": "Cargando el plan de comidas...",
+    "pages.mealPlans.loading": "Cargando sus planes de comidas...",
+    "pages.messages.loading": "Cargando sus mensajes...",
+    "pages.shoppingList.loading": "Cargando la lista de la compra...",
+    "pages.shoppingLists.loading": "Cargando sus listas de la compra...",
+    "pages.myProfile.loading": "Cargando su perfil...",
+    "pages.people.loading": "Cargando...",
+    "pages.profile.loading": "Cargando el perfil...",
+    "errors.creditsLimitReached": "Se ha alcanzado el límite diario para recortes, importaciones y el asistente de cocina (¡lo sentimos, es costoso!). El límite de uso se restablece a las 0:00 GMT. Considere contribuir para obtener una asignación diaria mayor (~10x)."
 }

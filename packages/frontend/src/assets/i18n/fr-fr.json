@@ -1225,5 +1225,15 @@
     "pages.pricing.intro.openSource": "RecipeSage est un projet personnel auquel je travaille pendant mon temps libre, aux côtés de mes autres projets open source. Le code est open source, donc n'importe qui peut le consulter, le dupliquer ou héberger sa propre copie.",
     "pages.pricing.support.heading": "Soutenir le projet",
     "pages.app.nav.docs": "Documentation",
-    "pages.app.nav.legal": "Mentions légales"
+    "pages.app.nav.legal": "Mentions légales",
+    "pages.home.loading": "Chargement de vos recettes...",
+    "pages.labels.loading": "Chargement de vos étiquettes...",
+    "pages.mealPlan.loading": "Chargement du planning de repas...",
+    "pages.mealPlans.loading": "Chargement de vos plannings de repas...",
+    "pages.messages.loading": "Chargement de vos messages...",
+    "pages.shoppingList.loading": "Chargement de la liste de courses...",
+    "pages.shoppingLists.loading": "Chargement de vos listes de courses...",
+    "pages.myProfile.loading": "Chargement de votre profil...",
+    "pages.people.loading": "Chargement...",
+    "pages.profile.loading": "Chargement du profil..."
 }
