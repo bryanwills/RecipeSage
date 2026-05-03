@@ -272,6 +272,12 @@ const downloadHref = localePath(locale, "/download");
     }
   }
 
+  @media all and (display-mode: standalone) {
+    .site-nav .links > a {
+      display: none;
+    }
+  }
+
   @media (max-width: 480px) {
     .site-nav {
       padding: 16px 20px;
