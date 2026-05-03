@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import {
   DEFAULT_LOCALE,
   LOCALE_NAMES,
@@ -7,6 +8,9 @@ import {
   toBcp47,
   type Translator,
 } from "../i18n/translations";
+
+const brandLogo =
+  "https://static.recipesage.com/assets/icons/logo-white-trimmed-2025-05-03.png";
 
 interface Props {
   t: Translator;
@@ -25,11 +29,14 @@ const downloadHref = localePath(locale, "/download");
 
 <nav class="site-nav">
   <a class="brand" href={homeHref}>
-    <img
-      src="/app/assets/recipesage-white-trimmed.png"
+    <Image
+      src={brandLogo}
       alt="RecipeSage"
-      height="32"
-      width="auto"
+      width={87}
+      height={32}
+      densities={[1, 2]}
+      loading="eager"
+      decoding="async"
     />
   </a>
 
@@ -245,7 +252,7 @@ const downloadHref = localePath(locale, "/download");
 
   .lang-menu a[aria-current="true"] {
     font-weight: 600;
-    color: var(--btn-primary-bg);
+    color: var(--accent-text);
   }
 
   @media (prefers-color-scheme: dark) {

@@ -1,4 +1,5 @@
 ---
+import { Picture } from "astro:assets";
 import {
   DEFAULT_LOCALE,
   LOCALE_NAMES,
@@ -6,6 +7,9 @@ import {
   toBcp47,
   type Translator,
 } from "../i18n/translations";
+
+const heroBg =
+  "https://static.recipesage.com/assets/art/chicken-salad-2025-05-03.jpg";
 
 interface Props {
   t: Translator;
@@ -21,7 +25,19 @@ const localeHref = (loc: string) => (loc === DEFAULT_LOCALE ? "/" : `/${loc}/`);
 ---
 
 <section class="hero">
-  <div class="hero-bg" aria-hidden="true"></div>
+  <Picture
+    src={heroBg}
+    widths={[640, 1280, 1920]}
+    sizes="100vw"
+    formats={["avif", "webp"]}
+    fallbackFormat="jpg"
+    alt=""
+    class="hero-bg"
+    loading="eager"
+    decoding="async"
+    fetchpriority="high"
+    inferSize
+  />
   <div class="hero-overlay" aria-hidden="true"></div>
 
   <div class="hero-content">
@@ -41,21 +57,43 @@ const localeHref = (loc: string) => (loc === DEFAULT_LOCALE ? "/" : `/${loc}/`);
 
     <div class="hero-screen">
       <video
-        width="400"
-        height="712"
+        class="demo-video"
+        width="720"
+        height="1280"
         autoplay
         loop
         muted
         playsinline
         preload="metadata"
         aria-label={t("pages.welcome.demoVideo.label")}
-        poster="https://static.recipesage.com/assets/android-autoimport-demo.png"
+        poster="https://static.recipesage.com/assets/videos/android-autoimport-demo-720-2025-05-03.webp"
+        data-poster-ios="https://static.recipesage.com/assets/videos/ios-autoimport-demo-720-2025-05-03.webp"
       >
         <source
-          src="https://static.recipesage.com/assets/android-autoimport-demo.mp4"
+          src="https://static.recipesage.com/assets/videos/android-autoimport-demo-720-2025-05-03.webm"
+          data-src-ios="https://static.recipesage.com/assets/videos/ios-autoimport-demo-720-2025-05-03.webm"
+          type="video/webm"
+        />
+        <source
+          src="https://static.recipesage.com/assets/videos/android-autoimport-demo-720-2025-05-03.mp4"
+          data-src-ios="https://static.recipesage.com/assets/videos/ios-autoimport-demo-720-2025-05-03.mp4"
           type="video/mp4"
         />
       </video>
+      <script is:inline>
+        (function () {
+          if (!/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) return;
+          const v = document.querySelector("video.demo-video");
+          if (!v) return;
+          const iosPoster = v.getAttribute("data-poster-ios");
+          if (iosPoster) v.poster = iosPoster;
+          for (const s of v.querySelectorAll("source")) {
+            const iosSrc = s.getAttribute("data-src-ios");
+            if (iosSrc) s.src = iosSrc;
+          }
+          v.load();
+        })();
+      </script>
     </div>
   </div>
 </section>
@@ -123,22 +161,11 @@ const localeHref = (loc: string) => (loc === DEFAULT_LOCALE ? "/" : `/${loc}/`);
   .hero-bg {
     position: absolute;
     inset: 0;
-    background-image: url("/app/assets/stockphotos/chicken-salad-640.jpg");
-    background-position: center;
-    background-size: cover;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
     z-index: 0;
-  }
-
-  @media (min-width: 641px) {
-    .hero-bg {
-      background-image: url("/app/assets/stockphotos/chicken-salad-1280.jpg");
-    }
-  }
-
-  @media (min-width: 1281px) {
-    .hero-bg {
-      background-image: url("/app/assets/stockphotos/chicken-salad-1920.jpg");
-    }
   }
 
   .hero-overlay {
@@ -206,6 +233,7 @@ const localeHref = (loc: string) => (loc === DEFAULT_LOCALE ? "/" : `/${loc}/`);
   .btn.primary {
     background: var(--btn-primary-bg);
     color: var(--btn-primary-text);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
   }
 
   .btn.outline {
@@ -222,7 +250,7 @@ const localeHref = (loc: string) => (loc === DEFAULT_LOCALE ? "/" : `/${loc}/`);
     width: 100%;
     max-width: 360px;
     height: auto;
-    aspect-ratio: 400 / 712;
+    aspect-ratio: 9 / 16;
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     background: #000;
