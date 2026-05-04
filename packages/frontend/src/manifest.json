@@ -3,7 +3,7 @@
   "description": "An open source personal recipe keeper, meal planner, and shopping list organizer",
   "short_name": "RecipeSage",
   "id": "/index.html",
-  "start_url": "/",
+  "start_url": "/launch",
   "scope": "/",
   "display": "standalone",
   "icons": [

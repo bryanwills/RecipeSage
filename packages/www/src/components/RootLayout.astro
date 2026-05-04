@@ -34,7 +34,7 @@ const {
   t = makeTranslator(DEFAULT_LOCALE),
   title = "RecipeSage - Free Recipe Keeper, Meal Planner, and Shopping List",
   description = "Save, organize, and share recipes with RecipeSage. Auto-import recipes from any website, plan meals, generate smart shopping lists, and sync across Web, iOS, and Android. Free and open source.",
-  image = "https://static.recipesage.com/assets/icons/recipesage-black-trimmed.png",
+  image = "https://static.recipesage.com/assets/icons/logo-black-trimmed-2025-05-03.png",
   ogType = "website",
   noindex = false,
   structuredData = null,
@@ -97,7 +97,7 @@ const defaultStructuredData = {
       "url": "https://recipesage.com/",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://static.recipesage.com/assets/icons/recipesage-black-trimmed.png",
+        "url": "https://static.recipesage.com/assets/icons/logo-black-trimmed-2025-05-03.png",
       },
       "sameAs": [
         "https://github.com/julianpoy/recipesage",
@@ -246,16 +246,21 @@ const finalStructuredData = structuredData ?? defaultStructuredData;
     />
 
     <script is:inline>
-      const _paq = window._paq = window._paq || [];
+      // eslint-disable-next-line prefer-const -- matomo.js reassigns _paq; const breaks it
+      let _paq = window._paq = window._paq || [];
       _paq.push(['trackPageView']);
       _paq.push(['enableLinkTracking']);
-      (function() {
-        const u="https://a.recipesage.com/";
-        _paq.push(['setTrackerUrl', u+'matomo.php']);
-        _paq.push(['setSiteId', '1']);
+      _paq.push(['setTrackerUrl', 'https://a.recipesage.com/matomo.php']);
+      _paq.push(['setSiteId', '1']);
+      const loadMatomo = function() {
         const d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-      })();
+        g.async=true; g.src='https://a.recipesage.com/matomo.js'; s.parentNode.insertBefore(g,s);
+      };
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadMatomo, { timeout: 1500 });
+      } else {
+        loadMatomo();
+      }
     </script>
     <noscript>
       <img
@@ -285,10 +290,11 @@ const finalStructuredData = structuredData ?? defaultStructuredData;
         --surface: #ffffff;
         --text: #1b1d1f;
         --text-muted: #555;
-        --hero-overlay: rgba(0, 0, 0, 0.55);
+        --hero-overlay: rgba(0, 0, 0, 0.625);
         --btn-border: rgba(255, 255, 255, 0.7);
         --btn-primary-bg: #5e8b56;
         --btn-primary-text: #ffffff;
+        --accent-text: #4a6f43;
         --hero-text: #ffffff;
         --footer-bg: #2c313b;
         --footer-text: #cfd6e4;
@@ -301,6 +307,7 @@ const finalStructuredData = structuredData ?? defaultStructuredData;
           --text: #e7eaef;
           --text-muted: #a8b0bd;
           --hero-overlay: rgba(0, 0, 0, 0.7);
+          --accent-text: #a3c79b;
           --footer-bg: #0f1218;
           --footer-text: #a8b0bd;
         }
