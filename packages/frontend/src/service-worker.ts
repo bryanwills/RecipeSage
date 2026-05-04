@@ -114,8 +114,12 @@ self.addEventListener("install", async (event) => {
   const languagePrecacheUrls = [`/app/assets/i18n/en-us.json`];
   event.waitUntil(
     caches
-      .open(LANG_CACHE_NAME)
-      .then((cache) => cache.addAll(languagePrecacheUrls)),
+      .delete(LANG_CACHE_NAME)
+      .then(() =>
+        caches
+          .open(LANG_CACHE_NAME)
+          .then((cache) => cache.addAll(languagePrecacheUrls)),
+      ),
   );
 
   self.skipWaiting();
@@ -156,6 +160,7 @@ registerRoute(
   /\/app\/assets\/i18n\//,
   new NetworkFirst({
     cacheName: LANG_CACHE_NAME,
+    matchOptions: { ignoreSearch: true },
     plugins: [
       new ExpirationPlugin({
         maxAgeSeconds: 60 * 60 * 24 * MAX_LANGUAGE_AGE,
