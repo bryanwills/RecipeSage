@@ -1,5 +1,5 @@
-export const FREE_DAILY_CREDITS = 12;
-export const CONTRIBUTOR_DAILY_CREDITS = 120;
+export const FREE_DAILY_CREDITS = 14;
+export const CONTRIBUTOR_DAILY_CREDITS = 140;
 
 export const CreditOperations = {
   MlTextRecipe: "mlTextRecipe",
