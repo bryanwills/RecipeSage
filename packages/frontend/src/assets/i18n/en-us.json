@@ -1328,8 +1328,10 @@
   "errors.unexpected.selfhost": "An unexpected error occurred. Please check your server logs as well as the self hosting FAQ.",
   "errors.resourceNotFound": "Resource Not Found",
   "errors.resourceNotFound.message": "It looks like we tried to fetch something that doesn't exist. If this continues to occur unexpectedly, please contact me.",
-  "errors.creditsLimitReached": "Daily limit reached for clipping, imports, and cooking assistant (sorry, it's costly!). Usage limit resets at 0:00GMT. Consider contributing for a larger daily allowance (~10x).",
+  "errors.creditsLimitReached.title": "Sorry, limit reached",
+  "errors.creditsLimitReached": "The autoimport feature is particularly costly to host, so I've had to place a gentle limit on the number of times per day this feature can be used (sorry!). Your usage limit for automatic import & cooking assistant messages resets at 0:00GMT.\n\nContributing unlocks a larger daily allowance (10x the limit) since it helps to cover the costs. Sorry for the inconvenience!",
 
+  "generic.moreInfo": "More Info",
   "generic.showMore": "Show More",
   "generic.error": "Error",
   "generic.warning": "Warning",

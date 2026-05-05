@@ -3,6 +3,7 @@ import { StandardizedRecipeImportEntry } from "../db";
 import { metrics } from "../general";
 import { generateText, Output } from "ai";
 import { AI_MODEL_LOW, aiProvider } from "./vercel";
+import { withNoObjectRetry } from "./withNoObjectRetry";
 
 export enum TextToRecipeInputType {
   OCR,
@@ -41,16 +42,18 @@ export const textToRecipe = async (
   if (text.length > OCR_MAX_VALID_TEXT)
     text = text.substring(0, OCR_MAX_VALID_TEXT);
 
-  const llmResponse = await generateText({
-    system:
-      "You are a data processor utility. Do not summarize or add information, just format and process into the correct shape. Do not insert your own editorial voice, just clean the text and get it into the correct shape. Leave fields that are not present blank. A header can be denoted in the ingredients, instructions, or notes by prefixing the line with a # sign.",
-    model: aiProvider(AI_MODEL_LOW),
-    temperature: 0,
-    prompt: prompts[inputType] + text,
-    output: Output.object({
-      schema: ocrFormatRecipeSchema,
+  const llmResponse = await withNoObjectRetry(() =>
+    generateText({
+      system:
+        "You are a data processor utility. Do not summarize or add information, just format and process into the correct shape. Do not insert your own editorial voice, just clean the text and get it into the correct shape. Leave fields that are not present blank. A header can be denoted in the ingredients, instructions, or notes by prefixing the line with a # sign.",
+      model: aiProvider(AI_MODEL_LOW),
+      temperature: 0,
+      prompt: prompts[inputType] + text,
+      output: Output.object({
+        schema: ocrFormatRecipeSchema,
+      }),
     }),
-  });
+  );
 
   if (llmResponse.totalUsage.totalTokens !== undefined) {
     metrics.llmTokensConsumed.observe(
