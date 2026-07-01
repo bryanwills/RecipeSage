@@ -108,7 +108,7 @@ app.set("view engine", "pug");
 if (process.env.NODE_ENV !== "test") app.use(logger("dev"));
 app.use(
   bodyParser.json({
-    limit: "250MB",
+    limit: "1MB",
     verify: (req, res, buf) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const url = (req as any).originalUrl;
@@ -142,7 +142,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(bodyParser.urlencoded({ limit: "250MB", extended: false }));
+app.use(bodyParser.urlencoded({ limit: "1MB", extended: false }));
 app.use(cookieParser());
 app.disable("x-powered-by");
 app.use("/", typesafeExpressIndexRouter);
