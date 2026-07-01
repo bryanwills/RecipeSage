@@ -64,7 +64,11 @@ describe("rateDiscoverRecipe", () => {
 
       const user3 = await createUser();
       const session3 = await createSession(user3.id);
-      const trpc3 = createCaller({ session: session3, language: "" });
+      const trpc3 = createCaller({
+        session: session3,
+        language: "",
+        ip: null,
+      });
 
       await trpc2.discover.rateDiscoverRecipe({ id: recipe.id, rating: 4 });
       const response = await trpc3.discover.rateDiscoverRecipe({

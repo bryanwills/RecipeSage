@@ -139,6 +139,12 @@ export const metrics = {
     labelNames: ["category"],
     buckets: [50, 500, 1000, 10_000, 50_000, 200_000, 500_000, 1_000_000],
   }),
+
+  rateLimitClientIpUnresolved: new client.Counter({
+    name: "rate_limit_client_ip_unresolved",
+    help: "Rate limiting is enabled but the client IP could not be resolved, so the request was allowed through unlimited. A sustained nonzero rate indicates a trust proxy or client IP header misconfiguration",
+    labelNames: [],
+  }),
 };
 
 // Collect default system metrics (such as memory/cpu usage)
