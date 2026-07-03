@@ -88,6 +88,28 @@ describe("searchDiscoverRecipes", () => {
       expect(response.recipes.map((recipe) => recipe.id)).toEqual([match.id]);
     });
 
+    test("folds accents so an unaccented term matches accented content", async ({
+      user,
+    }) => {
+      const language = uniqueLanguage();
+      const match = await createActive(user.id, {
+        language,
+        title: "Jalapeñoxyz Stew",
+      });
+
+      const unaccented = await anonymousTrpc.discover.searchDiscoverRecipes({
+        languages: [language],
+        searchTerm: "jalapenoxyz",
+      });
+      expect(unaccented.recipes.map((recipe) => recipe.id)).toEqual([match.id]);
+
+      const accented = await anonymousTrpc.discover.searchDiscoverRecipes({
+        languages: [language],
+        searchTerm: "jalapeñoxyz",
+      });
+      expect(accented.recipes.map((recipe) => recipe.id)).toEqual([match.id]);
+    });
+
     test("filters by language", async ({ user }) => {
       const language = uniqueLanguage();
       await createActive(user.id, { language });

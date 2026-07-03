@@ -85,7 +85,9 @@ export const searchDiscoverRecipes = publicProcedure
       : undefined;
 
     if (tsquery) {
-      conditions.push(Prisma.sql`tsv @@ to_tsquery('simple', ${tsquery})`);
+      conditions.push(
+        Prisma.sql`tsv @@ to_tsquery('simple', immutable_unaccent(${tsquery}))`,
+      );
     }
 
     let orderBy: Prisma.Sql;
@@ -101,7 +103,7 @@ export const searchDiscoverRecipes = publicProcedure
         break;
       default:
         orderBy = tsquery
-          ? Prisma.sql`ts_rank(tsv, to_tsquery('simple', ${tsquery})) DESC`
+          ? Prisma.sql`ts_rank(tsv, to_tsquery('simple', immutable_unaccent(${tsquery}))) DESC`
           : Prisma.sql`"rankScore" DESC, "createdAt" DESC`;
         break;
     }

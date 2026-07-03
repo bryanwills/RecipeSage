@@ -30,8 +30,8 @@ export const searchRecipes = async (userIds: string[], queryString: string) => {
       SELECT id
       FROM "Recipes"
       WHERE "userId" = ANY(${userIds}::uuid[])
-        AND tsv @@ to_tsquery('simple', ${tsquery})
-      ORDER BY ts_rank(tsv, to_tsquery('simple', ${tsquery})) DESC
+        AND tsv @@ to_tsquery('simple', immutable_unaccent(${tsquery}))
+      ORDER BY ts_rank(tsv, to_tsquery('simple', immutable_unaccent(${tsquery}))) DESC
       LIMIT ${RESULT_LIMIT}
     `,
     prisma.$queryRaw<{ id: string }[]>`

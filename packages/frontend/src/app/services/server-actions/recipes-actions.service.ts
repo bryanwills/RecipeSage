@@ -424,6 +424,18 @@ export class RecipesActionsService extends ActionsBase {
     );
   }
 
+  searchRecipesByIngredients(
+    input: RouterInputs["recipes"]["searchRecipesByIngredients"],
+    errorHandlers?: ErrorHandlers,
+  ): Promise<
+    RouterOutputs["recipes"]["searchRecipesByIngredients"] | undefined
+  > {
+    return this.passThrough(
+      () => this.trpc.recipes.searchRecipesByIngredients.query(input),
+      errorHandlers,
+    );
+  }
+
   createRecipe(
     input: RouterInputs["recipes"]["createRecipe"],
     errorHandlers?: ErrorHandlers,

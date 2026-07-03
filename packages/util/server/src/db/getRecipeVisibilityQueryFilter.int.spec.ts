@@ -29,7 +29,7 @@ async function materialize(args: {
   return recipes.map((r) => r.id);
 }
 
-describe("getRecipeVisibilityQueryFilter (integration)", () => {
+describe("getRecipeVisibilityQueryFilter", () => {
   let owner: User;
   let friendA: User;
   let friendB: User;

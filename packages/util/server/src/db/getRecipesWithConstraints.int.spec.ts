@@ -5,7 +5,7 @@ import { userFactory, recipeFactory, labelFactory } from "../general/factories";
 
 type CallArgs = Parameters<typeof getRecipesWithConstraints>[0];
 
-describe("getRecipesWithConstraints (integration)", () => {
+describe("getRecipesWithConstraints", () => {
   let owner: User;
   const cleanupIds: string[] = [];
 
