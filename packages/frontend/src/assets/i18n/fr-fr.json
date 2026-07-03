@@ -1861,5 +1861,10 @@
     "pages.measurementConverter.ingredients.kosherSaltDiamond": "Sel casher (Diamond Crystal) ou Fleur de sel en France",
     "pages.measurementConverter.ingredients.kosherSaltMorton": "Sel casher (Morton's) ou Fleur de sel en France",
     "pages.measurementConverter.ingredients.tableSalt": "Sel de table",
-    "pages.measurementConverter.ingredients.almondButter": "Beurre d'amande"
+    "pages.measurementConverter.ingredients.almondButter": "Beurre d'amande",
+    "pages.measurementConverter.ingredients.hazelnutPralinePaste": "Pralin",
+    "pages.measurementConverter.ingredients.hazelnutSpread": "Pâte à tartiner aux noisettes",
+    "pages.measurementConverter.ingredients.jamPreserves": "Confiture ou conserves",
+    "pages.measurementConverter.ingredients.lemonCurd": "Lemon Curd",
+    "pages.measurementConverter.ingredients.marzipan": "Pâte d'amande"
 }
