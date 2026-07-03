@@ -1,7 +1,6 @@
 import express from "express";
 const router = express.Router();
 import cors from "cors";
-import * as Sentry from "@sentry/node";
 import moment from "moment";
 
 // DB
@@ -35,7 +34,6 @@ import {
   NotFound,
   PreconditionFailed,
 } from "../utils/errors.js";
-import { indexRecipes } from "@recipesage/util/server/search";
 
 router.get(
   "/",
@@ -513,25 +511,6 @@ router.post(
         "user",
         transaction,
       );
-
-      if (
-        process.env.NODE_ENV === "selfhost" ||
-        process.env.NODE_ENV === "development" ||
-        process.env.INDEX_ON_LOGIN === "true"
-      ) {
-        console.log(user.id);
-        const recipes = await Recipe.findAll({
-          where: {
-            userId: user.id,
-          },
-          transaction,
-        });
-
-        indexRecipes(recipes).catch((e) => {
-          console.error(e);
-          Sentry.captureException(e);
-        });
-      }
 
       return session.token;
     });

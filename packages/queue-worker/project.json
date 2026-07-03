@@ -17,7 +17,7 @@
         "platform": "node",
         "format": ["cjs"],
         "bundle": true,
-        "minify": false,
+        "minify": true,
         "external": [
           "@sentry/profiling-node",
           "pdfmake",

@@ -2,7 +2,6 @@ import { prisma } from "@recipesage/prisma";
 import { authenticatedProcedure } from "../../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { deleteRecipes } from "@recipesage/util/server/search";
 
 export const deleteRecipe = authenticatedProcedure
   .meta({
@@ -40,8 +39,6 @@ export const deleteRecipe = authenticatedProcedure
         id: recipe.id,
       },
     });
-
-    await deleteRecipes([recipe.id]);
 
     return "Ok";
   });

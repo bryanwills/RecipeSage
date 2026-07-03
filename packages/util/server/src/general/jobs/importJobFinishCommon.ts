@@ -5,7 +5,6 @@ import {
   importStandardizedRecipes,
   type StandardizedRecipeImportEntry,
 } from "../../db/importStandardizedRecipes";
-import { indexRecipes } from "../../search";
 import { ImportNoRecipesError } from "./jobErrors";
 import { convertJobProgress, updateJobProgress } from "./updateJobProgress";
 import { IMPORT_JOB_STEP_COUNT } from "../queue/import/processImportJob";
@@ -38,16 +37,6 @@ export async function importJobFinishCommon(args: {
     args.job.meta.language || "en-us",
     args.importTempDirectory,
   );
-  const createdRecipeIdsSet = new Set(createdRecipeIds);
-
-  const allRecipes = await prisma.recipe.findMany({
-    where: {
-      userId: args.userId,
-    },
-  });
-  const recipesToIndex = allRecipes.filter((el) =>
-    createdRecipeIdsSet.has(el.id),
-  );
 
   await updateJobProgress({
     jobId: args.job.id,
@@ -58,8 +47,6 @@ export async function importJobFinishCommon(args: {
       totalStepCount: IMPORT_JOB_STEP_COUNT,
     }),
   });
-
-  await indexRecipes(recipesToIndex);
 
   await prisma.job.update({
     where: {

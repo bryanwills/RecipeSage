@@ -6,7 +6,6 @@ import {
   saveDiscoverRecipeToUser,
   discoverRecipeVisibilitySelect,
 } from "@recipesage/util/server/db";
-import { indexRecipes } from "@recipesage/util/server/search";
 import { assertDiscoverRecipeVisible } from "@recipesage/util/server/trpc";
 
 export const saveDiscoverRecipe = authenticatedProcedure
@@ -82,8 +81,6 @@ export const saveDiscoverRecipe = authenticatedProcedure
 
       return savedRecipe;
     });
-
-    await indexRecipes([savedRecipe]);
 
     return {
       recipeId: savedRecipe.id,

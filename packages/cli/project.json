@@ -14,7 +14,7 @@
         "outputPath": "dist/apps/cli",
         "format": ["cjs"],
         "bundle": true,
-        "minify": false,
+        "minify": true,
         "external": ["@sentry/profiling-node", "pdfmake", "yauzl-promise"],
         "main": "packages/cli/src/main.ts",
         "tsConfig": "packages/cli/tsconfig.json",

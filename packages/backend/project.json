@@ -14,7 +14,7 @@
         "outputPath": "dist/apps/backend",
         "format": ["cjs"],
         "bundle": true,
-        "minify": false,
+        "minify": true,
         "external": ["@sentry/profiling-node", "pdfmake", "yauzl-promise"],
         "main": "packages/backend/src/main.ts",
         "tsConfig": "packages/backend/tsconfig.json",

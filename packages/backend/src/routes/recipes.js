@@ -206,8 +206,6 @@ router.post(
         );
       }
 
-      await Search.indexRecipes([recipe]);
-
       return recipe;
     });
 
@@ -470,8 +468,6 @@ const deleteRecipes = async (userId, { recipeIds, labelIds }, transaction) => {
     },
     transaction,
   });
-
-  await Search.deleteRecipes(recipeIds);
 };
 
 router.delete(
