@@ -51,9 +51,7 @@ export class Assistant {
         userId,
         version: 2,
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       select: {
         json: true,
       },
@@ -157,6 +155,9 @@ export class Assistant {
     }
 
     await prisma.$transaction(async (tx) => {
+      const baseTime = Date.now();
+      let messageSequence = 0;
+
       await tx.assistantMessage.create({
         data: {
           userId,
@@ -164,7 +165,7 @@ export class Assistant {
           content: userMessage.content,
           json: userMessage,
           version: 2,
-          createdAt: new Date(), // Since ordering is important and we're in a transaction, we must create date here
+          createdAt: new Date(baseTime + messageSequence++), // Since ordering is important and we're in a transaction, we must create date here
         },
       });
 
@@ -199,7 +200,7 @@ export class Assistant {
             content,
             json: message as InputJsonValue,
             version: 2,
-            createdAt: new Date(), // Since ordering is important and we're in a transaction, we must create date here
+            createdAt: new Date(baseTime + messageSequence++), // Since ordering is important and we're in a transaction, we must create date here
           },
         });
       }
@@ -212,11 +213,11 @@ export class Assistant {
         userId,
       },
       ...assistantMessageSummary,
-      orderBy: {
-        createdAt: "asc",
-      },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       take: this.chatHistoryLimit,
     });
+
+    rawMessages.reverse();
 
     const messages =
       convertPrismaAssistantMessageSummariesToAssistantMessageSummaries(
