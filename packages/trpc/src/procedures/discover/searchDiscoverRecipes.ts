@@ -1,6 +1,6 @@
 import { publicProcedure } from "../../trpc";
 import { z } from "zod";
-import { Prisma, prisma } from "@recipesage/prisma";
+import { Prisma, prismaReplica } from "@recipesage/prisma";
 import {
   discoverRecipeSummarySchema,
   discoverRecipeSummarySelect,
@@ -108,7 +108,7 @@ export const searchDiscoverRecipes = publicProcedure
         break;
     }
 
-    const idRows = await prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
+    const idRows = await prismaReplica.$queryRaw<{ id: string }[]>(Prisma.sql`
       SELECT id
       FROM "Discover_Recipes"
       WHERE ${Prisma.join(conditions, " AND ")}
@@ -123,7 +123,7 @@ export const searchDiscoverRecipes = publicProcedure
     const ids = idRows.map((row) => row.id);
     const orderById = new Map(ids.map((id, index) => [id, index]));
 
-    const discoverRecipes = await prisma.discoverRecipe.findMany({
+    const discoverRecipes = await prismaReplica.discoverRecipe.findMany({
       where: {
         id: {
           in: ids,

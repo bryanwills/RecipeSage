@@ -1,4 +1,4 @@
-import { prisma } from "@recipesage/prisma";
+import { prisma, Prisma } from "@recipesage/prisma";
 import { SEARCH_RECIPES_BY_INGREDIENTS_MAX_TERMS } from "@recipesage/util/shared";
 
 const DEFAULT_LIMIT = 100;
@@ -28,14 +28,15 @@ export const findRecipesByIngredients = async (args: {
   ingredients: string[];
   folder: string;
   limit?: number;
+  tx?: Prisma.TransactionClient;
 }): Promise<{ recipeId: string; matchedIngredients: string[] }[]> => {
-  const { userIds, folder } = args;
+  const { userIds, folder, tx = prisma } = args;
   const limit = args.limit ?? DEFAULT_LIMIT;
   const terms = normalizeIngredientTerms(args.ingredients);
 
   if (!userIds.length || !terms.length) return [];
 
-  const rows = await prisma.$queryRaw<{ id: string; matched: string[] }[]>`
+  const rows = await tx.$queryRaw<{ id: string; matched: string[] }[]>`
     SELECT
       r.id,
       m.matched

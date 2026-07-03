@@ -7,7 +7,7 @@ import {
 } from "@recipesage/util/server/db";
 import { sortRecipeImages } from "@recipesage/util/server/general";
 import { TRPCError } from "@trpc/server";
-import { recipeSummaryLiteSchema } from "@recipesage/prisma";
+import { prismaReplica, recipeSummaryLiteSchema } from "@recipesage/prisma";
 import { SEARCH_RECIPES_BY_INGREDIENTS_MAX_TERMS } from "@recipesage/util/shared";
 
 export const searchRecipesByIngredients = publicProcedure
@@ -59,6 +59,7 @@ export const searchRecipesByIngredients = publicProcedure
       userIds,
       ingredients: input.ingredients,
       folder: "main",
+      tx: prismaReplica,
     });
 
     const matchByRecipeId: Record<
@@ -75,6 +76,7 @@ export const searchRecipesByIngredients = publicProcedure
     const recipeIds = matches.map((entry) => entry.recipeId);
 
     const results = await getRecipesWithConstraints({
+      tx: prismaReplica,
       userId: ctx.session?.userId || undefined,
       userIds,
       folder: "main",
