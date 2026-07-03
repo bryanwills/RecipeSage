@@ -147,6 +147,14 @@ const finalStructuredData = structuredData ?? defaultStructuredData;
           return;
         }
         if (!redirectLoggedIn) return;
+        const shareParams = new URLSearchParams(location.search);
+        if (
+          shareParams.has("sharetarget-title") ||
+          shareParams.has("sharetarget-text") ||
+          shareParams.has("autofill-url")
+        ) {
+          return;
+        }
         let token = null;
         try {
           token = localStorage.getItem("token");
