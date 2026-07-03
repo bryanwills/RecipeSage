@@ -23,9 +23,7 @@ program.name("recipesage").description("RecipeSage CLI");
 
 program
   .command("indexRecipes")
-  .description(
-    "Index recipes into the configured search provider (postgres FTS or search backend).",
-  )
+  .description("Backfill the Postgres full-text search tsv columns.")
   .option("-b, --batch-size <size>", "Batch size", "1000")
   .option("-i, --batch-interval <interval>", "Batch interval in seconds", "1")
   .action(

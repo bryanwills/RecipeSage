@@ -1,8 +1,6 @@
 import { authenticatedProcedure } from "../../trpc";
 import { prisma } from "@recipesage/prisma";
 import { deleteHangingImagesForUser } from "@recipesage/util/server/storage";
-import { deleteRecipes as deleteRecipesFromSearch } from "@recipesage/util/server/search";
-import * as Sentry from "@sentry/node";
 import { z } from "zod";
 
 export const deleteUser = authenticatedProcedure
@@ -19,15 +17,6 @@ export const deleteUser = authenticatedProcedure
   .mutation(async ({ ctx }): Promise<string> => {
     await prisma.$transaction(
       async (tx) => {
-        const allRecipeIds = await tx.recipe.findMany({
-          where: {
-            userId: ctx.session.userId,
-          },
-          select: {
-            id: true,
-          },
-        });
-
         await tx.recipe.deleteMany({
           where: {
             userId: ctx.session.userId,
@@ -46,12 +35,6 @@ export const deleteUser = authenticatedProcedure
             id: ctx.session.userId,
           },
         });
-
-        await deleteRecipesFromSearch(allRecipeIds.map((el) => el.id)).catch(
-          (e) => {
-            Sentry.captureException(e);
-          },
-        );
       },
       {
         timeout: 60000,

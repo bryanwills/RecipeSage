@@ -1,7 +1,6 @@
 import { prisma } from "@recipesage/prisma";
 import { authenticatedProcedure } from "../../trpc";
 import { z } from "zod";
-import { deleteRecipes } from "@recipesage/util/server/search";
 
 export const deleteRecipesByIds = authenticatedProcedure
   .meta({
@@ -27,19 +26,8 @@ export const deleteRecipesByIds = authenticatedProcedure
       },
     };
 
-    await prisma.$transaction(async (tx) => {
-      const recipes = await tx.recipe.findMany({
-        where,
-        select: {
-          id: true,
-        },
-      });
-
-      await tx.recipe.deleteMany({
-        where,
-      });
-
-      await deleteRecipes(recipes.map((el) => el.id));
+    await prisma.recipe.deleteMany({
+      where,
     });
 
     return "Ok";

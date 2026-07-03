@@ -23,7 +23,6 @@ x-common-env: &common-env
   DATABASE_URL: postgresql://recipesage_dev:recipesage_dev@postgres:5432/recipesage_dev
   GRIP_URL: http://pushpin:5561/
   GRIP_KEY: changeme
-  SEARCH_PROVIDER: postgres
   JOB_QUEUE_REDIS_HOST: valkey
   GROCERY_CATEGORIZER_URL: http://grocery-categorizer:8000/
   OTEL_LOG_LEVEL: info

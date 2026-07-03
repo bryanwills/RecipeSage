@@ -1,7 +1,6 @@
 import * as Sentry from "@sentry/node";
 
 import { Prisma, prisma } from "@recipesage/prisma";
-import { indexRecipes as searchIndexRecipes } from "@recipesage/util/server/search";
 
 const waitFor = async (timeout: number) => {
   return new Promise((resolve) => {
@@ -25,52 +24,6 @@ const DISCOVER_RECIPES_TSV = Prisma.sql`
   setweight(to_tsvector('simple', immutable_unaccent(left(coalesce(notes, ''), 3000))), 'C') ||
   setweight(to_tsvector('simple', immutable_unaccent(left(coalesce(instructions, ''), 3000))), 'C')
 `;
-
-const runIndexOp = async (batchSize: number) => {
-  let lt = new Date();
-  lt.setDate(lt.getDate() - 7);
-
-  if (process.env.INDEX_BEFORE) {
-    lt = new Date(process.env.INDEX_BEFORE);
-  }
-
-  const recipes = await prisma.recipe.findMany({
-    where: {
-      OR: [
-        {
-          indexedAt: null,
-        },
-        {
-          indexedAt: {
-            lt,
-          },
-        },
-      ],
-    },
-    take: batchSize,
-  });
-
-  if (!recipes || recipes.length === 0) {
-    console.log("Index complete!");
-    return false;
-  }
-
-  await searchIndexRecipes(recipes);
-
-  const ids = recipes.map((r) => r.id);
-  await prisma.recipe.updateMany({
-    data: {
-      indexedAt: new Date(),
-    },
-    where: {
-      id: {
-        in: ids,
-      },
-    },
-  });
-
-  return true;
-};
 
 const backfillTsv = async (
   table: Prisma.Sql,
@@ -128,14 +81,7 @@ export const indexRecipes = async (args: {
   batchInterval: number;
 }) => {
   try {
-    if (process.env.SEARCH_PROVIDER === "postgres") {
-      await runPostgresBackfill(args.batchSize, args.batchInterval);
-      return;
-    }
-
-    while (await runIndexOp(args.batchSize)) {
-      await waitFor(args.batchInterval * 1000);
-    }
+    await runPostgresBackfill(args.batchSize, args.batchInterval);
   } catch (e) {
     Sentry.captureException(e);
     console.log("Error while indexing", e);

@@ -7,7 +7,6 @@ import {
   userHasCapability,
 } from "@recipesage/util/server/capabilities";
 import { Capabilities } from "@recipesage/util/shared";
-import { indexRecipes } from "@recipesage/util/server/search";
 import { getFriendshipIds } from "@recipesage/util/server/db";
 
 export const updateRecipe = authenticatedProcedure
@@ -297,8 +296,6 @@ export const updateRecipe = authenticatedProcedure
           },
         },
       });
-
-      await indexRecipes([recipe]);
 
       return {
         id: recipe.id,

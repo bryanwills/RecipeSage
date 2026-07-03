@@ -8,8 +8,6 @@ import {
   metrics,
   validatePasswordHash,
 } from "@recipesage/util/server/general";
-import { indexRecipes } from "@recipesage/util/server/search";
-import * as Sentry from "@sentry/node";
 
 export const login = publicProcedure
   .meta({
@@ -73,23 +71,6 @@ export const login = publicProcedure
     });
 
     const session = await generateSession(user.id, SessionType.User);
-
-    if (
-      process.env.NODE_ENV === "selfhost" ||
-      process.env.NODE_ENV === "development" ||
-      process.env.INDEX_ON_LOGIN === "true"
-    ) {
-      const recipes = await prisma.recipe.findMany({
-        where: {
-          userId: user.id,
-        },
-      });
-
-      indexRecipes(recipes).catch((e) => {
-        console.error(e);
-        Sentry.captureException(e);
-      });
-    }
 
     metrics.userLogin.inc({
       auth_type: "password",

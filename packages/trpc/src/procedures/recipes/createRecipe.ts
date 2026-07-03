@@ -1,6 +1,5 @@
 import { prisma } from "@recipesage/prisma";
 import { authenticatedProcedure } from "../../trpc";
-import { indexRecipes } from "@recipesage/util/server/search";
 import {
   MULTIPLE_IMAGES_UNLOCKED_LIMIT,
   userHasCapability,
@@ -215,8 +214,6 @@ export const createRecipe = authenticatedProcedure
           skipDuplicates: true,
         });
       }
-
-      await indexRecipes([recipe]);
 
       return {
         id: recipe.id,
