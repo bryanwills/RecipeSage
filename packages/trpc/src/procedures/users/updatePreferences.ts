@@ -22,6 +22,8 @@ import {
   StartPageOptions,
   SupportedFontSize,
   SupportedLanguages,
+  VOLUME_UNITS_COMMON,
+  WEIGHT_UNITS_COMMON,
 } from "@recipesage/util/shared";
 
 export const updatePreferences = authenticatedProcedure
@@ -62,11 +64,15 @@ export const updatePreferences = authenticatedProcedure
       [RecipeDetailsPreferenceKey.EnableWakeLock]: z.boolean(),
       [RecipeDetailsPreferenceKey.AutoExpandNutrition]: z.boolean(),
 
-      [CookModePreferenceKey.FontSize]: z.nativeEnum(SupportedFontSize),
+      [CookModePreferenceKey.FontSize]: z
+        .nativeEnum(SupportedFontSize)
+        .default(SupportedFontSize.PX20),
 
       [ManageLabelsPreferenceKey.ShowCreatedAt]: z.boolean(),
 
-      [MeasurementConverterPreferenceKey.EnabledUnits]: z.array(z.string()),
+      [MeasurementConverterPreferenceKey.EnabledUnits]: z
+        .array(z.string())
+        .default([...VOLUME_UNITS_COMMON, ...WEIGHT_UNITS_COMMON]),
 
       [MealPlanPreferenceKey.ShowAddedBy]: z.boolean(),
       [MealPlanPreferenceKey.ShowAddedOn]: z.boolean(),

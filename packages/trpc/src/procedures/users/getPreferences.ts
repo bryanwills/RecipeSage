@@ -21,6 +21,8 @@ import {
   StartPageOptions,
   SupportedFontSize,
   SupportedLanguages,
+  VOLUME_UNITS_COMMON,
+  WEIGHT_UNITS_COMMON,
 } from "@recipesage/util/shared";
 import { z } from "zod";
 
@@ -50,11 +52,15 @@ const appPreferencesSchema = z
     [RecipeDetailsPreferenceKey.EnableWakeLock]: z.boolean(),
     [RecipeDetailsPreferenceKey.AutoExpandNutrition]: z.boolean(),
 
-    [CookModePreferenceKey.FontSize]: z.enum(SupportedFontSize),
+    [CookModePreferenceKey.FontSize]: z
+      .enum(SupportedFontSize)
+      .default(SupportedFontSize.PX20),
 
     [ManageLabelsPreferenceKey.ShowCreatedAt]: z.boolean(),
 
-    [MeasurementConverterPreferenceKey.EnabledUnits]: z.array(z.string()),
+    [MeasurementConverterPreferenceKey.EnabledUnits]: z
+      .array(z.string())
+      .default([...VOLUME_UNITS_COMMON, ...WEIGHT_UNITS_COMMON]),
 
     [MealPlanPreferenceKey.ShowAddedBy]: z.boolean(),
     [MealPlanPreferenceKey.ShowAddedOn]: z.boolean(),

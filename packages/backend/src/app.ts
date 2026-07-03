@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/node";
 import {
   NotFoundError,
   ServerError,
+  rateLimitHandler,
   typesafeExpressIndexRouter,
 } from "@recipesage/express";
 
@@ -21,7 +22,7 @@ import {
 
 import { setupInvalidateStaleJobsInterval } from "@recipesage/util/server/db";
 setupInvalidateStaleJobsInterval();
-import { metrics } from "@recipesage/util/server/general";
+import { metrics, config } from "@recipesage/util/server/general";
 
 // Routes
 import index from "./routes/index.js";
@@ -34,6 +35,8 @@ import proxy from "./routes/proxy.js";
 import { ErrorRequestHandler } from "express";
 
 const app = express();
+
+app.set("trust proxy", config.rateLimit.trustProxyHops);
 
 app.use(compression());
 
@@ -87,6 +90,16 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
+const rateLimitExemptPrefixes = ["/metrics", "/stripe/webhook"];
+const globalRateLimitHandler = rateLimitHandler("global");
+app.use((req, res, next) => {
+  if (rateLimitExemptPrefixes.some((prefix) => req.path.startsWith(prefix))) {
+    next();
+    return;
+  }
+  globalRateLimitHandler(req, res, next);
+});
+
 const EXPRESS_VIEWS_PATH = process.env.EXPRESS_VIEWS_PATH;
 if (!EXPRESS_VIEWS_PATH) throw new Error("EXPRESS_VIEWS_PATH must be provided");
 app.set("views", EXPRESS_VIEWS_PATH);
@@ -95,7 +108,7 @@ app.set("view engine", "pug");
 if (process.env.NODE_ENV !== "test") app.use(logger("dev"));
 app.use(
   bodyParser.json({
-    limit: "250MB",
+    limit: "1MB",
     verify: (req, res, buf) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const url = (req as any).originalUrl;
@@ -129,7 +142,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(bodyParser.urlencoded({ limit: "250MB", extended: false }));
+app.use(bodyParser.urlencoded({ limit: "1MB", extended: false }));
 app.use(cookieParser());
 app.disable("x-powered-by");
 app.use("/", typesafeExpressIndexRouter);

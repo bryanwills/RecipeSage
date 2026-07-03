@@ -37,9 +37,26 @@ const getEnvString = <
   return value as R;
 };
 
+const rateLimitRedisHost = getEnvString("RATE_LIMIT_REDIS_HOST", []);
+
 export const config = {
   api: {
     publicUrl: getEnvString("API_PUBLIC_BASE_URL", Environment.All),
+  },
+  rateLimit: {
+    enabled:
+      getEnvString("RATE_LIMIT_ENABLED", []) !== "false" &&
+      !!rateLimitRedisHost,
+    redisHost: rateLimitRedisHost,
+    redisPort: parseInt(
+      getEnvString("RATE_LIMIT_REDIS_PORT", []) || "6379",
+      10,
+    ),
+    clientIpHeader: getEnvString(
+      "RATE_LIMIT_CLIENT_IP_HEADER",
+      [],
+    )?.toLowerCase(),
+    trustProxyHops: parseInt(getEnvString("TRUST_PROXY_HOPS", []) || "0", 10),
   },
   google: {
     gsi: {
@@ -87,3 +104,13 @@ export const config = {
     },
   },
 };
+
+if (
+  config.rateLimit.enabled &&
+  !config.rateLimit.clientIpHeader &&
+  !config.rateLimit.trustProxyHops
+) {
+  throw new Error(
+    "Rate limiting is enabled (RATE_LIMIT_REDIS_HOST is set) but no trusted client IP source is configured. Set RATE_LIMIT_CLIENT_IP_HEADER (e.g. x-envoy-external-address) or TRUST_PROXY_HOPS, otherwise all clients collapse into a single rate limit bucket.",
+  );
+}

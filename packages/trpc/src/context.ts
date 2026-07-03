@@ -5,6 +5,7 @@ import * as trpcExpress from "@trpc/server/adapters/express";
 import {
   extendSession,
   getRequestLanguage,
+  resolveClientIp,
 } from "@recipesage/util/server/general";
 
 export async function createContext({
@@ -38,6 +39,7 @@ export async function createContext({
   return {
     session,
     language: getRequestLanguage(req),
+    ip: resolveClientIp(req),
   };
 }
 
