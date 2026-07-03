@@ -70,6 +70,14 @@ ion-badge {
   justify-content: space-around;
   padding: 10px;
 
+  &.single-col .recipe-card {
+    width: 100%;
+
+    img {
+      width: 100%;
+    }
+  }
+
   .recipe-card {
     --paragraph-line-height: 1.188rem;
     --content-padding-leeway: 1.375rem;
