@@ -33,6 +33,7 @@ import { maybeRequestPersistentStorage } from "../../utils/persistentStorage";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { LogoIconComponent } from "../../components/logo-icon/logo-icon.component";
 import { NullStateComponent } from "../../components/null-state/null-state.component";
+import { RecipeListItemComponent } from "../../components/recipe-list-item/recipe-list-item.component";
 import {
   IonHeader,
   IonToolbar,
@@ -75,6 +76,7 @@ const TILE_PADD = 20;
     ...SHARED_UI_IMPORTS,
     LogoIconComponent,
     NullStateComponent,
+    RecipeListItemComponent,
     UiScrollModule,
     IonHeader,
     IonToolbar,
@@ -892,6 +894,22 @@ export class HomePage implements OnDestroy {
     return recipe.recipeLabels
       .map((recipeLabel) => recipeLabel.label.title)
       .join(", ");
+  }
+
+  private isFromAnotherUser(recipe: RecipeSummaryLite): boolean {
+    const myProfileValue = this.myProfile();
+    if (!myProfileValue) return false;
+    return !this.userId && myProfileValue.id !== recipe.userId;
+  }
+
+  getRecipeBadgeHandle(recipe: RecipeSummaryLite): string | undefined {
+    if (!this.isFromAnotherUser(recipe)) return undefined;
+    return this.friendsById?.[recipe.userId]?.handle ?? undefined;
+  }
+
+  isFromSharedCollection(recipe: RecipeSummaryLite): boolean {
+    if (!this.isFromAnotherUser(recipe)) return false;
+    return !this.friendsById?.[recipe.userId]?.handle;
   }
 
   getShouldShowLabelChips() {

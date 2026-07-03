@@ -1,6 +1,6 @@
 import { publicProcedure } from "../../trpc";
 import { z } from "zod";
-import { Prisma, prisma } from "@recipesage/prisma";
+import { Prisma, prismaReplica } from "@recipesage/prisma";
 import {
   discoverRecipeSummarySchema,
   discoverRecipeSummarySelect,
@@ -85,7 +85,9 @@ export const searchDiscoverRecipes = publicProcedure
       : undefined;
 
     if (tsquery) {
-      conditions.push(Prisma.sql`tsv @@ to_tsquery('simple', ${tsquery})`);
+      conditions.push(
+        Prisma.sql`tsv @@ to_tsquery('simple', immutable_unaccent(${tsquery}))`,
+      );
     }
 
     let orderBy: Prisma.Sql;
@@ -101,12 +103,12 @@ export const searchDiscoverRecipes = publicProcedure
         break;
       default:
         orderBy = tsquery
-          ? Prisma.sql`ts_rank(tsv, to_tsquery('simple', ${tsquery})) DESC`
+          ? Prisma.sql`ts_rank(tsv, to_tsquery('simple', immutable_unaccent(${tsquery}))) DESC`
           : Prisma.sql`"rankScore" DESC, "createdAt" DESC`;
         break;
     }
 
-    const idRows = await prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
+    const idRows = await prismaReplica.$queryRaw<{ id: string }[]>(Prisma.sql`
       SELECT id
       FROM "Discover_Recipes"
       WHERE ${Prisma.join(conditions, " AND ")}
@@ -121,7 +123,7 @@ export const searchDiscoverRecipes = publicProcedure
     const ids = idRows.map((row) => row.id);
     const orderById = new Map(ids.map((id, index) => [id, index]));
 
-    const discoverRecipes = await prisma.discoverRecipe.findMany({
+    const discoverRecipes = await prismaReplica.discoverRecipe.findMany({
       where: {
         id: {
           in: ids,

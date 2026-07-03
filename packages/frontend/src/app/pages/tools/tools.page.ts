@@ -17,6 +17,7 @@ import {
 } from "@ionic/angular/standalone";
 import { addIcons } from "ionicons";
 import {
+  basketOutline,
   bookOutline,
   chatboxEllipsesOutline,
   fitnessOutline,
@@ -50,6 +51,7 @@ export class ToolsPage {
 
   constructor() {
     addIcons({
+      basketOutline,
       bookOutline,
       chatboxEllipsesOutline,
       fitnessOutline,
@@ -66,6 +68,10 @@ export class ToolsPage {
 
   goToNutritionCalculator() {
     this.navCtrl.navigateForward(RouteMap.NutritionCalculatorPage.getPath());
+  }
+
+  goToSearchByIngredients() {
+    this.navCtrl.navigateForward(RouteMap.SearchByIngredientsPage.getPath());
   }
 
   goToMeasurementConverter() {

@@ -2,6 +2,7 @@
 // http://ionicframework.com/docs/theming/
 
 @mixin blackModeVars() {
+  --rs-match-color: var(--ion-color-primary);
   --ion-border-color: var(--ion-color-dark-shade);
   --ion-background-color: #000000;
   --ion-background-color-rgb: rgb(0, 0, 0);
@@ -45,6 +46,7 @@
 }
 
 @mixin darkModeVars() {
+  --rs-match-color: var(--ion-color-primary);
   --ion-border-color: #2c2c2c;
   --ion-background-color: #121212;
   --ion-background-color-rgb: 18, 18, 18;
@@ -87,6 +89,7 @@
 }
 
 @mixin midnightModeVars() {
+  --rs-match-color: var(--ion-color-primary);
   --ion-border-color: var(--ion-color-dark-shade);
   --ion-background-color: var(--ion-color-dark);
   --ion-background-color-rgb: var(--ion-color-dark-rgb);
@@ -121,6 +124,7 @@
 }
 
 @mixin lightModeVars() {
+  --rs-match-color: #0077b8;
   --ion-border-color: rgba(0, 0, 0, 0.13);
   --ion-background-color: #ffffff;
   --ion-background-color-rgb: rgb(255, 255, 255);

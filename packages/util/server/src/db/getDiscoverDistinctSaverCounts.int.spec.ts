@@ -3,7 +3,7 @@ import { prisma, User } from "@recipesage/prisma";
 import { getDiscoverDistinctSaverCounts } from "./getDiscoverDistinctSaverCounts";
 import { userFactory, discoverRecipeFactory } from "../general/factories";
 
-describe("getDiscoverDistinctSaverCounts (integration)", () => {
+describe("getDiscoverDistinctSaverCounts", () => {
   let author: User;
   let saverA: User;
   let saverB: User;

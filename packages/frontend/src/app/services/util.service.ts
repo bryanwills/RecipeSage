@@ -282,6 +282,12 @@ export const RouteMap = {
     },
     path: "tools/pan-bakeware-converter",
   },
+  SearchByIngredientsPage: {
+    getPath() {
+      return `/tools/search-by-ingredients`;
+    },
+    path: "tools/search-by-ingredients",
+  },
   ImportPage: {
     getPath() {
       return `/settings/import`;

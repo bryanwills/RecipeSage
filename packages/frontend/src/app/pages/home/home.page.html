@@ -120,7 +120,7 @@
           </div>
         }
         <div *uiScroll="let recipeGroup of datasource" class="recipe-group-row">
-          <div class="recipe-group">
+          <div class="recipe-group" [class.single-col]="tileColCount === 1">
             @for (recipe of recipeGroup; track recipe.id) {
               <div
                 class="recipe-card"
@@ -244,108 +244,26 @@
             }
           </div>
         }
-        <div
+        <recipe-list-item
           *uiScroll="let recipe of datasource"
-          class="recipe-item"
-          [class.list]="preferences[preferenceKeys.ViewType] === 'list'"
-          [class.compact]="preferences[preferenceKeys.ViewType] === 'compact'"
-          [ngClass]="{
-            selected: selectedRecipeIds.indexOf(recipe.id) > -1,
-            'no-image': !preferences[preferenceKeys.ShowImages],
-          }"
-          (click)="
+          [recipe]="recipe"
+          [viewType]="
+            preferences[preferenceKeys.ViewType] === 'compact'
+              ? 'compact'
+              : 'list'
+          "
+          [showImage]="preferences[preferenceKeys.ShowImages]"
+          [showDescription]="preferences[preferenceKeys.ShowRecipeDescription]"
+          [showSource]="preferences[preferenceKeys.ShowSource]"
+          [showFromUser]="recipe.folder === 'inbox'"
+          [showLabels]="preferences[preferenceKeys.ShowLabels]"
+          [selected]="selectedRecipeIds.indexOf(recipe.id) > -1"
+          [badgeHandle]="getRecipeBadgeHandle(recipe)"
+          [fromSharedCollection]="isFromSharedCollection(recipe)"
+          (recipeClick)="
             selectionMode ? selectRecipe(recipe) : openRecipe(recipe, $event)
           "
-          button
-        >
-          @if (
-            recipe.recipeImages &&
-            recipe.recipeImages.length > 0 &&
-            preferences[preferenceKeys.ShowImages]
-          ) {
-            <img
-              loading="lazy"
-              decoding="async"
-              [src]="recipe.recipeImages[0].image.location"
-            />
-          }
-          @if (
-            (!recipe.recipeImages || !recipe.recipeImages.length) &&
-            preferences[preferenceKeys.ShowImages]
-          ) {
-            <img
-              loading="lazy"
-              decoding="async"
-              class="no-image"
-              src="assets/imgs/logo_green.png"
-            />
-          }
-          @if (!preferences[preferenceKeys.ShowImages]) {
-            <div></div>
-          }
-          <div class="recipe-item-content">
-            <h2>{{ recipe.title }}</h2>
-            <div class="recipe-item-content-meta">
-              @if (preferences[preferenceKeys.ShowRecipeDescription]) {
-                <p class="description">{{ recipe.description }}</p>
-              }
-              @if (
-                recipe.source?.length && preferences[preferenceKeys.ShowSource]
-              ) {
-                <p>
-                  {{ "pages.home.recipe.source" | translate }}
-                  {{ recipe.source }}
-                </p>
-              }
-              @if (recipe.folder === "inbox" && recipe.fromUser) {
-                <p>
-                  <b
-                    >{{ "pages.home.recipe.from" | translate }}
-                    {{ recipe.fromUser.name }}</b
-                  >
-                </p>
-              }
-              @if (
-                recipe.recipeLabels &&
-                recipe.recipeLabels.length > 0 &&
-                preferences[preferenceKeys.ShowLabels]
-              ) {
-                <p>
-                  {{ "pages.home.recipe.labels" | translate }}
-                  @for (
-                    recipeLabel of recipe.recipeLabels;
-                    track recipeLabel.label.title;
-                    let idx = $index
-                  ) {
-                    <span
-                      >{{ recipeLabel.label.title }}
-                      @if (idx + 1 < recipe.recipeLabels.length) {
-                        <span>,&nbsp;</span>
-                      }
-                    </span>
-                  }
-                </p>
-              }
-            </div>
-          </div>
-          @if (myProfile(); as myProfileValue) {
-            @if (!userId && myProfileValue.id !== recipe.userId) {
-              <ion-badge>
-                @if (friendsById && friendsById[recipe.userId]) {
-                  &commat;{{ friendsById[recipe.userId].handle }}
-                }
-                @if (!friendsById || !friendsById[recipe.userId]) {
-                  {{ "pages.home.recipe.fromSharedCollection" | translate }}
-                }
-              </ion-badge>
-            }
-          }
-          @if (selectedRecipeIds.indexOf(recipe.id) > -1) {
-            <ion-badge>
-              {{ "pages.home.recipe.selected" | translate }}
-            </ion-badge>
-          }
-        </div>
+        ></recipe-list-item>
       </div>
     }
     @if (!recipes.length) {

@@ -1,7 +1,7 @@
 import { authenticatedProcedure } from "../../trpc";
 import { z } from "zod";
 import { getSimilarRecipes as _getSimilarRecipes } from "@recipesage/util/server/db";
-import { recipeSummaryLiteSchema } from "@recipesage/prisma";
+import { prismaReplica, recipeSummaryLiteSchema } from "@recipesage/prisma";
 
 export const getSimilarRecipes = authenticatedProcedure
   .meta({
@@ -24,6 +24,7 @@ export const getSimilarRecipes = authenticatedProcedure
     const similarRecipes = await _getSimilarRecipes(
       ctx.session.userId,
       input.recipeIds,
+      prismaReplica,
     );
 
     return similarRecipes;

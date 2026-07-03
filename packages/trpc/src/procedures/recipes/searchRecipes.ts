@@ -9,6 +9,7 @@ import { searchRecipes as _searchRecipes } from "@recipesage/util/server/search"
 import { TRPCError } from "@trpc/server";
 import {
   nutritionFilterSchema,
+  prismaReplica,
   recipeSummaryLiteSchema,
 } from "@recipesage/prisma";
 
@@ -67,6 +68,7 @@ export const searchRecipes = publicProcedure
     );
 
     const results = await getRecipesWithConstraints({
+      tx: prismaReplica,
       userId: ctx.session?.userId || undefined,
       userIds,
       folder: input.folder,

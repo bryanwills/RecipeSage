@@ -15,6 +15,7 @@ import { getRecipesByUrl } from "./getRecipesByUrl";
 import { getSimilarRecipes } from "./getSimilarRecipes";
 import { getUniqueRecipeTitle } from "./getUniqueRecipeTitle";
 import { searchRecipes } from "./searchRecipes";
+import { searchRecipesByIngredients } from "./searchRecipesByIngredients";
 import { updateRecipe } from "./updateRecipe";
 
 export const recipesRouter = router({
@@ -31,6 +32,7 @@ export const recipesRouter = router({
   getAllVisibleRecipesManifest,
   getSyncRecipesManifestV1,
   searchRecipes,
+  searchRecipesByIngredients,
   getSimilarRecipes,
   getRecipesByTitle,
   getRecipesByUrl,

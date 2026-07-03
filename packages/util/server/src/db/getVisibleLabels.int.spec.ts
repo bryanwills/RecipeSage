@@ -9,7 +9,7 @@ import {
   profileItemFactory,
 } from "../general/factories";
 
-describe("getVisibleLabels (integration)", () => {
+describe("getVisibleLabels", () => {
   let owner: User;
   let friendA: User;
   let friendB: User;

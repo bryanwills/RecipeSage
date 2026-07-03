@@ -34,7 +34,7 @@ function mockModerationOutput(output: {
   generateTextMock.mockResolvedValue({ output });
 }
 
-describe("moderateDiscoverRecipe (integration)", () => {
+describe("moderateDiscoverRecipe", () => {
   let author: User;
   const cleanupIds: string[] = [];
 

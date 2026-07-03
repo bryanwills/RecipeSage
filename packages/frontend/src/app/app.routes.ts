@@ -368,6 +368,15 @@ export const appRoutes: Routes = [
     title: "pages.panBakewareConverter.tabTitle",
   },
   {
+    path: RouteMap.SearchByIngredientsPage.path,
+    loadComponent: () =>
+      import("./pages/tools/search-by-ingredients/search-by-ingredients.page").then(
+        (m) => m.SearchByIngredientsPage,
+      ),
+    canDeactivate: [UnsavedChangesGuardService],
+    title: "pages.searchByIngredients.tabTitle",
+  },
+  {
     path: RouteMap.ImportPage.path,
     loadComponent: () =>
       import("./pages/settings-components/import/import.page").then(

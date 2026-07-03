@@ -55,6 +55,7 @@ const RATE_LIMIT_TIER_BY_PATH: [string, RateLimitTier][] = [
   ["ml.", "ai"],
   ["assistant.", "ai"],
   ["recipes.searchRecipes", "search"],
+  ["recipes.searchRecipesByIngredients", "search"],
   ["discover.searchDiscoverRecipes", "search"],
 ];
 

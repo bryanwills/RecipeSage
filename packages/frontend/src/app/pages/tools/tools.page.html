@@ -25,6 +25,13 @@
           <p>{{ "pages.tools.nutritionCalculator.subtitle" | translate }}</p>
         </ion-label>
       </ion-item>
+      <ion-item (click)="goToSearchByIngredients()" button detail>
+        <ion-icon name="basket-outline" slot="start"></ion-icon>
+        <ion-label class="ion-text-wrap">
+          {{ "pages.searchByIngredients.title" | translate }}
+          <p>{{ "pages.tools.searchByIngredients.subtitle" | translate }}</p>
+        </ion-label>
+      </ion-item>
       <ion-item (click)="goToMeasurementConverter()" button detail>
         <ion-icon name="swap-horizontal-outline" slot="start"></ion-icon>
         <ion-label class="ion-text-wrap">

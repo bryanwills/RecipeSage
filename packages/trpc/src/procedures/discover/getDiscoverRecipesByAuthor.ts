@@ -1,6 +1,6 @@
 import { publicProcedure } from "../../trpc";
 import { z } from "zod";
-import { Prisma, prisma } from "@recipesage/prisma";
+import { Prisma, prismaReplica } from "@recipesage/prisma";
 import {
   discoverRecipeSummarySchema,
   discoverRecipeSummarySelect,
@@ -42,7 +42,7 @@ export const getDiscoverRecipesByAuthor = publicProcedure
           ...discoverPubliclyVisibleWhere,
         };
 
-    const discoverRecipes = await prisma.discoverRecipe.findMany({
+    const discoverRecipes = await prismaReplica.discoverRecipe.findMany({
       where,
       select: discoverRecipeSummarySelect,
       orderBy: {

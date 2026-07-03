@@ -1,4 +1,4 @@
-import { prisma } from "@recipesage/prisma";
+import { prismaReplica } from "@recipesage/prisma";
 import { SearchProvider } from "./";
 
 const RESULT_LIMIT = 500;
@@ -26,15 +26,15 @@ export const searchRecipes = async (userIds: string[], queryString: string) => {
   const fuzzyTerm = tokens.join(" ");
 
   const [ftsResults, fuzzyResults] = await Promise.all([
-    prisma.$queryRaw<{ id: string }[]>`
+    prismaReplica.$queryRaw<{ id: string }[]>`
       SELECT id
       FROM "Recipes"
       WHERE "userId" = ANY(${userIds}::uuid[])
-        AND tsv @@ to_tsquery('simple', ${tsquery})
-      ORDER BY ts_rank(tsv, to_tsquery('simple', ${tsquery})) DESC
+        AND tsv @@ to_tsquery('simple', immutable_unaccent(${tsquery}))
+      ORDER BY ts_rank(tsv, to_tsquery('simple', immutable_unaccent(${tsquery}))) DESC
       LIMIT ${RESULT_LIMIT}
     `,
-    prisma.$queryRaw<{ id: string }[]>`
+    prismaReplica.$queryRaw<{ id: string }[]>`
       SELECT id
       FROM "Recipes"
       WHERE "userId" = ANY(${userIds}::uuid[])
