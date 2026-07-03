@@ -1,3 +1,9 @@
+const originalSearchProvider = vi.hoisted(() => {
+  const original = process.env.SEARCH_PROVIDER;
+  process.env.SEARCH_PROVIDER = "postgres";
+  return original;
+});
+
 import { prisma, Prisma } from "@recipesage/prisma";
 import {
   recipeFactory,
@@ -6,6 +12,14 @@ import {
   profileItemFactory,
 } from "@recipesage/util/server/general";
 import { test, anonymousTrpc } from "../../testutils";
+
+afterAll(() => {
+  if (originalSearchProvider === undefined) {
+    delete process.env.SEARCH_PROVIDER;
+  } else {
+    process.env.SEARCH_PROVIDER = originalSearchProvider;
+  }
+});
 
 const createRecipe = (
   userId: string,
