@@ -1,14 +1,16 @@
 import { Injectable } from "@angular/core";
-import { IS_SELFHOST } from "../../environments/environment";
+import { environment, IS_SELFHOST } from "../../environments/environment";
 
 export enum FeatureFlagKeys {
   EnableContribution = "enableContribution",
   EnableInstallInstructions = "enableInstallInstructions",
+  EnableDiscover = "enableDiscover",
 }
 
 export interface FeatureFlagTypes {
   [FeatureFlagKeys.EnableContribution]: boolean;
   [FeatureFlagKeys.EnableInstallInstructions]: boolean;
+  [FeatureFlagKeys.EnableDiscover]: boolean;
 }
 
 @Injectable({
@@ -24,6 +26,9 @@ export class FeatureFlagService {
       "ios.recipesage.com",
       "android.recipesage.com",
     ]),
+    [FeatureFlagKeys.EnableDiscover]:
+      !IS_SELFHOST &&
+      (!environment.production || this.isHost("beta.recipesage.com")),
   } satisfies Record<FeatureFlagKeys, boolean>;
 
   constructor() {}

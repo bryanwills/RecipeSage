@@ -135,7 +135,7 @@
           </ion-label>
         </null-state>
       }
-      @if (!isSelfHost && publishedRecipes.length) {
+      @if (enableDiscover && publishedRecipes.length) {
         <br />
         <ion-item lines="none">
           <ion-icon name="compass-outline" slot="start"></ion-icon>

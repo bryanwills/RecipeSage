@@ -22,6 +22,10 @@ import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
 import { NullStateComponent } from "../../../components/null-state/null-state.component";
 import { SelfhostWarningItemComponent } from "../../../components/selfhost-warning-item/selfhost-warning-item.component";
 import {
+  FeatureFlagService,
+  FeatureFlagKeys,
+} from "../../../services/feature-flag.service";
+import {
   IonHeader,
   IonToolbar,
   IonButtons,
@@ -87,9 +91,12 @@ export class ProfilePage {
   utilService = inject(UtilService);
   loadingService = inject(LoadingService);
   serverActionsService = inject(ServerActionsService);
+  featureFlagService = inject(FeatureFlagService);
 
   defaultBackHref: string = RouteMap.PeoplePage.getPath();
   isSelfHost = IS_SELFHOST;
+  enableDiscover =
+    this.featureFlagService.flags[FeatureFlagKeys.EnableDiscover];
 
   handle: string = "";
   profile?: RouterOutputs["users"]["getUserProfileByHandle"];
@@ -188,11 +195,11 @@ export class ProfilePage {
       loggedIn
         ? this.serverActionsService.users.getMyFriends()
         : Promise.resolve(undefined),
-      this.isSelfHost
-        ? Promise.resolve(undefined)
-        : this.serverActionsService.discover.getDiscoverRecipesByAuthor({
+      this.enableDiscover
+        ? this.serverActionsService.discover.getDiscoverRecipesByAuthor({
             authorId: profileResponse.id,
-          }),
+          })
+        : Promise.resolve(undefined),
     ]);
 
     loading.dismiss();

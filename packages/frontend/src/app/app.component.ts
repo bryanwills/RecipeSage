@@ -373,6 +373,8 @@ export class AppComponent {
       this.featureFlagService.flags[FeatureFlagKeys.EnableInstallInstructions];
     const enableContribution =
       this.featureFlagService.flags[FeatureFlagKeys.EnableContribution];
+    const enableDiscover =
+      this.featureFlagService.flags[FeatureFlagKeys.EnableDiscover];
     const loggedOutPages = [
       [
         true,
@@ -393,7 +395,7 @@ export class AppComponent {
         },
       ],
       [
-        !this.isSelfHost,
+        enableDiscover,
         {
           id: "discover",
           title: discover,
@@ -486,7 +488,7 @@ export class AppComponent {
         },
       ],
       [
-        !this.isSelfHost,
+        enableDiscover,
         {
           id: "discover",
           title: discover,

@@ -6,8 +6,11 @@ import { WakeLockService } from "../../../services/wakelock.service";
 import { CookingToolbarService } from "../../../services/cooking-toolbar.service";
 import { CapabilitiesService } from "../../../services/capabilities.service";
 import type { RecipeSummary, UserPublic } from "@recipesage/prisma";
-import { IS_SELFHOST } from "../../../../environments/environment";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
+import {
+  FeatureFlagService,
+  FeatureFlagKeys,
+} from "../../../services/feature-flag.service";
 import {
   IonList,
   IonListHeader,
@@ -71,6 +74,7 @@ export class RecipeDetailsPopoverPage {
   private wakeLockService = inject(WakeLockService);
   cookingToolbarService = inject(CookingToolbarService);
   capabilitiesService = inject(CapabilitiesService);
+  private featureFlagService = inject(FeatureFlagService);
   private popoverCtrl = inject(PopoverController);
 
   @Input({
@@ -88,7 +92,8 @@ export class RecipeDetailsPopoverPage {
 
   preferences = this.preferencesService.preferences;
   preferenceKeys = RecipeDetailsPreferenceKey;
-  isSelfHost = IS_SELFHOST;
+  enableDiscover =
+    this.featureFlagService.flags[FeatureFlagKeys.EnableDiscover];
 
   wakeLockCapable: boolean;
 
