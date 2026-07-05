@@ -134,7 +134,7 @@ services:
   valkey:
     image: valkey/valkey
   grocery-categorizer:
-    image: julianpoy/ingredient-categorizer:latest
+    image: julianpoy/ingredient-categorizer:f9d9562
     stop_grace_period: 1s
 
 volumes:
