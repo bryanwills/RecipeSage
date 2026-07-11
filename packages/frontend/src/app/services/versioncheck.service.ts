@@ -1,13 +1,12 @@
 import { Injectable, inject } from "@angular/core";
 import { AlertController } from "@ionic/angular/standalone";
-import { UtilService } from "./util.service";
 import { HttpService } from "./http.service";
+import { serverConfig } from "../utils/serverConfig";
 
 @Injectable({
   providedIn: "root",
 })
 export class VersionCheckService {
-  private utilService = inject(UtilService);
   private httpService = inject(HttpService);
   private alertCtrl = inject(AlertController);
 
@@ -15,7 +14,7 @@ export class VersionCheckService {
     const version = (window as any).version;
     if (version === "stg") return;
 
-    const url = `${this.utilService.getBase()}versioncheck?version=${version}`;
+    const url = `${serverConfig.apiBase}versioncheck?version=${version}`;
 
     this.httpService
       .request<{ supported: boolean }>({

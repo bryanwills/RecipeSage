@@ -12,4 +12,5 @@ import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 export class InfoBlockComponent {
   @Input() icon = "";
   @Input() ariaLabel: string | null = null;
+  @Input() color: "" | "danger" = "";
 }

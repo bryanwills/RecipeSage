@@ -1,4 +1,9 @@
-<aside class="info-block" role="note" [attr.aria-label]="ariaLabel">
+<aside
+  class="info-block"
+  [class.info-block--danger]="color === 'danger'"
+  role="note"
+  [attr.aria-label]="ariaLabel"
+>
   @if (icon) {
     <div class="info-block-icon">
       <ion-icon [name]="icon" aria-hidden="true"></ion-icon>

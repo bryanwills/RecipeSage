@@ -6,7 +6,7 @@ import {
   SupportedLanguages,
 } from "@recipesage/util/shared";
 import { NavController } from "@ionic/angular/standalone";
-import { getBase } from "../utils/getBase";
+import { serverConfig } from "../utils/serverConfig";
 
 export interface RecipeTemplateModifiers {
   version?: string;
@@ -493,10 +493,6 @@ export class UtilService {
     }
   }
 
-  getBase() {
-    return getBase();
-  }
-
   setFontSize(fontSize: SupportedFontSize) {
     window.document.documentElement.style.fontSize = fontSize;
   }
@@ -538,7 +534,7 @@ export class UtilService {
       query += `&preferredLanguage=${options.preferredLanguage}`;
     if (options.sortBy) query += `&sortBy=${options.sortBy}`;
 
-    return `${this.getBase()}print/shoppingList/${shoppingListId}${query}`;
+    return `${serverConfig.apiBase}print/shoppingList/${shoppingListId}${query}`;
   }
 
   generatePrintMealPlanURL(
@@ -564,7 +560,7 @@ export class UtilService {
     if (options.preferredLanguage)
       query += `&preferredLanguage=${options.preferredLanguage}`;
 
-    return `${this.getBase()}print/mealPlan/${mealPlanId}${query}`;
+    return `${serverConfig.apiBase}print/mealPlan/${mealPlanId}${query}`;
   }
 
   generateRecipeTemplateURL(
@@ -577,7 +573,7 @@ export class UtilService {
       .map(([key, value]) => `${key}=${value}`)
       .join("&");
 
-    const url = `${this.getBase()}print/recipe/${recipeId}?${modifierQuery}`;
+    const url = `${serverConfig.apiBase}print/recipe/${recipeId}?${modifierQuery}`;
 
     return url;
   }

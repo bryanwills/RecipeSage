@@ -11,6 +11,19 @@
   background: var(--ion-color-step-50, #f7f7f7);
 }
 
+.info-block--danger {
+  border-color: var(--ion-color-danger);
+  background: color-mix(in srgb, var(--ion-color-danger) 8%, transparent);
+
+  .info-block-icon ion-icon {
+    color: var(--ion-color-danger);
+  }
+
+  .info-block-title {
+    color: var(--ion-color-danger);
+  }
+}
+
 .info-block-icon {
   flex-shrink: 0;
   display: flex;

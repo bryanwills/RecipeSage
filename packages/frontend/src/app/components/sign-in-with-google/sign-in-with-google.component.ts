@@ -18,7 +18,7 @@ import type { SessionDTO } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { IonButton } from "@ionic/angular/standalone";
 import { getElectronAPI, getIsElectron } from "../../utils/electron";
-import { getBase } from "../../utils/getBase";
+import { serverConfig } from "../../utils/serverConfig";
 
 const getGoogleRef = () => {
   return (window as any).google;
@@ -84,7 +84,7 @@ export class SignInWithGoogleComponent implements AfterViewInit, OnDestroy {
 
   startDesktopGoogleSignIn() {
     window.open(
-      `${getBase()}auth/desktop-google?allowRegistration=${this.allowRegistration}`,
+      `${serverConfig.apiBase}auth/desktop-google?allowRegistration=${this.allowRegistration}`,
     );
   }
 

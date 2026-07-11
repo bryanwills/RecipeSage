@@ -48,6 +48,7 @@ import {
   swapHorizontalOutline,
 } from "ionicons/icons";
 import { addIcons } from "ionicons";
+import { serverConfig } from "../../utils/serverConfig";
 
 @Component({
   standalone: true,
@@ -147,7 +148,7 @@ export class ShareModalPage {
     }
 
     const jsonLDCode = `<script>
-      fetch('${this.utilService.getBase()}recipes/${this.recipe.id}/json-ld')
+      fetch('${serverConfig.apiBase}recipes/${this.recipe.id}/json-ld')
       .then(response => response.text())
       .then(structuredDataText => {
         const script = document.createElement('script');

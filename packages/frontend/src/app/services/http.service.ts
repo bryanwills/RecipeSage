@@ -6,8 +6,8 @@ import {
   ErrorHandlers,
 } from "./http-error-handler.service";
 import { UtilService } from "./util.service";
-import { getBase } from "../utils/getBase";
 import { TranslateService } from "@ngx-translate/core";
+import { serverConfig } from "../utils/serverConfig";
 
 export interface HttpResponse<ResponseType> {
   success: boolean;
@@ -130,7 +130,7 @@ export class HttpService {
     const { axiosOverrides, path, method, payload, query, errorHandlers } =
       opts;
 
-    let url = getBase() + path + this.utilService.getTokenQuery();
+    let url = serverConfig.apiBase + path + this.utilService.getTokenQuery();
 
     if (query) {
       const params = Object.entries(query)
