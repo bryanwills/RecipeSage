@@ -157,7 +157,7 @@ export class RecipesActionsService extends ActionsBase {
           recipes = recipes.filter((recipe) => {
             if (labelIntersection) {
               return recipe.recipeLabels.some((recipeLabel) => {
-                labelsSet.has(recipeLabel.label.title);
+                return labelsSet.has(recipeLabel.label.title);
               });
             }
             for (const requiredLabel of labelsSet) {
@@ -387,7 +387,7 @@ export class RecipesActionsService extends ActionsBase {
           recipes = recipes.filter((recipe) => {
             if (labelIntersection) {
               return recipe.recipeLabels.some((recipeLabel) => {
-                labelsSet.has(recipeLabel.label.title);
+                return labelsSet.has(recipeLabel.label.title);
               });
             }
             for (const requiredLabel of labelsSet) {
