@@ -17,11 +17,13 @@ import {
   CookModePreferenceKey,
   encryptUtf8WithRSAKey,
   GlobalPreferenceKey,
+  OfflineModePromptOptions,
   PreferencesSync,
   RecipeDetailsPreferenceKey,
   StartPageOptions,
   SupportedLanguages,
 } from "@recipesage/util/shared";
+import { OfflineModeService } from "../../../services/offline-mode.service";
 import {
   FeatureFlagService,
   FeatureFlagKeys,
@@ -61,12 +63,14 @@ import {
   caretDownSharp,
   closeOutline,
   cloudDownloadOutline,
+  cloudOfflineOutline,
   cloudUploadOutline,
   fitnessOutline,
   homeOutline,
   languageOutline,
   listOutline,
   logOutOutline,
+  notificationsOutline,
   personOutline,
   restaurantOutline,
   serverOutline,
@@ -116,10 +120,20 @@ export class SettingsPage {
     RecipeCompletionTrackerService,
   );
   private debugStoreService = inject(DebugStoreService);
+  private offlineModeService = inject(OfflineModeService);
 
   preferences = this.preferencesService.preferences;
   preferenceKeys = GlobalPreferenceKey;
+  offlineModePromptOptions = OfflineModePromptOptions;
   recipeDetailsPreferenceKeys = RecipeDetailsPreferenceKey;
+
+  get offlineModeEnabled(): boolean {
+    return this.offlineModeService.enabled;
+  }
+
+  set offlineModeEnabled(value: boolean) {
+    this.offlineModeService.setEnabled(value);
+  }
 
   featureFlags = this.featureFlagService.flags;
   featureFlagKeys = FeatureFlagKeys;
@@ -145,12 +159,14 @@ export class SettingsPage {
       caretDownSharp,
       closeOutline,
       cloudDownloadOutline,
+      cloudOfflineOutline,
       cloudUploadOutline,
       fitnessOutline,
       homeOutline,
       languageOutline,
       listOutline,
       logOutOutline,
+      notificationsOutline,
       personOutline,
       restaurantOutline,
       serverOutline,

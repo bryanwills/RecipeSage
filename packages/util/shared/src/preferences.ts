@@ -109,6 +109,11 @@ export enum ShoppingListSortOptions {
   CreatedAtDesc = "-createdAt",
 }
 
+export enum OfflineModePromptOptions {
+  Ask = "ask",
+  Never = "never",
+}
+
 export enum GlobalPreferenceKey {
   EnableSplitPane = "global.enableSplitPane",
   Language = "global.language",
@@ -116,6 +121,7 @@ export enum GlobalPreferenceKey {
   Theme = "global.theme",
   PreferencesSync = "global.preferencesSync",
   StartPage = "global.startPage",
+  OfflineModePrompt = "global.offlineModePrompt",
 }
 
 export enum MyRecipesPreferenceKey {
@@ -174,6 +180,7 @@ export interface AppPreferenceTypes {
   [GlobalPreferenceKey.Theme]: AppTheme;
   [GlobalPreferenceKey.PreferencesSync]: PreferencesSync;
   [GlobalPreferenceKey.StartPage]: StartPageOptions;
+  [GlobalPreferenceKey.OfflineModePrompt]: OfflineModePromptOptions;
 
   [MyRecipesPreferenceKey.EnableLabelIntersection]: boolean;
   [MyRecipesPreferenceKey.ShowLabels]: boolean;

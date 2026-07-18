@@ -18,6 +18,7 @@ import { UtilService, RouteMap, AuthType } from "./services/util.service";
 import { MessagingService } from "./services/messaging.service";
 import { WebsocketService } from "./services/websocket.service";
 import { PreferencesService } from "./services/preferences.service";
+import { OfflineModeService } from "./services/offline-mode.service";
 import {
   GlobalPreferenceKey,
   SupportedLanguages,
@@ -123,6 +124,7 @@ export class AppComponent {
   private messagingService = inject(MessagingService);
   private websocketService = inject(WebsocketService);
   private preferencesService = inject(PreferencesService);
+  private offlineModeService = inject(OfflineModeService);
   private featureFlagService = inject(FeatureFlagService);
   private titleService = inject(Title);
   cookingToolbarService = inject(CookingToolbarService);

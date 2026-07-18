@@ -15,6 +15,7 @@ import {
   MyRecipesPreferenceKey,
   MyRecipesSortOptions,
   MyRecipesViewTypeOptions,
+  OfflineModePromptOptions,
   PreferencesSync,
   RecipeDetailsPreferenceKey,
   ShoppingListPreferenceKey,
@@ -48,6 +49,9 @@ export const updatePreferences = authenticatedProcedure
       [GlobalPreferenceKey.Theme]: z.nativeEnum(AppTheme),
       [GlobalPreferenceKey.PreferencesSync]: z.nativeEnum(PreferencesSync),
       [GlobalPreferenceKey.StartPage]: z.nativeEnum(StartPageOptions),
+      [GlobalPreferenceKey.OfflineModePrompt]: z
+        .nativeEnum(OfflineModePromptOptions)
+        .default(OfflineModePromptOptions.Ask),
 
       [MyRecipesPreferenceKey.EnableLabelIntersection]: z.boolean(),
       [MyRecipesPreferenceKey.ShowLabels]: z.boolean(),

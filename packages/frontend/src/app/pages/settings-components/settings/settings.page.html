@@ -46,6 +46,33 @@
         <ion-label> {{ "pages.settings.sync" | translate }} </ion-label>
       </ion-item>
 
+      <ion-item lines="inset">
+        <ion-icon name="cloud-offline-outline" slot="start"></ion-icon>
+        <ion-toggle [(ngModel)]="offlineModeEnabled">
+          <div class="ion-text-wrap">
+            {{ "pages.settings.offlineMode.enable" | translate }}
+          </div>
+        </ion-toggle>
+      </ion-item>
+
+      <ion-item lines="inset">
+        <ion-icon name="notifications-outline" slot="start"></ion-icon>
+        <ion-select
+          [(ngModel)]="preferences[preferenceKeys.OfflineModePrompt]"
+          (ngModelChange)="savePreferences()"
+          label="{{ 'pages.settings.offlineMode.prompt' | translate }}"
+          okText="{{ 'generic.ok' | translate }}"
+          cancelText="{{ 'generic.cancel' | translate }}"
+        >
+          <ion-select-option [value]="offlineModePromptOptions.Ask">
+            {{ "pages.settings.offlineMode.prompt.ask" | translate }}
+          </ion-select-option>
+          <ion-select-option [value]="offlineModePromptOptions.Never">
+            {{ "pages.settings.offlineMode.prompt.never" | translate }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
       <ion-item lines="inset" (click)="resetCompletion()" button>
         <ion-icon name="trash-bin-outline" slot="start"></ion-icon>
         <ion-label>

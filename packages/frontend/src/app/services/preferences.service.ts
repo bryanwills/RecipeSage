@@ -13,6 +13,7 @@ import {
   MyRecipesPreferenceKey,
   MyRecipesSortOptions,
   MyRecipesViewTypeOptions,
+  OfflineModePromptOptions,
   PreferencesSync,
   RecipeDetailsPreferenceKey,
   ShoppingListPreferenceKey,
@@ -48,6 +49,7 @@ export class PreferencesService {
     [GlobalPreferenceKey.Theme]: AppTheme.Default,
     [GlobalPreferenceKey.PreferencesSync]: PreferencesSync.Enabled,
     [GlobalPreferenceKey.StartPage]: StartPageOptions.MyRecipes,
+    [GlobalPreferenceKey.OfflineModePrompt]: OfflineModePromptOptions.Ask,
 
     [MyRecipesPreferenceKey.EnableLabelIntersection]: false,
     [MyRecipesPreferenceKey.ShowLabels]: true,
