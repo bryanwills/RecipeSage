@@ -12,6 +12,7 @@ import type { StandardJobQueueItem } from "../../JobQueueItem";
 import { debounceJobUpdateProgress } from "../../../jobs/updateJobProgress";
 import { IMPORT_JOB_STEP_COUNT } from "../processImportJob";
 import { ImportTooManyRecipesError } from "../../../jobs/jobErrors";
+import * as Sentry from "@sentry/node";
 
 /**
  * A sanity limit so that we don't overload the service or run up a huge bill.
@@ -55,23 +56,29 @@ export async function pdfsImportJobHandler(
   }
 
   let processedCount = 0;
+  let failedCount = 0;
   for (const fileName of pdfFileNames) {
-    const filePath = path.join(extractPath, fileName);
+    try {
+      const filePath = path.join(extractPath, fileName);
 
-    const recipePDF = await readFile(filePath);
+      const recipePDF = await readFile(filePath);
 
-    const images = await readSideCarImages(extractPath, fileName);
+      const images = await readSideCarImages(extractPath, fileName);
 
-    const recipe = await pdfToRecipe(recipePDF);
-    if (!recipe) {
-      continue;
+      const recipe = await pdfToRecipe(recipePDF);
+      if (!recipe) {
+        failedCount++;
+      } else {
+        standardizedRecipeImportInput.push({
+          ...recipe,
+          images,
+          labels: [...importLabels],
+        });
+      }
+    } catch (e) {
+      Sentry.captureException(e, { extra: { jobId: job.id } });
+      failedCount++;
     }
-
-    standardizedRecipeImportInput.push({
-      ...recipe,
-      images,
-      labels: importLabels,
-    });
 
     processedCount++;
     onProgress({
@@ -87,5 +94,6 @@ export async function pdfsImportJobHandler(
     userId: job.userId,
     standardizedRecipeImportInput,
     importTempDirectory: extractPath,
+    failedCount,
   });
 }

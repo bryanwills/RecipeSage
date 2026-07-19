@@ -1,7 +1,7 @@
 import type { ImportJobSummary } from "@recipesage/prisma";
 
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
-import { importJobFinishCommon, translate } from "../../../index";
+import { importJobFinishCommon } from "../../../index";
 import {
   OCR_MIN_VALID_TEXT,
   ocrImagesToRecipe,
@@ -11,6 +11,10 @@ import {
 } from "../../../../ml/index";
 import { cleanLabelTitle } from "@recipesage/util/shared";
 import { downloadS3ToTemp } from "./shared/s3Download";
+import {
+  buildUnstructuredRecipeEntry,
+  getUnformattedImportLabel,
+} from "./shared/unstructuredRecipeEntry";
 import {
   countNoteChunks,
   elementText,
@@ -126,25 +130,12 @@ const processNote = async (args: {
 
   const failedToStructure = !recipe;
   if (!recipe) {
-    recipe = {
-      recipe: {
-        title: "",
-        description: "",
-        folder: "main",
-        source: "",
-        url: "",
-        rating: undefined,
-        yield: "",
-        activeTime: "",
-        totalTime: "",
-        ingredients: "",
-        instructions: "",
-        notes: recipeText,
-        nutritionInfo: undefined,
-      },
+    recipe = buildUnstructuredRecipeEntry({
+      title: "",
+      notes: recipeText,
       labels: [],
       images: [],
-    };
+    });
   }
 
   if (titleText) recipe.recipe.title = titleText;
@@ -196,12 +187,7 @@ export async function enexImportJobHandler(
     userId: job.userId,
   });
 
-  const unformattedLabel = cleanLabelTitle(
-    await translate(
-      jobMeta.language || "en-us",
-      "pages.import.jobs.label.unformatted",
-    ),
-  );
+  const unformattedLabel = await getUnformattedImportLabel(jobMeta.language);
 
   let processedCount = 0;
   let partialCount = 0;
