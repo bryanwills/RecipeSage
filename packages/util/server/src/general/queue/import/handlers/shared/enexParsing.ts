@@ -108,6 +108,7 @@ export const elementText = (node: XmlElement | undefined): string => {
  */
 export async function* streamNoteChunks(
   filePath: string,
+  onSkippedNote?: () => void,
 ): AsyncGenerator<string> {
   const stream = createReadStream(filePath, { encoding: "utf8" });
   let buffer = "";
@@ -135,6 +136,8 @@ export async function* streamNoteChunks(
       buffer = buffer.slice(end + endTag.length);
       if (noteXml.length <= MAX_NOTE_BYTES) {
         yield noteXml;
+      } else {
+        onSkippedNote?.();
       }
     }
   }

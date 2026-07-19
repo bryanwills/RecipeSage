@@ -58,6 +58,24 @@
                   <ion-text color="success">
                     {{ "pages.jobs.status.success" | translate }}
                   </ion-text>
+                  @if (getImportPartialCount(job); as partialCount) {
+                    <br />
+                    <ion-text color="warning">
+                      {{
+                        "pages.jobs.status.import.partial"
+                          | translate: { count: partialCount }
+                      }}
+                    </ion-text>
+                  }
+                  @if (getImportFailedCount(job); as failedCount) {
+                    <br />
+                    <ion-text color="warning">
+                      {{
+                        "pages.jobs.status.import.failed"
+                          | translate: { count: failedCount }
+                      }}
+                    </ion-text>
+                  }
                 }
                 @if (job.status === "RUN") {
                   <ion-progress-bar

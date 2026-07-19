@@ -4,7 +4,7 @@ import { metrics } from "../general";
 import { config } from "../general/config";
 import { generateText, Output } from "ai";
 import { aiProvider } from "./vercel";
-import { withNoObjectRetry } from "./withNoObjectRetry";
+import { withLLMRetry } from "./withLLMRetry";
 
 export enum TextToRecipeInputType {
   OCR,
@@ -69,7 +69,7 @@ export const textToRecipe = async (
   if (text.length > OCR_MAX_VALID_TEXT)
     text = text.substring(0, OCR_MAX_VALID_TEXT);
 
-  const llmResponse = await withNoObjectRetry(() =>
+  const llmResponse = await withLLMRetry("text_to_recipe", () =>
     generateText({
       system: systemPrompts[inputType],
       model: aiProvider(models[inputType]),

@@ -133,6 +133,17 @@ export const metrics = {
     labelNames: ["eventType"],
   }),
 
+  llmRetryAttempt: new client.Counter({
+    name: "llm_retry_attempt",
+    help: "An LLM call returned an unusable response and is being retried. A sustained rise means a model or prompt is producing malformed output",
+    labelNames: ["category", "reason"],
+  }),
+  llmRetryExhausted: new client.Counter({
+    name: "llm_retry_exhausted",
+    help: "An LLM call was still returning an unusable response on the final attempt and the error was rethrown to the caller",
+    labelNames: ["category", "reason"],
+  }),
+
   llmTokensConsumed: new client.Histogram({
     name: "llm_tokens_consumed",
     help: "Every time a request hits the app",

@@ -182,6 +182,14 @@ export class JobsPage {
     }
   }
 
+  getImportPartialCount(job: JobSummary): number {
+    return job.type === "IMPORT" ? job.meta.partialCount || 0 : 0;
+  }
+
+  getImportFailedCount(job: JobSummary): number {
+    return job.type === "IMPORT" ? job.meta.failedCount || 0 : 0;
+  }
+
   getJobFailureI18n(job: JobSummary): string {
     switch (job.resultCode) {
       case JOB_RESULT_CODES.badFile:

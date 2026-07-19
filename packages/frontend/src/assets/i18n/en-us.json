@@ -1626,6 +1626,8 @@
   "pages.jobs.status.run": "Running...",
   "pages.jobs.status.success": "Complete. Click to download.",
   "pages.jobs.status.fail": "Failed.",
+  "pages.jobs.status.import.partial": "{{count}} recipe(s) could not be read automatically and were imported as plain notes.",
+  "pages.jobs.status.import.failed": "{{count}} recipe(s) were skipped due to a failure.",
 
   "pages.import.tabTitle": "Import - RecipeSage",
   "pages.import.title": "Import",
@@ -1633,6 +1635,7 @@
   "pages.import.jobs.subtitle": "Imports continue to run even if you close the app once started",
   "pages.import.jobs.job": "Import Job",
   "pages.import.jobs.job.created": "Created {{timestamp}}",
+  "pages.import.jobs.label.unformatted": "automatic amport anformatted",
   "pages.import.jobCreated.header": "Import Started!",
   "pages.import.jobCreated.message": "Your data is being imported into your account now, and you can track it's status on the import page. You won't see anything in your account until the import job is complete.",
   "pages.import.status.create": "Created, will begin soon.",

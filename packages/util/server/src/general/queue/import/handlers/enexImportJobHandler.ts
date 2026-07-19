@@ -1,7 +1,7 @@
 import type { ImportJobSummary } from "@recipesage/prisma";
 
 import type { StandardizedRecipeImportEntry } from "../../../../db/index";
-import { importJobFinishCommon } from "../../../index";
+import { importJobFinishCommon, translate } from "../../../index";
 import {
   OCR_MIN_VALID_TEXT,
   ocrImagesToRecipe,
@@ -32,6 +32,7 @@ import type { StandardJobQueueItem } from "../../JobQueueItem";
 import { debounceJobUpdateProgress } from "../../../jobs/updateJobProgress";
 import { IMPORT_JOB_STEP_COUNT } from "../processImportJob";
 import { ImportTooManyRecipesError } from "../../../jobs/jobErrors";
+import * as Sentry from "@sentry/node";
 
 const CONCURRENT_NOTE_PROCESSING = 4;
 const MAX_COUNT_LIMIT = 500;
@@ -66,11 +67,20 @@ const stageResources = async (
   return { pdfPaths, imagePaths };
 };
 
-const processNote = async (
-  noteXml: string,
-  importLabels: string[],
-  tempDir: string,
-): Promise<StandardizedRecipeImportEntry | undefined> => {
+interface ProcessedNote {
+  entry: StandardizedRecipeImportEntry;
+  failedToStructure: boolean;
+}
+
+const processNote = async (args: {
+  noteXml: string;
+  importLabels: string[];
+  unformattedLabel: string;
+  tempDir: string;
+  jobId: string;
+}): Promise<ProcessedNote | undefined> => {
+  const { noteXml, importLabels, unformattedLabel, tempDir, jobId } = args;
+
   const parsedNote = JSON.parse(
     xmljs.xml2json(noteXml, { compact: false }),
   ) as XmlElement;
@@ -89,21 +99,54 @@ const processNote = async (
 
   const { pdfPaths, imagePaths } = await stageResources(note, tempDir);
 
-  let recipe: StandardizedRecipeImportEntry | undefined;
-  if (recipeText.length > OCR_MIN_VALID_TEXT) {
-    recipe = await textToRecipe(recipeText, TextToRecipeInputType.Document);
-  } else if (pdfPaths.length > 0) {
-    recipe = await pdfToRecipe(pdfPaths[0]);
-  } else if (imagePaths.length > 0) {
-    const streams = imagePaths
-      .slice(0, MAX_OCR_IMAGES)
-      .map((imagePath) => createReadStream(imagePath));
-    recipe = await ocrImagesToRecipe(streams);
+  const titleText = elementText(findChild(note, "title")).trim();
+  if (!titleText && !recipeText && !pdfPaths.length && !imagePaths.length) {
+    return;
   }
 
-  if (!recipe) return;
+  let recipe: StandardizedRecipeImportEntry | undefined;
+  try {
+    if (recipeText.length > OCR_MIN_VALID_TEXT) {
+      recipe = await textToRecipe(recipeText, TextToRecipeInputType.Document);
+    } else if (pdfPaths.length > 0) {
+      recipe = await pdfToRecipe(pdfPaths[0]);
+    } else if (imagePaths.length > 0) {
+      const streams = imagePaths
+        .slice(0, MAX_OCR_IMAGES)
+        .map((imagePath) => createReadStream(imagePath));
+      recipe = await ocrImagesToRecipe(streams);
+    }
+  } catch (e) {
+    Sentry.captureException(e, {
+      extra: {
+        jobId,
+      },
+    });
+  }
 
-  const titleText = elementText(findChild(note, "title")).trim();
+  const failedToStructure = !recipe;
+  if (!recipe) {
+    recipe = {
+      recipe: {
+        title: "",
+        description: "",
+        folder: "main",
+        source: "",
+        url: "",
+        rating: undefined,
+        yield: "",
+        activeTime: "",
+        totalTime: "",
+        ingredients: "",
+        instructions: "",
+        notes: recipeText,
+        nutritionInfo: undefined,
+      },
+      labels: [],
+      images: [],
+    };
+  }
+
   if (titleText) recipe.recipe.title = titleText;
 
   const noteAttributes = findChild(note, "note-attributes");
@@ -120,10 +163,11 @@ const processNote = async (
     .map((t) => cleanLabelTitle(elementText(t)))
     .filter((l) => l.length);
   recipe.labels.push(...labels, ...importLabels);
+  if (failedToStructure) recipe.labels.push(unformattedLabel);
 
   recipe.images.push(...imagePaths);
 
-  return recipe;
+  return { entry: recipe, failedToStructure };
 };
 
 export async function enexImportJobHandler(
@@ -152,16 +196,45 @@ export async function enexImportJobHandler(
     userId: job.userId,
   });
 
+  const unformattedLabel = cleanLabelTitle(
+    await translate(
+      jobMeta.language || "en-us",
+      "pages.import.jobs.label.unformatted",
+    ),
+  );
+
   let processedCount = 0;
+  let partialCount = 0;
+  let failedCount = 0;
   let batch: string[] = [];
 
   const flushBatch = async () => {
     if (!batch.length) return;
-    const recipes = await Promise.all(
-      batch.map((noteXml) => processNote(noteXml, importLabels, tempDir.path)),
+    const results = await Promise.all(
+      batch.map(async (noteXml) => {
+        try {
+          return await processNote({
+            noteXml,
+            importLabels,
+            unformattedLabel,
+            tempDir: tempDir.path,
+            jobId: job.id,
+          });
+        } catch (e) {
+          Sentry.captureException(e, {
+            extra: {
+              jobId: job.id,
+            },
+          });
+          failedCount++;
+          return undefined;
+        }
+      }),
     );
-    for (const recipe of recipes) {
-      if (recipe) standardizedRecipeImportInput.push(recipe);
+    for (const result of results) {
+      if (!result) continue;
+      standardizedRecipeImportInput.push(result.entry);
+      if (result.failedToStructure) partialCount++;
     }
     processedCount += batch.length;
     onProgress({
@@ -173,7 +246,10 @@ export async function enexImportJobHandler(
     batch = [];
   };
 
-  for await (const noteXml of streamNoteChunks(downloaded.filePath)) {
+  for await (const noteXml of streamNoteChunks(
+    downloaded.filePath,
+    () => failedCount++,
+  )) {
     batch.push(noteXml);
     if (batch.length >= CONCURRENT_NOTE_PROCESSING) {
       await flushBatch();
@@ -186,5 +262,7 @@ export async function enexImportJobHandler(
     userId: job.userId,
     standardizedRecipeImportInput,
     importTempDirectory: tempDir.path,
+    partialCount,
+    failedCount,
   });
 }
