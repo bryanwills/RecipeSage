@@ -3,8 +3,12 @@ import Ahocorasick from "ahocorasick";
 import ingredientNames from "./ingredients.json";
 import {
   parseUnit,
+  getPlainMeasurementsForLocaleIngredient,
   getMeasurementsForIngredient,
   stripIngredient,
+  inferDecimalNotation,
+  resolveDecimalNotation,
+  type DecimalNotation,
 } from "@recipesage/util/shared";
 
 const ingredientNamesAhocorasic = new Ahocorasick(
@@ -19,7 +23,14 @@ export const getShoppingListItemGroupTitles = <
   },
 >(
   items: T[],
+  localeHint: string | undefined,
 ) => {
+  const readerDecimalNotationMode = resolveDecimalNotation(localeHint);
+  const decimalNotationModeForItem = (title: string): DecimalNotation =>
+    inferDecimalNotation(
+      getMeasurementsForIngredient(title),
+      readerDecimalNotationMode,
+    );
   // Ingredient grouping into map by ingredientName
   const itemGrouper: Record<string, T[]> = {};
   for (let i = 0; i < items.length; i++) {
@@ -62,7 +73,10 @@ export const getShoppingListItemGroupTitles = <
   })[] = [];
   for (const [ingredientName, items] of Object.entries(itemGrouper)) {
     const measurements = items.map((item) =>
-      getMeasurementsForIngredient(item.title),
+      getPlainMeasurementsForLocaleIngredient(
+        item.title,
+        decimalNotationModeForItem(item.title),
+      ),
     );
     let title = ingredientName;
 

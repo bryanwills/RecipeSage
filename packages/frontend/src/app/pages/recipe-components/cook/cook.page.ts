@@ -15,6 +15,9 @@ import {
   ParsedIngredient,
   ParsedNote,
   parseIngredients,
+  inferRecipeNotation,
+  applyDecimalNotation,
+  type DecimalNotation,
   parseInstructions,
   parseNotes,
 } from "@recipesage/util/shared";
@@ -97,6 +100,7 @@ export class CookPage {
   instructions?: ParsedInstruction[];
   notes?: ParsedNote[];
   scale = "1";
+  decimalNotationMode: DecimalNotation = ".";
   unitSystem: UnitSystem = "original";
 
   constructor() {
@@ -202,6 +206,10 @@ export class CookPage {
     };
   }
 
+  get scaleDisplay(): string {
+    return applyDecimalNotation(this.scale, this.decimalNotationMode);
+  }
+
   applyScale() {
     if (!this.recipe) return;
 
@@ -212,24 +220,27 @@ export class CookPage {
           ? System.US
           : undefined;
 
-    this.ingredients = parseIngredients(
-      this.recipe.ingredients,
-      this.scale,
-      targetSystem,
+    const decimalNotationMode = inferRecipeNotation(
+      this.recipe,
+      this.translate.getCurrentLang(),
     );
+    this.decimalNotationMode = decimalNotationMode;
+
+    this.ingredients = parseIngredients(this.recipe.ingredients, this.scale, {
+      targetSystem,
+      decimalNotationMode,
+    });
     this.instructions = parseInstructions(
       this.recipe.instructions,
       this.scale,
-      targetSystem,
-      this.getInlineImageRefs(),
+      { targetSystem, decimalNotationMode, images: this.getInlineImageRefs() },
     );
     if (this.recipe.notes && this.recipe.notes.length > 0) {
-      this.notes = parseNotes(
-        this.recipe.notes,
-        this.scale,
+      this.notes = parseNotes(this.recipe.notes, this.scale, {
         targetSystem,
-        this.getInlineImageRefs(),
-      ).map((note) => ({
+        decimalNotationMode,
+        images: this.getInlineImageRefs(),
+      }).map((note) => ({
         ...note,
         htmlContent: linkifyHtml(note.htmlContent),
       }));
@@ -251,6 +262,7 @@ export class CookPage {
         unitSystem: this.unitSystem,
         yieldText: this.recipe?.yield ?? null,
         ingredients: this.ingredients ?? [],
+        decimalNotationMode: this.decimalNotationMode,
       },
       cssClass: "scaleRecipeModal",
     });

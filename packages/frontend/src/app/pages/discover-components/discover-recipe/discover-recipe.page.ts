@@ -35,6 +35,9 @@ import {
   ParsedInstruction,
   ParsedNote,
   parseIngredients,
+  inferRecipeNotation,
+  applyDecimalNotation,
+  type DecimalNotation,
   parseInstructions,
   parseNotes,
   DISCOVER_CATEGORY_LABEL_KEYS,
@@ -133,6 +136,7 @@ export class DiscoverRecipePage {
   instructions?: ParsedInstruction[];
   notes?: ParsedNote[];
   scale = "1";
+  decimalNotationMode: DecimalNotation = ".";
   unitSystem: UnitSystem = "original";
 
   wakeLockRequest: null | {
@@ -319,28 +323,35 @@ export class DiscoverRecipePage {
       .sort((a, b) => a.order - b.order)
       .map((image) => ({ url: image.url }));
 
-    this.ingredients = parseIngredients(
-      this.recipe.ingredients,
-      this.scale,
-      targetSystem,
+    const decimalNotationMode = inferRecipeNotation(
+      this.recipe,
+      this.translate.getCurrentLang(),
     );
+    this.decimalNotationMode = decimalNotationMode;
+
+    this.ingredients = parseIngredients(this.recipe.ingredients, this.scale, {
+      targetSystem,
+      decimalNotationMode,
+    });
     this.instructions = parseInstructions(
       this.recipe.instructions,
       this.scale,
-      targetSystem,
-      imageRefs,
+      { targetSystem, decimalNotationMode, images: imageRefs },
     );
     if (this.recipe.notes && this.recipe.notes.length > 0) {
-      this.notes = parseNotes(
-        this.recipe.notes,
-        this.scale,
+      this.notes = parseNotes(this.recipe.notes, this.scale, {
         targetSystem,
-        imageRefs,
-      ).map((note) => ({
+        decimalNotationMode,
+        images: imageRefs,
+      }).map((note) => ({
         ...note,
         htmlContent: linkifyHtml(note.htmlContent),
       }));
     }
+  }
+
+  get scaleDisplay(): string {
+    return applyDecimalNotation(this.scale, this.decimalNotationMode);
   }
 
   get unitSystemLabelKey() {
@@ -362,6 +373,7 @@ export class DiscoverRecipePage {
         unitSystem: this.unitSystem,
         yieldText: this.recipe?.yield ?? null,
         ingredients: this.ingredients ?? [],
+        decimalNotationMode: this.decimalNotationMode,
       },
       cssClass: "scaleRecipeModal",
     });

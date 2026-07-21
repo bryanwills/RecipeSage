@@ -54,6 +54,7 @@ export const getShoppingListItems = authenticatedProcedure
 
     const summaries = getShoppingListItemGroupTitles(
       shoppingListItems,
+      ctx.language,
     ) satisfies ShoppingListItemSummary[];
 
     return summaries;

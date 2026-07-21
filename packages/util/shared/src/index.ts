@@ -4,6 +4,7 @@ export * from "./apiSchemas";
 export * from "./capitalizeEachWord";
 export * from "./Capabilities";
 export * from "./parsers";
+export * from "./decimalNotation";
 export * from "./handles";
 export * from "./units";
 export * from "./measurementConversion";

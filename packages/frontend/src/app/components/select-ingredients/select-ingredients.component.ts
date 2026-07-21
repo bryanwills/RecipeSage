@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, inject } from "@angular/core";
 import { ModalController } from "@ionic/angular/standalone";
+import { TranslateService } from "@ngx-translate/core";
 
 import { ScaleRecipeComponent } from "../../modals/scale-recipe/scale-recipe.component";
 import { PreferencesService } from "../../services/preferences.service";
@@ -7,6 +8,9 @@ import {
   ShoppingListPreferenceKey,
   ParsedIngredient,
   parseIngredients,
+  inferIngredientsNotation,
+  applyDecimalNotation,
+  type DecimalNotation,
 } from "@recipesage/util/shared";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { IonItem, IonCheckbox } from "@ionic/angular/standalone";
@@ -21,11 +25,13 @@ import { IonItem, IonCheckbox } from "@ionic/angular/standalone";
 export class SelectIngredientsComponent {
   private modalCtrl = inject(ModalController);
   private preferencesService = inject(PreferencesService);
+  private translate = inject(TranslateService);
 
   allSelected = true;
   ingredientBinders: { [index: number]: boolean } = {};
   scaledIngredients: ParsedIngredient[] = [];
   scale: string = "1";
+  decimalNotationMode: DecimalNotation = ".";
 
   _ingredients!: string;
   @Input({
@@ -48,6 +54,10 @@ export class SelectIngredientsComponent {
 
   @Output() selectedIngredientsChange = new EventEmitter();
 
+  get scaleDisplay(): string {
+    return applyDecimalNotation(this.scale, this.decimalNotationMode);
+  }
+
   @Input()
   set initialScale(val: string) {
     this.scale = val;
@@ -59,6 +69,8 @@ export class SelectIngredientsComponent {
       component: ScaleRecipeComponent,
       componentProps: {
         scale: this.scale,
+        ingredients: this.scaledIngredients ?? [],
+        decimalNotationMode: this.decimalNotationMode,
       },
       cssClass: "scaleRecipeModal",
     });
@@ -91,10 +103,13 @@ export class SelectIngredientsComponent {
   }
 
   applyScale(init?: boolean) {
-    this.scaledIngredients = parseIngredients(
+    this.decimalNotationMode = inferIngredientsNotation(
       this._ingredients,
-      this.scale,
-    ).filter((e) => !e.isHeader);
+      this.translate.getCurrentLang(),
+    );
+    this.scaledIngredients = parseIngredients(this._ingredients, this.scale, {
+      decimalNotationMode: this.decimalNotationMode,
+    }).filter((e) => !e.isHeader);
 
     this.selectedIngredients = [];
     for (let i = 0; i < (this.scaledIngredients || []).length; i++) {

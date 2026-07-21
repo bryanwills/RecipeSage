@@ -1,5 +1,9 @@
 import { RecipeSummary } from "@recipesage/prisma";
-import { parseIngredients, parseInstructions } from "@recipesage/util/shared";
+import {
+  parseIngredients,
+  parseInstructions,
+  inferRecipeNotation,
+} from "@recipesage/util/shared";
 import { convertFromISO8601Time } from "./convertToISO8601Time";
 import { convertToISO8601Time } from "./convertFromISO8601Time";
 import { StandardizedRecipeImportEntry } from "../db";
@@ -120,8 +124,10 @@ const formatMilligrams = (value: number) => `${value} mg`;
 const formatMicrograms = (value: number) => `${value} mcg`;
 const formatCalories = (value: number) => `${value} kcal`;
 
-export const recipeToJSONLD = (recipe: RecipeSummary) =>
-  ({
+export const recipeToJSONLD = (recipe: RecipeSummary) => {
+  const decimalNotationMode = inferRecipeNotation(recipe, undefined);
+
+  return {
     "@context": "http://schema.org",
     "@type": "Recipe",
     identifier: recipe.id,
@@ -132,15 +138,15 @@ export const recipeToJSONLD = (recipe: RecipeSummary) =>
     ),
     name: recipe.title,
     prepTime: convertToISO8601Time(recipe.activeTime) || recipe.activeTime,
-    recipeIngredient: parseIngredients(recipe.ingredients, "1").map((el) =>
-      el.isHeader ? `[${el.content}]` : el.content,
-    ),
-    recipeInstructions: parseInstructions(recipe.instructions, "1").map(
-      (el) => ({
-        "@type": el.isHeader ? "HowToSection" : "HowToStep",
-        text: el.isHeader ? `[${el.content}]` : el.content,
-      }),
-    ),
+    recipeIngredient: parseIngredients(recipe.ingredients, "1", {
+      decimalNotationMode,
+    }).map((el) => (el.isHeader ? `[${el.content}]` : el.content)),
+    recipeInstructions: parseInstructions(recipe.instructions, "1", {
+      decimalNotationMode,
+    }).map((el) => ({
+      "@type": el.isHeader ? "HowToSection" : "HowToStep",
+      text: el.isHeader ? `[${el.content}]` : el.content,
+    })),
     recipeYield: recipe.yield,
     totalTime: convertToISO8601Time(recipe.totalTime) || recipe.totalTime,
     recipeCategory: (recipe.recipeLabels || []).map(
@@ -163,7 +169,8 @@ export const recipeToJSONLD = (recipe: RecipeSummary) =>
         }
       : undefined,
     nutrition: getNutritionForExport(recipe),
-  }) satisfies JsonLD;
+  } satisfies JsonLD;
+};
 
 const getNutritionForExport = (
   recipe: RecipeSummary,
