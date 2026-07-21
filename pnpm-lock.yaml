@@ -116,9 +116,6 @@ importers:
       accept-language:
         specifier: ^3.0.20
         version: 3.0.20
-      ahocorasick:
-        specifier: ^1.0.2
-        version: 1.0.2
       ai:
         specifier: ^6.0.214
         version: 6.0.214(zod@4.4.3)
@@ -480,9 +477,6 @@ importers:
       '@swc/helpers':
         specifier: 0.5.23
         version: 0.5.23
-      '@types/ahocorasick':
-        specifier: ^1.0.0
-        version: 1.0.0
       '@types/body-parser':
         specifier: ^1.19.6
         version: 1.19.6
@@ -5999,9 +5993,6 @@ packages:
   '@tybys/wasm-util@0.9.0':
     resolution: {integrity: sha512-6+7nlbMVX/PVDCwaIQ8nTOPveOcFLSt8GcXdx8hD0bt39uWxYT88uXzqTd4fTvqta7oeUJqudepapKNt2DYJFw==}
 
-  '@types/ahocorasick@1.0.0':
-    resolution: {integrity: sha512-FNLE6B+9Px4LfRX2bZHSSTFa8Du8RznF5fNX915Ovf+K+g0SljmcmO5u7SH+c3LmeCZwP03NgMb7p82c0+Vbrg==}
-
   '@types/appdmg@0.5.5':
     resolution: {integrity: sha512-G+n6DgZTZFOteITE30LnWj+HRVIGr7wMlAiLWOO02uJFWVEitaPU9JVXm9wJokkgshBawb2O1OykdcsmkkZfgg==}
 
@@ -6680,9 +6671,6 @@ packages:
   aggregate-error@3.1.0:
     resolution: {integrity: sha512-4I7Td01quW/RpocfNayFdFVk1qSuoh0E7JrbRJ16nH01HhKFQ88INq9Sd+nd72zqRySlr9BmDA8xlEJ6vJMrYA==}
     engines: {node: '>=8'}
-
-  ahocorasick@1.0.2:
-    resolution: {integrity: sha512-hCOfMzbFx5IDutmWLAt6MZwOUjIfSM9G9FyVxytmE4Rs/5YDPWQrD/+IR1w+FweD9H2oOZEnv36TmkjhNURBVA==}
 
   ai@6.0.214:
     resolution: {integrity: sha512-9MlePEXT5pXtQv4fXqmiR0RG3DZU4Dbv+kU9ktEJC2COi2RH2WvI2GiyG9MuCqgPII6f1w+5kB5fNIiArqPzaQ==}
@@ -21637,8 +21625,6 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@types/ahocorasick@1.0.0': {}
-
   '@types/appdmg@0.5.5':
     dependencies:
       '@types/node': 24.9.1
@@ -22492,8 +22478,6 @@ snapshots:
     dependencies:
       clean-stack: 2.2.0
       indent-string: 4.0.0
-
-  ahocorasick@1.0.2: {}
 
   ai@6.0.214(zod@4.4.3):
     dependencies:

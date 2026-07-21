@@ -1,6 +1,4 @@
 import { Base, OutputUnit } from "unitz-ts";
-import Ahocorasick from "ahocorasick";
-import ingredientNames from "./ingredients.json";
 import {
   parseUnit,
   getPlainMeasurementsForLocaleIngredient,
@@ -11,11 +9,16 @@ import {
   type DecimalNotation,
 } from "@recipesage/util/shared";
 
-const ingredientNamesAhocorasic = new Ahocorasick(
-  ingredientNames
-    .map((el) => el.toLowerCase())
-    .map((el) => (el.endsWith("s") ? el.substring(0, el.length - 1) : el)),
-);
+const normalizeGroupKey = (title: string): string => {
+  const normalized = stripIngredient(title)
+    .normalize("NFC")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+  return normalized.length > 3 && normalized.endsWith("s")
+    ? normalized.substring(0, normalized.length - 1)
+    : normalized;
+};
 
 export const getShoppingListItemGroupTitles = <
   T extends {
@@ -33,39 +36,16 @@ export const getShoppingListItemGroupTitles = <
     );
   // Ingredient grouping into map by ingredientName
   const itemGrouper: Record<string, T[]> = {};
+  const ungroupedItems: T[] = [];
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    const strippedIngredientTitle = stripIngredient(item.title).toLowerCase();
-
-    const ahocorasicMatches = ingredientNamesAhocorasic.search(
-      strippedIngredientTitle,
-    );
-
-    let foundIngredientTitle: string | null = null;
-    for (const [_, matches] of ahocorasicMatches) {
-      for (const match of matches) {
-        if (
-          !foundIngredientTitle ||
-          foundIngredientTitle.length < match.length
-        ) {
-          foundIngredientTitle = match;
-        }
-      }
+    const groupKey = normalizeGroupKey(item.title);
+    if (!groupKey) {
+      ungroupedItems.push(item);
+      continue;
     }
-
-    if (foundIngredientTitle) {
-      itemGrouper[foundIngredientTitle] ||= [];
-      itemGrouper[foundIngredientTitle].push(item);
-    } else {
-      const groupTitle = strippedIngredientTitle.endsWith("s")
-        ? strippedIngredientTitle.substring(
-            0,
-            strippedIngredientTitle.length - 1,
-          )
-        : strippedIngredientTitle;
-      itemGrouper[groupTitle] = itemGrouper[groupTitle] || [];
-      itemGrouper[groupTitle].push(item);
-    }
+    itemGrouper[groupKey] ||= [];
+    itemGrouper[groupKey].push(item);
   }
 
   const results: (T & {
@@ -103,6 +83,13 @@ export const getShoppingListItemGroupTitles = <
         groupTitle: title,
       })),
     );
+  }
+
+  for (const item of ungroupedItems) {
+    results.push({
+      ...item,
+      groupTitle: item.title,
+    });
   }
 
   return results;
