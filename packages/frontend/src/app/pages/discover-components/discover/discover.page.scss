@@ -15,6 +15,7 @@
   align-items: center;
   gap: 8px;
   font-size: 0.8125rem;
+  line-height: 1.25;
   color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.7);
 
   rating {
@@ -47,7 +48,7 @@
   --title-height: var(--paragraph-line-height);
   --description-height: calc(var(--paragraph-line-height) * 2);
   --author-height: var(--paragraph-line-height);
-  --rating-height: 1.5rem;
+  --rating-height: 2.5rem;
 
   --content-height: calc(
     var(--content-padding-leeway) + var(--title-height) +
@@ -119,7 +120,7 @@
   --title-height: var(--paragraph-line-height);
   --description-height: calc(var(--paragraph-line-height) * 2);
   --author-height: var(--paragraph-line-height);
-  --rating-height: 1.5rem;
+  --rating-height: 2.5rem;
 
   --item-height: calc(
     var(--content-padding-leeway) + var(--title-height) +
