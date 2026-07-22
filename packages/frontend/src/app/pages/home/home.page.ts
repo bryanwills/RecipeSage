@@ -67,6 +67,7 @@ import { addIcons } from "ionicons";
 
 const TILE_WIDTH = 200;
 const TILE_PADD = 20;
+const MOBILE_TWO_COLUMN_MIN_WIDTH = 375;
 
 @Component({
   standalone: true,
@@ -373,9 +374,11 @@ export class HomePage implements OnDestroy {
     const isSidebarOpen = window.innerWidth >= 1200;
     const sidebarWidth = isSidebarEnabled && isSidebarOpen ? 300 : 0;
     const homePageWidth = window.innerWidth - sidebarWidth;
+    const minimumColumnCount =
+      homePageWidth >= MOBILE_TWO_COLUMN_MIN_WIDTH ? 2 : 1;
     const tileColCount = Math.max(
       Math.floor(homePageWidth / (TILE_WIDTH + TILE_PADD)),
-      1,
+      minimumColumnCount,
     );
 
     if (tileColCount !== this.tileColCount) {
