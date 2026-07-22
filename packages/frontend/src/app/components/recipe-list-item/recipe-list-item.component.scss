@@ -51,8 +51,13 @@ ion-badge {
 
     .recipe-item-content .recipe-item-content-meta {
       display: flex;
+      align-items: center;
 
       p {
+        margin-inline-end: 10px;
+      }
+
+      rating {
         margin-inline-end: 10px;
       }
 
@@ -109,6 +114,14 @@ ion-badge {
       font-size: 0.875rem;
       margin: 0;
       color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.8);
+    }
+
+    rating {
+      display: flex;
+      align-items: center;
+      height: 1.25rem;
+      overflow: hidden;
+      font-size: 0.875rem;
     }
   }
 }

@@ -41,6 +41,11 @@ export const updatePreferences = authenticatedProcedure
     z.object({
       preferencesVersion: z.number().min(0),
 
+      /**
+       * New preferences or modifications here must be backwards-compatible.
+       * If you're adding a new preference, make sure to add either default value or have it be optional.
+       */
+
       [GlobalPreferenceKey.EnableSplitPane]: z.boolean(),
       [GlobalPreferenceKey.Language]: z
         .nativeEnum(SupportedLanguages)
@@ -59,6 +64,7 @@ export const updatePreferences = authenticatedProcedure
       [MyRecipesPreferenceKey.ShowImages]: z.boolean(),
       [MyRecipesPreferenceKey.ShowSource]: z.boolean(),
       [MyRecipesPreferenceKey.ShowRecipeDescription]: z.boolean(),
+      [MyRecipesPreferenceKey.ShowRating]: z.boolean().default(false),
       [MyRecipesPreferenceKey.ViewType]: z.nativeEnum(MyRecipesViewTypeOptions),
       [MyRecipesPreferenceKey.SortBy]: z.nativeEnum(MyRecipesSortOptions),
       [MyRecipesPreferenceKey.IncludeFriends]: z.nativeEnum(

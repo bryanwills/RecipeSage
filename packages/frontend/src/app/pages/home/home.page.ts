@@ -34,6 +34,7 @@ import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
 import { LogoIconComponent } from "../../components/logo-icon/logo-icon.component";
 import { NullStateComponent } from "../../components/null-state/null-state.component";
 import { RecipeListItemComponent } from "../../components/recipe-list-item/recipe-list-item.component";
+import { RatingComponent } from "../../components/rating/rating.component";
 import {
   IonHeader,
   IonToolbar,
@@ -77,6 +78,7 @@ const TILE_PADD = 20;
     LogoIconComponent,
     NullStateComponent,
     RecipeListItemComponent,
+    RatingComponent,
     UiScrollModule,
     IonHeader,
     IonToolbar,
@@ -887,6 +889,7 @@ export class HomePage implements OnDestroy {
       showSource: this.preferences[this.preferenceKeys.ShowSource],
       showFromUser: this.folder === "inbox",
       showLabels: this.preferences[this.preferenceKeys.ShowLabels],
+      showRating: this.preferences[this.preferenceKeys.ShowRating],
     };
   }
 

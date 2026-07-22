@@ -131,6 +131,7 @@ export enum MyRecipesPreferenceKey {
   ShowImages = "myRecipes.showImages",
   ShowSource = "myRecipes.showSource",
   ShowRecipeDescription = "myRecipes.showRecipeDescription",
+  ShowRating = "myRecipes.showRating",
   ViewType = "myRecipes.viewType",
   SortBy = "myRecipes.sortBy",
   IncludeFriends = "myRecipes.includeFriends",
@@ -188,6 +189,7 @@ export interface AppPreferenceTypes {
   [MyRecipesPreferenceKey.ShowImages]: boolean;
   [MyRecipesPreferenceKey.ShowSource]: boolean;
   [MyRecipesPreferenceKey.ShowRecipeDescription]: boolean;
+  [MyRecipesPreferenceKey.ShowRating]: boolean;
   [MyRecipesPreferenceKey.ViewType]: MyRecipesViewTypeOptions;
   [MyRecipesPreferenceKey.SortBy]: MyRecipesSortOptions;
   [MyRecipesPreferenceKey.IncludeFriends]: MyRecipesIncludeFriendsOptions;

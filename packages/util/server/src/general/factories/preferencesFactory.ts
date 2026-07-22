@@ -32,6 +32,7 @@ export function preferencesFactory(): AppPreferenceTypes {
     "myRecipes.showImages": true,
     "myRecipes.showSource": false,
     "myRecipes.showRecipeDescription": true,
+    "myRecipes.showRating": false,
     "myRecipes.viewType": MyRecipesViewTypeOptions.Tiles,
     "myRecipes.sortBy": MyRecipesSortOptions.CreatedAtDesc,
     "myRecipes.includeFriends": MyRecipesIncludeFriendsOptions.No,

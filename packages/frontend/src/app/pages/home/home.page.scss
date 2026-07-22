@@ -89,12 +89,13 @@ ion-badge {
     --source-height: 0px;
     --fromuser-height: 0px;
     --labels-height: 0px;
+    --rating-height: 0px;
     /* === */
 
     --content-height: calc(
       var(--content-padding-leeway) + var(--header-height) +
         var(--description-height) + var(--source-height) +
-        var(--fromuser-height) + var(--labels-height)
+        var(--fromuser-height) + var(--labels-height) + var(--rating-height)
     );
 
     position: relative;
@@ -124,6 +125,9 @@ ion-badge {
     }
     &.showLabels {
       --labels-height: var(--paragraph-line-height);
+    }
+    &.showRating {
+      --rating-height: var(--paragraph-line-height);
     }
 
     img {
@@ -169,6 +173,14 @@ ion-badge {
         margin-top: 2px;
         margin-bottom: 2px;
         color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.8);
+      }
+
+      rating {
+        display: flex;
+        align-items: center;
+        height: var(--rating-height);
+        overflow: hidden;
+        font-size: 0.875rem;
       }
     }
 

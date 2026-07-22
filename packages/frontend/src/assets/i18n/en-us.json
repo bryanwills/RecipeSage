@@ -214,6 +214,7 @@
   "pages.homepopover.options.showImages": "Show Images",
   "pages.homepopover.options.showSource": "Show Source",
   "pages.homepopover.options.showRecipeDescription": "Show Description",
+  "pages.homepopover.options.showRating": "Show Rating",
   "pages.homepopover.options.sortBy": "Sort by",
   "pages.homepopover.options.sortBy.title": "Title",
   "pages.homepopover.options.sortBy.createdNewest": "Created (newest first)",
@@ -2169,6 +2170,8 @@
   "pages.shareProfileModal.errorLoadingProfileUrl": "Error loading profile url",
 
   "components.cookingToolbar.clear": "Clear All Pinned Recipes?",
+
+  "components.rating.label": "Rating: {{rating}} out of 5",
 
   "components.recipeFormatToolbar.bold": "Bold",
   "components.recipeFormatToolbar.italic": "Italic",
