@@ -3,7 +3,7 @@ import { metrics } from "../general";
 import { generateText, Output } from "ai";
 import { aiProvider } from "./vercel";
 import { config } from "../general/config";
-import { withNoObjectRetry } from "./withNoObjectRetry";
+import { withLLMRetry } from "./withLLMRetry";
 
 export const nutritionSchema = z.object({
   servingSize: z
@@ -69,7 +69,7 @@ export const textToNutrition = async (
   if (text.length < 10) return;
   if (text.length > 20000) text = text.substring(0, 20000);
 
-  const llmResponse = await withNoObjectRetry(() =>
+  const llmResponse = await withLLMRetry("text_to_nutrition", () =>
     generateText({
       system:
         "You are a nutrition data extraction utility. Extract nutrition information from the provided text. Only extract values that are explicitly stated in the text. If a value is not present, return null for that field. Do not estimate or calculate values that are not provided. All values should be per serving.",

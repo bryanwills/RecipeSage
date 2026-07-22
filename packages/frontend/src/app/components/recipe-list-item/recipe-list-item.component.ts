@@ -2,13 +2,14 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { IonBadge } from "@ionic/angular/standalone";
 import type { RecipeSummaryLite } from "@recipesage/prisma";
 import { SHARED_UI_IMPORTS } from "../../providers/shared-ui.provider";
+import { RatingComponent } from "../rating/rating.component";
 
 @Component({
   standalone: true,
   selector: "recipe-list-item",
   templateUrl: "./recipe-list-item.component.html",
   styleUrls: ["./recipe-list-item.component.scss"],
-  imports: [...SHARED_UI_IMPORTS, IonBadge],
+  imports: [...SHARED_UI_IMPORTS, IonBadge, RatingComponent],
 })
 export class RecipeListItemComponent {
   @Input({ required: true }) recipe!: RecipeSummaryLite;
@@ -18,6 +19,7 @@ export class RecipeListItemComponent {
   @Input() showSource = true;
   @Input() showFromUser = false;
   @Input() showLabels = true;
+  @Input() showRating = false;
   @Input() selected = false;
   @Input() badgeHandle?: string;
   @Input() fromSharedCollection = false;

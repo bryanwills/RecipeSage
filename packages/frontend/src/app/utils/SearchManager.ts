@@ -52,6 +52,14 @@ export class SearchManager {
     return Array.from(
       this.miniSearch.search(text, {
         prefix: true,
+        boost: {
+          title: 3,
+          description: 2,
+          ingredients: 2,
+          instructions: 1,
+          notes: 1,
+        },
+        fuzzy: 1,
       }),
     ) as (SearchResult & StoredSearchFields)[]; // Thanks minisearch typings...
   }

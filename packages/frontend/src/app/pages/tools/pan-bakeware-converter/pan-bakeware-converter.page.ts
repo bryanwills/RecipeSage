@@ -8,6 +8,7 @@ import {
 import { TranslateService } from "@ngx-translate/core";
 import {
   parseIngredients,
+  inferIngredientsNotation,
   parseQuantity,
   celsiusToFahrenheit,
   fahrenheitToCelsius,
@@ -812,7 +813,12 @@ export class PanBakewareConverterPage implements OnInit {
       return;
     }
     const scaleStr = formatMultiplier(sc.multiplier);
-    const parsed = parseIngredients(text, scaleStr);
+    const parsed = parseIngredients(text, scaleStr, {
+      decimalNotationMode: inferIngredientsNotation(
+        text,
+        this.translate.getCurrentLang(),
+      ),
+    });
     this.recipeScaledLines = parsed.map((line) => line.plaintextContent);
   }
 

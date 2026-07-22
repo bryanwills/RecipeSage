@@ -13,6 +13,7 @@ import {
   MyRecipesPreferenceKey,
   MyRecipesSortOptions,
   MyRecipesViewTypeOptions,
+  OfflineModePromptOptions,
   PreferencesSync,
   RecipeDetailsPreferenceKey,
   ShoppingListPreferenceKey,
@@ -48,6 +49,7 @@ export class PreferencesService {
     [GlobalPreferenceKey.Theme]: AppTheme.Default,
     [GlobalPreferenceKey.PreferencesSync]: PreferencesSync.Enabled,
     [GlobalPreferenceKey.StartPage]: StartPageOptions.MyRecipes,
+    [GlobalPreferenceKey.OfflineModePrompt]: OfflineModePromptOptions.Ask,
 
     [MyRecipesPreferenceKey.EnableLabelIntersection]: false,
     [MyRecipesPreferenceKey.ShowLabels]: true,
@@ -55,6 +57,7 @@ export class PreferencesService {
     [MyRecipesPreferenceKey.ShowImages]: true,
     [MyRecipesPreferenceKey.ShowSource]: false,
     [MyRecipesPreferenceKey.ShowRecipeDescription]: true,
+    [MyRecipesPreferenceKey.ShowRating]: false,
     // Show list by default on small screens
     [MyRecipesPreferenceKey.ViewType]:
       Math.min(window.innerWidth, window.innerHeight) < 440

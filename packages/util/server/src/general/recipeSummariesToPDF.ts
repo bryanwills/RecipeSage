@@ -4,6 +4,7 @@ import {
   parseIngredients,
   parseInstructions,
   parseNotes,
+  inferRecipeNotation,
   parseTableCells,
   stripImageTokens,
 } from "@recipesage/util/shared";
@@ -483,17 +484,29 @@ export const recipeToPDFMakeSchema = async (
     });
   }
 
-  const parsedIngredients = parseIngredients(
-    sanitizeRemoveHtmlFromString(recipe.ingredients || ""),
-    "1",
+  const ingredientsText = sanitizeRemoveHtmlFromString(
+    recipe.ingredients || "",
   );
-  const parsedInstructions = parseInstructions(
-    sanitizeRemoveHtmlFromString(recipe.instructions || ""),
-    "1",
+  const instructionsText = sanitizeRemoveHtmlFromString(
+    recipe.instructions || "",
   );
-  const parsedNotes = parseNotes(
-    sanitizeRemoveHtmlFromString(recipe.notes || ""),
+  const notesText = sanitizeRemoveHtmlFromString(recipe.notes || "");
+  const decimalNotationMode = inferRecipeNotation(
+    {
+      ingredients: ingredientsText,
+      instructions: instructionsText,
+      notes: notesText,
+    },
+    options.language,
   );
+
+  const parsedIngredients = parseIngredients(ingredientsText, "1", {
+    decimalNotationMode,
+  });
+  const parsedInstructions = parseInstructions(instructionsText, "1", {
+    decimalNotationMode,
+  });
+  const parsedNotes = parseNotes(notesText, "1", { decimalNotationMode });
 
   const buildIngredientStack = async (maxWidth: number): Promise<Content[]> => {
     const out: Content[] = [];

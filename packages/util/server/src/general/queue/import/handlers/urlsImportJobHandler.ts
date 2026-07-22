@@ -8,6 +8,7 @@ import type { StandardJobQueueItem } from "../../JobQueueItem";
 import { debounceJobUpdateProgress } from "../../../jobs/updateJobProgress";
 import { IMPORT_JOB_STEP_COUNT } from "../processImportJob";
 import { ImportTooManyRecipesError } from "../../../jobs/jobErrors";
+import * as Sentry from "@sentry/node";
 
 /**
  * A sanity limit so that we don't overload the service or run up a huge bill.
@@ -43,15 +44,17 @@ export async function urlsImportJobHandler(
   }
 
   let processedCount = 0;
+  let failedCount = 0;
   for (const url of urls) {
     try {
       const clipResults = await clipUrl(url);
       standardizedRecipeImportInput.push({
         ...clipResults,
-        labels: importLabels,
+        labels: [...importLabels],
       });
-    } catch (_e) {
-      // Skip entry
+    } catch (e) {
+      Sentry.captureException(e, { extra: { jobId: job.id } });
+      failedCount++;
     }
 
     processedCount++;
@@ -69,5 +72,6 @@ export async function urlsImportJobHandler(
     standardizedRecipeImportInput,
     importTempDirectory: undefined,
     creditOperation: "importUrls",
+    failedCount,
   });
 }

@@ -10,7 +10,9 @@
 
     <ion-buttons slot="end">
       <ion-button (click)="changeScale()">
-        {{ "pages.recipeDetails.scaleStatus" | translate: { scale: scale } }}
+        {{
+          "pages.recipeDetails.scaleStatus" | translate: { scale: scaleDisplay }
+        }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>

@@ -17,11 +17,13 @@ import {
   CookModePreferenceKey,
   encryptUtf8WithRSAKey,
   GlobalPreferenceKey,
+  OfflineModePromptOptions,
   PreferencesSync,
   RecipeDetailsPreferenceKey,
   StartPageOptions,
   SupportedLanguages,
 } from "@recipesage/util/shared";
+import { OfflineModeService } from "../../../services/offline-mode.service";
 import {
   FeatureFlagService,
   FeatureFlagKeys,
@@ -32,13 +34,10 @@ import {
 } from "../../../services/quick-tutorial.service";
 import { SwCommunicationService } from "../../../services/sw-communication.service";
 import { FontSizeModalComponent } from "../../../components/font-size-modal/font-size-modal.component";
-import { MessagingService } from "../../../services/messaging.service";
-import { ServerActionsService } from "../../../services/server-actions.service";
+import { LogoutService } from "../../../services/logout.service";
 import { EventName, EventService } from "../../../services/event.service";
 import { RecipeCompletionTrackerService } from "../../../services/recipe-completion-tracker.service";
-import { appIdbStorageManager } from "../../../utils/appIdbStorageManager";
 import { SHARED_UI_IMPORTS } from "../../../providers/shared-ui.provider";
-import { isServerOverrideAvailable } from "../../../utils/apiHostOverride";
 import { DebugStoreService } from "../../../services/debugStore.service";
 import { DEBUG_DUMP_PUBLIC_KEY } from "../../../utils/localDb/DEBUG_DUMP_PUBLIC_KEY";
 import { downloadBlobpartsAsFile } from "../../../utils/downloadBlobpartsAsFile";
@@ -64,12 +63,14 @@ import {
   caretDownSharp,
   closeOutline,
   cloudDownloadOutline,
+  cloudOfflineOutline,
   cloudUploadOutline,
   fitnessOutline,
   homeOutline,
   languageOutline,
   listOutline,
   logOutOutline,
+  notificationsOutline,
   personOutline,
   restaurantOutline,
   serverOutline,
@@ -114,22 +115,32 @@ export class SettingsPage {
   private preferencesService = inject(PreferencesService);
   private featureFlagService = inject(FeatureFlagService);
   private quickTutorialService = inject(QuickTutorialService);
-  private messagingService = inject(MessagingService);
-  private serverActionsService = inject(ServerActionsService);
+  private logoutService = inject(LogoutService);
   private recipeCompletionTrackerService = inject(
     RecipeCompletionTrackerService,
   );
   private debugStoreService = inject(DebugStoreService);
+  private offlineModeService = inject(OfflineModeService);
 
   preferences = this.preferencesService.preferences;
   preferenceKeys = GlobalPreferenceKey;
+  offlineModePromptOptions = OfflineModePromptOptions;
   recipeDetailsPreferenceKeys = RecipeDetailsPreferenceKey;
+
+  get offlineModeEnabled(): boolean {
+    return this.offlineModeService.enabled;
+  }
+
+  set offlineModeEnabled(value: boolean) {
+    this.offlineModeService.setEnabled(value);
+  }
 
   featureFlags = this.featureFlagService.flags;
   featureFlagKeys = FeatureFlagKeys;
 
   showSplitPaneOption = false;
-  showServerSettings = isServerOverrideAvailable();
+  showServerSettings =
+    this.featureFlagService.flags[FeatureFlagKeys.EnableServerSettings];
 
   language: SupportedLanguages | "navigator" =
     this.preferences[GlobalPreferenceKey.Language] || "navigator";
@@ -148,12 +159,14 @@ export class SettingsPage {
       caretDownSharp,
       closeOutline,
       cloudDownloadOutline,
+      cloudOfflineOutline,
       cloudUploadOutline,
       fitnessOutline,
       homeOutline,
       languageOutline,
       listOutline,
       logOutOutline,
+      notificationsOutline,
       personOutline,
       restaurantOutline,
       serverOutline,
@@ -204,22 +217,10 @@ export class SettingsPage {
     this.isLoggedIn = this.utilService.isLoggedIn();
   }
 
-  async _logout() {
-    localStorage.removeItem("token");
-    this.events.publish(EventName.Auth);
-    await appIdbStorageManager.deleteAllData();
+  async logout() {
+    await this.logoutService.logout();
 
     this.navCtrl.navigateRoot(RouteMap.AuthPage.getPath(AuthType.Login));
-  }
-
-  logout() {
-    this.messagingService.disableNotifications();
-
-    this.serverActionsService.users.logout({
-      "*": () => {},
-    });
-
-    this._logout();
   }
 
   savePreferences() {

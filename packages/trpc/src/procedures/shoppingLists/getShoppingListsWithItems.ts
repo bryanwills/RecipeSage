@@ -51,6 +51,7 @@ export const getShoppingListsWithItems = authenticatedProcedure
     const summaries = shoppingLists.map((shoppingList) => {
       const itemsWithGroupTitle = getShoppingListItemGroupTitles(
         shoppingList.items,
+        ctx.language,
       );
       return prismaShoppingListSummaryWithItemsToShoppingListItemSummaryWithItems(
         shoppingList,

@@ -1,5 +1,9 @@
 import { JobStatus } from "@recipesage/prisma";
-import { prisma, type ImportJobSummary } from "@recipesage/prisma";
+import {
+  prisma,
+  type ImportJobMeta,
+  type ImportJobSummary,
+} from "@recipesage/prisma";
 import { JOB_RESULT_CODES } from "@recipesage/util/shared";
 import {
   importStandardizedRecipes,
@@ -16,6 +20,8 @@ export async function importJobFinishCommon(args: {
   standardizedRecipeImportInput: StandardizedRecipeImportEntry[];
   importTempDirectory: string | undefined;
   creditOperation?: CreditOperation;
+  partialCount?: number;
+  failedCount?: number;
 }) {
   if (args.standardizedRecipeImportInput.length === 0) {
     throw new ImportNoRecipesError();
@@ -48,6 +54,9 @@ export async function importJobFinishCommon(args: {
     }),
   });
 
+  const hasMetaUpdates =
+    args.partialCount !== undefined || args.failedCount !== undefined;
+
   await prisma.job.update({
     where: {
       id: args.job.id,
@@ -56,6 +65,13 @@ export async function importJobFinishCommon(args: {
       status: JobStatus.SUCCESS,
       resultCode: JOB_RESULT_CODES.success,
       progress: 100,
+      ...(hasMetaUpdates && {
+        meta: {
+          ...args.job.meta,
+          partialCount: args.partialCount,
+          failedCount: args.failedCount,
+        } satisfies ImportJobMeta,
+      }),
     },
   });
 

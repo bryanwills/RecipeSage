@@ -14,6 +14,7 @@ import {
   MyRecipesPreferenceKey,
   MyRecipesSortOptions,
   MyRecipesViewTypeOptions,
+  OfflineModePromptOptions,
   PreferencesSync,
   RecipeDetailsPreferenceKey,
   ShoppingListPreferenceKey,
@@ -30,12 +31,20 @@ const appPreferencesSchema = z
   .object({
     preferencesVersion: z.number().int(),
 
+    /**
+     * New preferences or modifications here must be backwards-compatible.
+     * If you're adding a new preference, make sure to add either default value or have it be optional.
+     */
+
     [GlobalPreferenceKey.EnableSplitPane]: z.boolean(),
     [GlobalPreferenceKey.Language]: z.enum(SupportedLanguages).nullable(),
     [GlobalPreferenceKey.FontSize]: z.enum(SupportedFontSize),
     [GlobalPreferenceKey.Theme]: z.enum(AppTheme),
     [GlobalPreferenceKey.PreferencesSync]: z.enum(PreferencesSync),
     [GlobalPreferenceKey.StartPage]: z.enum(StartPageOptions),
+    [GlobalPreferenceKey.OfflineModePrompt]: z
+      .enum(OfflineModePromptOptions)
+      .default(OfflineModePromptOptions.Ask),
 
     [MyRecipesPreferenceKey.EnableLabelIntersection]: z.boolean(),
     [MyRecipesPreferenceKey.ShowLabels]: z.boolean(),
@@ -43,6 +52,7 @@ const appPreferencesSchema = z
     [MyRecipesPreferenceKey.ShowImages]: z.boolean(),
     [MyRecipesPreferenceKey.ShowSource]: z.boolean(),
     [MyRecipesPreferenceKey.ShowRecipeDescription]: z.boolean(),
+    [MyRecipesPreferenceKey.ShowRating]: z.boolean().default(false),
     [MyRecipesPreferenceKey.ViewType]: z.enum(MyRecipesViewTypeOptions),
     [MyRecipesPreferenceKey.SortBy]: z.enum(MyRecipesSortOptions),
     [MyRecipesPreferenceKey.IncludeFriends]: z.enum(

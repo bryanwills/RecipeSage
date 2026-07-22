@@ -1,8 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { getRequestLanguage } from "./getRequestLanguage";
 
-const req = (headers: Record<string, string | string[] | undefined>) => ({
+const req = (
+  headers: Record<string, string | string[] | undefined>,
+  query: { preferredLanguage?: unknown } = {},
+) => ({
   headers,
+  query,
 });
 
 describe("getRequestLanguage", () => {
@@ -48,11 +52,11 @@ describe("getRequestLanguage", () => {
   });
 
   it("normalizes unknown locales to a SupportedLanguages value", () => {
-    const result = getRequestLanguage(
-      req({ "x-recipesage-language": "xx-not-a-real-locale" }),
-    );
-    expect(typeof result).toBe("string");
-    expect(result.length).toBeGreaterThan(0);
+    expect(
+      getRequestLanguage(
+        req({ "x-recipesage-language": "xx-not-a-real-locale" }),
+      ),
+    ).toBe("en-us");
   });
 
   it("parses Accept-Language quality lists", () => {
@@ -65,7 +69,56 @@ describe("getRequestLanguage", () => {
 
   it("never returns an unbounded string from a giant header", () => {
     const giant = "x".repeat(10000);
-    const result = getRequestLanguage(req({ "x-recipesage-language": giant }));
-    expect(result.length).toBeLessThan(50);
+    expect(getRequestLanguage(req({ "x-recipesage-language": giant }))).toBe(
+      "en-us",
+    );
+  });
+
+  it("returns the preferredLanguage query parameter when set", () => {
+    expect(getRequestLanguage(req({}, { preferredLanguage: "de-de" }))).toBe(
+      "de-de",
+    );
+  });
+
+  it("prefers the query parameter over both headers", () => {
+    expect(
+      getRequestLanguage(
+        req(
+          {
+            "x-recipesage-language": "fr-fr",
+            "accept-language": "it-it",
+          },
+          { preferredLanguage: "de-de" },
+        ),
+      ),
+    ).toBe("de-de");
+  });
+
+  it("normalizes the query parameter to a SupportedLanguages value", () => {
+    expect(getRequestLanguage(req({}, { preferredLanguage: "de-DE" }))).toBe(
+      "de-de",
+    );
+  });
+
+  it("unwraps an array query parameter to its first entry", () => {
+    expect(
+      getRequestLanguage(req({}, { preferredLanguage: ["it-it", "de-de"] })),
+    ).toBe("it-it");
+  });
+
+  it("falls back to the headers when the query parameter is not a string", () => {
+    expect(
+      getRequestLanguage(
+        req({ "x-recipesage-language": "de-de" }, { preferredLanguage: {} }),
+      ),
+    ).toBe("de-de");
+  });
+
+  it("falls back to the headers when the query parameter is an empty string", () => {
+    expect(
+      getRequestLanguage(
+        req({ "x-recipesage-language": "de-de" }, { preferredLanguage: "" }),
+      ),
+    ).toBe("de-de");
   });
 });

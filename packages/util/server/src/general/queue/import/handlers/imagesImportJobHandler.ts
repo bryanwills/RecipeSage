@@ -11,6 +11,7 @@ import type { StandardJobQueueItem } from "../../JobQueueItem";
 import { debounceJobUpdateProgress } from "../../../jobs/updateJobProgress";
 import { IMPORT_JOB_STEP_COUNT } from "../processImportJob";
 import { ImportTooManyRecipesError } from "../../../jobs/jobErrors";
+import * as Sentry from "@sentry/node";
 
 /**
  * A sanity limit so that we don't overload the service or run up a huge bill.
@@ -65,23 +66,28 @@ export async function imagesImportJobHandler(
   }
 
   let processedCount = 0;
+  let failedCount = 0;
   for (const fileName of imageFileNames) {
-    const filePath = path.join(extractPath, fileName);
+    try {
+      const filePath = path.join(extractPath, fileName);
 
-    const recipeImageBuffer = await readFile(filePath);
-    const images = [];
-    images.push(filePath);
+      const recipeImageBuffer = await readFile(filePath);
+      const images = [filePath];
 
-    const recipe = await ocrImagesToRecipe([recipeImageBuffer]);
-    if (!recipe) {
-      continue;
+      const recipe = await ocrImagesToRecipe([recipeImageBuffer]);
+      if (!recipe) {
+        failedCount++;
+      } else {
+        standardizedRecipeImportInput.push({
+          ...recipe,
+          images,
+          labels: [...importLabels],
+        });
+      }
+    } catch (e) {
+      Sentry.captureException(e, { extra: { jobId: job.id } });
+      failedCount++;
     }
-
-    standardizedRecipeImportInput.push({
-      ...recipe,
-      images,
-      labels: importLabels,
-    });
 
     processedCount++;
     onProgress({
@@ -97,5 +103,6 @@ export async function imagesImportJobHandler(
     userId: job.userId,
     standardizedRecipeImportInput,
     importTempDirectory: extractPath,
+    failedCount,
   });
 }

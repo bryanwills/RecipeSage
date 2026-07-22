@@ -5,6 +5,10 @@ import { importJobFinishCommon } from "../../../index";
 import { textToRecipe, TextToRecipeInputType } from "../../../../ml/index";
 import { downloadS3ToTemp } from "./shared/s3Download";
 import { readSideCarImages } from "./shared/sideCarImages";
+import {
+  buildUnstructuredRecipeEntry,
+  getUnformattedImportLabel,
+} from "./shared/unstructuredRecipeEntry";
 import { readdir, readFile, mkdtempDisposable } from "fs/promises";
 import { safeExtractZip } from "../../../safeExtractZip";
 import path from "path";
@@ -16,6 +20,7 @@ import type { StandardJobQueueItem } from "../../JobQueueItem";
 import { debounceJobUpdateProgress } from "../../../jobs/updateJobProgress";
 import { IMPORT_JOB_STEP_COUNT } from "../processImportJob";
 import { ImportTooManyRecipesError } from "../../../jobs/jobErrors";
+import * as Sentry from "@sentry/node";
 
 /**
  * A sanity limit so that we don't overload the service or run up a huge bill.
@@ -59,31 +64,55 @@ export async function textfilesImportJobHandler(
     throw new ImportTooManyRecipesError();
   }
 
+  const unformattedLabel = await getUnformattedImportLabel(jobMeta.language);
+
   let processedCount = 0;
+  let partialCount = 0;
+  let failedCount = 0;
   for (const fileName of documentFileNames) {
-    const filePath = path.join(extractPath, fileName);
-    const extension = path.extname(fileName).toLowerCase();
+    try {
+      const filePath = path.join(extractPath, fileName);
+      const extension = path.extname(fileName).toLowerCase();
 
-    const recipeText =
-      extension === ".txt"
-        ? await readFile(filePath, "utf-8")
-        : await extractTextFromDocument(filePath);
+      const recipeText =
+        extension === ".txt"
+          ? await readFile(filePath, "utf-8")
+          : await extractTextFromDocument(filePath);
 
-    const images = await readSideCarImages(extractPath, fileName);
+      const images = await readSideCarImages(extractPath, fileName);
 
-    const recipe = await textToRecipe(
-      recipeText,
-      TextToRecipeInputType.Document,
-    );
-    if (!recipe) {
-      continue;
+      let entry: StandardizedRecipeImportEntry | undefined;
+      try {
+        const recipe = await textToRecipe(
+          recipeText,
+          TextToRecipeInputType.Document,
+        );
+        if (recipe) {
+          entry = {
+            ...recipe,
+            images,
+            labels: [...importLabels],
+          };
+        }
+      } catch (e) {
+        Sentry.captureException(e, { extra: { jobId: job.id } });
+      }
+
+      if (!entry) {
+        entry = buildUnstructuredRecipeEntry({
+          title: path.basename(fileName, path.extname(fileName)),
+          notes: recipeText,
+          labels: [...importLabels, unformattedLabel],
+          images,
+        });
+        partialCount++;
+      }
+
+      standardizedRecipeImportInput.push(entry);
+    } catch (e) {
+      Sentry.captureException(e, { extra: { jobId: job.id } });
+      failedCount++;
     }
-
-    standardizedRecipeImportInput.push({
-      ...recipe,
-      images,
-      labels: importLabels,
-    });
 
     processedCount++;
     onProgress({
@@ -100,5 +129,7 @@ export async function textfilesImportJobHandler(
     standardizedRecipeImportInput,
     importTempDirectory: extractPath,
     creditOperation: "importTextfiles",
+    partialCount,
+    failedCount,
   });
 }

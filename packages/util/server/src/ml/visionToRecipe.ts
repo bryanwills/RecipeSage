@@ -4,7 +4,7 @@ import { generateText, Output } from "ai";
 import { aiProvider } from "./vercel";
 import { config } from "../general/config";
 import { metrics } from "../general/metrics";
-import { withNoObjectRetry } from "./withNoObjectRetry";
+import { withLLMRetry } from "./withLLMRetry";
 
 export enum VisionToRecipeInputType {
   Photo,
@@ -25,7 +25,7 @@ export const visionToRecipe = async (
   imageB64: (Uint8Array | ArrayBuffer | Buffer)[],
   inputType: VisionToRecipeInputType,
 ) => {
-  const llmResponse = await withNoObjectRetry(() =>
+  const llmResponse = await withLLMRetry("vision_to_recipe", () =>
     generateText({
       system:
         "You are a data processor utility. Do not summarize or add information, just format and process into the correct shape. Do not insert your own editorial voice, just clean the text and get it into the correct shape. Leave fields that are not present blank. A header can be denoted in the ingredients, instructions, or notes by prefixing the line with a # sign.",

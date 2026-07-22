@@ -193,6 +193,11 @@
                       {{ getLabelList(recipe) }}
                     </p>
                   }
+                  @if (
+                    recipe.rating && preferences[preferenceKeys.ShowRating]
+                  ) {
+                    <rating [rating]="recipe.rating"></rating>
+                  }
                 </div>
                 @if (myProfile(); as myProfileValue) {
                   @if (!userId && myProfileValue.id !== recipe.userId) {
@@ -257,6 +262,7 @@
           [showSource]="preferences[preferenceKeys.ShowSource]"
           [showFromUser]="recipe.folder === 'inbox'"
           [showLabels]="preferences[preferenceKeys.ShowLabels]"
+          [showRating]="preferences[preferenceKeys.ShowRating]"
           [selected]="selectedRecipeIds.indexOf(recipe.id) > -1"
           [badgeHandle]="getRecipeBadgeHandle(recipe)"
           [fromSharedCollection]="isFromSharedCollection(recipe)"
